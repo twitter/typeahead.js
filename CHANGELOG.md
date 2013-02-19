@@ -2,7 +2,7 @@
 
 ---
 
-### 0.1 Febuary 14, 2013
+### 0.8.0 Febuary 19, 2013
 Initial public release (third major version release include internal ones)
 * Prefetch and search data locally insanely fast
 * Search hard-coded, prefetched, and/or remote data
