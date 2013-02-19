@@ -259,9 +259,9 @@ Licensed under the MIT License
 [twitter]: https://twitter.com
 
 <!-- assets -->
-[zipball]: https://twitter.github.com/typeahead.js/releases/latest/zipball
-[typeahead.js]: https://twitter.github.com/typeahead.js/releases/latest/typeahead.js
-[typeahead.css]: https://twitter.github.com/typeahead.js/releases/latest/typeahead.css
+[zipball]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.js.zip
+[typeahead.js]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.js
+[typeahead.css]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.css
 
 <!-- github links -->
 [contributing-guidelines]: https://github.com/jharding/ghostwriter/blob/master/CONTRIBUTING.md
