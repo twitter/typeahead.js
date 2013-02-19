@@ -1,0 +1,11 @@
+{
+  "name": "typeahead.js",
+  "version": "0.8.0",
+  "main": [
+    "dist/typeahead.css",
+    "dist/typeahead.js"
+  ],
+  "dependencies": {
+    "jquery": "~1.9"
+  }
+}

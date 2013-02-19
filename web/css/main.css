@@ -1,0 +1,315 @@
+/* custom font! */
+/* ------------ */
+
+@font-face {
+  font-family: Prociono;
+  src: url(../font/Prociono-Regular-webfont.ttf);
+}
+
+/* scaffolding */
+/* ----------- */
+
+html,
+body {
+  height: 100%;
+}
+
+html {
+  overflow-y: scroll;
+  *overflow-x: hidden;
+}
+
+.sticky-footer-wrapper {
+  min-height: 100%;
+  height: auto !important;
+  height: 100%;
+  margin: 0 auto -60px;
+}
+
+.sticky-footer-push,
+.footer {
+  height: 60px;
+}
+
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* base styles */
+/* ----------- */
+
+html {
+  font-family: Prociono;
+  font-size: 18px;
+  line-height: 1.2;
+  color: #333;
+}
+
+a {
+  color: #03739c;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+p {
+  margin: 0 0 10px 0;
+}
+
+/* site theme */
+/* ---------- */
+
+.masthead,
+.footer {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.twitter-logo {
+  width: 72px;
+  height: 72px;
+  margin: 0;
+  vertical-align: middle;
+}
+
+.title {
+  margin: 20px 0 0 0;
+  font-size: 64px;
+}
+
+.tagline {
+  margin: 20px 0 0 0;
+  font-size: 20px;
+  color: #444;
+}
+
+.typeahead-demo {
+  position: relative;
+  *z-index: 1;
+  width: 600px;
+  margin: 50px auto 0 auto;
+  padding: 15px;
+  text-align: left;
+  background-color: #0097cf;
+  background-image: -moz-linear-gradient(top, #04a2dd, #03739c);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#04a2dd), to(#03739c));
+  background-image: -webkit-linear-gradient(top, #04a2dd, #03739c);
+  background-image: -o-linear-gradient(top, #04a2dd, #03739c);
+  background-image: linear-gradient(to bottom, #04a2dd, #03739c);
+  background-repeat: repeat-x;
+  border: 1px solid #024e6a;
+  -webkit-border-radius: 10px;
+     -moz-border-radius: 10px;
+          border-radius: 10px;
+  -webkit-box-shadow: 0 0 2px #111;
+     -moz-box-shadow: 0 0 2px #111;
+          box-shadow: 0 0 2px #111;
+}
+
+.btn-demo {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  height: 50px;
+  width: 602px;
+  overflow: hidden;
+  cursor: pointer;
+  -webkit-border-radius: 8px;
+     -moz-border-radius: 8px;
+          border-radius: 8px;
+}
+
+.btn-demo.is-pressed {
+  width: 0;
+  -webkit-transition: .75s width ease-in;
+     -moz-transition: .75s width ease-in;
+       -o-transition: .75s width ease-in;
+          transition: .75s width ease-in;
+}
+
+.btn-demo-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+  width: 600px;
+  padding: 0;
+  line-height: 46px;
+  color: #111;
+  text-align: center;
+  text-shadow: 0 1px 1px rgba(255,255,255,.75);
+  background-color: #ddd;
+  background-image: -moz-linear-gradient(top, #fff, #aaa);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#fff), to(#aaa));
+  background-image: -webkit-linear-gradient(top, #fff, #aaa);
+  background-image: -o-linear-gradient(top, #fff, #aaa);
+  background-image: linear-gradient(to bottom, #fff, #aaa);
+  background-repeat: repeat-x;
+  border: 1px solid #000;
+  -webkit-border-radius: 8px;
+     -moz-border-radius: 8px;
+          border-radius: 8px;
+}
+
+.btn-demo-text:hover {
+  background-color: #eee;
+  background-image: none;
+}
+
+.btn-demo-text:active {
+  background-color: #aaa;
+  background-image: none;
+}
+
+.typeahead,
+.tt-hint {
+  width: 574px;
+  height: 30px;
+  padding: 8px 12px;
+  font-size: 24px;
+  line-height: 30px;
+  border: 1px solid #024e6a;
+  -webkit-border-radius: 8px;
+     -moz-border-radius: 8px;
+          border-radius: 8px;
+  outline: none;
+}
+
+.tt-hint {
+  color: #999
+}
+
+.tt-dropdown-menu {
+  width: 600px;
+  margin-top: 12px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  -webkit-border-radius: 8px;
+     -moz-border-radius: 8px;
+          border-radius: 8px;
+  -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+     -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+          box-shadow: 0 5px 10px rgba(0,0,0,.2);
+}
+
+.tt-suggestion {
+  padding: 8px 20px;
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.tt-suggestion + .tt-suggestion {
+  font-size: 14px;
+  border-top: 1px solid #ccc;
+}
+
+.tt-suggestions .repo-language {
+  float: right;
+  font-style: italic;
+}
+
+.tt-suggestions .repo-name {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.tt-suggestions .repo-description {
+  margin: 0;
+}
+
+.twitter-typeahead .tt-suggestion.tt-is-under-cursor {
+  color: #03739c;
+}
+
+.btn-download {
+  position: relative;
+  display: inline-block;
+  *display: inline;
+  *zoom: 1;
+  margin: 150px 0 0 0;
+  padding: 10px 20px;
+  color: #fff;
+  font: inherit;
+  font-size: 32px;
+  line-height: 38px;
+  text-align: center;
+  text-decoration: none;
+  text-shadow: 0 1px 1px rgba(0,0,0,.25);
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  background-color: #0097cf;
+  background-image: -moz-linear-gradient(top, #04a2dd, #03739c);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#04a2dd), to(#03739c));
+  background-image: -webkit-linear-gradient(top, #04a2dd, #03739c);
+  background-image: -o-linear-gradient(top, #04a2dd, #03739c);
+  background-image: linear-gradient(to bottom, #04a2dd, #03739c);
+  background-repeat: repeat-x;
+  border: 1px solid #024e6a;
+  -webkit-border-radius: 10px;
+     -moz-border-radius: 10px;
+          border-radius: 10px;
+  -webkit-box-shadow: 0 2px 5px -2px #111;
+     -moz-box-shadow: 0 2px 5px -2px #111;
+          box-shadow: 0 2px 5px -2px #111;
+}
+
+.btn-download:hover {
+  background-color: #04a2dd;
+  background-image: none;
+}
+
+.btn-download:active {
+  background-color: #03739c;
+  background-image: none;
+}
+
+.btn:hover,
+.btn:focus,
+.btn:active {
+    text-decoration: none;
+}
+
+.btn::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}
+
+.social {
+  margin: 80px 0 0 0;
+}
+
+.social-btn + .social-btn {
+  margin-left: 20px;
+}
+
+.links {
+  margin: 10px 0 0 0;
+  display: block;
+  padding: 0;
+  list-style: none;
+}
+
+.links a {
+  font-size: 16px;
+  color: #999;
+}
+
+.footer {
+  font-size: 12px;
+}
+
+/* narrow screens */
+/* -------------- */
+
+@media all and (max-width: 600px) {
+  .typeahead-demo,
+  .links-examples {
+    display: none;
+  }
+}

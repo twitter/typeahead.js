@@ -1,0 +1,17 @@
+{
+  "curly": true,
+  "newcap": true,
+  "noarg": true,
+  "noempty": true,
+  "nonew": true,
+  "quotmark": true,
+  "regexp": true,
+  "trailing": true,
+
+  "boss": true,
+  "eqnull": true,
+  "expr": true,
+  
+  "browser": true,
+  "jquery": true
+}
