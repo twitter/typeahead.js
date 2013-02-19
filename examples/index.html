@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>typeahead.js – examples</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/x-icon" href="http://twitter.com/favicons/favicon.ico">
+
+    <link rel="stylesheet" href="../../dist/typeahead.min.css">
+    <link rel="stylesheet" href="../css/examples.css">
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="title">examples</h1>
+
+      <div class="example example-countries">
+        <h2 class="example-name">Countries</h2>
+        <p class="example-description">Prefetches data, stores it in localStorage, and searches it on the client</p>
+
+        <div class="demo">
+          <input class="typeahead" type="text" placeholder="countries">
+        </div>
+
+        <div class="gist">
+          <script src="https://gist.github.com/jharding/4983527.js"></script>
+        </div>
+      </div>
+
+      <div class="example example-twitter-oss">
+        <h2 class="example-name">Open Source Projects by Twitter</h2>
+        <p class="example-description">Defines a custom template and template engine for rendering suggestions</p>
+
+        <div class="demo">
+          <input class="typeahead" type="text" placeholder="open source projects by Twitter">
+        </div>
+
+        <div class="gist">
+          <script src="https://gist.github.com/jharding/4983535.js"></script>
+        </div>
+      </div>
+
+      <div class="example example-arabic">
+        <h2 class="example-name">Arabic Phrases</h2>
+        <p class="example-description">Hardcoded list showing Right-To-Left (RTL) support</p>
+
+        <div class="demo">
+          <input class="typeahead" type="text" dir="rtl" placeholder="نعم">
+        </div>
+
+        <div class="gist">
+          <script src="https://gist.github.com/jharding/4983540.js"></script>
+        </div>
+      </div>
+
+      <div class="example example-sports">
+        <h2 class="example-name">NBA and NHL Teams</h2>
+        <p class="example-description">Two datasets that are prefetched, stored, and searched on the client</p>
+
+        <div class="demo">
+          <input class="typeahead" type="text" placeholder="NBA and NHL teams">
+        </div>
+
+        <div class="gist">
+          <script src="https://gist.github.com/jharding/4983546.js"></script>
+        </div>
+      </div>
+    </div>
+
+    <script src="../js/hogan-2.0.0.js"></script>
+    <script src="../js/jquery-1.9.1.min.js"></script>
+    <script src="../../dist/typeahead.js"></script>
+    <script src="../js/examples.js"></script>
+  </body>
+</html>
