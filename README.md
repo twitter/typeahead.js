@@ -10,10 +10,6 @@ Getting Started
 
 typeahead.js consists of *typeahead.js* and *typeahead.css*. How you acquire those files is up to you.
 
-Preferred method:
-* Install with [Bower][bower]: `$ bower install typeahead.js`
-
-Manual methods:
 * [Download zipball of latest release][zipball].
 * Download latest [typeahead.js][typeahead.js] and [typeahead.css][typeahead.css] individually.
 
