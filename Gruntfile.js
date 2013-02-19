@@ -148,7 +148,7 @@ module.exports = function(grunt) {
       },
       publish_assets: {
         cmd: [
-          'zip -r <%= buildDir %>/typeahead.zip <%= buildDir %>',
+          'zip -r <%= buildDir %>/typeahead.js.zip <%= buildDir %>',
           'git checkout gh-pages',
           'rm -rf releases/latest',
           'cp -r <%= buildDir %> releases/<%= pkg.version %>',
