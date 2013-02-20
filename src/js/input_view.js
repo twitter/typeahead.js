@@ -138,7 +138,7 @@ var InputView = (function() {
           selectionStart = this.$input[0].selectionStart,
           range;
 
-      if (selectionStart) {
+      if (utils.isNumber(selectionStart)) {
        return selectionStart === valueLength;
       }
 
