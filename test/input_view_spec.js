@@ -162,18 +162,6 @@ describe('InputView', function() {
     });
   });
 
-  describe('#setPreventDefaultValueForKey', function() {
-    it('should act as a setter for keyCodeMap', function() {
-      var key = '9';
-
-      this.inputView.setPreventDefaultValueForKey(key, 'truthy value');
-      expect(this.inputView.specialKeyCodeMap[key].preventDefault).toBe(true);
-
-      this.inputView.setPreventDefaultValueForKey(key, false);
-      expect(this.inputView.specialKeyCodeMap[key].preventDefault).toBe(false);
-    });
-  });
-
   describe('#getQuery', function() {
     it('should act as a getter for query', function() {
       this.inputView.query = 'i am the query value';

@@ -229,34 +229,115 @@ describe('TypeaheadView', function() {
     });
   });
 
-  ['up', 'down'].forEach(function(eventType) {
-    var fnModifier = eventType.charAt(0).toUpperCase() + eventType.slice(1);
+  describe('when input View triggers up', function() {
 
-    describe('when inputView triggers ' + eventType, function() {
+    describe('if modifier key was pressed', function() {
       beforeEach(function() {
-        this.inputView.trigger(eventType);
+        this.$e = $.extend($.Event('keydown'), { keyCode: 38, shiftKey: true });
+        spyOn(this.$e, 'preventDefault');
+
+        this.inputView.trigger('up', this.$e);
       });
 
       it('should show the dropdown menu', function() {
         expect(this.dropdownView.show).toHaveBeenCalled();
       });
 
-      it('should move cursor ' + eventType, function() {
-        expect(this.dropdownView['moveCursor' + fnModifier]).toHaveBeenCalled();
+      it('should not prevent default browser behavior', function() {
+        expect(this.$e.preventDefault).not.toHaveBeenCalled();
+      });
+
+      it('should not move cursor up', function() {
+        expect(this.dropdownView.moveCursorUp).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('if modifier key was not pressed', function() {
+      beforeEach(function() {
+        this.$e = $.extend($.Event('keydown'), { keyCode: 38 });
+        spyOn(this.$e, 'preventDefault');
+
+        this.inputView.trigger('up', this.$e);
+      });
+
+      it('should show the dropdown menu', function() {
+        expect(this.dropdownView.show).toHaveBeenCalled();
+      });
+
+      it('should prevent default browser behavior', function() {
+        expect(this.$e.preventDefault).toHaveBeenCalled();
+      });
+
+      it('should move cursor up', function() {
+        expect(this.dropdownView.moveCursorUp).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('when input View triggers down', function() {
+
+    describe('if modifier key was pressed', function() {
+      beforeEach(function() {
+        this.$e = $.extend($.Event('keydown'), { keyCode: 40, shiftKey: true });
+        spyOn(this.$e, 'preventDefault');
+
+        this.inputView.trigger('down', this.$e);
+      });
+
+      it('should show the dropdown menu', function() {
+        expect(this.dropdownView.show).toHaveBeenCalled();
+      });
+
+      it('should not prevent default browser behavior', function() {
+        expect(this.$e.preventDefault).not.toHaveBeenCalled();
+      });
+
+      it('should not move cursor down', function() {
+        expect(this.dropdownView.moveCursorDown).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('if modifier key was not pressed', function() {
+      beforeEach(function() {
+        this.$e = $.extend($.Event('keydown'), { keyCode: 40 });
+        spyOn(this.$e, 'preventDefault');
+
+        this.inputView.trigger('down', this.$e);
+      });
+
+      it('should show the dropdown menu', function() {
+        expect(this.dropdownView.show).toHaveBeenCalled();
+      });
+
+      it('should prevent default browser behavior', function() {
+        expect(this.$e.preventDefault).toHaveBeenCalled();
+      });
+
+      it('should move cursor down', function() {
+        expect(this.dropdownView.moveCursorDown).toHaveBeenCalled();
       });
     });
   });
 
   describe('when inputView triggers tab', function() {
+    beforeEach(function() {
+      this.$e = $.extend($.Event('keydown'), { keyCode: 9 });
+      spyOn(this.$e, 'preventDefault');
+    });
+
     describe('if hint is empty string', function() {
       beforeEach(function() {
         this.inputView.getHintValue.andReturn('');
 
-        this.inputView.trigger('tab');
+        this.inputView.trigger('tab', this.$e);
       });
 
       it('should not update input value', function() {
         expect(this.inputView.setInputValue).not.toHaveBeenCalled();
+      });
+
+      it('should not prevent default browser behavior', function() {
+        expect(this.$e.preventDefault).not.toHaveBeenCalled();
       });
     });
 
@@ -265,11 +346,15 @@ describe('TypeaheadView', function() {
         this.inputView.getQuery.andReturn('app');
         this.inputView.getHintValue.andReturn('apple');
 
-        this.inputView.trigger('tab');
+        this.inputView.trigger('tab', this.$e);
       });
 
       it('should update input value', function() {
         expect(this.inputView.setInputValue).toHaveBeenCalled();
+      });
+
+      it('should prevent default browser behavior', function() {
+        expect(this.$e.preventDefault).toHaveBeenCalled();
       });
     });
   });
