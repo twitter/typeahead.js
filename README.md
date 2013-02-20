@@ -243,6 +243,7 @@ Thanks for assistance and contributions:
 + [@paulirish](https://github.com/paulirish)
 + [@sindresorhus](https://github.com/sindresorhus)
 + [@thisguy](https://twitter.com/thisguy)
++ And many others!
 
 License
 -------
