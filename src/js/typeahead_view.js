@@ -161,8 +161,8 @@ var TypeaheadView = (function() {
         this.inputView.setInputValue(suggestionData.value);
 
         // if triggered by click, ensure the query input still has focus
-        // if trigged by keypress, prevent default browser behavior
-        // which is most likely the submisison of a form
+        // if triggered by keypress, prevent default browser behavior
+        // which is most likely the submission of a form
         // note: e.data is the jquery event
         byClick ? this.inputView.focus() : e.data.preventDefault();
 
