@@ -33,13 +33,13 @@ var DropdownView = (function() {
       this.isMouseOverDropdown = false;
     },
 
-    _handleMouseover: function(e) {
+    _handleMouseover: function($e) {
       this._getSuggestions().removeClass('tt-is-under-cursor');
-      $(e.currentTarget).addClass('tt-is-under-cursor');
+      $($e.currentTarget).addClass('tt-is-under-cursor');
     },
 
-    _handleSelection: function(e) {
-      this.trigger('select', formatDataForSuggestion($(e.currentTarget)));
+    _handleSelection: function($e) {
+      this.trigger('select', formatDataForSuggestion($($e.currentTarget)));
     },
 
     _moveCursor: function(increment) {

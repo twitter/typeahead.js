@@ -15,13 +15,13 @@ var InputView = (function() {
     utils.bindAll(this);
 
     this.specialKeyCodeMap = {
-      9: { event: 'tab' },
-      27: { event: 'esc' },
-      37: { event: 'left' },
-      39: { event: 'right' },
-      13: { event: 'enter' },
-      38: { event: 'up', preventDefault: true },
-      40: { event: 'down', preventDefault: true }
+      9: 'tab',
+      27: 'esc',
+      37: 'left',
+      39: 'right',
+      13: 'enter',
+      38: 'up',
+      40: 'down'
     };
 
     this.query = '';
@@ -64,14 +64,11 @@ var InputView = (function() {
       this.trigger('blur');
     },
 
-    _handleSpecialKeyEvent: function(e) {
+    _handleSpecialKeyEvent: function($e) {
       // which is normalized and consistent (but not for IE)
-      var keyCode = this.specialKeyCodeMap[e.which || e.keyCode];
+      var keyName = this.specialKeyCodeMap[$e.which || $e.keyCode];
 
-      if (keyCode) {
-        this.trigger(keyCode.event, e);
-        keyCode.preventDefault && e.preventDefault();
-      }
+      keyName && this.trigger(keyName, $e);
     },
 
     _compareQueryToInputValue: function() {
@@ -98,10 +95,6 @@ var InputView = (function() {
 
     blur: function() {
       this.$input.blur();
-    },
-
-    setPreventDefaultValueForKey: function(key, value) {
-      this.specialKeyCodeMap[key].preventDefault = !!value;
     },
 
     getQuery: function() {
@@ -138,7 +131,7 @@ var InputView = (function() {
           selectionStart = this.$input[0].selectionStart,
           range;
 
-      if (selectionStart) {
+      if (utils.isNumber(selectionStart)) {
        return selectionStart === valueLength;
       }
 
