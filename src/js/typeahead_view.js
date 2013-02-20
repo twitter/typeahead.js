@@ -74,9 +74,10 @@ var TypeaheadView = (function() {
     .on('queryChange whitespaceChange', this._setLanguageDirection)
     .on('esc', this._hideDropdown)
     .on('esc', this._setInputValueToQuery)
+    .on('up down', this._managePreventDefault)
     .on('up down', this._moveDropdownCursor)
     .on('up down', this._showDropdown)
-    .on('tab', this._setPreventDefaultValueForTab)
+    .on('tab', this._managePreventDefault)
     .on('tab left right', this._autocomplete);
   }
 
@@ -84,14 +85,26 @@ var TypeaheadView = (function() {
     // private methods
     // ---------------
 
-    _setPreventDefaultValueForTab: function(e) {
-      var hint = this.inputView.getHintValue(),
-          inputValue = this.inputView.getInputValue(),
-          preventDefault = hint && hint !== inputValue;
+    _managePreventDefault: function(e) {
+      var $e = e.data,
+          hint,
+          inputValue,
+          preventDefault = false;
 
-      // if the user tabs to autocomplete while the menu is open
-      // this will prevent the focus from being lost from the query input
-      this.inputView.setPreventDefaultValueForKey('9', preventDefault);
+      switch (e.type) {
+        case 'tab':
+          hint = this.inputView.getHintValue();
+          inputValue = this.inputView.getInputValue();
+          preventDefault = hint && hint !== inputValue;
+          break;
+
+        case 'up':
+        case 'down':
+          preventDefault = !$e.shiftKey && !$e.ctrlKey && !$e.metaKey;
+          break;
+      }
+
+      preventDefault && $e.preventDefault();
     },
 
     _setLanguageDirection: function() {
@@ -149,7 +162,12 @@ var TypeaheadView = (function() {
     },
 
     _moveDropdownCursor: function(e) {
-      this.dropdownView[e.type === 'up' ? 'moveCursorUp' : 'moveCursorDown']();
+      var $e = e.data;
+
+      if (!$e.shiftKey && !$e.ctrlKey && !$e.metaKey) {
+        this.dropdownView[e.type === 'up' ?
+          'moveCursorUp' : 'moveCursorDown']();
+      }
     },
 
     _handleSelection: function(e) {
