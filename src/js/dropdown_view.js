@@ -184,7 +184,7 @@ var DropdownView = (function() {
 
       $suggestions.empty();
 
-      // add empty class if the dropdwn menu is empty
+      // add empty class if the dropdown menu is empty
       this._getSuggestions().length === 0 && this.$menu.addClass('tt-is-empty');
     }
   });

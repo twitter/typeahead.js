@@ -102,7 +102,7 @@ describe('InputView', function() {
       });
     });
 
-    describe('if only whitespace in query has chagned', function() {
+    describe('if only whitespace in query has changed', function() {
       beforeEach(function() {
         this.inputView.query = 'old town';
         this.inputView.$input.val('old   town');
