@@ -229,7 +229,7 @@ describe('TypeaheadView', function() {
     });
   });
 
-  describe('when input View triggers up', function() {
+  describe('when inputView triggers up', function() {
 
     describe('if modifier key was pressed', function() {
       beforeEach(function() {
@@ -274,7 +274,7 @@ describe('TypeaheadView', function() {
     });
   });
 
-  describe('when input View triggers down', function() {
+  describe('when inputView triggers down', function() {
 
     describe('if modifier key was pressed', function() {
       beforeEach(function() {
