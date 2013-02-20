@@ -1,7 +1,7 @@
 {
   "name": "typeahead.js",
   "private": true,
-  "version": "0.8.0",
+  "version": "0.8.1",
   "devDependencies": {
     "grunt": "~0.4",
     "grunt-sed": "~0.1",

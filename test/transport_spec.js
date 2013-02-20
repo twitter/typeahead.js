@@ -32,7 +32,8 @@ describe('Transport', function() {
     this.transport = new Transport({
       wildcard: '%QUERY',
       debounce: true,
-      maxConcurrentRequests: 3
+      maxConcurrentRequests: 3,
+      dataType: 'jsonp'
     });
   });
 
@@ -41,6 +42,14 @@ describe('Transport', function() {
   });
 
   describe('#get', function() {
+    describe('when dataType option is set', function() {
+      it('should call $.ajax with dataType', function() {
+        this.transport.get('http://example.com', 'query');
+
+        expect($.ajax.mostRecentCall.args[0].dataType).toEqual('jsonp');
+      });
+    });
+
     describe('when request is available in cache', function() {
       beforeEach(function() {
         spyOn(this.transport.cache, 'get').andReturn(successResp);
