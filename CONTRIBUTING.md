@@ -1,4 +1,4 @@
-Contributing Guildlines
+Contributing Guidelines
 =======================
 
 Setup

@@ -30,7 +30,7 @@
         var dataset,
             name = datasetDef.name = datasetDef.name || utils.getUniqueId();
 
-        // dataset by this name has already been intialized, used it
+        // dataset by this name has already been initialized, used it
         if (initializedDatasets[name]) {
           dataset = initializedDatasets[name];
         }

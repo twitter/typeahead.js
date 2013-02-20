@@ -157,7 +157,7 @@ describe('TypeaheadView', function() {
         this.inputView.trigger('whitespaceChange');
       });
 
-      it('should update langauge class name', function() {
+      it('should update language class name', function() {
         expect(this.typeaheadView.$node).toHaveClass('tt-rtl');
         expect(this.typeaheadView.$node).not.toHaveClass('tt-ltr');
       });
@@ -196,7 +196,7 @@ describe('TypeaheadView', function() {
         this.inputView.trigger('queryChange');
       });
 
-      it('should update langauge class name', function() {
+      it('should update language class name', function() {
         expect(this.typeaheadView.$node).toHaveClass('tt-rtl');
         expect(this.typeaheadView.$node).not.toHaveClass('tt-ltr');
       });
