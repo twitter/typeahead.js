@@ -64,11 +64,11 @@ var InputView = (function() {
       this.trigger('blur');
     },
 
-    _handleSpecialKeyEvent: function(e) {
+    _handleSpecialKeyEvent: function($e) {
       // which is normalized and consistent (but not for IE)
-      var keyName = this.specialKeyCodeMap[e.which || e.keyCode];
+      var keyName = this.specialKeyCodeMap[$e.which || $e.keyCode];
 
-      keyName && this.trigger(keyName, e);
+      keyName && this.trigger(keyName, $e);
     },
 
     _compareQueryToInputValue: function() {

@@ -74,10 +74,9 @@ var TypeaheadView = (function() {
     .on('queryChange whitespaceChange', this._setLanguageDirection)
     .on('esc', this._hideDropdown)
     .on('esc', this._setInputValueToQuery)
-    .on('up down', this._managePreventDefault)
+    .on('tab up down', this._managePreventDefault)
     .on('up down', this._moveDropdownCursor)
     .on('up down', this._showDropdown)
-    .on('tab', this._managePreventDefault)
     .on('tab left right', this._autocomplete);
   }
 
@@ -149,7 +148,9 @@ var TypeaheadView = (function() {
     },
 
     _setInputValueToSuggestionUnderCursor: function(e) {
-      this.inputView.setInputValue(e.data.value, true);
+      var suggestion = e.data;
+
+      this.inputView.setInputValue(suggestion.value, true);
     },
 
     _showDropdown: function() {
