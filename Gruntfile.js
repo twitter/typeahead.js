@@ -32,35 +32,7 @@ module.exports = function(grunt) {
       ' */\n\n'
     ].join('\n'),
 
-    less: {
-      css: {
-        src: 'src/css/typeahead.css',
-        dest: '<%= buildDir %>/typeahead.css'
-      },
-      cssmin: {
-        options: { yuicompress: true },
-        src: 'src/css/typeahead.css',
-        dest: '<%= buildDir %>/typeahead.min.css'
-      }
-    },
-
     concat: {
-      css: {
-        options: {
-          banner: '<%= banner %>',
-          stripBanners: true
-        },
-        src: '<%= less.css.dest %>',
-        dest: '<%= less.css.dest %>'
-      },
-      cssmin: {
-        options: {
-          banner: '<%= banner %>',
-          stripBanners: true
-        },
-        src: '<%= less.cssmin.dest %>',
-        dest: '<%= less.cssmin.dest %>'
-      },
       js: {
         src: ['src/js/intro.js', jsFiles, 'src/js/outro.js'],
         dest: '<%= buildDir %>/typeahead.js'
@@ -115,10 +87,6 @@ module.exports = function(grunt) {
       js: {
         files: jsFiles,
         tasks: 'build:js'
-      },
-      css: {
-        files: '<%= less.css.src %>',
-        tasks: 'build:css'
       }
     },
 
@@ -187,9 +155,7 @@ module.exports = function(grunt) {
   // -------
 
   grunt.registerTask('default', 'build');
-  grunt.registerTask('build', ['build:js', 'build:css']);
-  grunt.registerTask('build:js', ['concat:js', 'concat:jsmin', 'sed:version', 'uglify']);
-  grunt.registerTask('build:css', ['less', 'concat:css', 'concat:cssmin']);
+  grunt.registerTask('build', ['concat:js', 'concat:jsmin', 'sed:version', 'uglify']);
   grunt.registerTask('server', 'connect:server');
   grunt.registerTask('lint', 'jshint');
   grunt.registerTask('test', 'jasmine:js');
@@ -200,7 +166,6 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-sed');
   grunt.loadNpmTasks('grunt-exec');
-  grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-uglify');
