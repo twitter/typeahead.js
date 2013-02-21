@@ -5,6 +5,20 @@
  */
 
 var DropdownView = (function() {
+  var html = {
+        suggestionsList: '<div class="tt-suggestions"></div>'
+      },
+
+      css = {
+        suggestion: [
+          'white-space: nowrap;',
+          'cursor: pointer;'
+        ].join(''),
+
+        suggestionChild: [
+          'white-space: normal;'
+        ].join('')
+      };
 
   // constructor
   // -----------
@@ -12,7 +26,9 @@ var DropdownView = (function() {
   function DropdownView(o) {
     utils.bindAll(this);
 
-    this.isMouseOverDropdown;
+    this.isOpen = false;
+    this.isEmpty = true;
+    this.isMouseOverDropdown = false;
 
     this.$menu = $(o.menu)
     .on('mouseenter', this._handleMouseenter)
@@ -45,8 +61,8 @@ var DropdownView = (function() {
     _moveCursor: function(increment) {
       var $suggestions, $cur, nextIndex, $underCursor;
 
-      // don't bother moving the cursor if the menu is hidden
-      if (!this.$menu.hasClass('tt-is-open')) {
+      // don't bother moving the cursor if the menu is closed or empty
+      if (!this.isVisible()) {
         return;
       }
 
@@ -81,6 +97,10 @@ var DropdownView = (function() {
     // public methods
     // --------------
 
+    isVisible: function() {
+      return this.isOpen && !this.isEmpty;
+    },
+
     hideUnlessMouseIsOverDropdown: function() {
       // this helps detect the scenario a blur event has triggered
       // this function. we don't want to hide the menu in that case
@@ -92,9 +112,11 @@ var DropdownView = (function() {
     },
 
     hide: function() {
-      if (this.$menu.hasClass('tt-is-open')) {
+      if (this.isOpen) {
+        this.isOpen = false;
+
         this.$menu
-        .removeClass('tt-is-open')
+        .hide()
         .find('.tt-suggestions > .tt-suggestion')
         .removeClass('tt-is-under-cursor');
 
@@ -103,15 +125,20 @@ var DropdownView = (function() {
     },
 
     show: function() {
-      if (!this.$menu.hasClass('tt-is-open')) {
-        this.$menu.addClass('tt-is-open');
+      if (!this.isOpen) {
+        this.isOpen = true;
+
+        !this.isEmpty && this.$menu.show();
 
         this.trigger('show');
       }
     },
 
-    isOpen: function() {
-      return this.$menu.hasClass('tt-is-open');
+    setLanguageDirection: function(dir) {
+      var ltrCss = { left: '0', right: 'auto' },
+          rtlCss = { left: 'auto', right:' 0' };
+
+      dir === 'ltr' ? this.$menu.css(ltrCss) : this.$menu.css(rtlCss);
     },
 
     moveCursorUp: function() {
@@ -147,8 +174,9 @@ var DropdownView = (function() {
 
       // first time rendering suggestions for this dataset
       if ($dataset.length === 0) {
-        $dataset = $('<li><ol class="tt-suggestions"></ol></li>')
+        $dataset = $('<div></div>')
         .addClass(datasetClassName)
+        .append(html.suggestionsList)
         .appendTo(this.$menu);
       }
 
@@ -158,13 +186,19 @@ var DropdownView = (function() {
       this.clearSuggestions(dataset.name);
 
       if (suggestions.length > 0) {
-        this.$menu.removeClass('tt-is-empty');
+        this.isOpen && this.$menu.show();
+        this.isEmpty = false;
 
         utils.each(suggestions, function(i, suggestion) {
           elBuilder.innerHTML = dataset.template.render(suggestion);
 
           el = elBuilder.firstChild;
+          el.setAttribute('style', css.suggestion);
           el.setAttribute('data-value', suggestion.value);
+
+          for (var len = el.children.length; len--;) {
+            el.children[len].setAttribute('style', css.suggestionChild);
+          }
 
           fragment.appendChild(el);
         });
@@ -184,8 +218,11 @@ var DropdownView = (function() {
 
       $suggestions.empty();
 
-      // add empty class if the dropdwn menu is empty
-      this._getSuggestions().length === 0 && this.$menu.addClass('tt-is-empty');
+
+      if (this._getSuggestions().length === 0) {
+        this.$menu.hide();
+        this.isEmpty = true;
+      }
     }
   });
 

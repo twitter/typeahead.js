@@ -5,12 +5,50 @@
  */
 
 var TypeaheadView = (function() {
-
   var html = {
-    wrapper: '<span class="twitter-typeahead"></span>',
-    hint: '<input class="tt-hint" type="text" autocomplete="false" spellcheck="false" disabled>',
-    dropdown: '<ol class="tt-dropdown-menu tt-is-empty"></ol>'
-  };
+        wrapper: '<span class="twitter-typeahead"></span>',
+        hint: '<input class="tt-hint">',
+        dropdown: '<div class="tt-dropdown-menu"></div>'
+      },
+
+      css = {
+        wrapper: [
+          'position: relative;',
+          'display: inline-block;',
+          '*display: inline;',
+          '*zoom: 1;'
+        ].join(''),
+
+        hint: [
+          'position: absolute;',
+          'top: 0;',
+          'left: 0;',
+          'border-color: transparent;',
+          '-webkit-box-shadow: none;',
+          '-moz-box-shadow: none;',
+          'box-shadow: none;'
+        ].join(''),
+
+        query: [
+          'position: relative;',
+          'vertical-align: top;',
+          'background-color: transparent;',
+          // ie6-8 doesn't fire hover and click events for elements with
+          // transparent backgrounds, for a workaround, use 1x1 transparent gif
+          'background-image: url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7);',
+          // not sure why ie7 won't play nice
+          '*margin-top: -1px;'
+        ].join(''),
+
+        dropdown: [
+          'position: absolute;',
+          'top: 100%;',
+          'left: 0;',
+          // TODO: should this be configurable?
+          'z-index: 100;',
+          'display: none;'
+        ].join('')
+      };
 
   // constructor
   // -----------
@@ -18,12 +56,13 @@ var TypeaheadView = (function() {
   function TypeaheadView(o) {
     utils.bindAll(this);
 
-    this.$node = wrapInput(o.input);
+    this.$node = buildDomStructure(o.input);
     this.datasets = o.datasets;
+    this.dir = null;
 
     // precompile the templates
     utils.each(this.datasets, function(key, dataset) {
-      var parentTemplate = '<li class="tt-suggestion">%body</li>';
+      var parentTemplate = '<div class="tt-suggestion">%body</div>';
 
       if (dataset.template) {
         dataset.template = dataset.engine
@@ -95,10 +134,12 @@ var TypeaheadView = (function() {
     },
 
     _setLanguageDirection: function() {
-      var dirClassName = 'tt-' + this.inputView.getLanguageDirection();
+      var dir = this.inputView.getLanguageDirection();
 
-      if (!this.$node.hasClass(dirClassName)) {
-        this.$node.removeClass('tt-ltr tt-rtl').addClass(dirClassName);
+      if (dir !== this.dir) {
+        this.dir = dir;
+        this.$node.css('direction', dir);
+        this.dropdownView.setLanguageDirection(dir);
       }
     },
 
@@ -110,7 +151,7 @@ var TypeaheadView = (function() {
           beginsWithQuery,
           match;
 
-      if (hint && this.dropdownView.isOpen()) {
+      if (hint && this.dropdownView.isVisible()) {
         inputValue = this.inputView.getInputValue();
         query = inputValue
         .replace(/\s{2,}/g, ' ') // condense whitespace
@@ -212,26 +253,37 @@ var TypeaheadView = (function() {
 
   return TypeaheadView;
 
-  function wrapInput(input) {
-    var $input = $(input),
-        $hint = $(html.hint).css({
-          'background-color': $input.css('background-color')
-        });
+  function buildDomStructure(input) {
+    var $wrapper = $(html.wrapper),
+        $dropdown = $(html.dropdown),
+        $input = $(input),
+        $hint = $(html.hint);
 
-    if ($input.length === 0) {
-      return null;
-    }
+    $wrapper = $wrapper.attr('style', css.wrapper);
+    $dropdown = $dropdown.attr('style', css.dropdown);
+
+    $hint
+    .attr({
+      style: css.hint,
+      type: 'text',
+      autocomplete: false,
+      spellcheck: false,
+      disabled: true
+    })
+    .css('background-color', $input.css('background-color'));
+
+    $input
+    .addClass('tt-query')
+    .attr({ style: css.query, autocomplete: false, spellcheck: false });
 
     // ie7 does not like it when dir is set to auto,
     // it does not like it one bit
     try { !$input.attr('dir') && $input.attr('dir', 'auto'); } catch (e) {}
 
     return $input
-    .attr({ autocomplete: false, spellcheck: false })
-    .addClass('tt-query')
-    .wrap(html.wrapper)
+    .wrap($wrapper)
     .parent()
     .prepend($hint)
-    .append(html.dropdown);
+    .append($dropdown);
   }
 })();

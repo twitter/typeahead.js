@@ -149,17 +149,16 @@ describe('TypeaheadView', function() {
 
     describe('if language direction has changed', function() {
       beforeEach(function() {
-        this.typeaheadView.$node
-        .removeClass('tt-ltr tt-rtl')
-        .addClass('tt-ltr');
-
+        this.typeaheadView.dir = 'ltr';
         this.inputView.getLanguageDirection.andReturn('rtl');
+
         this.inputView.trigger('whitespaceChange');
       });
 
-      it('should update langauge class name', function() {
-        expect(this.typeaheadView.$node).toHaveClass('tt-rtl');
-        expect(this.typeaheadView.$node).not.toHaveClass('tt-ltr');
+      it('should update styling', function() {
+        expect(this.typeaheadView.$node).toHaveCss({ direction: 'rtl' });
+        expect(this.dropdownView.setLanguageDirection)
+        .toHaveBeenCalledWith('rtl');
       });
     });
   });
@@ -188,17 +187,16 @@ describe('TypeaheadView', function() {
 
     describe('if language direction has changed', function() {
       beforeEach(function() {
-        this.typeaheadView.$node
-        .removeClass('tt-ltr tt-rtl')
-        .addClass('tt-ltr');
-
+        this.typeaheadView.dir = 'ltr';
         this.inputView.getLanguageDirection.andReturn('rtl');
+
         this.inputView.trigger('queryChange');
       });
 
-      it('should update langauge class name', function() {
-        expect(this.typeaheadView.$node).toHaveClass('tt-rtl');
-        expect(this.typeaheadView.$node).not.toHaveClass('tt-ltr');
+      it('should update styling', function() {
+        expect(this.typeaheadView.$node).toHaveCss({ direction: 'rtl' });
+        expect(this.dropdownView.setLanguageDirection)
+        .toHaveBeenCalledWith('rtl');
       });
     });
   });
@@ -368,9 +366,9 @@ describe('TypeaheadView', function() {
   // ------------
 
   function _updateHintSpecHelper(view, eventType) {
-    describe('if dropdown menu is closed', function() {
+    describe('if dropdown menu is not visible', function() {
       it('should not show hint', function() {
-        this.dropdownView.isOpen.andReturn(false);
+        this.dropdownView.isVisible.andReturn(false);
         this.inputView.getInputValue.andReturn('san   ');
         this.dropdownView.getFirstSuggestion
         .andReturn({ value: 'desert sand' });
@@ -383,7 +381,7 @@ describe('TypeaheadView', function() {
 
     describe('if top suggestion\'s value begins with query', function() {
       it('should show hint', function() {
-        this.dropdownView.isOpen.andReturn(true);
+        this.dropdownView.isVisible.andReturn(true);
         this.inputView.getInputValue.andReturn('san   ');
         this.dropdownView.getFirstSuggestion
         .andReturn({ value: 'san francisco' });
@@ -398,7 +396,7 @@ describe('TypeaheadView', function() {
     describe('if top suggestion\'s value does not begin with query',
     function() {
       it('should not show hint', function() {
-        this.dropdownView.isOpen.andReturn(true);
+        this.dropdownView.isVisible.andReturn(true);
         this.inputView.getInputValue.andReturn('san   ');
         this.dropdownView.getFirstSuggestion
         .andReturn({ value: 'desert sand' });
