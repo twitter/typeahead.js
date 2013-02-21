@@ -5,17 +5,17 @@
 // 4. grunt publish_assets
 
 var jsFiles = [
-      'src/js/version.js',
-      'src/js/utils.js',
-      'src/js/event_target.js',
-      'src/js/persistent_storage.js',
-      'src/js/request_cache.js',
-      'src/js/transport.js',
-      'src/js/dataset.js',
-      'src/js/input_view.js',
-      'src/js/dropdown_view.js',
-      'src/js/typeahead_view.js',
-      'src/js/typeahead.js'
+      'src/version.js',
+      'src/utils.js',
+      'src/event_target.js',
+      'src/persistent_storage.js',
+      'src/request_cache.js',
+      'src/transport.js',
+      'src/dataset.js',
+      'src/input_view.js',
+      'src/dropdown_view.js',
+      'src/typeahead_view.js',
+      'src/typeahead.js'
     ];
 
 module.exports = function(grunt) {
@@ -34,11 +34,11 @@ module.exports = function(grunt) {
 
     concat: {
       js: {
-        src: ['src/js/intro.js', jsFiles, 'src/js/outro.js'],
+        src: ['src/intro.js', jsFiles, 'src/outro.js'],
         dest: '<%= buildDir %>/typeahead.js'
       },
       jsmin: {
-        src: ['src/js/intro.js', jsFiles, 'src/js/outro.js'],
+        src: ['src/intro.js', jsFiles, 'src/outro.js'],
         dest: '<%= buildDir %>/typeahead.min.js'
       }
     },
