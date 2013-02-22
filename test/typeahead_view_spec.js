@@ -453,6 +453,18 @@ describe('TypeaheadView', function() {
   // ------------
 
   function _updateHintSpecHelper(view, eventType) {
+    describe('if input\'s value is overflowing', function() {
+      it('should clear hint', function() {
+        this.inputView.isOverflow.andReturn(true);
+        this.inputView.getInputValue.andReturn('bl');
+        this.dropdownView.getFirstSuggestion.andReturn({ value: 'blah' });
+
+        this[view].trigger(eventType);
+
+        expect(this.inputView.setHintValue).not.toHaveBeenCalled();
+      });
+    });
+
     describe('if dropdown menu is closed', function() {
       it('should not show hint', function() {
         this.dropdownView.isOpen.andReturn(false);

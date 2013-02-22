@@ -208,6 +208,22 @@ describe('InputView', function() {
     });
   });
 
+  describe('#isOverflow', function() {
+    describe('when input\'s value is overflowing', function() {
+      it('should return false', function() {
+        this.$input.val(new Array(1000).join('a'));
+        expect(this.inputView.isOverflow()).toBe(true);
+      });
+    });
+
+    describe('when input\'s value is not overflowing', function() {
+      it('should return false', function() {
+        this.$input.val('t');
+        expect(this.inputView.isOverflow()).toBe(false);
+      });
+    });
+  });
+
   describe('#isCursorAtEnd', function() {
     beforeEach(function() {
       this.$input.val('text cursor goes here');
