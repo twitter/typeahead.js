@@ -8,47 +8,45 @@ var TypeaheadView = (function() {
   var html = {
         wrapper: '<span class="twitter-typeahead"></span>',
         hint: '<input class="tt-hint">',
-        dropdown: '<div class="tt-dropdown-menu"></div>'
+        dropdown: '<span class="tt-dropdown-menu"></span>'
       },
-
       css = {
-        wrapper: [
-          'position: relative;',
-          'display: inline-block;',
-          '*display: inline;',
-          '*zoom: 1;'
-        ].join(''),
-
-        hint: [
-          'position: absolute;',
-          'top: 0;',
-          'left: 0;',
-          'border-color: transparent;',
-          '-webkit-box-shadow: none;',
-          '-moz-box-shadow: none;',
-          'box-shadow: none;'
-        ].join(''),
-
-        query: [
-          'position: relative;',
-          'vertical-align: top;',
-          'background-color: transparent;',
+        wrapper: {
+          position: 'relative',
+          display: 'inline-block'
+        },
+        hint: {
+          position: 'absolute',
+          top: '0',
+          left: '0',
+          borderColor: 'transparent',
+          boxShadow: 'none'
+        },
+        query: {
+          position: 'relative',
+          verticalAlign: 'top',
+          backgroundColor: 'transparent',
           // ie6-8 doesn't fire hover and click events for elements with
           // transparent backgrounds, for a workaround, use 1x1 transparent gif
-          'background-image: url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7);',
-          // not sure why ie7 won't play nice
-          '*margin-top: -1px;'
-        ].join(''),
-
-        dropdown: [
-          'position: absolute;',
-          'top: 100%;',
-          'left: 0;',
+          backgroundImage: 'url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7)'
+        },
+        dropdown: {
+          position: 'absolute',
+          top: '100%',
+          left: '0',
           // TODO: should this be configurable?
-          'z-index: 100;',
-          'display: none;'
-        ].join('')
+          zIndex: '100',
+          display: 'none'
+        }
       };
+
+  // ie7 specific styling
+  if (utils.isMsie() && utils.isMsie() <= 7) {
+    utils.mixin(css.wrapper, { display: 'inline', zoom: '1' });
+    // if someone can tell me why this is necessary to align
+    // the hint with the query in ie7, i'll send you $5 - @JakeHarding
+    utils.mixin(css.query, { marginTop: '-1px' });
+  }
 
   // constructor
   // -----------
@@ -259,22 +257,23 @@ var TypeaheadView = (function() {
         $input = $(input),
         $hint = $(html.hint);
 
-    $wrapper = $wrapper.attr('style', css.wrapper);
-    $dropdown = $dropdown.attr('style', css.dropdown);
+    $wrapper = $wrapper.css(css.wrapper);
+    $dropdown = $dropdown.css(css.dropdown);
 
     $hint
     .attr({
-      style: css.hint,
       type: 'text',
       autocomplete: false,
       spellcheck: false,
       disabled: true
     })
-    .css('background-color', $input.css('background-color'));
+    .css(css.hint)
+    .css('background', $input.css('background'));
 
     $input
     .addClass('tt-query')
-    .attr({ style: css.query, autocomplete: false, spellcheck: false });
+    .attr({ autocomplete: false, spellcheck: false })
+    .css(css.query);
 
     // ie7 does not like it when dir is set to auto,
     // it does not like it one bit

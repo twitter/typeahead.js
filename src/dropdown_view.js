@@ -6,18 +6,12 @@
 
 var DropdownView = (function() {
   var html = {
-        suggestionsList: '<div class="tt-suggestions"></div>'
+        suggestionsList: '<span class="tt-suggestions"></span>'
       },
-
       css = {
-        suggestion: [
-          'white-space: nowrap;',
-          'cursor: pointer;'
-        ].join(''),
-
-        suggestionChild: [
-          'white-space: normal;'
-        ].join('')
+        suggestionsList: { display: 'block' },
+        suggestion: { whiteSpace: 'nowrap', cursor: 'pointer' },
+        suggestionChild: { whiteSpace: 'normal' }
       };
 
   // constructor
@@ -128,7 +122,7 @@ var DropdownView = (function() {
       if (!this.isOpen) {
         this.isOpen = true;
 
-        !this.isEmpty && this.$menu.show();
+        !this.isEmpty && this.$menu.css('display', 'block');
 
         this.trigger('show');
       }
@@ -167,16 +161,19 @@ var DropdownView = (function() {
 
     renderSuggestions: function(query, dataset, suggestions) {
       var datasetClassName = 'tt-dataset-' + dataset.name,
+          $suggestionsList,
           $dataset = this.$menu.find('.' + datasetClassName),
           elBuilder,
           fragment,
-          el;
+          $el;
 
       // first time rendering suggestions for this dataset
       if ($dataset.length === 0) {
+        $suggestionsList = $(html.suggestionsList).css(css.suggestionsList);
+
         $dataset = $('<div></div>')
         .addClass(datasetClassName)
-        .append(html.suggestionsList)
+        .append($suggestionsList)
         .appendTo(this.$menu);
       }
 
@@ -186,21 +183,21 @@ var DropdownView = (function() {
       this.clearSuggestions(dataset.name);
 
       if (suggestions.length > 0) {
-        this.isOpen && this.$menu.show();
+        this.isOpen && this.$menu.css('display', 'block');
         this.isEmpty = false;
 
         utils.each(suggestions, function(i, suggestion) {
           elBuilder.innerHTML = dataset.template.render(suggestion);
 
-          el = elBuilder.firstChild;
-          el.setAttribute('style', css.suggestion);
-          el.setAttribute('data-value', suggestion.value);
+          $el = $(elBuilder.firstChild)
+          .css(css.suggestion)
+          .data('value', suggestion.value);
 
-          for (var len = el.children.length; len--;) {
-            el.children[len].setAttribute('style', css.suggestionChild);
-          }
+          $el.children().each(function() {
+            $(this).css(css.suggestionChild);
+          });
 
-          fragment.appendChild(el);
+          fragment.appendChild($el[0]);
         });
       }
 
