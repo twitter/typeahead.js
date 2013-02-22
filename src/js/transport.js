@@ -6,7 +6,8 @@
 
 var Transport = (function() {
   var concurrentConnections = 0,
-      maxConcurrentConnections;
+      maxConcurrentConnections,
+      requestCache;
 
   function Transport(o) {
     utils.bindAll(this);
@@ -31,7 +32,7 @@ var Transport = (function() {
       }
     });
 
-    this.cache = new RequestCache();
+    requestCache = requestCache || new RequestCache();
 
     this.get = (/^throttle$/i.test(o.rateLimitFn) ?
       utils.throttle : utils.debounce)(this.get, o.wait || 300);
@@ -47,7 +48,7 @@ var Transport = (function() {
 
       url = url.replace(this.wildcard, encodeURIComponent(query || ''));
 
-      if (resp = this.cache.get(url)) {
+      if (resp = requestCache.get(url)) {
         cb && cb(resp);
       }
 
@@ -55,7 +56,7 @@ var Transport = (function() {
         $.ajax(this.ajaxSettings)
         .done(function(resp) {
           cb && cb(resp);
-          that.cache.set(url, resp);
+          requestCache.set(url, resp);
         })
         .always(function() {
           decrementConcurrentConnections();
