@@ -50,6 +50,7 @@
             local: datasetDef.local,
             prefetch: datasetDef.prefetch,
             remote: datasetDef.remote,
+            remotePreprocessor: datasetDef.remotePreprocessor,
             matcher: datasetDef.matcher,
             ranker: datasetDef.ranker,
             transport: transport

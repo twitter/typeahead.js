@@ -25,6 +25,10 @@ describe("Dataset", function() {
           name: "words",
           local: null,
           prefetch: "http://localhost",
+          remotePreprocessor: function (data) {
+            // custom user code
+            return data;
+          },
           remote: null
         });
     jasmine.Clock.useMock();
@@ -213,6 +217,25 @@ describe("Dataset", function() {
         expect(items).toEqual([expectedItemHash.coconut, expectedItemHash.cake, expectedItemHash.coffee]);
       }, localSuggestions);
       func(remoteSuggestions);
+    });
+
+    it("calls the custom preprocessor function for remote data", function () {
+
+      var unprocessedData = {response: [expectedItemHash.coconut, expectedItemHash.cake]};
+      var processedData = [expectedItemHash.coconut, expectedItemHash.cake, expectedItemHash.coffee];
+
+      spyOn(dataset,"remotePreprocessor").andCallFake(function (data) {
+        expect(data).toEqual(unprocessedData);
+        return data.response;
+      });
+      
+      var localSuggestions = [expectedItemHash.cake, expectedItemHash.coffee];
+      
+      var func = dataset._processRemoteSuggestions(function(items) {
+        expect(items).toEqual(processedData);
+      }, localSuggestions);
+      func(unprocessedData);
+      
     });
 
     it("sorts results: local first, then remote, sorted by graph weight / score within each local/remote section", function() {
