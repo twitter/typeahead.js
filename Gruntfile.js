@@ -26,7 +26,7 @@ module.exports = function(grunt) {
 
     banner: [
       '/*!',
-      ' * Twitter Typeahead <%= pkg.version %>',
+      ' * typeahead.js <%= pkg.version %>',
       ' * https://github.com/twitter/typeahead',
       ' * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT',
       ' */\n\n'
