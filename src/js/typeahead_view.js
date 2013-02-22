@@ -122,7 +122,7 @@ var TypeaheadView = (function() {
           beginsWithQuery,
           match;
 
-      if (hint && this.dropdownView.isOpen()) {
+      if (hint && this.dropdownView.isOpen() && !this.inputView.isOverflow()) {
         inputValue = this.inputView.getInputValue();
         query = inputValue
         .replace(/\s{2,}/g, ' ') // condense whitespace
