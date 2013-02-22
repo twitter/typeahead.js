@@ -5,13 +5,7 @@
  */
 
 (function() {
-  var initializedDatasets = {},
-      transportOptions = {},
-      transport,
-      methods;
-
-  jQuery.fn.typeahead = typeahead;
-  typeahead.configureTransport = configureTransport;
+  var initializedDatasets = {}, methods;
 
   methods = {
     initialize: function(datasetDefs) {
@@ -23,44 +17,46 @@
         throw new Error('no datasets provided');
       }
 
-      delete typeahead.configureTransport;
-      transport = transport || new Transport(transportOptions);
+      utils.each(datasetDefs, function(i, o) {
+        var transport, dataset;
 
-      utils.each(datasetDefs, function(i, datasetDef) {
-        var dataset,
-            name = datasetDef.name = datasetDef.name || utils.getUniqueId();
+        o.name = o.name || utils.getUniqueId();
 
         // dataset by this name has already been intialized, used it
-        if (initializedDatasets[name]) {
-          dataset = initializedDatasets[name];
+        if (initializedDatasets[o.name]) {
+          dataset = initializedDatasets[o.name];
         }
 
         else {
-          datasetDef.limit = datasetDef.limit || 5;
-          datasetDef.template = datasetDef.template;
-          datasetDef.engine = datasetDef.engine;
-
-          if (datasetDef.template && !datasetDef.engine) {
-            throw new Error('no template engine specified for ' + name);
+          if (o.template && !o.engine) {
+            throw new Error('no template engine specified for ' + o.name);
           }
 
+          transport = new Transport({
+            ajax: o.ajax,
+            wildcard: o.wildcard,
+            rateLimitFn: o.rateLimitFn,
+            maxConcurrentConnections: o.maxConcurrentConnections
+          });
+
           dataset = initializedDatasets[name] = new Dataset({
-            name: datasetDef.name,
-            limit: datasetDef.limit,
-            local: datasetDef.local,
-            prefetch: datasetDef.prefetch,
-            remote: datasetDef.remote,
-            matcher: datasetDef.matcher,
-            ranker: datasetDef.ranker,
+            name: o.name,
+            limit: o.limit,
+            local: o.local,
+            prefetch: o.prefetch,
+            remote: o.remote,
+            matcher: o.matcher,
+            ranker: o.ranker,
             transport: transport
           });
         }
 
+        // faux dataset used by TypeaheadView instances
         datasets[name] = {
-          name: datasetDef.name,
-          limit: datasetDef.limit,
-          template: datasetDef.template,
-          engine: datasetDef.engine,
+          name: o.name,
+          limit: o.limit,
+          template: o.template,
+          engine: o.engine,
           getSuggestions: dataset.getSuggestions
         };
       });
@@ -73,7 +69,7 @@
     }
   };
 
-  function typeahead(method) {
+  jQuery.fn.typeahead = function(method) {
     if (methods[method]) {
       methods[method].apply(this, [].slice.call(arguments, 1));
     }
@@ -81,9 +77,5 @@
     else {
       methods.initialize.apply(this, arguments);
     }
-  }
-
-  function configureTransport(o) {
-    transportOptions = o;
-  }
+  };
 })();

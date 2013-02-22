@@ -5,45 +5,39 @@
  */
 
 var Transport = (function() {
+  var concurrentConnections = 0,
+      maxConcurrentConnections;
 
   function Transport(o) {
-    var rateLimitFn;
-
     utils.bindAll(this);
 
     o = o || {};
 
-    rateLimitFn = (/^throttle$/i).test(o.rateLimitFn) ?
-      utils.throttle : utils.debounce;
+    maxConcurrentConnections = utils.isNumber(o.maxConcurrentConnections) ?
+      o.maxConcurrentConnections : maxConcurrentConnections || 6;
 
-    this.wait = o.wait || 300;
     this.wildcard = o.wildcard || '%QUERY';
-    this.maxConcurrentRequests = o.maxConcurrentRequests || 6;
 
-    this.concurrentRequests = 0;
-    this.onDeckRequestArgs = null;
+    this.ajaxSettings = utils.mixin({}, o.ajax, {
+      // needs to be true to jqXHR methods (done, always)
+      // also you're out of your mind if you want to make a sync request
+      async: true,
+      beforeSend: function() {
+        incrementConcurrentConnections();
+
+        if (o.ajax.beforeSend) {
+          return o.ajax.beforeSend.apply(this, arguments);
+        }
+      }
+    });
 
     this.cache = new RequestCache();
 
-    this.get = rateLimitFn(this.get, this.wait);
+    this.get = (/^throttle$/i.test(o.rateLimitFn) ?
+      utils.throttle : utils.debounce)(this.get, o.wait || 300);
   }
 
   utils.mixin(Transport.prototype, {
-
-    // private methods
-    // ---------------
-
-    _incrementConcurrentRequests: function() {
-      this.concurrentRequests++;
-    },
-
-    _decrementConcurrentRequests: function() {
-      this.concurrentRequests--;
-    },
-
-    _belowConcurrentRequestsThreshold: function() {
-      return this.concurrentRequests < this.maxConcurrentRequests;
-    },
 
     // public methods
     // --------------
@@ -57,25 +51,19 @@ var Transport = (function() {
         cb && cb(resp);
       }
 
-      else if (this._belowConcurrentRequestsThreshold()) {
-        $.ajax({
-          url: url,
-          type: 'GET',
-          dataType: 'json',
-          beforeSend: function() {
-            that._incrementConcurrentRequests();
-          },
-          success: function(resp) {
-            cb && cb(resp);
-            that.cache.set(url, resp);
-          },
-          complete: function() {
-            that._decrementConcurrentRequests();
+      else if (belowConcurrentConnectionsThreshold()) {
+        $.ajax(this.ajaxSettings)
+        .done(function(resp) {
+          cb && cb(resp);
+          that.cache.set(url, resp);
+        })
+        .always(function() {
+          decrementConcurrentConnections();
 
-            if (that.onDeckRequestArgs) {
-              that.get.apply(that, that.onDeckRequestArgs);
-              that.onDeckRequestArgs = null;
-            }
+          // ensures request is always made for the latest query
+          if (that.onDeckRequestArgs) {
+            that.get.apply(that, that.onDeckRequestArgs);
+            that.onDeckRequestArgs = null;
           }
         });
       }
@@ -87,4 +75,19 @@ var Transport = (function() {
   });
 
   return Transport;
+
+  // static methods
+  // --------------
+
+  function incrementConcurrentConnections() {
+    concurrentConnections++;
+  }
+
+  function decrementConcurrentConnections() {
+    concurrentConnections--;
+  }
+
+  function belowConcurrentConnectionsThreshold() {
+    return concurrentConnections < maxConcurrentConnections;
+  }
 })();
