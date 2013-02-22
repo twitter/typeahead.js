@@ -45,6 +45,13 @@ var Transport = (function() {
       return this.concurrentRequests < this.maxConcurrentRequests;
     },
 
+    _getDataType: function (url) {
+      //IE does not support location.origin, therefore we build it manuaully
+      var origin = [location.protocol,'//',location.host].join('');
+
+      return new RegExp(origin).test(url) ? 'json' : 'jsonp';
+    },
+
     // public methods
     // --------------
 
@@ -52,6 +59,7 @@ var Transport = (function() {
       var that = this, resp;
 
       url = url.replace(this.wildcard, encodeURIComponent(query || ''));
+      var dataType = this._getDataType(url);
 
       if (resp = this.cache.get(url)) {
         cb && cb(resp);
@@ -61,7 +69,7 @@ var Transport = (function() {
         $.ajax({
           url: url,
           type: 'GET',
-          dataType: 'json',
+          dataType: dataType,
           beforeSend: function() {
             that._incrementConcurrentRequests();
           },
