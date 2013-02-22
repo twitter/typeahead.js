@@ -67,6 +67,26 @@ describe('Transport', function() {
         $.ajax.andCallFake(ajaxMocks.timeout);
       });
 
+      it('should set the dataType to jsonp for cross origin requests ', function () {
+        
+        $.ajax.andCallFake(function (o) {
+          expect(o.dataType).toEqual('jsonp');
+        });
+
+        this.transport.get('http://example.com', 'query');
+
+      });
+
+      it('should set the dataType to json for same origin requests ', function () {
+        
+        $.ajax.andCallFake(function (o) {
+          expect(o.dataType).toEqual('json');
+        });
+
+        this.transport.get(window.location.href, 'query');
+
+      });
+
       it('should make remote request', function() {
         this.transport.get('http://example.com', 'query');
 

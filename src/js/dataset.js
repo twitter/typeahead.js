@@ -17,6 +17,7 @@ var Dataset = (function() {
     this.resetDataOnProtocolSwitch = o.resetDataOnProtocolSwitch || false;
     this.prefetchUrl = o.prefetch;
     this.queryUrl = o.remote;
+    this.remotePreprocessor = o.remotePreprocessor;
     this.rawData = o.local;
     this.transport = o.transport;
     this.limit = o.limit || 10;
@@ -220,7 +221,13 @@ var Dataset = (function() {
     },
 
     _processRemoteSuggestions: function(callback, matchedItems) {
+
+      var preProcess = this.remotePreprocessor;
+
       return function(data) {
+
+        data = typeof preProcess === 'function'? preProcess(data) : data;
+
         var remoteAndLocalSuggestions = {}, dedupedSuggestions = [];
 
         //convert remoteSuggestions to object

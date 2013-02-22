@@ -21,6 +21,7 @@ Features
 * Displays suggestions to end-users as they type
 * Shows top suggestion as a hint (i.e. background text)
 * Works with hardcoded data as well as remote data
+* Allow for preprocessing of remote data, to map into correct [format][datums]
 * Rate-limits network requests to lighten the load
 * Allows for suggestions to be drawn from multiple datasets
 * Supports customized templates for suggestions
@@ -88,7 +89,8 @@ Datasets are objects which define the sets of data that hydrate suggestions. Giv
 
 * `prefetch` - A URL to a JSON file containing an array of datums.
 
-* `remote` - A URL to fetch suggestions from when the data provided by `local` and `prefetch` is insufficient for a given query. If the URL contains the wildcard configurable through the [transport options][transport-options], said wildcard will be replaced with the end-user's query before the request is made.
+* `remote` - A URL to fetch suggestions from when the data provided by `local` and `prefetch` is insufficient for a given query. If the URL contains the wildcard configurable through the [transport options][transport-options], said wildcard will be replaced with the end-user's query before the request is made. The ajax call will automatically converted to a **JSONP** if this is a cross origin request
+* `remotePreprocessor` - A function which will be passed the original response from the remote request for preprocessing. This is used for cases where the response is not in the correct [format][datanums], such as being wrapped in an additional object. Should return the format specified in the [Datanums][datanums] section.
 
 ### Datums
 
