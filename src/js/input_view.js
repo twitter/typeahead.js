@@ -50,6 +50,9 @@ var InputView = (function() {
         setTimeout(that._compareQueryToInputValue, 0);
       });
     }
+
+    // helps with calculating the width of the input's value
+    this.$overflowHelper = buildOverflowHelper(this.$input);
   }
 
   utils.mixin(InputView.prototype, EventTarget, {
@@ -126,6 +129,12 @@ var InputView = (function() {
       return (this.$input.css('direction') || 'ltr').toLowerCase();
     },
 
+    isOverflow: function() {
+      this.$overflowHelper.text(this.getInputValue());
+
+      return this.$overflowHelper.width() > this.$input.width();
+    },
+
     isCursorAtEnd: function() {
       var valueLength = this.$input.val().length,
           selectionStart = this.$input[0].selectionStart,
@@ -149,6 +158,24 @@ var InputView = (function() {
   });
 
   return InputView;
+
+  function buildOverflowHelper($input) {
+    return $('<span></span>')
+    .css({
+      // position helper off-screen
+      position: 'absolute',
+      left: '-9999px',
+      visibility: 'hidden',
+      // use same font css as input to calculate accurate width
+      font: $input.css('font'),
+      wordSpacing: $input.css('word-spacing'),
+      letterSpacing: $input.css('letter-spacing'),
+      textIndent: $input.css('text-indent'),
+      textRendering: $input.css('text-rendering'),
+      textTransform: $input.css('text-transform')
+    })
+    .insertAfter($input);
+  }
 
   function compareQueries(a, b) {
     // strips leading whitespace and condenses all whitespace
