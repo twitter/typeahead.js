@@ -8,7 +8,7 @@ var TypeaheadView = (function() {
 
   var html = {
     wrapper: '<span class="twitter-typeahead"></span>',
-    hint: '<input class="tt-hint" type="text" autocomplete="false" spellcheck="false" disabled>',
+    hint: '<input class="tt-hint" type="text" autocomplete="off" spellcheck="false" disabled>',
     dropdown: '<ol class="tt-dropdown-menu tt-is-empty"></ol>'
   };
 
@@ -246,7 +246,7 @@ var TypeaheadView = (function() {
     try { !$input.attr('dir') && $input.attr('dir', 'auto'); } catch (e) {}
 
     return $input
-    .attr({ autocomplete: false, spellcheck: false })
+    .attr({ autocomplete: 'off', spellcheck: false })
     .addClass('tt-query')
     .wrap(html.wrapper)
     .parent()
