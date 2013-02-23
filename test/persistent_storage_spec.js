@@ -7,6 +7,8 @@ describe('PersistentStorage', function() {
     spyOn(ls, 'getItem').andCallThrough();
     spyOn(ls, 'setItem').andCallThrough();
     spyOn(ls, 'removeItem').andCallThrough();
+
+    spyOn(Date.prototype, 'getTime').andReturn(0);
   });
 
   afterEach(function() {
@@ -37,6 +39,13 @@ describe('PersistentStorage', function() {
       expect(engine.get('null')).toEqual(null);
       expect(engine.get('object')).toEqual({ obj: true });
     });
+
+    it('should expire stale keys', function() {
+      engine.set('key', 'value', -1);
+
+      expect(engine.get('key')).toEqual(undefined);
+      expect(ls.getItem('__ns__key__ttl')).toEqual(undefined);
+    });
   });
 
   describe('#set', function() {
@@ -49,6 +58,13 @@ describe('PersistentStorage', function() {
     it('should JSON.stringify value before storing', function() {
       engine.set('key', 'val');
       expect(ls.setItem.mostRecentCall.args[1]).toEqual(JSON.stringify('val'));
+    });
+
+    it('should store ttl if provided', function() {
+      var ttl = 1;
+      engine.set('key', 'value', ttl);
+
+      expect(ls.setItem.argsForCall[0]).toEqual(['__ns__key__ttl__', ttl.toString()]);
     });
   });
 
@@ -68,11 +84,13 @@ describe('PersistentStorage', function() {
       engine.set('key1', 'val1');
       engine.set('key2', 'val2');
       engine.set('key3', 'val3');
+      engine.set('key4', 'val4', 0);
       engine.clear();
 
       expect(engine.get('key1')).toEqual(undefined);
       expect(engine.get('key2')).toEqual(undefined);
       expect(engine.get('key3')).toEqual(undefined);
+      expect(engine.get('key4')).toEqual(undefined);
     });
 
     it('should not affect keys with different namespace', function() {
@@ -80,6 +98,24 @@ describe('PersistentStorage', function() {
       engine.clear();
 
       expect(ls.getItem('diff_namespace')).toEqual('val');
+    });
+  });
+
+  describe('#isExpired', function() {
+
+    it('should be false for keys without ttl', function() {
+      engine.set('key', 'value');
+      expect(engine.isExpired('key')).toBe(false);
+    });
+
+    it('should be false for fresh keys', function() {
+      engine.set('key', 'value', 1);
+      expect(engine.isExpired('key')).toBe(false);
+    });
+
+    it('should be true for stale keys', function() {
+      engine.set('key', 'value', -1);
+      expect(engine.isExpired('key')).toBe(true);
     });
   });
 });
