@@ -89,32 +89,32 @@ var TypeaheadView = (function() {
     });
 
     this.dropdownView
-    .on('select', this._handleSelection)
-    .on('cursorOn', this._clearHint)
-    .on('cursorOn', this._setInputValueToSuggestionUnderCursor)
-    .on('cursorOff', this._setInputValueToQuery)
-    .on('cursorOff', this._updateHint)
-    .on('suggestionsRender', this._updateHint)
-    .on('open', this._updateHint)
-    .on('close', this._clearHint);
+    .on('suggestionSelected', this._handleSelection)
+    .on('cursorMoved', this._clearHint)
+    .on('cursorMoved', this._setInputValueToSuggestionUnderCursor)
+    .on('cursorRemoved', this._setInputValueToQuery)
+    .on('cursorRemoved', this._updateHint)
+    .on('suggestionsRendered', this._updateHint)
+    .on('opened', this._updateHint)
+    .on('closed', this._clearHint);
 
     this.inputView
-    .on('focus', this._openDropdown)
-    .on('blur', this._closeDropdown)
-    .on('blur', this._setInputValueToQuery)
-    .on('enter', this._handleSelection)
-    .on('queryChange', this._clearHint)
-    .on('queryChange', this._clearSuggestions)
-    .on('queryChange', this._getSuggestions)
-    .on('whitespaceChange', this._updateHint)
-    .on('queryChange whitespaceChange', this._openDropdown)
-    .on('queryChange whitespaceChange', this._setLanguageDirection)
-    .on('esc', this._closeDropdown)
-    .on('esc', this._setInputValueToQuery)
-    .on('up down', this._moveDropdownCursor)
-    .on('up down', this._openDropdown)
-    .on('tab', this._setPreventDefaultValueForTab)
-    .on('tab left right', this._autocomplete);
+    .on('focused', this._openDropdown)
+    .on('blured', this._closeDropdown)
+    .on('blured', this._setInputValueToQuery)
+    .on('enterKeyed', this._handleSelection)
+    .on('queryChanged', this._clearHint)
+    .on('queryChanged', this._clearSuggestions)
+    .on('queryChanged', this._getSuggestions)
+    .on('whitespaceChanged', this._updateHint)
+    .on('queryChanged whitespaceChanged', this._openDropdown)
+    .on('queryChanged whitespaceChanged', this._setLanguageDirection)
+    .on('escKeyed', this._closeDropdown)
+    .on('escKeyed', this._setInputValueToQuery)
+    .on('upKeyed downKeyed', this._moveDropdownCursor)
+    .on('upKeyed downKeyed', this._openDropdown)
+    .on('tabKeyed', this._setPreventDefaultValueForTab)
+    .on('tabKeyed leftKeyed rightKeyed', this._autocomplete);
   }
 
   utils.mixin(TypeaheadView.prototype, EventTarget, {
@@ -183,16 +183,17 @@ var TypeaheadView = (function() {
     },
 
     _closeDropdown: function(e) {
-      this.dropdownView[e.type === 'blur' ?
+      this.dropdownView[e.type === 'blured' ?
         'closeUnlessMouseIsOverDropdown' : 'close']();
     },
 
     _moveDropdownCursor: function(e) {
-      this.dropdownView[e.type === 'up' ? 'moveCursorUp' : 'moveCursorDown']();
+      this.dropdownView[e.type === 'upKeyed' ?
+        'moveCursorUp' : 'moveCursorDown']();
     },
 
     _handleSelection: function(e) {
-      var byClick = e.type === 'select',
+      var byClick = e.type === 'suggestionSelected',
           suggestionData = byClick ?
             e.data : this.dropdownView.getSuggestionUnderCursor();
 
@@ -232,10 +233,10 @@ var TypeaheadView = (function() {
     _autocomplete: function(e) {
       var isCursorAtEnd, ignoreEvent, query, hint;
 
-      if (e.type === 'right' || e.type === 'left') {
+      if (e.type === 'rightKeyed' || e.type === 'leftKeyed') {
         isCursorAtEnd = this.inputView.isCursorAtEnd();
         ignoreEvent = this.inputView.getLanguageDirection() === 'ltr' ?
-          e.type === 'left' : e.type === 'right';
+          e.type === 'leftKeyed' : e.type === 'rightKeyed';
 
         if (!isCursorAtEnd || ignoreEvent) { return; }
       }

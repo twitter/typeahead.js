@@ -36,7 +36,7 @@ describe('DropdownView', function() {
 
   describe('on suggestion mouseover', function() {
     beforeEach(function() {
-      this.dropdownView.on('cursorOn', this.spy = jasmine.createSpy());
+      this.dropdownView.on('cursorMoved', this.spy = jasmine.createSpy());
 
       this.$testDataset = renderTestDataset(this.dropdownView, true);
 
@@ -64,7 +64,9 @@ describe('DropdownView', function() {
   describe('on suggestion click', function() {
 
     beforeEach(function() {
-      this.dropdownView.on('select', this.spy = jasmine.createSpy());
+      this.dropdownView
+      .on('suggestionSelected', this.spy = jasmine.createSpy());
+
       this.$testDataset = renderTestDataset(this.dropdownView, true);
 
       this.$suggestion = this.$testDataset
@@ -74,9 +76,9 @@ describe('DropdownView', function() {
       .click();
     });
 
-    it('should trigger select', function() {
+    it('should trigger suggestionSelected', function() {
       expect(this.spy).toHaveBeenCalledWith({
-        type: 'select',
+        type: 'suggestionSelected',
         data: {
           query: 'test query',
           dataset: 'test dataset',
@@ -118,7 +120,7 @@ describe('DropdownView', function() {
     describe('if open', function() {
       beforeEach(function() {
         renderTestDataset(this.dropdownView, true);
-        this.dropdownView.on('close', this.spy = jasmine.createSpy());
+        this.dropdownView.on('closed', this.spy = jasmine.createSpy());
 
         this.$menu
         .find('.tt-suggestions > .tt-suggestion')
@@ -137,7 +139,7 @@ describe('DropdownView', function() {
         expect($suggestions).not.toHaveClass('tt-is-under-cursor');
       });
 
-      it('should trigger close', function() {
+      it('should trigger closed', function() {
         expect(this.spy).toHaveBeenCalled();
       });
     });
@@ -145,7 +147,7 @@ describe('DropdownView', function() {
     describe('if not open', function() {
       beforeEach(function() {
         renderTestDataset(this.dropdownView, false);
-        this.dropdownView.on('close', this.spy = jasmine.createSpy());
+        this.dropdownView.on('closed', this.spy = jasmine.createSpy());
 
         this.dropdownView.close();
       });
@@ -154,7 +156,7 @@ describe('DropdownView', function() {
         expect(this.$menu).toBeHidden();
       });
 
-      it('should not trigger close', function() {
+      it('should not trigger closed', function() {
         expect(this.spy).not.toHaveBeenCalled();
       });
     });
@@ -164,7 +166,7 @@ describe('DropdownView', function() {
     describe('if open', function() {
       beforeEach(function() {
         renderTestDataset(this.dropdownView, true);
-        this.dropdownView.on('open', this.spy = jasmine.createSpy());
+        this.dropdownView.on('opened', this.spy = jasmine.createSpy());
 
         this.dropdownView.open();
       });
@@ -173,7 +175,7 @@ describe('DropdownView', function() {
         expect(this.$menu).toBeVisible();
       });
 
-      it('should not trigger open', function() {
+      it('should not trigger opened', function() {
         expect(this.spy).not.toHaveBeenCalled();
       });
     });
@@ -181,7 +183,7 @@ describe('DropdownView', function() {
     describe('if not open', function() {
       beforeEach(function() {
         renderTestDataset(this.dropdownView, false);
-        this.dropdownView.on('open', this.spy = jasmine.createSpy());
+        this.dropdownView.on('opened', this.spy = jasmine.createSpy());
 
         this.dropdownView.open();
       });
@@ -190,7 +192,7 @@ describe('DropdownView', function() {
         expect(this.$menu).toBeVisible();
       });
 
-      it('should trigger open', function() {
+      it('should trigger opened', function() {
         expect(this.spy).toHaveBeenCalled();
       });
     });
@@ -199,8 +201,8 @@ describe('DropdownView', function() {
   describe('#moveCursorUp', function() {
     beforeEach(function() {
       this.dropdownView
-      .on('cursorOn', this.cursorOnSpy = jasmine.createSpy())
-      .on('cursorOff', this.cursorOffSpy = jasmine.createSpy());
+      .on('cursorMoved', this.cursorMovedSpy = jasmine.createSpy())
+      .on('cursorRemoved', this.cursorRemovedSpy = jasmine.createSpy());
     });
 
     describe('if not visible', function() {
@@ -214,12 +216,12 @@ describe('DropdownView', function() {
         expect(this.$menu.find('.tt-is-under-cursor')).not.toExist();
       });
 
-      it('should not trigger cursorOn', function() {
-        expect(this.cursorOnSpy).not.toHaveBeenCalled();
+      it('should not trigger cursorMoved', function() {
+        expect(this.cursorMovedSpy).not.toHaveBeenCalled();
       });
 
-      it('should not trigger cursorOff', function() {
-        expect(this.cursorOffSpy).not.toHaveBeenCalled();
+      it('should not trigger cursorRemoved', function() {
+        expect(this.cursorRemovedSpy).not.toHaveBeenCalled();
       });
     });
 
@@ -242,8 +244,8 @@ describe('DropdownView', function() {
           expect($lastSuggestion).toBe($suggestionUnderCursor);
         });
 
-        it('should trigger cursorOn', function() {
-          expect(this.cursorOnSpy).toHaveBeenCalled();
+        it('should trigger cursorMoved', function() {
+          expect(this.cursorMovedSpy).toHaveBeenCalled();
         });
       });
 
@@ -267,8 +269,8 @@ describe('DropdownView', function() {
           expect($prevSuggestion).toBe($suggestionUnderCursor);
         });
 
-        it('should trigger cursorOn', function() {
-          expect(this.cursorOnSpy).toHaveBeenCalled();
+        it('should trigger cursorMoved', function() {
+          expect(this.cursorMovedSpy).toHaveBeenCalled();
         });
       });
 
@@ -288,8 +290,8 @@ describe('DropdownView', function() {
           expect($suggestionUnderCursor).not.toExist();
         });
 
-        it('should trigger cursorOff', function() {
-          expect(this.cursorOffSpy).toHaveBeenCalled();
+        it('should trigger cursorRemoved', function() {
+          expect(this.cursorRemovedSpy).toHaveBeenCalled();
         });
       });
     });
@@ -298,8 +300,8 @@ describe('DropdownView', function() {
   describe('#moveCursorDown', function() {
     beforeEach(function() {
       this.dropdownView
-      .on('cursorOn', this.cursorOnSpy = jasmine.createSpy())
-      .on('cursorOff', this.cursorOffSpy = jasmine.createSpy());
+      .on('cursorMoved', this.cursorMovedSpy = jasmine.createSpy())
+      .on('cursorRemoved', this.cursorRemovedSpy = jasmine.createSpy());
     });
 
     describe('if not visible', function() {
@@ -313,12 +315,12 @@ describe('DropdownView', function() {
         expect(this.$menu.find('.tt-is-under-cursor')).not.toExist();
       });
 
-      it('should not trigger cursorOn', function() {
-        expect(this.cursorOnSpy).not.toHaveBeenCalled();
+      it('should not trigger cursorMoved', function() {
+        expect(this.cursorMovedSpy).not.toHaveBeenCalled();
       });
 
-      it('should not trigger cursorOff', function() {
-        expect(this.cursorOffSpy).not.toHaveBeenCalled();
+      it('should not trigger cursorRemoved', function() {
+        expect(this.cursorRemovedSpy).not.toHaveBeenCalled();
       });
     });
 
@@ -341,8 +343,8 @@ describe('DropdownView', function() {
           expect($firstSuggestion).toBe($suggestionUnderCursor);
         });
 
-        it('should trigger cursorOn', function() {
-          expect(this.cursorOnSpy).toHaveBeenCalled();
+        it('should trigger cursorMoved', function() {
+          expect(this.cursorMovedSpy).toHaveBeenCalled();
         });
       });
 
@@ -366,8 +368,8 @@ describe('DropdownView', function() {
           expect($nextSuggestion).toBe($suggestionUnderCursor);
         });
 
-        it('should trigger cursorOn', function() {
-          expect(this.cursorOnSpy).toHaveBeenCalled();
+        it('should trigger cursorMoved', function() {
+          expect(this.cursorMovedSpy).toHaveBeenCalled();
         });
       });
 
@@ -387,8 +389,8 @@ describe('DropdownView', function() {
           expect($suggestionUnderCursor).not.toExist();
         });
 
-        it('should trigger cursorOff', function() {
-          expect(this.cursorOffSpy).toHaveBeenCalled();
+        it('should trigger cursorRemoved', function() {
+          expect(this.cursorRemovedSpy).toHaveBeenCalled();
         });
       });
     });
@@ -462,7 +464,7 @@ describe('DropdownView', function() {
 
     describe('if there are no suggestions', function() {
       beforeEach(function() {
-        this.dropdownView.on('suggestionsRender', spy = jasmine.createSpy());
+        this.dropdownView.on('suggestionsRendered', spy = jasmine.createSpy());
 
         spyOn(this.dropdownView, 'clearSuggestions');
 
@@ -473,7 +475,7 @@ describe('DropdownView', function() {
         expect(this.dropdownView.clearSuggestions).toHaveBeenCalledWith('test');
       });
 
-      it('should trigger suggestionsRender', function() {
+      it('should trigger suggestionsRendered', function() {
         expect(spy).toHaveBeenCalled();
       });
     });
@@ -481,7 +483,7 @@ describe('DropdownView', function() {
     describe('if there are suggestions', function() {
       beforeEach(function() {
         this.dropdownView
-        .on('suggestionsRender', this.spy = jasmine.createSpy());
+        .on('suggestionsRendered', this.spy = jasmine.createSpy());
 
         spyOn(this.dropdownView, 'clearSuggestions').andCallThrough();
 
@@ -509,7 +511,7 @@ describe('DropdownView', function() {
         expect($suggestions.first()).toHaveData('value', 'i am a value');
       });
 
-      it('should trigger suggestionsRender', function() {
+      it('should trigger suggestionsRendered', function() {
         expect(this.spy).toHaveBeenCalled();
       });
     });

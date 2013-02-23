@@ -44,12 +44,15 @@ var DropdownView = (function() {
     },
 
     _handleMouseover: function(e) {
+      var $suggestion = $(e.currentTarget);
+
       this._getSuggestions().removeClass('tt-is-under-cursor');
-      $(e.currentTarget).addClass('tt-is-under-cursor');
+      $suggestion.addClass('tt-is-under-cursor');
     },
 
     _handleSelection: function(e) {
-      this.trigger('select', formatDataForSuggestion($(e.currentTarget)));
+      var $suggestion = $(e.currentTarget);
+      this.trigger('suggestionSelected', formatDataForSuggestion($suggestion));
     },
 
     _show: function() {
@@ -80,7 +83,7 @@ var DropdownView = (function() {
       nextIndex = (nextIndex + 1) % ($suggestions.length + 1) - 1;
 
       if (nextIndex === -1) {
-        this.trigger('cursorOff');
+        this.trigger('cursorRemoved');
 
         return;
       }
@@ -91,7 +94,7 @@ var DropdownView = (function() {
       }
 
       $underCursor = $suggestions.eq(nextIndex).addClass('tt-is-under-cursor');
-      this.trigger('cursorOn', { value: $underCursor.data('value') });
+      this.trigger('cursorMoved', { value: $underCursor.data('value') });
     },
 
     _getSuggestions: function() {
@@ -124,7 +127,7 @@ var DropdownView = (function() {
         .find('.tt-suggestions > .tt-suggestion')
         .removeClass('tt-is-under-cursor');
 
-        this.trigger('close');
+        this.trigger('closed');
       }
     },
 
@@ -133,7 +136,7 @@ var DropdownView = (function() {
         this.isOpen = true;
         !this.isEmpty && this._show();
 
-        this.trigger('open');
+        this.trigger('opened');
       }
     },
 
@@ -214,7 +217,7 @@ var DropdownView = (function() {
       .data({ query: query, dataset: dataset.name })
       .append(fragment);
 
-      this.trigger('suggestionsRender');
+      this.trigger('suggestionsRendered');
     },
 
     clearSuggestions: function(datasetName) {

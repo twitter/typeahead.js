@@ -36,9 +36,10 @@ describe('TypeaheadView', function() {
   // handlers triggered by dropdownView events
   // -----------------------------------------
 
-  describe('when dropdownView triggers select', function() {
+  describe('when dropdownView triggers suggestionSelected', function() {
     beforeEach(function() {
-      this.dropdownView.trigger('select', { value: 'i am selected' });
+      this.dropdownView
+      .trigger('suggestionSelected', { value: 'i am selected' });
     });
 
     it('should update input value', function() {
@@ -55,9 +56,9 @@ describe('TypeaheadView', function() {
     });
   });
 
-  describe('when dropdownView triggers cursorOn', function() {
+  describe('when dropdownView triggers cursorMoved', function() {
     beforeEach(function() {
-      this.dropdownView.trigger('cursorOn', { value: 'i am hint' });
+      this.dropdownView.trigger('cursorMoved', { value: 'i am hint' });
     });
 
     it('should clear hint', function() {
@@ -70,24 +71,24 @@ describe('TypeaheadView', function() {
     });
   });
 
-  describe('when dropdownView triggers cursorOff', function() {
+  describe('when dropdownView triggers cursorRemoved', function() {
     it('should reset input value to user query', function() {
       this.inputView.getQuery.andReturn('san   ');
-      this.dropdownView.trigger('cursorOff');
+      this.dropdownView.trigger('cursorRemoved');
 
       expect(this.inputView.setInputValue).toHaveBeenCalledWith('san   ');
     });
 
-    _updateHintSpecHelper('dropdownView', 'cursorOff');
+    _updateHintSpecHelper('dropdownView', 'cursorRemoved');
   });
 
-  describe('when dropdownView triggers suggestionsRender', function() {
-    _updateHintSpecHelper('dropdownView', 'suggestionsRender');
+  describe('when dropdownView triggers suggestionsRendered', function() {
+    _updateHintSpecHelper('dropdownView', 'suggestionsRendered');
   });
 
-  describe('when dropdownView triggers close', function() {
+  describe('when dropdownView triggers closed', function() {
     beforeEach(function() {
-      this.dropdownView.trigger('close');
+      this.dropdownView.trigger('closed');
     });
 
     it('should clear hint', function() {
@@ -98,11 +99,11 @@ describe('TypeaheadView', function() {
   // handlers triggered by inputView events
   // --------------------------------------
 
-  describe('when inputView triggers blur', function() {
+  describe('when inputView triggers blured', function() {
     beforeEach(function() {
       this.inputView.getQuery.andReturn('reset');
 
-      this.inputView.trigger('blur');
+      this.inputView.trigger('blured');
     });
 
     it('should close dropdown unless mouse is over it', function() {
@@ -115,14 +116,14 @@ describe('TypeaheadView', function() {
     });
   });
 
-  describe('when inputView triggers enter', function() {
+  describe('when inputView triggers enterKeyed', function() {
     beforeEach(function() {
       this.spy = jasmine.createSpy();
 
       this.dropdownView.getSuggestionUnderCursor
       .andReturn({ value: 'i am selected' });
 
-      this.inputView.trigger('enter', { preventDefault: this.spy });
+      this.inputView.trigger('enterKeyed', { preventDefault: this.spy });
     });
 
     it('should update input value', function() {
@@ -139,11 +140,11 @@ describe('TypeaheadView', function() {
     });
   });
 
-  describe('when inputView triggers whitespaceChange', function() {
-    _updateHintSpecHelper('inputView', 'whitespaceChange');
+  describe('when inputView triggers whitespaceChanged', function() {
+    _updateHintSpecHelper('inputView', 'whitespaceChanged');
 
     it('should open the dropdown menu', function() {
-      this.inputView.trigger('whitespaceChange');
+      this.inputView.trigger('whitespaceChanged');
       expect(this.dropdownView.open).toHaveBeenCalled();
     });
 
@@ -152,7 +153,7 @@ describe('TypeaheadView', function() {
         this.typeaheadView.dir = 'ltr';
         this.inputView.getLanguageDirection.andReturn('rtl');
 
-        this.inputView.trigger('whitespaceChange');
+        this.inputView.trigger('whitespaceChanged');
       });
 
       it('should update styling', function() {
@@ -163,25 +164,25 @@ describe('TypeaheadView', function() {
     });
   });
 
-  describe('when inputView triggers queryChange', function() {
+  describe('when inputView triggers queryChanged', function() {
     it('should open the dropdown menu', function() {
-      this.inputView.trigger('queryChange');
+      this.inputView.trigger('queryChanged');
       expect(this.dropdownView.open).toHaveBeenCalled();
     });
 
     it('should clear hint', function() {
-      this.inputView.trigger('queryChange');
+      this.inputView.trigger('queryChanged');
       expect(this.inputView.setHintValue).toHaveBeenCalledWith('');
     });
 
     it('should clear suggestions', function() {
-      this.inputView.trigger('queryChange');
+      this.inputView.trigger('queryChanged');
       expect(this.dropdownView.clearSuggestions).toHaveBeenCalled();
     });
 
     it('should call dropdownView.renderSuggestions for each dataset',
     function() {
-      this.inputView.trigger('queryChange');
+      this.inputView.trigger('queryChanged');
       expect(this.dropdownView.renderSuggestions.callCount).toBe(3);
     });
 
@@ -190,7 +191,7 @@ describe('TypeaheadView', function() {
         this.typeaheadView.dir = 'ltr';
         this.inputView.getLanguageDirection.andReturn('rtl');
 
-        this.inputView.trigger('queryChange');
+        this.inputView.trigger('queryChanged');
       });
 
       it('should update styling', function() {
@@ -201,9 +202,9 @@ describe('TypeaheadView', function() {
     });
   });
 
-  describe('when inputView triggers focus', function() {
+  describe('when inputView triggers focused', function() {
     beforeEach(function() {
-      this.inputView.trigger('focus');
+      this.inputView.trigger('focused');
     });
 
     it('should open the dropdown menu', function() {
@@ -211,11 +212,11 @@ describe('TypeaheadView', function() {
     });
   });
 
-  describe('when inputView triggers esc', function() {
+  describe('when inputView triggers escKeyed', function() {
     beforeEach(function() {
       this.inputView.getQuery.andReturn('reset');
 
-      this.inputView.trigger('esc');
+      this.inputView.trigger('escKeyed');
     });
 
     it('should close dropdown', function() {
@@ -232,7 +233,7 @@ describe('TypeaheadView', function() {
 
     describe('when inputView triggers ' + eventType, function() {
       beforeEach(function() {
-        this.inputView.trigger(eventType);
+        this.inputView.trigger(eventType + 'Keyed');
       });
 
       it('should open the dropdown menu', function() {
@@ -245,12 +246,12 @@ describe('TypeaheadView', function() {
     });
   });
 
-  describe('when inputView triggers tab', function() {
+  describe('when inputView triggers tabKeyed', function() {
     describe('if hint is empty string', function() {
       beforeEach(function() {
         this.inputView.getHintValue.andReturn('');
 
-        this.inputView.trigger('tab');
+        this.inputView.trigger('tabKeyed');
       });
 
       it('should not update input value', function() {
@@ -263,7 +264,7 @@ describe('TypeaheadView', function() {
         this.inputView.getQuery.andReturn('app');
         this.inputView.getHintValue.andReturn('apple');
 
-        this.inputView.trigger('tab');
+        this.inputView.trigger('tabKeyed');
       });
 
       it('should update input value', function() {
@@ -272,7 +273,7 @@ describe('TypeaheadView', function() {
     });
   });
 
-  describe('when inputView triggers left', function() {
+  describe('when inputView triggers leftKeyed', function() {
     beforeEach(function() {
       this.inputView.getQuery.andReturn('app');
       this.inputView.getHintValue.andReturn('apple');
@@ -284,7 +285,7 @@ describe('TypeaheadView', function() {
       beforeEach(function() {
         this.inputView.getLanguageDirection.andReturn('ltr');
 
-        this.inputView.trigger('left');
+        this.inputView.trigger('leftKeyed');
       });
 
       it('should not update input value', function() {
@@ -296,7 +297,7 @@ describe('TypeaheadView', function() {
       beforeEach(function() {
         this.inputView.getLanguageDirection.andReturn('rtl');
 
-        this.inputView.trigger('left');
+        this.inputView.trigger('leftKeyed');
       });
 
       it('should update value of input', function() {
@@ -308,7 +309,7 @@ describe('TypeaheadView', function() {
       beforeEach(function() {
         this.inputView.isCursorAtEnd.andReturn(false);
 
-        this.inputView.trigger('left');
+        this.inputView.trigger('leftKeyed');
       });
 
       it('should not update input value', function() {
@@ -317,7 +318,7 @@ describe('TypeaheadView', function() {
     });
   });
 
-  describe('when inputView triggers right', function() {
+  describe('when inputView triggers rightKeyed', function() {
     beforeEach(function() {
       this.inputView.getQuery.andReturn('app');
       this.inputView.getHintValue.andReturn('apple');
@@ -329,7 +330,7 @@ describe('TypeaheadView', function() {
       beforeEach(function() {
         this.inputView.getLanguageDirection.andReturn('ltr');
 
-        this.inputView.trigger('right');
+        this.inputView.trigger('rightKeyed');
       });
 
       it('should update input value', function() {
@@ -341,7 +342,7 @@ describe('TypeaheadView', function() {
       beforeEach(function() {
         this.inputView.getLanguageDirection.andReturn('rtl');
 
-        this.inputView.trigger('right');
+        this.inputView.trigger('rightKeyed');
       });
 
       it('should not update input value', function() {
@@ -353,7 +354,7 @@ describe('TypeaheadView', function() {
       beforeEach(function() {
         this.inputView.isCursorAtEnd.andReturn(false);
 
-        this.inputView.trigger('right');
+        this.inputView.trigger('rightKeyed');
       });
 
       it('should not update input value', function() {

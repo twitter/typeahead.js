@@ -57,11 +57,11 @@ var InputView = (function() {
     // ---------------
 
     _handleFocus: function() {
-      this.trigger('focus');
+      this.trigger('focused');
     },
 
     _handleBlur: function() {
-      this.trigger('blur');
+      this.trigger('blured');
     },
 
     _handleSpecialKeyEvent: function(e) {
@@ -69,7 +69,7 @@ var InputView = (function() {
       var keyCode = this.specialKeyCodeMap[e.which || e.keyCode];
 
       if (keyCode) {
-        this.trigger(keyCode.event, e);
+        this.trigger(keyCode.event + 'Keyed', e);
         keyCode.preventDefault && e.preventDefault();
       }
     },
@@ -81,11 +81,11 @@ var InputView = (function() {
             this.query.length !== inputValue.length : false;
 
       if (isSameQueryExceptWhitespace) {
-        this.trigger('whitespaceChange', { value: this.query });
+        this.trigger('whitespaceChanged', { value: this.query });
       }
 
       else if (!isSameQuery) {
-        this.trigger('queryChange', { value: this.query = inputValue });
+        this.trigger('queryChanged', { value: this.query = inputValue });
       }
     },
 
