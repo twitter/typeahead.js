@@ -166,8 +166,14 @@ var InputView = (function() {
       position: 'absolute',
       left: '-9999px',
       visibility: 'hidden',
+      // avoid line breaks
+      whiteSpace: 'nowrap',
       // use same font css as input to calculate accurate width
-      font: $input.css('font'),
+      fontFamily: $input.css('font-family'),
+      fontSize: $input.css('font-size'),
+      fontStyle: $input.css('font-style'),
+      fontVariant: $input.css('font-variant'),
+      fontWeight: $input.css('font-weight'),
       wordSpacing: $input.css('word-spacing'),
       letterSpacing: $input.css('letter-spacing'),
       textIndent: $input.css('text-indent'),
