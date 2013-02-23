@@ -86,48 +86,48 @@ describe('DropdownView', function() {
     });
   });
 
-  describe('#hideUnlessMouseIsOverDropdown', function() {
+  describe('#closeUnlessMouseIsOverDropdown', function() {
     beforeEach(function() {
-      spyOn(this.dropdownView, 'hide');
+      spyOn(this.dropdownView, 'close');
     });
 
     describe('if isMouseOverDropdown is true', function() {
       beforeEach(function() {
         this.dropdownView.isMouseOverDropdown = true;
-        this.dropdownView.hideUnlessMouseIsOverDropdown();
+        this.dropdownView.closeUnlessMouseIsOverDropdown();
       });
 
-      it('should not call hide', function() {
-        expect(this.dropdownView.hide).not.toHaveBeenCalled();
+      it('should not call close', function() {
+        expect(this.dropdownView.close).not.toHaveBeenCalled();
       });
     });
 
     describe('if isMouseOverDropdown is false', function() {
       beforeEach(function() {
         this.dropdownView.isMouseOverDropdown = false;
-        this.dropdownView.hideUnlessMouseIsOverDropdown();
+        this.dropdownView.closeUnlessMouseIsOverDropdown();
       });
 
-      it('should call hide', function() {
-        expect(this.dropdownView.hide).toHaveBeenCalled();
+      it('should call close', function() {
+        expect(this.dropdownView.close).toHaveBeenCalled();
       });
     });
   });
 
-  describe('#hide', function() {
+  describe('#close', function() {
     describe('if open', function() {
       beforeEach(function() {
         renderTestDataset(this.dropdownView, true);
-        this.dropdownView.on('hide', this.spy = jasmine.createSpy());
+        this.dropdownView.on('close', this.spy = jasmine.createSpy());
 
         this.$menu
         .find('.tt-suggestions > .tt-suggestion')
         .addClass('.tt-is-under-cursor');
 
-        this.dropdownView.hide();
+        this.dropdownView.close();
       });
 
-      it('should hide menu', function() {
+      it('should close menu', function() {
         expect(this.$menu).toBeHidden();
       });
 
@@ -137,7 +137,7 @@ describe('DropdownView', function() {
         expect($suggestions).not.toHaveClass('tt-is-under-cursor');
       });
 
-      it('should trigger hide', function() {
+      it('should trigger close', function() {
         expect(this.spy).toHaveBeenCalled();
       });
     });
@@ -145,35 +145,35 @@ describe('DropdownView', function() {
     describe('if not open', function() {
       beforeEach(function() {
         renderTestDataset(this.dropdownView, false);
-        this.dropdownView.on('hide', this.spy = jasmine.createSpy());
+        this.dropdownView.on('close', this.spy = jasmine.createSpy());
 
-        this.dropdownView.hide();
+        this.dropdownView.close();
       });
 
       it('should keep menu hidden', function() {
         expect(this.$menu).toBeHidden();
       });
 
-      it('should not trigger hide', function() {
+      it('should not trigger close', function() {
         expect(this.spy).not.toHaveBeenCalled();
       });
     });
   });
 
-  describe('#show', function() {
+  describe('#open', function() {
     describe('if open', function() {
       beforeEach(function() {
         renderTestDataset(this.dropdownView, true);
-        this.dropdownView.on('show', this.spy = jasmine.createSpy());
+        this.dropdownView.on('open', this.spy = jasmine.createSpy());
 
-        this.dropdownView.show();
+        this.dropdownView.open();
       });
 
       it('should keep menu visible', function() {
         expect(this.$menu).toBeVisible();
       });
 
-      it('should not trigger show', function() {
+      it('should not trigger open', function() {
         expect(this.spy).not.toHaveBeenCalled();
       });
     });
@@ -181,16 +181,16 @@ describe('DropdownView', function() {
     describe('if not open', function() {
       beforeEach(function() {
         renderTestDataset(this.dropdownView, false);
-        this.dropdownView.on('show', this.spy = jasmine.createSpy());
+        this.dropdownView.on('open', this.spy = jasmine.createSpy());
 
-        this.dropdownView.show();
+        this.dropdownView.open();
       });
 
       it('should make menu visible', function() {
         expect(this.$menu).toBeVisible();
       });
 
-      it('should trigger show', function() {
+      it('should trigger open', function() {
         expect(this.spy).toHaveBeenCalled();
       });
     });
@@ -525,7 +525,7 @@ describe('DropdownView', function() {
       expect(this.$menu.find('.tt-suggestion')).not.toExist();
     });
 
-    it('should hide menu', function() {
+    it('should close menu', function() {
       expect(this.$menu).toBeHidden();
     });
   });
@@ -550,7 +550,7 @@ describe('DropdownView', function() {
         ];
 
     view.renderSuggestions(mockQuery, mockDataset, mockSuggestions);
-    open && view.show();
+    open && view.open();
 
     return $('#jasmine-fixtures .tt-dataset-test > .tt-suggestions');
   }

@@ -50,8 +50,8 @@ describe('TypeaheadView', function() {
       expect(this.inputView.focus).toHaveBeenCalled();
     });
 
-    it('should hide dropdown', function() {
-      expect(this.dropdownView.hide).toHaveBeenCalled();
+    it('should close dropdown', function() {
+      expect(this.dropdownView.close).toHaveBeenCalled();
     });
   });
 
@@ -85,9 +85,9 @@ describe('TypeaheadView', function() {
     _updateHintSpecHelper('dropdownView', 'suggestionsRender');
   });
 
-  describe('when dropdownView triggers hide', function() {
+  describe('when dropdownView triggers close', function() {
     beforeEach(function() {
-      this.dropdownView.trigger('hide');
+      this.dropdownView.trigger('close');
     });
 
     it('should clear hint', function() {
@@ -105,8 +105,8 @@ describe('TypeaheadView', function() {
       this.inputView.trigger('blur');
     });
 
-    it('should hide dropdown unless mouse is over it', function() {
-      expect(this.dropdownView.hideUnlessMouseIsOverDropdown)
+    it('should close dropdown unless mouse is over it', function() {
+      expect(this.dropdownView.closeUnlessMouseIsOverDropdown)
       .toHaveBeenCalled();
     });
 
@@ -134,17 +134,17 @@ describe('TypeaheadView', function() {
       expect(this.spy).toHaveBeenCalled();
     });
 
-    it('should hide dropdown', function() {
-      expect(this.dropdownView.hide).toHaveBeenCalled();
+    it('should close dropdown', function() {
+      expect(this.dropdownView.close).toHaveBeenCalled();
     });
   });
 
   describe('when inputView triggers whitespaceChange', function() {
     _updateHintSpecHelper('inputView', 'whitespaceChange');
 
-    it('should show the dropdown menu', function() {
+    it('should open the dropdown menu', function() {
       this.inputView.trigger('whitespaceChange');
-      expect(this.dropdownView.show).toHaveBeenCalled();
+      expect(this.dropdownView.open).toHaveBeenCalled();
     });
 
     describe('if language direction has changed', function() {
@@ -164,9 +164,9 @@ describe('TypeaheadView', function() {
   });
 
   describe('when inputView triggers queryChange', function() {
-    it('should show the dropdown menu', function() {
+    it('should open the dropdown menu', function() {
       this.inputView.trigger('queryChange');
-      expect(this.dropdownView.show).toHaveBeenCalled();
+      expect(this.dropdownView.open).toHaveBeenCalled();
     });
 
     it('should clear hint', function() {
@@ -206,8 +206,8 @@ describe('TypeaheadView', function() {
       this.inputView.trigger('focus');
     });
 
-    it('should show the dropdown menu', function() {
-      expect(this.dropdownView.show).toHaveBeenCalled();
+    it('should open the dropdown menu', function() {
+      expect(this.dropdownView.open).toHaveBeenCalled();
     });
   });
 
@@ -218,8 +218,8 @@ describe('TypeaheadView', function() {
       this.inputView.trigger('esc');
     });
 
-    it('should hide dropdown', function() {
-      expect(this.dropdownView.hide).toHaveBeenCalled();
+    it('should close dropdown', function() {
+      expect(this.dropdownView.close).toHaveBeenCalled();
     });
 
     it('should reset input value to user query', function() {
@@ -235,8 +235,8 @@ describe('TypeaheadView', function() {
         this.inputView.trigger(eventType);
       });
 
-      it('should show the dropdown menu', function() {
-        expect(this.dropdownView.show).toHaveBeenCalled();
+      it('should open the dropdown menu', function() {
+        expect(this.dropdownView.open).toHaveBeenCalled();
       });
 
       it('should move cursor ' + eventType, function() {

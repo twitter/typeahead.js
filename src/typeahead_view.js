@@ -95,24 +95,24 @@ var TypeaheadView = (function() {
     .on('cursorOff', this._setInputValueToQuery)
     .on('cursorOff', this._updateHint)
     .on('suggestionsRender', this._updateHint)
-    .on('show', this._updateHint)
-    .on('hide', this._clearHint);
+    .on('open', this._updateHint)
+    .on('close', this._clearHint);
 
     this.inputView
-    .on('focus', this._showDropdown)
-    .on('blur', this._hideDropdown)
+    .on('focus', this._openDropdown)
+    .on('blur', this._closeDropdown)
     .on('blur', this._setInputValueToQuery)
     .on('enter', this._handleSelection)
     .on('queryChange', this._clearHint)
     .on('queryChange', this._clearSuggestions)
     .on('queryChange', this._getSuggestions)
     .on('whitespaceChange', this._updateHint)
-    .on('queryChange whitespaceChange', this._showDropdown)
+    .on('queryChange whitespaceChange', this._openDropdown)
     .on('queryChange whitespaceChange', this._setLanguageDirection)
-    .on('esc', this._hideDropdown)
+    .on('esc', this._closeDropdown)
     .on('esc', this._setInputValueToQuery)
     .on('up down', this._moveDropdownCursor)
-    .on('up down', this._showDropdown)
+    .on('up down', this._openDropdown)
     .on('tab', this._setPreventDefaultValueForTab)
     .on('tab left right', this._autocomplete);
   }
@@ -178,13 +178,13 @@ var TypeaheadView = (function() {
       this.inputView.setInputValue(e.data.value, true);
     },
 
-    _showDropdown: function() {
-      this.dropdownView.show();
+    _openDropdown: function() {
+      this.dropdownView.open();
     },
 
-    _hideDropdown: function(e) {
+    _closeDropdown: function(e) {
       this.dropdownView[e.type === 'blur' ?
-        'hideUnlessMouseIsOverDropdown' : 'hide']();
+        'closeUnlessMouseIsOverDropdown' : 'close']();
     },
 
     _moveDropdownCursor: function(e) {
@@ -207,7 +207,7 @@ var TypeaheadView = (function() {
 
         // focus is not a synchronous event in ie, so we deal with it
         byClick && utils.isMsie() ?
-          setTimeout(this.dropdownView.hide, 0) : this.dropdownView.hide();
+          setTimeout(this.dropdownView.close, 0) : this.dropdownView.close();
       }
     },
 

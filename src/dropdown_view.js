@@ -52,6 +52,16 @@ var DropdownView = (function() {
       this.trigger('select', formatDataForSuggestion($(e.currentTarget)));
     },
 
+    _show: function() {
+      // can't use jQuery#show because $menu is a span element we want
+      // display: block; not dislay: inline;
+      this.$menu.css('display', 'block');
+    },
+
+    _hide: function() {
+      this.$menu.hide();
+    },
+
     _moveCursor: function(increment) {
       var $suggestions, $cur, nextIndex, $underCursor;
 
@@ -95,36 +105,35 @@ var DropdownView = (function() {
       return this.isOpen && !this.isEmpty;
     },
 
-    hideUnlessMouseIsOverDropdown: function() {
+    closeUnlessMouseIsOverDropdown: function() {
       // this helps detect the scenario a blur event has triggered
-      // this function. we don't want to hide the menu in that case
+      // this function. we don't want to close the menu in that case
       // because it'll prevent the probable associated click event
       // from being fired
       if (!this.isMouseOverDropdown) {
-        this.hide();
+        this.close();
       }
     },
 
-    hide: function() {
+    close: function() {
       if (this.isOpen) {
         this.isOpen = false;
+        this._hide();
 
         this.$menu
-        .hide()
         .find('.tt-suggestions > .tt-suggestion')
         .removeClass('tt-is-under-cursor');
 
-        this.trigger('hide');
+        this.trigger('close');
       }
     },
 
-    show: function() {
+    open: function() {
       if (!this.isOpen) {
         this.isOpen = true;
+        !this.isEmpty && this._show();
 
-        !this.isEmpty && this.$menu.css('display', 'block');
-
-        this.trigger('show');
+        this.trigger('open');
       }
     },
 
@@ -183,8 +192,8 @@ var DropdownView = (function() {
       this.clearSuggestions(dataset.name);
 
       if (suggestions.length > 0) {
-        this.isOpen && this.$menu.css('display', 'block');
         this.isEmpty = false;
+        this.isOpen && this._show();
 
         utils.each(suggestions, function(i, suggestion) {
           elBuilder.innerHTML = dataset.template.render(suggestion);
@@ -217,8 +226,8 @@ var DropdownView = (function() {
 
 
       if (this._getSuggestions().length === 0) {
-        this.$menu.hide();
         this.isEmpty = true;
+        this._hide();
       }
     }
   });
