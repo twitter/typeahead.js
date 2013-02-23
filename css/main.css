@@ -284,8 +284,8 @@ p {
   margin: 80px 0 0 0;
 }
 
-.social-btn + .social-btn {
-  margin-left: 20px;
+.social-btn {
+  padding: 5px 8px;
 }
 
 .links {
