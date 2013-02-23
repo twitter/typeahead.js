@@ -19,6 +19,8 @@ var Transport = (function() {
     this.wait = o.wait || 300;
     this.wildcard = o.wildcard || '%QUERY';
     this.maxConcurrentRequests = o.maxConcurrentRequests || 6;
+    this.dataType = (/^jsonp$/i).test(o.dataType) ?
+      'jsonp' : 'json';
 
     this.concurrentRequests = 0;
     this.onDeckRequestArgs = null;
@@ -61,7 +63,7 @@ var Transport = (function() {
         $.ajax({
           url: url,
           type: 'GET',
-          dataType: 'json',
+          dataType: this.dataType,
           beforeSend: function() {
             that._incrementConcurrentRequests();
           },

@@ -131,6 +131,7 @@ The transport component is a singleton used by all typeaheads initialized with t
 
 * `maxConcurrentRequests` - The max number of AJAX requests typeahead.js can have pending. Defaults to `6`.
 
+* `dataType` - The jQuery ajax dataType option to use. Can be either `json` or `jsonp`. Defaults to `json`.
 
 ### Template Engine Compatibility
 
