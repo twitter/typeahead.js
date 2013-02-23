@@ -16,7 +16,8 @@ var PersistentStorage = (function() {
   if (window.localStorage && window.JSON) {
     methods = {
 
-      // Private methods
+      // private methods
+      // ---------------
 
       _prefix: function(key) {
         return this.prefix + key;
@@ -26,7 +27,8 @@ var PersistentStorage = (function() {
         return this._prefix(key) + this.ttlKey;
       },
 
-      // Public methods
+      // public methods
+      // --------------
 
       get: function(key) {
         if (this.isExpired(key)) {
@@ -58,9 +60,8 @@ var PersistentStorage = (function() {
       clear: function() {
         var i, key, keys = [], len = ls.length;
 
-        for (i = 0; i < len; i += 1) {
-          key = ls.key(i);
-          if (key.match(this.keyMatcher)) {
+        for (i = 0; i < len; i++) {
+          if ((key = ls.key(i)).match(this.keyMatcher)) {
             // gather keys to remove after loop exits
             keys.push(key.replace(this.keyMatcher, ""));
           }
@@ -96,14 +97,15 @@ var PersistentStorage = (function() {
   return PersistentStorage;
 
   function now() {
-    return (new Date()).getTime();
+    return new Date().getTime();
   }
 
   function encode(val) {
-    return JSON.stringify(val);
+    // convert undefined to null to avoid issues with JSON.parse
+    return JSON.stringify(utils.isUndefined(val) ? null : val);
   }
 
   function decode(val) {
-    return utils.isUndefined(val) ? undefined : JSON.parse(val);
+    return JSON.parse(val);
   }
 })();

@@ -36,15 +36,15 @@ describe('PersistentStorage', function() {
       expect(engine.get('string')).toEqual('i am a string');
       expect(engine.get('number')).toEqual(42);
       expect(engine.get('boolean')).toEqual(true);
-      expect(engine.get('null')).toEqual(null);
+      expect(engine.get('null')).toBeNull();
       expect(engine.get('object')).toEqual({ obj: true });
     });
 
     it('should expire stale keys', function() {
       engine.set('key', 'value', -1);
 
-      expect(engine.get('key')).toEqual(undefined);
-      expect(ls.getItem('__ns__key__ttl')).toEqual(undefined);
+      expect(engine.get('key')).toBeNull();
+      expect(ls.getItem('__ns__key__ttl')).toBeNull();
     });
   });
 
@@ -64,7 +64,8 @@ describe('PersistentStorage', function() {
       var ttl = 1;
       engine.set('key', 'value', ttl);
 
-      expect(ls.setItem.argsForCall[0]).toEqual(['__ns__key__ttl__', ttl.toString()]);
+      expect(ls.setItem.argsForCall[0])
+      .toEqual(['__ns__key__ttl__', ttl.toString()]);
     });
   });
 
@@ -74,7 +75,7 @@ describe('PersistentStorage', function() {
       engine.set('key', 'val');
       engine.remove('key');
 
-      expect(engine.get('key')).toEqual(undefined);
+      expect(engine.get('key')).toBeNull();
     });
   });
 
