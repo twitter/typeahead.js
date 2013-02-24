@@ -17,7 +17,7 @@ var utils = {
 
   isFunction: $.isFunction,
 
-  isObject: function(obj) { return obj !== Object(obj); },
+  isObject: function(obj) { return obj === Object(obj); },
 
   isUndefined: function(obj) { return typeof obj === 'undefined'; },
 
@@ -64,12 +64,6 @@ var utils = {
     });
 
     return !!result;
-  },
-
-  keys: function(obj) {
-    if (!utils.isObject(obj)) { throw new TypeError('invalid object'); }
-
-    return $.map(obj, function(val, key) { return key; });
   },
 
   mixin: $.extend,
