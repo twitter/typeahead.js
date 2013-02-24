@@ -286,9 +286,7 @@ describe("Dataset", function() {
         ]);
       });
       dataset.getSuggestions("course-106", function(items) {
-        expect(items).toEqual([
-          { tokens : [ 'course', '106' ], value : 'course-106', id : 'course-106' }
-        ]);
+        expect(items).toEqual([]);
       });
     });
 
@@ -300,6 +298,36 @@ describe("Dataset", function() {
       });
     });
 
+  });
+
+  describe("Tokenization, normalization, and matching with hard-coded local data", function() {
+    var fixtureData = [{
+      value: "course-106",
+      tokens: ["course-106"]
+    }];
+    var dataset;
+
+    beforeEach(function() {
+      setFixtures(fixtureData);
+      localStorage.clear();
+      dataset = new Dataset({
+        name: "words",
+        local: fixtureData,
+        prefetch: "http://localhost",
+        remote: null
+      });
+    });
+
+    it("matches items with dashes", function() {
+      dataset.getSuggestions("106 course", function(items) {
+        expect(items).toEqual([]);
+      });
+      dataset.getSuggestions("course-106", function(items) {
+        expect(items).toEqual([
+          { value : 'course-106', tokens : [ 'course-106' ], id : 'course-106' }
+        ]);
+      });
+    });
   });
 
 });
