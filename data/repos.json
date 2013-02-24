@@ -27,7 +27,8 @@
     "tokens": [
       "hadoop",
       "lzo",
-      "Shell"
+      "Shell",
+      "hadoop-lzo"
     ]
   },
   {
@@ -48,7 +49,8 @@
     "tokens": [
       "thrift",
       "client",
-      "Ruby"
+      "Ruby",
+      "thrift_client"
     ]
   },
   {
@@ -69,7 +71,8 @@
     "tokens": [
       "grabby",
       "hands",
-      "Scala"
+      "Scala",
+      "grabby-hands"
     ]
   },
   {
@@ -110,7 +113,8 @@
     "tokens": [
       "flockdb",
       "client",
-      "Ruby"
+      "Ruby",
+      "flockdb-client"
     ]
   },
   {
@@ -121,7 +125,8 @@
     "tokens": [
       "standard",
       "project",
-      "Scala"
+      "Scala",
+      "standard-project"
     ]
   },
   {
@@ -163,7 +168,8 @@
       "scala",
       "zookeeper",
       "client",
-      "Scala"
+      "Scala",
+      "scala-zookeeper-client"
     ]
   },
   {
@@ -174,7 +180,8 @@
     "tokens": [
       "rpc",
       "client",
-      "Scala"
+      "Scala",
+      "rpc-client"
     ]
   },
   {
@@ -215,7 +222,8 @@
     "tokens": [
       "rubyenterpriseedition187",
       "248",
-      "Ruby"
+      "Ruby",
+      "rubyenterpriseedition187-248"
     ]
   },
   {
@@ -226,7 +234,8 @@
     "tokens": [
       "scala",
       "school",
-      "Scala"
+      "Scala",
+      "scala_school"
     ]
   },
   {
@@ -257,7 +266,8 @@
     "tokens": [
       "kestrel",
       "client",
-      "Ruby"
+      "Ruby",
+      "kestrel-client"
     ]
   },
   {
@@ -283,11 +293,13 @@
   {
     "name": "twitter-text-conformance",
     "description": "Conformance testing data for the twitter-text-* repositories",
+    "language": null,
     "value": "twitter-text-conformance",
     "tokens": [
       "twitter",
       "text",
-      "conformance"
+      "conformance",
+      "twitter-text-conformance"
     ]
   },
   {
@@ -299,7 +311,8 @@
       "twitter",
       "text",
       "rb",
-      "Ruby"
+      "Ruby",
+      "twitter-text-rb"
     ]
   },
   {
@@ -311,7 +324,8 @@
       "twitter",
       "text",
       "java",
-      "Java"
+      "Java",
+      "twitter-text-java"
     ]
   },
   {
@@ -323,7 +337,8 @@
       "twitter",
       "text",
       "js",
-      "JavaScript"
+      "JavaScript",
+      "twitter-text-js"
     ]
   },
   {
@@ -375,7 +390,8 @@
       "cloudhopper",
       "commons",
       "util",
-      "Java"
+      "Java",
+      "cloudhopper-commons-util"
     ]
   },
   {
@@ -396,7 +412,8 @@
     "tokens": [
       "time",
       "constants",
-      "Ruby"
+      "Ruby",
+      "time_constants"
     ]
   },
   {
@@ -417,7 +434,8 @@
     "tokens": [
       "scala",
       "bootstrapper",
-      "Ruby"
+      "Ruby",
+      "scala-bootstrapper"
     ]
   },
   {
@@ -428,7 +446,8 @@
     "tokens": [
       "sbt",
       "thrift",
-      "Ruby"
+      "Ruby",
+      "sbt-thrift"
     ]
   },
   {
@@ -439,7 +458,8 @@
     "tokens": [
       "cloudhopper",
       "smpp",
-      "Java"
+      "Java",
+      "cloudhopper-smpp"
     ]
   },
   {
@@ -451,7 +471,8 @@
       "cloudhopper",
       "commons",
       "charset",
-      "Java"
+      "Java",
+      "cloudhopper-commons-charset"
     ]
   },
   {
@@ -463,7 +484,8 @@
       "cloudhopper",
       "commons",
       "gsm",
-      "Java"
+      "Java",
+      "cloudhopper-commons-gsm"
     ]
   },
   {
@@ -494,7 +516,8 @@
     "tokens": [
       "scala",
       "json",
-      "Scala"
+      "Scala",
+      "scala-json"
     ]
   },
   {
@@ -525,7 +548,8 @@
     "tokens": [
       "scrooge",
       "runtime",
-      "Scala"
+      "Scala",
+      "scrooge-runtime"
     ]
   },
   {
@@ -536,7 +560,8 @@
     "tokens": [
       "sbt",
       "scrooge",
-      "Scala"
+      "Scala",
+      "sbt-scrooge"
     ]
   },
   {
@@ -688,7 +713,8 @@
       "twitter",
       "cldr",
       "rb",
-      "Ruby"
+      "Ruby",
+      "twitter-cldr-rb"
     ]
   },
   {
@@ -699,7 +725,8 @@
     "tokens": [
       "bootstrap",
       "server",
-      "JavaScript"
+      "JavaScript",
+      "bootstrap-server"
     ]
   },
   {
@@ -711,7 +738,8 @@
       "sbt",
       "package",
       "dist",
-      "Scala"
+      "Scala",
+      "sbt-package-dist"
     ]
   },
   {
@@ -727,11 +755,13 @@
   {
     "name": "innovators-patent-agreement",
     "description": "Innovators Patent Agreement (IPA)",
+    "language": null,
     "value": "innovators-patent-agreement",
     "tokens": [
       "innovators",
       "patent",
-      "agreement"
+      "agreement",
+      "innovators-patent-agreement"
     ]
   },
   {
@@ -763,7 +793,8 @@
       "twitter",
       "text",
       "objc",
-      "Objective-C"
+      "Objective-C",
+      "twitter-text-objc"
     ]
   },
   {
@@ -775,7 +806,8 @@
       "activerecord",
       "reputation",
       "system",
-      "Ruby"
+      "Ruby",
+      "activerecord-reputation-system"
     ]
   },
   {
@@ -806,7 +838,8 @@
     "tokens": [
       "elephant",
       "twin",
-      "Java"
+      "Java",
+      "elephant-twin"
     ]
   },
   {
@@ -818,7 +851,8 @@
       "elephant",
       "twin",
       "lzo",
-      "Java"
+      "Java",
+      "elephant-twin-lzo"
     ]
   },
   {
@@ -850,7 +884,8 @@
       "twitter",
       "cldr",
       "js",
-      "JavaScript"
+      "JavaScript",
+      "twitter-cldr-js"
     ]
   },
   {
@@ -871,7 +906,8 @@
     "tokens": [
       "hdfs",
       "du",
-      "JavaScript"
+      "JavaScript",
+      "hdfs-du"
     ]
   },
   {
@@ -902,7 +938,8 @@
     "tokens": [
       "bower",
       "server",
-      "Ruby"
+      "Ruby",
+      "bower-server"
     ]
   },
   {
@@ -924,7 +961,8 @@
       "twitter",
       "cldr",
       "npm",
-      "JavaScript"
+      "JavaScript",
+      "twitter-cldr-npm"
     ]
   },
   {
@@ -946,7 +984,8 @@
       "sprockets",
       "commonjs",
       "twitter",
-      "JavaScript"
+      "JavaScript",
+      "sprockets-commonjs-twitter"
     ]
   },
   {
@@ -957,7 +996,8 @@
     "tokens": [
       "scalding",
       "commons",
-      "Scala"
+      "Scala",
+      "scalding-commons"
     ]
   },
   {
