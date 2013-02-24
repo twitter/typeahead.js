@@ -92,7 +92,7 @@ Datasets are objects which define the sets of data that hydrate suggestions. Giv
 
 * `prefetch` - A URL to a JSON file containing an array of datums.
 
-* `remote` - A URL to fetch suggestions from when the data provided by `local` and `prefetch` is insufficient for a given query. If the URL contains the wildcard configurable through the [transport options][transport-options], said wildcard will be replaced with the end-user's query before the request is made.
+* `remote` - A URL to fetch suggestions from when the data provided by `local` and `prefetch` is insufficient for a given query. If the URL contains the wildcard configurable through the [transport options][transport], said wildcard will be replaced with the end-user's query before the request is made.
 
 ### Datums
 
@@ -229,6 +229,7 @@ In order to build and test typeahead.js, you'll need to install its devDependenc
 * `grunt test` - Runs the test suite with PhantomJS.
 * `grunt test:browser` - Runs the test suite in your default browser.
 * `grunt watch` - Rebuilds *typeahead.js* whenever a source file is modified.
+* `grunt server` - Serves files from the root of typeahead.js on localhost:8888. Useful for using *test/playground.html* for debugging/testing.
 
 Authors
 -------
@@ -247,7 +248,7 @@ Thanks for assistance and contributions:
 + [@paulirish](https://github.com/paulirish)
 + [@sindresorhus](https://github.com/sindresorhus)
 + [@thisguy](https://twitter.com/thisguy)
-+ And many others!
++ [And many others!](contributors)
 
 License
 -------
@@ -267,6 +268,7 @@ Licensed under the MIT License
 <!-- github links -->
 [contributing-guidelines]: https://github.com/jharding/ghostwriter/blob/master/CONTRIBUTING.md
 [compatible-template-engines]: https://github.com/twitter/typeahead/wiki/Compatible-Template-Engines
+[contributors]: https://github.com/twitter/typeahead.js/contributors
 
 <!-- deep links -->
 [features]: #features
