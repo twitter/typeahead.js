@@ -49,6 +49,7 @@
             limit: datasetDef.limit,
             local: datasetDef.local,
             prefetch: datasetDef.prefetch,
+            ttl_ms: datasetDef.ttl_ms,
             remote: datasetDef.remote,
             matcher: datasetDef.matcher,
             ranker: datasetDef.ranker,
