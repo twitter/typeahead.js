@@ -191,6 +191,8 @@ module.exports = function(grunt) {
 
     grunt.task.run([
       'exec:git_fail_if_dirty',
+      'lint',
+      'test',
       'manifests:' + version,
       'build',
       'exec:git_add',
