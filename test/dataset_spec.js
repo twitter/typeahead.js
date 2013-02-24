@@ -241,4 +241,65 @@ describe("Dataset", function() {
 
   });
 
+  describe("Tokenization, normalization, and matching with hard-coded local data", function() {
+    var fixtureData = ["course-106", "user_name", "One-Two", "two three"];
+    var dataset;
+
+    beforeEach(function() {
+      setFixtures(fixtureData);
+      localStorage.clear();
+      dataset = new Dataset({
+        name: "words",
+        local: fixtureData,
+        prefetch: "http://localhost",
+        remote: null
+      });
+    });
+
+    it("normalizes capitalization to match items", function() {
+      dataset.getSuggestions("Cours", function(items) {
+        expect(items).toEqual([
+          { tokens : [ 'course', '106' ], value : 'course-106', id : 'course-106' }
+        ]);
+      });
+      dataset.getSuggestions("cOuRsE 106", function(items) {
+        expect(items).toEqual([
+          { tokens : [ 'course', '106' ], value : 'course-106', id : 'course-106' }
+        ]);
+      });
+      dataset.getSuggestions("one two", function(items) {
+        expect(items).toEqual([
+          { tokens : [ 'one', 'two' ], value : 'One-Two', id : 'One-Two' }
+        ]);
+      });
+      dataset.getSuggestions("THREE TWO", function(items) {
+        expect(items).toEqual([
+          { tokens : [ 'two', 'three' ], value : 'two three', id : 'two three' }
+        ]);
+      });
+    });
+
+    it("matches items with dashes", function() {
+      dataset.getSuggestions("106 course", function(items) {
+        expect(items).toEqual([
+          { tokens : [ 'course', '106' ], value : 'course-106', id : 'course-106' }
+        ]);
+      });
+      dataset.getSuggestions("course-106", function(items) {
+        expect(items).toEqual([
+          { tokens : [ 'course', '106' ], value : 'course-106', id : 'course-106' }
+        ]);
+      });
+    });
+
+    it("matches items with underscores", function() {
+      dataset.getSuggestions("user name", function(items) {
+        expect(items).toEqual([
+          { tokens : [ 'user', 'name' ], value : 'user_name', id : 'user_name' }
+        ]);
+      });
+    });
+
+  });
+
 });

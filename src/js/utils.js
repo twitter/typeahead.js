@@ -140,6 +140,10 @@ var utils = {
     return a;
   },
 
+  tokenizeQuery: function(str) {
+    return $.trim(str).toLowerCase().split(/[\s]+/);
+  },
+
   tokenizeText: function(str) {
     return $.trim(str).toLowerCase().split(/[\s\-_]+/);
   },

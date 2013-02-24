@@ -159,10 +159,10 @@ var Dataset = (function() {
       utils.map(data, utils.bind(function(item) {
         var tokens;
         if (item.tokens) {
-          tokens = item.tokens;
+          tokens = utils.map(item.tokens, function(t) { return t.toLowerCase(); });
         } else {
           item = {
-            tokens: utils.tokenizeText(item),
+            tokens: utils.tokenizeText(item.toLowerCase()),
             value: item
           };
           tokens = item.tokens;
@@ -256,7 +256,7 @@ var Dataset = (function() {
     // ---------------
 
     getSuggestions: function(query, callback) {
-      var terms = utils.tokenizeText(query);
+      var terms = utils.tokenizeQuery(query);
       var potentiallyMatchingIds = this._getPotentiallyMatchingIds(terms);
       var potentiallyMatchingItems = this._getItemsFromIds(potentiallyMatchingIds);
       var matchedItems = utils.filter(potentiallyMatchingItems, this._matcher(terms));
