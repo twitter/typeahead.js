@@ -75,11 +75,11 @@
 
   function typeahead(method) {
     if (methods[method]) {
-      methods[method].apply(this, [].slice.call(arguments, 1));
+      return methods[method].apply(this, [].slice.call(arguments, 1));
     }
 
     else {
-      methods.initialize.apply(this, arguments);
+      return methods.initialize.apply(this, arguments);
     }
   }
 
