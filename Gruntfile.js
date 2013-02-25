@@ -155,7 +155,7 @@ module.exports = function(grunt) {
           'git checkout gh-pages',
           'rm -rf releases/latest',
           'cp -r typeahead.js releases/<%= pkg.version %>',
-          'cp -r tyepahead.js releases/latest',
+          'cp -r typeahead.js releases/latest',
           'git add releases/<%= pkg.version %> releases/latest',
           'sed -E -i "" \'s/v[0-9]+\\.[0-9]+\\.[0-9]+/v<%= pkg.version %>/\' index.html',
           'git add index.html',
