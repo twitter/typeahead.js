@@ -1,0 +1,75 @@
+[
+  {
+    "year": "1931/1932",
+    "value": "Grand Hotel",
+    "tokens": [
+      "Grand",
+      "Hotel"
+    ]
+  },
+  {
+    "year": "1936",
+    "value": "The Great Ziegfeld",
+    "tokens": [
+      "The",
+      "Great",
+      "Ziegfeld"
+    ]
+  },
+  {
+    "year": "1939",
+    "value": "Gone with the Wind",
+    "tokens": [
+      "Gone",
+      "with",
+      "the",
+      "Wind"
+    ]
+  },
+  {
+    "year": "1941",
+    "value": "How Green Was My Valley",
+    "tokens": [
+      "How",
+      "Green",
+      "Was",
+      "My",
+      "Valley"
+    ]
+  },
+  {
+    "year": "1944",
+    "value": "Going My Way",
+    "tokens": [
+      "Going",
+      "My",
+      "Way"
+    ]
+  },
+  {
+    "year": "1947",
+    "value": "Gentleman's Agreement",
+    "tokens": [
+      "Gentleman's",
+      "Agreement"
+    ]
+  },
+  {
+    "year": "1952",
+    "value": "The Greatest Show on Earth",
+    "tokens": [
+      "The",
+      "Greatest",
+      "Show",
+      "on",
+      "Earth"
+    ]
+  },
+  {
+    "year": "1958",
+    "value": "Gigi",
+    "tokens": [
+      "Gigi"
+    ]
+  }
+]

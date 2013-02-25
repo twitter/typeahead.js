@@ -1,0 +1,43 @@
+[
+  {
+    "year": "1937",
+    "value": "The Life of Emile Zola",
+    "tokens": [
+      "The",
+      "Life",
+      "of",
+      "Emile",
+      "Zola"
+    ]
+  },
+  {
+    "year": "1950",
+    "value": "All About Eve",
+    "tokens": [
+      "All",
+      "About",
+      "Eve"
+    ]
+  },
+  {
+    "year": "1952",
+    "value": "The Greatest Show on Earth",
+    "tokens": [
+      "The",
+      "Greatest",
+      "Show",
+      "on",
+      "Earth"
+    ]
+  },
+  {
+    "year": "1953",
+    "value": "From Here to Eternity",
+    "tokens": [
+      "From",
+      "Here",
+      "to",
+      "Eternity"
+    ]
+  }
+]

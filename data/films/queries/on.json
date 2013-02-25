@@ -1,0 +1,66 @@
+[
+  {
+    "year": "1929/1930",
+    "value": "All Quiet on the Western Front",
+    "tokens": [
+      "All",
+      "Quiet",
+      "on",
+      "the",
+      "Western",
+      "Front"
+    ]
+  },
+  {
+    "year": "1934",
+    "value": "It Happened One Night",
+    "tokens": [
+      "It",
+      "Happened",
+      "One",
+      "Night"
+    ]
+  },
+  {
+    "year": "1935",
+    "value": "Mutiny on the Bounty",
+    "tokens": [
+      "Mutiny",
+      "on",
+      "the",
+      "Bounty"
+    ]
+  },
+  {
+    "year": "1952",
+    "value": "The Greatest Show on Earth",
+    "tokens": [
+      "The",
+      "Greatest",
+      "Show",
+      "on",
+      "Earth"
+    ]
+  },
+  {
+    "year": "1954",
+    "value": "On the Waterfront",
+    "tokens": [
+      "On",
+      "the",
+      "Waterfront"
+    ]
+  },
+  {
+    "year": "1957",
+    "value": "The Bridge on the River Kwai",
+    "tokens": [
+      "The",
+      "Bridge",
+      "on",
+      "the",
+      "River",
+      "Kwai"
+    ]
+  }
+]

@@ -1,0 +1,24 @@
+[
+  {
+    "year": "1951",
+    "value": "An American in Paris",
+    "tokens": [
+      "An",
+      "American",
+      "in",
+      "Paris"
+    ]
+  },
+  {
+    "year": "1956",
+    "value": "Around the World in 80 Days",
+    "tokens": [
+      "Around",
+      "the",
+      "World",
+      "in",
+      "80",
+      "Days"
+    ]
+  }
+]

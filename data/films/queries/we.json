@@ -1,0 +1,23 @@
+[
+  {
+    "year": "1929/1930",
+    "value": "All Quiet on the Western Front",
+    "tokens": [
+      "All",
+      "Quiet",
+      "on",
+      "the",
+      "Western",
+      "Front"
+    ]
+  },
+  {
+    "year": "1945",
+    "value": "The Lost Weekend",
+    "tokens": [
+      "The",
+      "Lost",
+      "Weekend"
+    ]
+  }
+]

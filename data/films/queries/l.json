@@ -1,0 +1,34 @@
+[
+  {
+    "year": "1937",
+    "value": "The Life of Emile Zola",
+    "tokens": [
+      "The",
+      "Life",
+      "of",
+      "Emile",
+      "Zola"
+    ]
+  },
+  {
+    "year": "1945",
+    "value": "The Lost Weekend",
+    "tokens": [
+      "The",
+      "Lost",
+      "Weekend"
+    ]
+  },
+  {
+    "year": "1946",
+    "value": "The Best Years of Our Lives",
+    "tokens": [
+      "The",
+      "Best",
+      "Years",
+      "of",
+      "Our",
+      "Lives"
+    ]
+  }
+]

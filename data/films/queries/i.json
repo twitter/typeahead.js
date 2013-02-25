@@ -1,0 +1,46 @@
+[
+  {
+    "year": "1934",
+    "value": "It Happened One Night",
+    "tokens": [
+      "It",
+      "Happened",
+      "One",
+      "Night"
+    ]
+  },
+  {
+    "year": "1938",
+    "value": "You Can't Take It with You",
+    "tokens": [
+      "You",
+      "Can't",
+      "Take",
+      "It",
+      "with",
+      "You"
+    ]
+  },
+  {
+    "year": "1951",
+    "value": "An American in Paris",
+    "tokens": [
+      "An",
+      "American",
+      "in",
+      "Paris"
+    ]
+  },
+  {
+    "year": "1956",
+    "value": "Around the World in 80 Days",
+    "tokens": [
+      "Around",
+      "the",
+      "World",
+      "in",
+      "80",
+      "Days"
+    ]
+  }
+]

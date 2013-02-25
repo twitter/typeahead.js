@@ -179,6 +179,10 @@ p {
   outline: none;
 }
 
+.typeahead {
+  background-color: #fff;
+}
+
 .tt-hint {
   color: #999
 }

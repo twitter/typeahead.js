@@ -1,0 +1,21 @@
+[
+  {
+    "year": "1946",
+    "value": "The Best Years of Our Lives",
+    "tokens": [
+      "The",
+      "Best",
+      "Years",
+      "of",
+      "Our",
+      "Lives"
+    ]
+  },
+  {
+    "year": "1959",
+    "value": "Ben-Hur",
+    "tokens": [
+      "Ben-Hur"
+    ]
+  }
+]

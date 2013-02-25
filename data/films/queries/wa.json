@@ -1,0 +1,31 @@
+[
+  {
+    "year": "1941",
+    "value": "How Green Was My Valley",
+    "tokens": [
+      "How",
+      "Green",
+      "Was",
+      "My",
+      "Valley"
+    ]
+  },
+  {
+    "year": "1944",
+    "value": "Going My Way",
+    "tokens": [
+      "Going",
+      "My",
+      "Way"
+    ]
+  },
+  {
+    "year": "1954",
+    "value": "On the Waterfront",
+    "tokens": [
+      "On",
+      "the",
+      "Waterfront"
+    ]
+  }
+]

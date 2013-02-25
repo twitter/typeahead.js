@@ -1,0 +1,71 @@
+[
+  {
+    "year": "1929/1930",
+    "value": "All Quiet on the Western Front",
+    "tokens": [
+      "All",
+      "Quiet",
+      "on",
+      "the",
+      "Western",
+      "Front"
+    ]
+  },
+  {
+    "year": "1947",
+    "value": "Gentleman's Agreement",
+    "tokens": [
+      "Gentleman's",
+      "Agreement"
+    ]
+  },
+  {
+    "year": "1949",
+    "value": "All the Kings Men",
+    "tokens": [
+      "All",
+      "the",
+      "Kings",
+      "Men"
+    ]
+  },
+  {
+    "year": "1950",
+    "value": "All About Eve",
+    "tokens": [
+      "All",
+      "About",
+      "Eve"
+    ]
+  },
+  {
+    "year": "1951",
+    "value": "An American in Paris",
+    "tokens": [
+      "An",
+      "American",
+      "in",
+      "Paris"
+    ]
+  },
+  {
+    "year": "1956",
+    "value": "Around the World in 80 Days",
+    "tokens": [
+      "Around",
+      "the",
+      "World",
+      "in",
+      "80",
+      "Days"
+    ]
+  },
+  {
+    "year": "1960",
+    "value": "The Apartment",
+    "tokens": [
+      "The",
+      "Apartment"
+    ]
+  }
+]

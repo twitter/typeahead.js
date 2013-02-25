@@ -82,6 +82,10 @@ p {
   outline: none;
 }
 
+.typeahead {
+  background-color: #fff;
+}
+
 .typeahead:focus {
   border: 2px solid #0097cf;
 }

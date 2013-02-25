@@ -42,4 +42,14 @@ $(document).ready(function() {
       prefetch: '../data/nhl.json'
     }
   ]);
+
+  $('.example-films .typeahead').typeahead([
+    {
+      name: 'best-picture-winners',
+      remote: '../data/films/queries/%QUERY.json',
+      prefetch: '../data/films/post_1960.json',
+      template: '<p><strong>{{value}}</strong> – {{year}}</p>',
+      engine: Hogan
+    }
+  ]);
 });

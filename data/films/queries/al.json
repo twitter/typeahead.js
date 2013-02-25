@@ -1,0 +1,33 @@
+[
+  {
+    "year": "1929/1930",
+    "value": "All Quiet on the Western Front",
+    "tokens": [
+      "All",
+      "Quiet",
+      "on",
+      "the",
+      "Western",
+      "Front"
+    ]
+  },
+  {
+    "year": "1949",
+    "value": "All the Kings Men",
+    "tokens": [
+      "All",
+      "the",
+      "Kings",
+      "Men"
+    ]
+  },
+  {
+    "year": "1950",
+    "value": "All About Eve",
+    "tokens": [
+      "All",
+      "About",
+      "Eve"
+    ]
+  }
+]
