@@ -1,11 +1,11 @@
 /*!
- * typeahead.js 0.8.0
+ * typeahead.js 0.8.1
  * https://github.com/twitter/typeahead
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
 (function() {
-    var VERSION = "0.8.0";
+    var VERSION = "0.8.1";
     var utils = {
         isMsie: function() {
             return /msie [\w.]+/i.test(navigator.userAgent);
