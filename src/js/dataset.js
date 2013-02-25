@@ -214,35 +214,34 @@ var Dataset = (function() {
     },
 
     _processRemoteSuggestions: function(callback, matchedItems) {
+      var that = this;
+
       return function(data) {
-        var remoteAndLocalSuggestions = {}, dedupedSuggestions = [];
+        //convert remote suggestions to object
+        utils.each(data, function(i, remoteItem) {
+          var isDuplicate = false;
 
-        //convert remoteSuggestions to object
-        utils.each(data, function(index, item) {
-          if (utils.isString(item)) {
-            remoteAndLocalSuggestions[item] = { value: item };
-          } else {
-            remoteAndLocalSuggestions[item.value] = item;
-          }
+          remoteItem = utils.isString(remoteItem) ?
+            { value: remoteItem } : remoteItem;
+
+          // checks for duplicates
+          utils.each(matchedItems, function(i, localItem) {
+            if (remoteItem.value === localItem.value) {
+              isDuplicate = true;
+
+              // break out of each loop
+              return false;
+            }
+          });
+
+          !isDuplicate && matchedItems.push(remoteItem);
+
+          // if we're at the limit, we no longer need to process
+          // the remote results and can break out of the each loop
+          return matchedItems.length < that.limit;
         });
 
-        //dedup local and remote suggestions
-        utils.each(matchedItems, function(index, item) {
-          if (remoteAndLocalSuggestions[item.value]) {
-            return true;
-          }
-          if (utils.isString(item)) {
-            remoteAndLocalSuggestions[item] = { value: item };
-          } else {
-            remoteAndLocalSuggestions[item.value] = item;
-          }
-        });
-
-        //convert combined suggestions object back into an array
-        utils.each(remoteAndLocalSuggestions, function(index, item) {
-          dedupedSuggestions.push(item);
-        });
-        callback && callback(dedupedSuggestions);
+        callback && callback(matchedItems);
       };
     },
 

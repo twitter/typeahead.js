@@ -220,12 +220,16 @@ describe('Dataset', function() {
     });
 
     it('concatenates local and remote results and dedups them', function() {
-      var localSuggestions = [expectedItemHash.cake, expectedItemHash.coffee];
-      var remoteSuggestions = [expectedItemHash.coconut, expectedItemHash.cake]; // not actually used, does not work, no remote request triggered, this is already in the local storage
-      var func = this.dataset._processRemoteSuggestions(function(items) {
-        expect(items).toEqual([expectedItemHash.coconut, expectedItemHash.cake, expectedItemHash.coffee]);
-      }, localSuggestions);
-      func(remoteSuggestions);
+      var local = [expectedItemHash.cake, expectedItemHash.coffee],
+          remote = [expectedItemHash.coconut, expectedItemHash.cake];
+
+      this.dataset._processRemoteSuggestions(function(items) {
+        expect(items).toEqual([
+          expectedItemHash.cake,
+          expectedItemHash.coffee,
+          expectedItemHash.coconut
+        ]);
+      }, local)(remote);
     });
 
     it('sorts results: local first, then remote, sorted by graph weight / score within each local/remote section', function() {
