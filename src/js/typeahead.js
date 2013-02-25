@@ -1,5 +1,5 @@
 /*
- * Twitter Typeahead
+ * typeahead.js
  * https://github.com/twitter/typeahead
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
@@ -30,7 +30,7 @@
         var dataset,
             name = datasetDef.name = datasetDef.name || utils.getUniqueId();
 
-        // dataset by this name has already been intialized, used it
+        // dataset by this name has already been initialized, used it
         if (initializedDatasets[name]) {
           dataset = initializedDatasets[name];
         }
@@ -49,6 +49,7 @@
             limit: datasetDef.limit,
             local: datasetDef.local,
             prefetch: datasetDef.prefetch,
+            ttl_ms: datasetDef.ttl_ms, // temporary – will be removed in future
             remote: datasetDef.remote,
             matcher: datasetDef.matcher,
             ranker: datasetDef.ranker,
@@ -75,11 +76,11 @@
 
   function typeahead(method) {
     if (methods[method]) {
-      methods[method].apply(this, [].slice.call(arguments, 1));
+      return methods[method].apply(this, [].slice.call(arguments, 1));
     }
 
     else {
-      methods.initialize.apply(this, arguments);
+      return methods.initialize.apply(this, arguments);
     }
   }
 

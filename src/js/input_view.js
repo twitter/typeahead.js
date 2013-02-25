@@ -1,5 +1,5 @@
 /*
- * Twitter Typeahead
+ * typeahead.js
  * https://github.com/twitter/typeahead
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
@@ -15,13 +15,13 @@ var InputView = (function() {
     utils.bindAll(this);
 
     this.specialKeyCodeMap = {
-      9: { event: 'tab' },
-      27: { event: 'esc' },
-      37: { event: 'left' },
-      39: { event: 'right' },
-      13: { event: 'enter' },
-      38: { event: 'up', preventDefault: true },
-      40: { event: 'down', preventDefault: true }
+      9: 'tab',
+      27: 'esc',
+      37: 'left',
+      39: 'right',
+      13: 'enter',
+      38: 'up',
+      40: 'down'
     };
 
     this.query = '';
@@ -50,6 +50,9 @@ var InputView = (function() {
         setTimeout(that._compareQueryToInputValue, 0);
       });
     }
+
+    // helps with calculating the width of the input's value
+    this.$overflowHelper = buildOverflowHelper(this.$input);
   }
 
   utils.mixin(InputView.prototype, EventTarget, {
@@ -64,14 +67,11 @@ var InputView = (function() {
       this.trigger('blur');
     },
 
-    _handleSpecialKeyEvent: function(e) {
+    _handleSpecialKeyEvent: function($e) {
       // which is normalized and consistent (but not for IE)
-      var keyCode = this.specialKeyCodeMap[e.which || e.keyCode];
+      var keyName = this.specialKeyCodeMap[$e.which || $e.keyCode];
 
-      if (keyCode) {
-        this.trigger(keyCode.event, e);
-        keyCode.preventDefault && e.preventDefault();
-      }
+      keyName && this.trigger(keyName, $e);
     },
 
     _compareQueryToInputValue: function() {
@@ -98,10 +98,6 @@ var InputView = (function() {
 
     blur: function() {
       this.$input.blur();
-    },
-
-    setPreventDefaultValueForKey: function(key, value) {
-      this.specialKeyCodeMap[key].preventDefault = !!value;
     },
 
     getQuery: function() {
@@ -133,12 +129,18 @@ var InputView = (function() {
       return (this.$input.css('direction') || 'ltr').toLowerCase();
     },
 
+    isOverflow: function() {
+      this.$overflowHelper.text(this.getInputValue());
+
+      return this.$overflowHelper.width() > this.$input.width();
+    },
+
     isCursorAtEnd: function() {
       var valueLength = this.$input.val().length,
           selectionStart = this.$input[0].selectionStart,
           range;
 
-      if (selectionStart) {
+      if (utils.isNumber(selectionStart)) {
        return selectionStart === valueLength;
       }
 
@@ -156,6 +158,30 @@ var InputView = (function() {
   });
 
   return InputView;
+
+  function buildOverflowHelper($input) {
+    return $('<span></span>')
+    .css({
+      // position helper off-screen
+      position: 'absolute',
+      left: '-9999px',
+      visibility: 'hidden',
+      // avoid line breaks
+      whiteSpace: 'nowrap',
+      // use same font css as input to calculate accurate width
+      fontFamily: $input.css('font-family'),
+      fontSize: $input.css('font-size'),
+      fontStyle: $input.css('font-style'),
+      fontVariant: $input.css('font-variant'),
+      fontWeight: $input.css('font-weight'),
+      wordSpacing: $input.css('word-spacing'),
+      letterSpacing: $input.css('letter-spacing'),
+      textIndent: $input.css('text-indent'),
+      textRendering: $input.css('text-rendering'),
+      textTransform: $input.css('text-transform')
+    })
+    .insertAfter($input);
+  }
 
   function compareQueries(a, b) {
     // strips leading whitespace and condenses all whitespace

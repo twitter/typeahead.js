@@ -1,5 +1,5 @@
 /*
- * Twitter Typeahead
+ * typeahead.js
  * https://github.com/twitter/typeahead
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
@@ -17,7 +17,7 @@ var utils = {
 
   isFunction: $.isFunction,
 
-  isObject: function(obj) { return obj !== Object(obj); },
+  isObject: function(obj) { return obj === Object(obj); },
 
   isUndefined: function(obj) { return typeof obj === 'undefined'; },
 
@@ -64,12 +64,6 @@ var utils = {
     });
 
     return !!result;
-  },
-
-  keys: function(obj) {
-    if (!utils.isObject(obj)) { throw new TypeError('invalid object'); }
-
-    return $.map(obj, function(val, key) { return key; });
   },
 
   mixin: $.extend,
@@ -144,6 +138,10 @@ var utils = {
     }
 
     return a;
+  },
+
+  tokenizeQuery: function(str) {
+    return $.trim(str).toLowerCase().split(/[\s]+/);
   },
 
   tokenizeText: function(str) {
