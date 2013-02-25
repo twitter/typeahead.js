@@ -3,9 +3,9 @@ describe('DropdownView', function() {
     '<ol class="tt-dropdown-menu">',
       '<li class="tt-dataset-test">',
         '<ol class="tt-suggestions" data-query="test q" data-dataset="test">',
-          '<li class="tt-suggestion" data-value="one">one</li>',
-          '<li class="tt-suggestion" data-value="two">two</li>',
-          '<li class="tt-suggestion" data-value="three">three</li>',
+          '<li class="tt-suggestion" data-value="one" data-arbitrary="first">one</li>',
+          '<li class="tt-suggestion" data-value="two" data-arbitrary="second">two</li>',
+          '<li class="tt-suggestion" data-value="three" data-arbitrary="third">three</li>',
         '</ol>',
       '</li>',
     '</ol>'
@@ -88,7 +88,8 @@ describe('DropdownView', function() {
         data: {
           query: 'test query',
           dataset: 'test dataset',
-          value: 'one'
+          value: 'one',
+          arbitrary: 'first'
         }
       });
     });
@@ -432,6 +433,7 @@ describe('DropdownView', function() {
         var suggestionData = this.dropdownView.getSuggestionUnderCursor();
 
         expect(suggestionData.value).toBe($suggestion.data('value'));
+        expect(suggestionData.arbitrary).toBe($suggestion.data('arbitrary'));
         expect(suggestionData.query).toBe(this.$testSet.data('query'));
         expect(suggestionData.dataset).toBe(this.$testSet.data('dataset'));
       });
@@ -445,6 +447,7 @@ describe('DropdownView', function() {
           suggestionData = this.dropdownView.getFirstSuggestion();
 
       expect(suggestionData.value).toBe($firstSuggestion.data('value'));
+      expect(suggestionData.arbitrary).toBe($firstSuggestion.data('arbitrary'));
       expect(suggestionData.query).toBe(this.$testSet.data('query'));
       expect(suggestionData.dataset).toBe(this.$testSet.data('dataset'));
     });
