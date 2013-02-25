@@ -71,7 +71,7 @@ var DropdownView = (function() {
       }
 
       $underCursor = $suggestions.eq(nextIndex).addClass('tt-is-under-cursor');
-      this.trigger('cursorOn', { value: $underCursor.data('value') });
+      this.trigger('cursorOn', $underCursor.data());
     },
 
     _getSuggestions: function() {
@@ -164,7 +164,11 @@ var DropdownView = (function() {
           elBuilder.innerHTML = dataset.template.render(suggestion);
 
           el = elBuilder.firstChild;
-          el.setAttribute('data-value', suggestion.value);
+          for (var key in suggestion) {
+            if (key != 'query' & key != 'dataset') {
+              el.setAttribute('data-'+key, suggestion[key]);
+            }
+          }
 
           fragment.appendChild(el);
         });
@@ -193,11 +197,9 @@ var DropdownView = (function() {
 
   function formatDataForSuggestion($suggestion) {
     var $suggestions = $suggestion.parents('.tt-suggestions').first();
-
-    return {
-      value: $suggestion.data('value'),
-      query: $suggestions.data('query'),
-      dataset: $suggestions.data('dataset')
-    };
+    var data = $suggestion.data();
+    data.query = $suggestions.data('query');
+    data.dataset = $suggestions.data('dataset');
+    return data;
   }
 })();
