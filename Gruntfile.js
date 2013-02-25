@@ -1,10 +1,6 @@
-// release tasks
-// 1. grunt build
-// 2. grunt bump
-// 3. grunt component
-// 4. grunt publish_assets
-
-var jsFiles = [
+var semver = require('semver'),
+    f = require('util').format,
+    jsFiles = [
       'src/js/version.js',
       'src/js/utils.js',
       'src/js/event_target.js',
@@ -26,7 +22,7 @@ module.exports = function(grunt) {
 
     banner: [
       '/*!',
-      ' * Twitter Typeahead <%= pkg.version %>',
+      ' * typeahead.js <%= pkg.version %>',
       ' * https://github.com/twitter/typeahead',
       ' * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT',
       ' */\n\n'
@@ -137,26 +133,36 @@ module.exports = function(grunt) {
       open_spec_runner: {
         cmd: 'open _SpecRunner.html'
       },
-      bump: {
-        cmd: function(v) {
-          return [
-            'npm version ' + v,
-            'git push',
-            'git push --tags'
-          ].join(' && ');
-        }
+      git_fail_if_dirty: {
+        cmd: 'test -z "$(git status --porcelain)"'
+      },
+      git_add: {
+        cmd: 'git add .'
+      },
+      git_commit: {
+        cmd: function(m) { return f('git commit -m "%s"', m); }
+      },
+      git_tag: {
+        cmd: function(v) { return f('git tag v%s -am "%s"', v, v); }
+      },
+      git_push: {
+        cmd: 'git push && git push --tags'
       },
       publish_assets: {
         cmd: [
-          'zip -r <%= buildDir %>/typeahead.js.zip <%= buildDir %>',
+          'cp -r <%= buildDir %> typeahead.js',
+          'zip -r typeahead.js/typeahead.js.zip typeahead.js',
           'git checkout gh-pages',
           'rm -rf releases/latest',
-          'cp -r <%= buildDir %> releases/<%= pkg.version %>',
-          'cp -rf <%= buildDir %> releases/latest',
+          'cp -r typeahead.js releases/<%= pkg.version %>',
+          'cp -r tyepahead.js releases/latest',
           'git add releases/<%= pkg.version %> releases/latest',
+          'sed -E -i "" \'s/v[0-9]+\\.[0-9]+\\.[0-9]+/v<%= pkg.version %>/\' index.html',
+          'git add index.html',
           'git commit -m "Add assets for <%= pkg.version %>."',
           'git push',
-          'git checkout -'
+          'git checkout -',
+          'rm -rf typeahead.js'
         ].join(' && ')
       }
     },
@@ -174,13 +180,59 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('component', 'Updates component.json', function() {
-    var _ = grunt.util._,
-        component = grunt.file.readJSON('component.json'),
-        pkg = grunt.file.readJSON('package.json');
+  grunt.registerTask('release', 'Ship it.', function(version) {
+    var pkg = grunt.file.readJSON('package.json');
 
-    _(component).extend(_(pkg).pick('name', 'version'));
-    grunt.file.write('component.json', JSON.stringify(component, null, 2));
+    version = semver.inc(pkg.version, version) || version;
+
+    if (!semver.valid(version) || semver.lte(version, pkg.version)) {
+      grunt.fatal('invalid version dummy');
+    }
+
+    grunt.task.run([
+      'exec:git_fail_if_dirty',
+      'lint',
+      'test',
+      'manifests:' + version,
+      'build',
+      'exec:git_add',
+      'exec:git_commit:' + version,
+      'exec:git_tag:' + version,
+      'exec:git_push',
+      'exec:publish_assets'
+    ]);
+  });
+
+  grunt.registerTask('manifests', 'Update manifests.', function(version) {
+    var _ = grunt.util._,
+        pkg = grunt.file.readJSON('package.json'),
+        component = grunt.file.readJSON('component.json'),
+        jqueryPlugin = grunt.file.readJSON('typeahead.js.jquery.json');
+
+    component = JSON.stringify(_.extend(component, {
+      name: pkg.name,
+      version: version
+    }), null, 2);
+
+    jqueryPlugin = JSON.stringify(_.extend(jqueryPlugin, {
+      name: pkg.name,
+      title: pkg.name,
+      version: version,
+      author: pkg.author,
+      description: pkg.description,
+      keywords: pkg.keywords,
+      homepage: pkg.homepage,
+      bugs: pkg.bugs,
+      maintainers: pkg.contributors
+    }), null, 2);
+
+    pkg = JSON.stringify(_.extend(pkg, {
+      version: version
+    }), null, 2);
+
+    grunt.file.write('package.json', pkg);
+    grunt.file.write('component.json', component);
+    grunt.file.write('typeahead.js.jquery.json', jqueryPlugin);
   });
 
   // aliases
