@@ -5,7 +5,7 @@
  */
 
 (function() {
-  var initializedDatasets = {}, methods;
+  var datasetCache = {}, methods;
 
   methods = {
     initialize: function(datasetDefs) {
@@ -13,59 +13,30 @@
 
       datasetDefs = utils.isArray(datasetDefs) ? datasetDefs : [datasetDefs];
 
+      if (this.length === 0) {
+        throw new Error('typeahead initialized without DOM element');
+      }
+
       if (datasetDefs.length === 0) {
         throw new Error('no datasets provided');
       }
 
       utils.each(datasetDefs, function(i, o) {
-        var transport, dataset;
-
         o.name = o.name || utils.getUniqueId();
 
-        // dataset by this name has already been intialized, used it
-        if (initializedDatasets[o.name]) {
-          dataset = initializedDatasets[o.name];
-        }
-
-        else {
-          if (o.template && !o.engine) {
-            throw new Error('no template engine specified for ' + o.name);
-          }
-
-          transport = new Transport({
-            ajax: o.ajax,
-            wildcard: o.wildcard,
-            rateLimitFn: o.rateLimitFn,
-            maxConcurrentConnections: o.maxConcurrentConnections
-          });
-
-          dataset = initializedDatasets[name] = new Dataset({
-            name: o.name,
-            limit: o.limit,
-            local: o.local,
-            prefetch: o.prefetch,
-            ttl_ms: o.ttl_ms, // temporary – will be removed in future
-            remote: o.remote,
-            matcher: o.matcher,
-            ranker: o.ranker,
-            transport: transport
-          });
-        }
-
-        // faux dataset used by TypeaheadView instances
-        datasets[name] = {
-          name: o.name,
-          limit: o.limit,
-          template: o.template,
-          engine: o.engine,
-          getSuggestions: dataset.getSuggestions
-        };
+        datasets[o.name] = datasetCache[o.name] ?
+          datasetCache[o.name] :
+          datasetCache[o.name] = new Dataset(o);
       });
 
       return this.each(function() {
-        $(this).data({
-          typeahead: new TypeaheadView({ input: this, datasets: datasets })
-        });
+        var $input = $(this),
+            typeaheadView = new TypeaheadView({
+              input: $input,
+              datasets: datasets
+            });
+
+        $input.data('ttView', typeaheadView);
       });
     }
   };

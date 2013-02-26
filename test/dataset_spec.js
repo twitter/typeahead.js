@@ -170,9 +170,7 @@ describe('Dataset', function() {
     });
 
     it('network requests are not triggered with enough local results', function() {
-      this.dataset.queryUrl = '/remote?q=%QUERY';
-      this.dataset.transport = new Transport({debounce:utils.debounce});
-      spyOn(this.dataset.transport, 'get');
+      spyOn(this.dataset.transport = { get: $.noop }, 'get');
 
       this.dataset.limit = 1;
       this.dataset.getSuggestions('c', function(items) {
@@ -183,7 +181,7 @@ describe('Dataset', function() {
         ]);
       });
 
-      expect(this.dataset.transport.get.callCount).toBe(0);
+      expect(this.dataset.transport.get).not.toHaveBeenCalled();
 
       this.dataset.limit = 100;
       this.dataset.getSuggestions('c', function(items) {
@@ -194,7 +192,7 @@ describe('Dataset', function() {
         ]);
       });
 
-      expect(this.dataset.transport.get.callCount).toBe(1);
+      expect(this.dataset.transport.get).toHaveBeenCalled();
     });
 
     it('matches', function() {

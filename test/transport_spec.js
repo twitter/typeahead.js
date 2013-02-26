@@ -1,198 +1,178 @@
 describe('Transport', function() {
-  var successResp = { prop: 'val' },
-      ajaxMocks = {
-        timeout: function(o) {
-          o.beforeSend && o.beforeSend();
-        },
-        success: function(o) {
-          o.beforeSend && o.beforeSend();
-
-          setTimeout(function() {
-            o.success && o.success(successResp);
-            o.complete && o.complete();
-          }, 50);
-        },
-        error: function(o) {
-          o.beforeSend && o.beforeSend();
-
-          setTimeout(function() {
-            o.error && o.error();
-            o.complete && o.complete();
-          }, 50);
-        }
-      },
-      _debounce;
+  var successData = { prop: 'val' },
+      successResp = { status: 200, responseText: JSON.stringify(successData) },
+      errorResp = { status: 500 },
+      _debounce,
+      _RequestCache;
 
   beforeEach(function() {
-    spyOn($, 'ajax');
+    jasmine.Ajax.useMock();
+
+    _RequestCache = RequestCache;
+    RequestCache = MockRequestCache;
 
     _debounce = utils.debounce;
     utils.debounce = function(fn) { return fn; };
 
     this.transport = new Transport({
-      wildcard: '%QUERY',
+      url: 'http://example.com?q=$$',
+      wildcard: '$$',
       debounce: true,
-      maxConcurrentRequests: 3
+      maxParallelRequests: 3
     });
+
+    this.requestCache = MockRequestCache.instance;
+    spyOn(this.requestCache, 'get');
+    spyOn(this.requestCache, 'set');
   });
 
   afterEach(function() {
     utils.debounce = _debounce;
+    RequestCache = _RequestCache;
+
+    // run twice to flush out  on-deck requests
+    for (var i = 0; i < 2; i ++) {
+      ajaxRequests.forEach(respond);
+    }
+
+    clearAjaxRequests();
+
+    function respond(req) { req.response(successResp); }
   });
 
   describe('#get', function() {
     describe('when request is available in cache', function() {
       beforeEach(function() {
-        spyOn(this.transport.cache, 'get').andReturn(successResp);
+        this.spy = jasmine.createSpy();
+        this.requestCache.get.andReturn(successData);
+
+        this.transport.get('query', this.spy);
+        this.request = mostRecentAjaxRequest();
       });
 
       it('should not call $.ajax', function() {
-        this.transport.get('http://example.com', 'query');
-
-        expect($.ajax).not.toHaveBeenCalled();
+        expect(this.request).toBeNull();
       });
 
       it('should invoke callback with response from cache', function() {
-        var spy = jasmine.createSpy();
-
-        this.transport.get('http://example.com', 'query', spy);
-
-        waitsFor(function() { return spy.callCount; });
-        runs(function() { expect(spy).toHaveBeenCalledWith(successResp); });
+        expect(this.spy).toHaveBeenCalledWith(successData);
       });
     });
 
-    describe('when below concurrent request threshold', function() {
-      beforeEach(function() {
-        $.ajax.andCallFake(ajaxMocks.timeout);
-      });
-
+    describe('when below pending requests threshold', function() {
       it('should make remote request', function() {
-        this.transport.get('http://example.com', 'query');
+        this.transport.get('has space');
+        this.request = mostRecentAjaxRequest();
 
-        waitsFor(function() { return $.ajax.callCount === 1; });
+        expect(this.request).not.toBeNull();
       });
 
       it('should replace wildcard in url with encoded query', function() {
-        var args;
+        this.transport.get('has space');
+        this.request = mostRecentAjaxRequest();
 
-        this.transport.get('http://example.com?q=%QUERY', 'has space');
-        args = $.ajax.mostRecentCall.args;
+        expect(this.request.url).toEqual('http://example.com?q=has%20space');
 
-        expect(args[0].url).toEqual('http://example.com?q=has%20space');
-      });
+        this.transport.replace = function(url, query) { return url + query; };
+        this.transport.get('has space');
+        this.request = mostRecentAjaxRequest();
 
-      it('should increment the concurrent request count', function() {
-        this.transport.get('http://example.com', 'query');
-
-        expect(this.transport.concurrentRequests).toEqual(1);
+        expect(this.request.url).toEqual('http://example.com?q=$$has%20space');
       });
     });
 
     describe('when at concurrent request threshold', function() {
       beforeEach(function() {
-        $.ajax.andCallFake(ajaxMocks.timeout);
-        this.transport.concurrentRequests =
-          this.transport.maxConcurrentRequests + 1;
+        this.goodRequests = [];
+
+        for (var i = 0; i < 3; i++) {
+          this.transport.get('good');
+          this.goodRequests.push(mostRecentAjaxRequest());
+        }
+
+        this.transport.get('bad', $.noop);
       });
 
       it('should not call $.ajax', function() {
-        this.transport.get('http://example.com', 'query');
-
-        expect($.ajax).not.toHaveBeenCalled();
+        expect(ajaxRequests.length).toBe(3);
       });
 
       it('should set args for the on-deck request', function() {
-        var cb = function() {};
-
-        this.transport.get('http://example.com', 'query', cb);
-
-        expect(this.transport.onDeckRequestArgs)
-        .toEqual(['http://example.com', 'query', cb]);
+        expect(this.transport.onDeckRequestArgs).toEqual(['bad', $.noop]);
       });
     });
 
     describe('when request succeeds', function() {
       beforeEach(function() {
-        $.ajax.andCallFake(ajaxMocks.success);
+        this.spy = jasmine.createSpy();
+
+        this.transport.filter = jasmine.createSpy().andReturn({ prop: 'val' });
+
+        this.transport.get('has space', this.spy);
+        this.request = mostRecentAjaxRequest();
+        this.request.response(successResp);
       });
 
       it('should invoke callback with json response', function() {
         var spy = jasmine.createSpy();
 
-        this.transport.get('http://example.com', 'query', spy);
-
-        waitsFor(function() { return spy.callCount; });
-        runs(function() { expect(spy).toHaveBeenCalledWith(successResp); });
-      });
-
-      it('should decrement the request count', function() {
-        this.transport.get('http://example.com', 'query');
-
-        expect(this.transport.concurrentRequests).toEqual(1);
-        waitsFor(function() {
-          return this.transport.concurrentRequests === 0;
-        });
+        expect(this.spy).toHaveBeenCalledWith(successData);
       });
 
       it('should add response to the cache', function() {
-        spyOn(this.transport.cache, 'set');
+        expect(this.requestCache.set)
+        .toHaveBeenCalledWith('http://example.com?q=has%20space', successData);
+      });
 
-        this.transport.get('http://example.com', 'query');
-
-        waitsFor(function() {
-          return this.transport.cache.set.callCount;
-        });
-
-        runs(function() {
-          expect(this.transport.cache.set)
-          .toHaveBeenCalledWith('http://example.com', successResp);
-        });
+      it('should call filter', function() {
+        expect(this.transport.filter).toHaveBeenCalledWith(successData);
       });
     });
 
     describe('when request fails', function() {
       beforeEach(function() {
-        $.ajax.andCallFake(ajaxMocks.error);
+        this.spy = jasmine.createSpy();
+
+        this.transport.get('has space', this.spy);
+        this.request = mostRecentAjaxRequest();
+        this.request.response(errorResp);
       });
 
-      it('should decrement the request count', function() {
-        this.transport.get('http://example.com', 'query');
+      it('should not invoke callback', function() {
+        expect(this.spy).not.toHaveBeenCalled();
+      });
 
-        expect(this.transport.concurrentRequests).toEqual(1);
-        waitsFor(function() {
-          return this.transport.concurrentRequests === 0;
-        });
+      it('should not add response to the cache', function() {
+        expect(this.requestCache.set).not.toHaveBeenCalled();
       });
     });
 
     describe('when request count drops below threshold', function() {
-      beforeEach(function() {
-        $.ajax.andCallFake(ajaxMocks.success);
-      });
-
       it('should call #get with on-deck request args', function() {
-        var spy = jasmine.createSpy(),
-            i = this.transport.maxConcurrentRequests;
+        var requests = [];
 
-        while(i--) { this.transport.get('http://example.com', 'query', spy); }
+        for (var i = 0; i < 3; i++) {
+          this.transport.get('good');
+          requests.push(mostRecentAjaxRequest());
+        }
 
-        // above the threshold, should be delayed
-        this.transport.get('http://example.com', 'query', spy);
+        this.transport.get('bad');
 
-        spyOn(this.transport, 'get');
+        expect(ajaxRequests.length).toBe(3);
+        requests[0].response(successResp);
+        expect(ajaxRequests.length).toBe(4);
 
-        waitsFor(function() {
-          return spy.callCount === this.transport.maxConcurrentRequests &&
-            this.transport.get.callCount === 1;
-        });
-
-        runs(function() {
-          expect(this.transport.get)
-          .toHaveBeenCalledWith('http://example.com', 'query', spy);
-        });
-
+        expect(mostRecentAjaxRequest().url).toBe('http://example.com?q=bad');
       });
     });
   });
+
+  // helper functions
+  // ----------------
+
+  function MockRequestCache() {
+    this.get = $.noop;
+    this.set = $.noop;
+    MockRequestCache.instance = this;
+  }
 });

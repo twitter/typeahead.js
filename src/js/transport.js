@@ -5,37 +5,36 @@
  */
 
 var Transport = (function() {
-  var concurrentConnections = 0,
-      maxConcurrentConnections,
-      requestCache;
+  var pendingRequests = 0, maxParallelRequests, requestCache;
 
   function Transport(o) {
     utils.bindAll(this);
 
-    o = o || {};
-
-    maxConcurrentConnections = utils.isNumber(o.maxConcurrentConnections) ?
-      o.maxConcurrentConnections : maxConcurrentConnections || 6;
-
-    this.wildcard = o.wildcard || '%QUERY';
-
-    this.ajaxSettings = utils.mixin({}, o.ajax, {
-      // needs to be true to jqXHR methods (done, always)
-      // also you're out of your mind if you want to make a sync request
-      async: true,
-      beforeSend: function() {
-        incrementConcurrentConnections();
-
-        if (o.ajax.beforeSend) {
-          return o.ajax.beforeSend.apply(this, arguments);
-        }
-      }
-    });
+    if (!utils.isObject(o) || !o.url) {
+      throw new Error('invalid settings for remote');
+    }
 
     requestCache = requestCache || new RequestCache();
 
+    // shared between all instances, last instance to set it wins
+    maxParallelRequests = utils.isNumber(o.maxParallelRequests) ?
+      o.maxParallelRequests : maxParallelRequests || 6;
+
+    this.url = o.url;
+    this.wildcard = o.wildcard || '%QUERY';
+    this.filter = o.filter;
+    this.replace = o.replace;
+
+    this.ajaxSettings = {
+      type: 'get',
+      cache: o.cache,
+      timeout: o.timeout,
+      dataType: o.dataType || 'json',
+      beforeSend: o.beforeSend
+    };
+
     this.get = (/^throttle$/i.test(o.rateLimitFn) ?
-      utils.throttle : utils.debounce)(this.get, o.wait || 300);
+      utils.throttle : utils.debounce)(this.get, o.rateLimitWait || 300);
   }
 
   utils.mixin(Transport.prototype, {
@@ -43,34 +42,46 @@ var Transport = (function() {
     // public methods
     // --------------
 
-    get: function(url, query, cb) {
-      var that = this, resp;
+    get: function(query, cb) {
+      var that = this,
+          encodedQuery = encodeURIComponent(query || ''),
+          url,
+          resp;
 
-      url = url.replace(this.wildcard, encodeURIComponent(query || ''));
+      url = this.replace ?
+        this.replace(this.url, encodedQuery) :
+        this.url.replace(this.wildcard, encodedQuery);
 
       if (resp = requestCache.get(url)) {
         cb && cb(resp);
       }
 
-      else if (belowConcurrentConnectionsThreshold()) {
-        $.ajax(this.ajaxSettings)
-        .done(function(resp) {
-          cb && cb(resp);
-          requestCache.set(url, resp);
-        })
-        .always(function() {
-          decrementConcurrentConnections();
-
-          // ensures request is always made for the latest query
-          if (that.onDeckRequestArgs) {
-            that.get.apply(that, that.onDeckRequestArgs);
-            that.onDeckRequestArgs = null;
-          }
-        });
+      else if (belowPendingRequestsThreshold()) {
+        incrementPendingRequests();
+        $.ajax(url, this.ajaxSettings).done(done).always(always);
       }
 
       else {
         this.onDeckRequestArgs = [].slice.call(arguments, 0);
+      }
+
+      // success callback
+      function done(resp) {
+        resp = that.filter ? that.filter(resp) : resp;
+
+        cb && cb(resp);
+        requestCache.set(url, resp);
+      }
+
+      // comlete callback
+      function always() {
+        decrementPendingRequests();
+
+        // ensures request is always made for the latest query
+        if (that.onDeckRequestArgs) {
+          that.get.apply(that, that.onDeckRequestArgs);
+          that.onDeckRequestArgs = null;
+        }
       }
     }
   });
@@ -80,15 +91,15 @@ var Transport = (function() {
   // static methods
   // --------------
 
-  function incrementConcurrentConnections() {
-    concurrentConnections++;
+  function incrementPendingRequests() {
+    pendingRequests++;
   }
 
-  function decrementConcurrentConnections() {
-    concurrentConnections--;
+  function decrementPendingRequests() {
+    pendingRequests--;
   }
 
-  function belowConcurrentConnectionsThreshold() {
-    return concurrentConnections < maxConcurrentConnections;
+  function belowPendingRequestsThreshold() {
+    return pendingRequests < maxParallelRequests;
   }
 })();
