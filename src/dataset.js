@@ -1,5 +1,5 @@
 /*
- * Twitter Typeahead
+ * typeahead.js
  * https://github.com/twitter/typeahead
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
@@ -15,21 +15,22 @@ var Dataset = (function() {
 
     this.name = o.name;
     this.resetDataOnProtocolSwitch = o.resetDataOnProtocolSwitch || false;
-    this.prefetchUrl = o.prefetch;
     this.queryUrl = o.remote;
-    this.rawData = o.local;
     this.transport = o.transport;
     this.limit = o.limit || 10;
     this._customMatcher = o.matcher || null;
     this._customRanker = o.ranker || null;
-    this._ttl_ms = o.ttl_ms || 3 * 24 * 60 * 60 * 1000;// 3 days;
+    this._ttl_ms = o.ttl_ms || 3 * 24 * 60 * 60 * 1000; // 3 days;
 
-    this.storageAdjacencyList = 'adjacencyList';
-    this.storageHash = 'itemHash';
-    this.storageProtocol = 'protocol';
-    this.storageVersion = 'version';
+    this.keys = {
+      version: 'version',
+      protocol: 'protocol',
+      itemHash: 'itemHash',
+      adjacencyList: 'adjacencyList'
+    };
 
-    this._loadData();
+    o.local && this._processLocalData(o.local);
+    o.prefetch && this._loadPrefetchData(o.prefetch);
   }
 
   utils.mixin(Dataset.prototype, {
@@ -37,28 +38,89 @@ var Dataset = (function() {
     // private methods
     // ---------------
 
-    _isMetadataExpired: function() {
-      // TODO: disable protocol check by default and add to global config API
-      var isExpired = this.storage.isExpired(this.storageProtocol);
-      var isCacheStale = this.storage.isExpired(this.storageAdjacencyList) || this.storage.isExpired(this.storageHash);
-      var resetForProtocolSwitch =  this.resetDataOnProtocolSwitch && this.storage.get(this.storageProtocol) != utils.getProtocol();
-      if (VERSION == this.storage.get(this.storageVersion) && !resetForProtocolSwitch && !isExpired && !isCacheStale) {
-        return false;
-      }
-      return true;
+    _processLocalData: function(data) {
+      data && this._mergeProcessedData(this._processData(data));
     },
 
-    _loadData: function() {
-      this.rawData && this._processRawData(this.rawData);
-      this._getDataFromLocalStorage();
-      if (this._isMetadataExpired() || this.itemHash === {}) {
-        this.prefetchUrl && this._prefetch(this.prefetchUrl);
+    _loadPrefetchData: function(url) {
+      var that = this,
+          itemHash = this.storage.get(this.keys.itemHash),
+          adjacencyList = this.storage.get(this.keys.adjacencyList),
+          protocol = this.storage.get(this.keys.protocol),
+          version = this.storage.get(this.keys.version),
+          isExpired = version !== VERSION || protocol !== utils.getProtocol();
+
+      // data was available in local storage, use it
+      if (itemHash && adjacencyList && !isExpired) {
+        this._mergeProcessedData({
+          itemHash: itemHash,
+          adjacencyList: adjacencyList
+        });
+      }
+
+      else {
+        $.getJSON(url).done(processPrefetchData);
+      }
+
+      function processPrefetchData(data) {
+        var processedData = that._processData(data),
+            itemHash = processedData.itemHash,
+            adjacencyList = processedData.adjacencyList;
+
+        // store process data in local storage
+        // this saves us from processing the data on every page load
+        that.storage.set(that.keys.itemHash, itemHash, that._ttl_ms);
+        that.storage.set(that.keys.adjacencyList, adjacencyList, that._ttl_ms);
+        that.storage.set(that.keys.version, VERSION, that._ttl_ms);
+        that.storage.set(that.keys.protocol, utils.getProtocol(), that._ttl_ms);
+
+        that._mergeProcessedData(processedData);
       }
     },
 
-    _getDataFromLocalStorage: function() {
-      this.itemHash = this.storage.get(this.storageHash) || this.itemHash;
-      this.adjacencyList = this.storage.get(this.storageAdjacencyList) || this.adjacencyList;
+    _processData: function(data) {
+      var itemHash = {}, adjacencyList = {};
+
+      utils.each(data, function(i, item) {
+        var id;
+
+        // convert string datums to datum objects
+        if (utils.isString(item)) {
+          item = { value: item, tokens: utils.tokenizeText(item) };
+        }
+
+        // normalize tokens
+        item.tokens = utils.map(item.tokens || [], function(token) {
+          return token.toLowerCase();
+        });
+
+        itemHash[id = utils.getUniqueId(item.value)] = item;
+
+        utils.each(item.tokens, function(i, token) {
+          var character = token.charAt(0),
+              adjacency = adjacencyList[character] ||
+                (adjacencyList[character] = [id]);
+
+          !~utils.indexOf(adjacency, id) && adjacency.push(id);
+        });
+      });
+
+      return { itemHash: itemHash, adjacencyList: adjacencyList };
+    },
+
+    _mergeProcessedData: function(processedData) {
+      var that = this;
+
+      // merge item hash
+      utils.mixin(this.itemHash, processedData.itemHash);
+
+      // merge adjacency list
+      utils.each(processedData.adjacencyList, function(character, adjacency) {
+        var masterAdjacency = that.adjacencyList[character];
+
+        that.adjacencyList[character] = masterAdjacency ?
+          masterAdjacency.concat(adjacency) : adjacency;
+      });
     },
 
     _getPotentiallyMatchingIds: function(terms) {
@@ -152,103 +214,35 @@ var Dataset = (function() {
       }
     },
 
-    //takes an array of strings and creates a hash and an adjacency list
-    _processRawData: function(data) {
-      this.itemHash = {};
-      this.adjacencyList = {};
-      utils.map(data, utils.bind(function(item) {
-        var tokens;
-        if (item.tokens) {
-          tokens = item.tokens;
-        } else {
-          item = {
-            tokens: utils.tokenizeText(item),
-            value: item
-          };
-          tokens = item.tokens;
-        }
-        item.id = utils.getUniqueId(item.value);
-        utils.map(tokens, utils.bind(function(token) {
-            var firstChar = token.charAt(0);
-            if (!this.adjacencyList[firstChar]) {
-              this.adjacencyList[firstChar] = [item.id];
-            }
-            else {
-              if (utils.indexOf(this.adjacencyList[firstChar], item.id) === -1) {
-                this.adjacencyList[firstChar].push(item.id);
-              }
-            }
-        }, this));
-        this.itemHash[item.id] = item;
-      }, this));
-
-      this.storage.set(this.storageHash, this.itemHash, this._ttl_ms);
-      this.storage.set(this.storageAdjacencyList, this.adjacencyList, this._ttl_ms);
-      this.storage.set(this.storageVersion, VERSION, this._ttl_ms);
-      this.storage.set(this.storageProtocol, utils.getProtocol(), this._ttl_ms);
-    },
-
-    _prefetch: function(url) {
-      var processPrefetchSuccess = function (data) {
-        if (!data) { return; }
-        utils.map(data, function(item) {
-          if (utils.isString(item)) {
-            return {
-              value: item,
-              tokens: utils.tokenizeText(item.toLowerCase())
-            };
-          }
-          else {
-            utils.map(item.tokens, function(token, i) {
-              item.tokens[i] = token.toLowerCase();
-            });
-            return item;
-          }
-        });
-        this._processRawData(data);
-      };
-
-      var processPrefetchError = function () {
-        this._getDataFromLocalStorage();
-      };
-
-      $.ajax({
-        url: url,
-        success: utils.bind(processPrefetchSuccess, this),
-        error: utils.bind(processPrefetchError, this)
-      });
-    },
-
     _processRemoteSuggestions: function(callback, matchedItems) {
+      var that = this;
+
       return function(data) {
-        var remoteAndLocalSuggestions = {}, dedupedSuggestions = [];
+        //convert remote suggestions to object
+        utils.each(data, function(i, remoteItem) {
+          var isDuplicate = false;
 
-        //convert remoteSuggestions to object
-        utils.each(data, function(index, item) {
-          if (utils.isString(item)) {
-            remoteAndLocalSuggestions[item] = { value: item };
-          } else {
-            remoteAndLocalSuggestions[item.value] = item;
-          }
+          remoteItem = utils.isString(remoteItem) ?
+            { value: remoteItem } : remoteItem;
+
+          // checks for duplicates
+          utils.each(matchedItems, function(i, localItem) {
+            if (remoteItem.value === localItem.value) {
+              isDuplicate = true;
+
+              // break out of each loop
+              return false;
+            }
+          });
+
+          !isDuplicate && matchedItems.push(remoteItem);
+
+          // if we're at the limit, we no longer need to process
+          // the remote results and can break out of the each loop
+          return matchedItems.length < that.limit;
         });
 
-        //dedup local and remote suggestions
-        utils.each(matchedItems, function(index, item) {
-          if (remoteAndLocalSuggestions[item.value]) {
-            return true;
-          }
-          if (utils.isString(item)) {
-            remoteAndLocalSuggestions[item] = { value: item };
-          } else {
-            remoteAndLocalSuggestions[item.value] = item;
-          }
-        });
-
-        //convert combined suggestions object back into an array
-        utils.each(remoteAndLocalSuggestions, function(index, item) {
-          dedupedSuggestions.push(item);
-        });
-        callback && callback(dedupedSuggestions);
+        callback && callback(matchedItems);
       };
     },
 
@@ -256,7 +250,7 @@ var Dataset = (function() {
     // ---------------
 
     getSuggestions: function(query, callback) {
-      var terms = utils.tokenizeText(query);
+      var terms = utils.tokenizeQuery(query);
       var potentiallyMatchingIds = this._getPotentiallyMatchingIds(terms);
       var potentiallyMatchingItems = this._getItemsFromIds(potentiallyMatchingIds);
       var matchedItems = utils.filter(potentiallyMatchingItems, this._matcher(terms));
@@ -266,7 +260,6 @@ var Dataset = (function() {
         this.transport.get(this.queryUrl, query, this._processRemoteSuggestions(callback, matchedItems));
       }
     }
-
   });
 
   return Dataset;

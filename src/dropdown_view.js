@@ -1,5 +1,5 @@
 /*
- * Twitter Typeahead
+ * typeahead.js
  * https://github.com/twitter/typeahead
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
@@ -43,15 +43,15 @@ var DropdownView = (function() {
       this.isMouseOverDropdown = false;
     },
 
-    _handleMouseover: function(e) {
-      var $suggestion = $(e.currentTarget);
+    _handleMouseover: function($e) {
+      var $suggestion = $($e.currentTarget);
 
       this._getSuggestions().removeClass('tt-is-under-cursor');
       $suggestion.addClass('tt-is-under-cursor');
     },
 
-    _handleSelection: function(e) {
-      var $suggestion = $(e.currentTarget);
+    _handleSelection: function($e) {
+      var $suggestion = $($e.currentTarget);
       this.trigger('suggestionSelected', formatDataForSuggestion($suggestion));
     },
 
@@ -226,7 +226,6 @@ var DropdownView = (function() {
           this.$menu.find('.tt-suggestions');
 
       $suggestions.empty();
-
 
       if (this._getSuggestions().length === 0) {
         this.isEmpty = true;

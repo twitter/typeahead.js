@@ -104,7 +104,7 @@ describe('InputView', function() {
       });
     });
 
-    describe('if only whitespace in query has chagned', function() {
+    describe('if only whitespace in query has changed', function() {
       beforeEach(function() {
         this.inputView.query = 'old town';
         this.inputView.$input.val('old   town');
@@ -164,18 +164,6 @@ describe('InputView', function() {
     });
   });
 
-  describe('#setPreventDefaultValueForKey', function() {
-    it('should act as a setter for keyCodeMap', function() {
-      var key = '9';
-
-      this.inputView.setPreventDefaultValueForKey(key, 'truthy value');
-      expect(this.inputView.specialKeyCodeMap[key].preventDefault).toBe(true);
-
-      this.inputView.setPreventDefaultValueForKey(key, false);
-      expect(this.inputView.specialKeyCodeMap[key].preventDefault).toBe(false);
-    });
-  });
-
   describe('#getQuery', function() {
     it('should act as a getter for query', function() {
       this.inputView.query = 'i am the query value';
@@ -219,6 +207,22 @@ describe('InputView', function() {
     it('should return value of input\'s dir attribute', function() {
       this.$input.attr('dir', 'rtl');
       expect(this.inputView.getLanguageDirection()).toBe('rtl');
+    });
+  });
+
+  describe('#isOverflow', function() {
+    describe('when input\'s value is overflowing', function() {
+      it('should return false', function() {
+        this.$input.val(new Array(1000).join('a'));
+        expect(this.inputView.isOverflow()).toBe(true);
+      });
+    });
+
+    describe('when input\'s value is not overflowing', function() {
+      it('should return false', function() {
+        this.$input.val('t');
+        expect(this.inputView.isOverflow()).toBe(false);
+      });
     });
   });
 

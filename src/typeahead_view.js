@@ -1,5 +1,5 @@
 /*
- * Twitter Typeahead
+ * typeahead.js
  * https://github.com/twitter/typeahead
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
@@ -52,43 +52,19 @@ var TypeaheadView = (function() {
   // -----------
 
   function TypeaheadView(o) {
+    var $menu, $input, $hint;
+
     utils.bindAll(this);
 
     this.$node = buildDomStructure(o.input);
     this.datasets = o.datasets;
     this.dir = null;
 
-    // precompile the templates
-    utils.each(this.datasets, function(key, dataset) {
-      var parentTemplate = '<div class="tt-suggestion">%body</div>';
+    $menu = this.$node.find('.tt-dropdown-menu');
+    $input = this.$node.find('.tt-query');
+    $hint = this.$node.find('.tt-hint');
 
-      if (dataset.template) {
-        dataset.template = dataset.engine
-        .compile(parentTemplate.replace('%body', dataset.template));
-      }
-
-      // if no template is provided, render suggestion
-      // as it's value wrapped in a p tag
-      else {
-        dataset.template = {
-          render: function(context) {
-            return parentTemplate
-            .replace('%body', '<p>' + context.value + '</p>');
-          }
-        };
-      }
-    });
-
-    this.inputView = new InputView({
-      input: this.$node.find('.tt-query'),
-      hint: this.$node.find('.tt-hint')
-    });
-
-    this.dropdownView = new DropdownView({
-      menu: this.$node.find('.tt-dropdown-menu')
-    });
-
-    this.dropdownView
+    this.dropdownView = new DropdownView({ menu: $menu })
     .on('suggestionSelected', this._handleSelection)
     .on('cursorMoved', this._clearHint)
     .on('cursorMoved', this._setInputValueToSuggestionUnderCursor)
@@ -98,7 +74,7 @@ var TypeaheadView = (function() {
     .on('opened', this._updateHint)
     .on('closed', this._clearHint);
 
-    this.inputView
+    this.inputView = new InputView({ input: $input, hint: $hint })
     .on('focused', this._openDropdown)
     .on('blured', this._closeDropdown)
     .on('blured', this._setInputValueToQuery)
@@ -111,9 +87,9 @@ var TypeaheadView = (function() {
     .on('queryChanged whitespaceChanged', this._setLanguageDirection)
     .on('escKeyed', this._closeDropdown)
     .on('escKeyed', this._setInputValueToQuery)
+    .on('tabKeyed upKeyed downKeyed', this._managePreventDefault)
     .on('upKeyed downKeyed', this._moveDropdownCursor)
     .on('upKeyed downKeyed', this._openDropdown)
-    .on('tabKeyed', this._setPreventDefaultValueForTab)
     .on('tabKeyed leftKeyed rightKeyed', this._autocomplete);
   }
 
@@ -121,14 +97,26 @@ var TypeaheadView = (function() {
     // private methods
     // ---------------
 
-    _setPreventDefaultValueForTab: function(e) {
-      var hint = this.inputView.getHintValue(),
-          inputValue = this.inputView.getInputValue(),
-          preventDefault = hint && hint !== inputValue;
+    _managePreventDefault: function(e) {
+      var $e = e.data,
+          hint,
+          inputValue,
+          preventDefault = false;
 
-      // if the user tabs to autocomplete while the menu is open
-      // this will prevent the focus from being lost from the query input
-      this.inputView.setPreventDefaultValueForKey('9', preventDefault);
+      switch (e.type) {
+        case 'tabKeyed':
+          hint = this.inputView.getHintValue();
+          inputValue = this.inputView.getInputValue();
+          preventDefault = hint && hint !== inputValue;
+          break;
+
+        case 'upKeyed':
+        case 'downKeyed':
+          preventDefault = !$e.shiftKey && !$e.ctrlKey && !$e.metaKey;
+          break;
+      }
+
+      preventDefault && $e.preventDefault();
     },
 
     _setLanguageDirection: function() {
@@ -144,12 +132,14 @@ var TypeaheadView = (function() {
     _updateHint: function() {
       var dataForFirstSuggestion = this.dropdownView.getFirstSuggestion(),
           hint = dataForFirstSuggestion ? dataForFirstSuggestion.value : null,
+          dropdownIsVisible = this.dropdownView.isVisible(),
+          inputHasOverflow = this.inputView.isOverflow(),
           inputValue,
           query,
           beginsWithQuery,
           match;
 
-      if (hint && this.dropdownView.isVisible()) {
+      if (hint && dropdownIsVisible && !inputHasOverflow) {
         inputValue = this.inputView.getInputValue();
         query = inputValue
         .replace(/\s{2,}/g, ' ') // condense whitespace
@@ -175,7 +165,9 @@ var TypeaheadView = (function() {
     },
 
     _setInputValueToSuggestionUnderCursor: function(e) {
-      this.inputView.setInputValue(e.data.value, true);
+      var suggestion = e.data;
+
+      this.inputView.setInputValue(suggestion.value, true);
     },
 
     _openDropdown: function() {
@@ -188,8 +180,12 @@ var TypeaheadView = (function() {
     },
 
     _moveDropdownCursor: function(e) {
-      this.dropdownView[e.type === 'upKeyed' ?
-        'moveCursorUp' : 'moveCursorDown']();
+      var $e = e.data;
+
+      if (!$e.shiftKey && !$e.ctrlKey && !$e.metaKey) {
+        this.dropdownView[e.type === 'upKeyed' ?
+          'moveCursorUp' : 'moveCursorDown']();
+      }
     },
 
     _handleSelection: function(e) {
@@ -201,8 +197,8 @@ var TypeaheadView = (function() {
         this.inputView.setInputValue(suggestionData.value);
 
         // if triggered by click, ensure the query input still has focus
-        // if trigged by keypress, prevent default browser behavior
-        // which is most likely the submisison of a form
+        // if triggered by keypress, prevent default browser behavior
+        // which is most likely the submission of a form
         // note: e.data is the jquery event
         byClick ? this.inputView.focus() : e.data.preventDefault();
 
@@ -264,7 +260,7 @@ var TypeaheadView = (function() {
     $hint
     .attr({
       type: 'text',
-      autocomplete: false,
+      autocomplete: 'off',
       spellcheck: false,
       disabled: true
     })
@@ -273,7 +269,7 @@ var TypeaheadView = (function() {
 
     $input
     .addClass('tt-query')
-    .attr({ autocomplete: false, spellcheck: false })
+    .attr({ autocomplete: 'off', spellcheck: false })
     .css(css.query);
 
     // ie7 does not like it when dir is set to auto,
