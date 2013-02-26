@@ -87,7 +87,7 @@
 
   function compileTemplate(template, engine) {
     var wrapper = '<li class="tt-suggestion">%body</li>',
-       compiledTemplate;
+        compiledTemplate;
 
     if (template) {
       compiledTemplate = engine.compile(wrapper.replace('%body', template));

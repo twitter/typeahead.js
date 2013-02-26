@@ -98,7 +98,8 @@ var Dataset = (function() {
 
         utils.each(item.tokens, function(i, token) {
           var character = token.charAt(0),
-              adjacency = adjacencyList[character] || (adjacencyList[character] = [id]);
+              adjacency = adjacencyList[character] ||
+                (adjacencyList[character] = [id]);
 
           !~utils.indexOf(adjacency, id) && adjacency.push(id);
         });
