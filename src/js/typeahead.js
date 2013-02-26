@@ -1,5 +1,5 @@
 /*
- * Twitter Typeahead
+ * typeahead.js
  * https://github.com/twitter/typeahead
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
@@ -44,6 +44,7 @@
             limit: o.limit,
             local: o.local,
             prefetch: o.prefetch,
+            ttl_ms: o.ttl_ms, // temporary – will be removed in future
             remote: o.remote,
             matcher: o.matcher,
             ranker: o.ranker,
@@ -71,11 +72,11 @@
 
   jQuery.fn.typeahead = function(method) {
     if (methods[method]) {
-      methods[method].apply(this, [].slice.call(arguments, 1));
+      return methods[method].apply(this, [].slice.call(arguments, 1));
     }
 
     else {
-      methods.initialize.apply(this, arguments);
+      return methods.initialize.apply(this, arguments);
     }
   };
 })();

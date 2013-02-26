@@ -1,5 +1,5 @@
 /*
- * Twitter Typeahead
+ * typeahead.js
  * https://github.com/twitter/typeahead
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
@@ -8,7 +8,7 @@ var TypeaheadView = (function() {
 
   var html = {
     wrapper: '<span class="twitter-typeahead"></span>',
-    hint: '<input class="tt-hint" type="text" autocomplete="false" spellcheck="false" disabled>',
+    hint: '<input class="tt-hint" type="text" autocomplete="off" spellcheck="false" disabled>',
     dropdown: '<ol class="tt-dropdown-menu tt-is-empty"></ol>'
   };
 
@@ -74,9 +74,9 @@ var TypeaheadView = (function() {
     .on('queryChange whitespaceChange', this._setLanguageDirection)
     .on('esc', this._hideDropdown)
     .on('esc', this._setInputValueToQuery)
+    .on('tab up down', this._managePreventDefault)
     .on('up down', this._moveDropdownCursor)
     .on('up down', this._showDropdown)
-    .on('tab', this._setPreventDefaultValueForTab)
     .on('tab left right', this._autocomplete);
   }
 
@@ -84,14 +84,26 @@ var TypeaheadView = (function() {
     // private methods
     // ---------------
 
-    _setPreventDefaultValueForTab: function(e) {
-      var hint = this.inputView.getHintValue(),
-          inputValue = this.inputView.getInputValue(),
-          preventDefault = hint && hint !== inputValue;
+    _managePreventDefault: function(e) {
+      var $e = e.data,
+          hint,
+          inputValue,
+          preventDefault = false;
 
-      // if the user tabs to autocomplete while the menu is open
-      // this will prevent the focus from being lost from the query input
-      this.inputView.setPreventDefaultValueForKey('9', preventDefault);
+      switch (e.type) {
+        case 'tab':
+          hint = this.inputView.getHintValue();
+          inputValue = this.inputView.getInputValue();
+          preventDefault = hint && hint !== inputValue;
+          break;
+
+        case 'up':
+        case 'down':
+          preventDefault = !$e.shiftKey && !$e.ctrlKey && !$e.metaKey;
+          break;
+      }
+
+      preventDefault && $e.preventDefault();
     },
 
     _setLanguageDirection: function() {
@@ -110,7 +122,7 @@ var TypeaheadView = (function() {
           beginsWithQuery,
           match;
 
-      if (hint && this.dropdownView.isOpen()) {
+      if (hint && this.dropdownView.isOpen() && !this.inputView.isOverflow()) {
         inputValue = this.inputView.getInputValue();
         query = inputValue
         .replace(/\s{2,}/g, ' ') // condense whitespace
@@ -136,7 +148,9 @@ var TypeaheadView = (function() {
     },
 
     _setInputValueToSuggestionUnderCursor: function(e) {
-      this.inputView.setInputValue(e.data.value, true);
+      var suggestion = e.data;
+
+      this.inputView.setInputValue(suggestion.value, true);
     },
 
     _showDropdown: function() {
@@ -149,7 +163,12 @@ var TypeaheadView = (function() {
     },
 
     _moveDropdownCursor: function(e) {
-      this.dropdownView[e.type === 'up' ? 'moveCursorUp' : 'moveCursorDown']();
+      var $e = e.data;
+
+      if (!$e.shiftKey && !$e.ctrlKey && !$e.metaKey) {
+        this.dropdownView[e.type === 'up' ?
+          'moveCursorUp' : 'moveCursorDown']();
+      }
     },
 
     _handleSelection: function(e) {
@@ -161,8 +180,8 @@ var TypeaheadView = (function() {
         this.inputView.setInputValue(suggestionData.value);
 
         // if triggered by click, ensure the query input still has focus
-        // if trigged by keypress, prevent default browser behavior
-        // which is most likely the submisison of a form
+        // if triggered by keypress, prevent default browser behavior
+        // which is most likely the submission of a form
         // note: e.data is the jquery event
         byClick ? this.inputView.focus() : e.data.preventDefault();
 
@@ -227,7 +246,7 @@ var TypeaheadView = (function() {
     try { !$input.attr('dir') && $input.attr('dir', 'auto'); } catch (e) {}
 
     return $input
-    .attr({ autocomplete: false, spellcheck: false })
+    .attr({ autocomplete: 'off', spellcheck: false })
     .addClass('tt-query')
     .wrap(html.wrapper)
     .parent()

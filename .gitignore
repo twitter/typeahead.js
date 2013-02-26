@@ -1,7 +1,6 @@
 *.swp
 .DS_Store
 
-dist
 .grunt
 _SpecRunner.html
 
