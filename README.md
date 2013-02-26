@@ -19,6 +19,11 @@ Manual methods:
 
 **Note:** typeahead.js has a dependency on [jQuery][jQuery] 1.9+, it must be loaded before *typeahead.js*.
 
+Examples
+--------
+
+http://twitter.github.com/typeahead.js/examples/ holds a number of examples.
+
 Features
 --------
 
