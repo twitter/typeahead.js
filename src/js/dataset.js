@@ -19,8 +19,7 @@ var Dataset = (function() {
 
     this.name = o.name;
     this.limit = o.limit || 5;
-    this.template = o.template;
-    this.engine = o.engine;
+    this.template = compileTemplate(o.template, o.engine);
 
     this.keys = {
       version: 'version',
@@ -270,4 +269,25 @@ var Dataset = (function() {
   });
 
   return Dataset;
+
+  function compileTemplate(template, engine) {
+    var wrapper = '<li class="tt-suggestion">%body</li>',
+       compiledTemplate;
+
+    if (template) {
+      compiledTemplate = engine.compile(wrapper.replace('%body', template));
+    }
+
+    // if no template is provided, render suggestion
+    // as its value wrapped in a p tag
+    else {
+      compiledTemplate = {
+        render: function(context) {
+          return wrapper.replace('%body', '<p>' + context.value + '</p>');
+        }
+      };
+    }
+
+    return compiledTemplate;
+  }
 })();

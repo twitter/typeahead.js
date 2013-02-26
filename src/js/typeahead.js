@@ -9,7 +9,7 @@
 
   methods = {
     initialize: function(datasetDefs) {
-      var datasets = {};
+      var datasets;
 
       datasetDefs = utils.isArray(datasetDefs) ? datasetDefs : [datasetDefs];
 
@@ -21,22 +21,19 @@
         throw new Error('no datasets provided');
       }
 
-      utils.each(datasetDefs, function(i, o) {
+      datasets = utils.map(datasetDefs, function(o) {
         o.name = o.name || utils.getUniqueId();
 
-        datasets[o.name] = datasetCache[o.name] ?
+        return datasetCache[o.name] ?
           datasetCache[o.name] :
           datasetCache[o.name] = new Dataset(o);
       });
 
       return this.each(function() {
         var $input = $(this),
-            typeaheadView = new TypeaheadView({
-              input: $input,
-              datasets: datasets
-            });
+            view = new TypeaheadView({ input: $input, datasets: datasets });
 
-        $input.data('ttView', typeaheadView);
+        $input.data('ttView', view);
       });
     }
   };
