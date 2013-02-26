@@ -10,9 +10,7 @@ var Transport = (function() {
   function Transport(o) {
     utils.bindAll(this);
 
-    if (!utils.isObject(o) || !o.url) {
-      throw new Error('invalid settings for remote');
-    }
+    o = utils.isString(o) ? { url: o } : o;
 
     requestCache = requestCache || new RequestCache();
 

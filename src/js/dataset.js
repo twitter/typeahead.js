@@ -49,12 +49,14 @@ var Dataset = (function() {
 
     _loadPrefetchData: function(o) {
       var that = this,
-          ttl = o.ttl || 3 * 24 * 60 * 60 * 1000, // 3 days
           version = this.storage.get(this.keys.version),
           protocol = this.storage.get(this.keys.protocol),
           itemHash = this.storage.get(this.keys.itemHash),
           adjacencyList = this.storage.get(this.keys.adjacencyList),
           isExpired = version !== VERSION || protocol !== utils.getProtocol();
+
+      o = utils.isString(o) ? { url: o } : o;
+      o.ttl = o.ttl ||  3 * 24 * 60 * 60 * 1000; // 3 days
 
       // data was available in local storage, use it
       if (itemHash && adjacencyList && !isExpired) {
@@ -76,10 +78,10 @@ var Dataset = (function() {
 
         // store process data in local storage
         // this saves us from processing the data on every page load
-        that.storage.set(that.keys.itemHash, itemHash, ttl);
-        that.storage.set(that.keys.adjacencyList, adjacencyList, ttl);
-        that.storage.set(that.keys.version, VERSION, ttl);
-        that.storage.set(that.keys.protocol, utils.getProtocol(), ttl);
+        that.storage.set(that.keys.itemHash, itemHash, o.ttl);
+        that.storage.set(that.keys.adjacencyList, adjacencyList, o.ttl);
+        that.storage.set(that.keys.version, VERSION, o.ttl);
+        that.storage.set(that.keys.protocol, utils.getProtocol(), o.ttl);
 
         that._mergeProcessedData(processedData);
       }
