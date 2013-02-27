@@ -2,14 +2,11 @@ describe('Transport', function() {
   var successData = { prop: 'val' },
       successResp = { status: 200, responseText: JSON.stringify(successData) },
       errorResp = { status: 500 },
-      _debounce,
-      _RequestCache;
+      _debounce;
 
   beforeEach(function() {
     jasmine.Ajax.useMock();
-
-    _RequestCache = RequestCache;
-    RequestCache = MockRequestCache;
+    jasmine.RequestCache.useMock();
 
     _debounce = utils.debounce;
     utils.debounce = function(fn) { return fn; };
@@ -21,14 +18,13 @@ describe('Transport', function() {
       maxParallelRequests: 3
     });
 
-    this.requestCache = MockRequestCache.instance;
+    this.requestCache = RequestCache.instance;
     spyOn(this.requestCache, 'get');
     spyOn(this.requestCache, 'set');
   });
 
   afterEach(function() {
     utils.debounce = _debounce;
-    RequestCache = _RequestCache;
 
     // run twice to flush out  on-deck requests
     for (var i = 0; i < 2; i ++) {
