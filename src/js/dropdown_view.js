@@ -197,7 +197,8 @@ var DropdownView = (function() {
     return {
       value: $suggestion.data('value'),
       query: $suggestions.data('query'),
-      dataset: $suggestions.data('dataset')
+      dataset: $suggestions.data('dataset'),
+      index: $suggestions.children().index($suggestion)
     };
   }
 })();
