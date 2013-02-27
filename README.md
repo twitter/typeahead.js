@@ -22,7 +22,7 @@ Manual methods:
 Examples
 --------
 
-http://twitter.github.com/typeahead.js/examples/ holds a number of examples.
+For some working examples of typeahead.js, visit our [examples page][examples].
 
 Features
 --------
@@ -262,8 +262,9 @@ Copyright 2013 Twitter, Inc.
 
 Licensed under the MIT License
 
-[gh-page]: http://twitter.github.com/typeahead.js
 [twitter]: https://twitter.com
+[gh-page]: http://twitter.github.com/typeahead.js
+[examples]: http://twitter.github.com/typeahead.js/examples
 
 <!-- assets -->
 [zipball]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.js.zip
