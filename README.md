@@ -91,7 +91,7 @@ Datasets are objects which define the sets of data that hydrate suggestions. Giv
 
 * `template` - The template used to render suggestions. If not provided, suggestions will render as their value contained in a `<p>` element (i.e. `<p>value</p>`).
 
-* `engine` - The template engine used to compile/render `template`. Any engine can use used as long as it adheres to the [expected API][template-engine-compatibility]. **Required** if `template` is set.
+* `engine` - The template engine used to compile/render `template`. Any engine can be used as long as it adheres to the [expected API][template-engine-compatibility]. **Required** if `template` is set.
 
 * `local` - An array of [datums][datums].
 
