@@ -20,7 +20,7 @@ var Dataset = (function() {
     this.limit = o.limit || 10;
     this._customMatcher = o.matcher || null;
     this._customRanker = o.ranker || null;
-    this._ttl_ms = o.ttl_ms || 3 * 24 * 60 * 60 * 1000; // 3 days;
+    this._ttl_ms = utils.isNumber(o.ttl_ms) ? o.ttl_ms : 24 * 60 * 60 * 1000;
 
     this.keys = {
       version: 'version',
