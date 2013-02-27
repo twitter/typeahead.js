@@ -72,7 +72,7 @@ var Dataset = (function() {
 
       function processPrefetchData(data) {
         var filteredData = o.filter ? o.filter(data) : data,
-            processedData = that._processData(data),
+            processedData = that._processData(filteredData),
             itemHash = processedData.itemHash,
             adjacencyList = processedData.adjacencyList;
 

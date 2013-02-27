@@ -57,6 +57,54 @@ describe('Dataset', function() {
   });
 
   describe('when initialized', function() {
+    describe('without local, prefetch, or remote data', function() {
+      beforeEach(function() {
+        this.fn = function() { var dataset = new Dataset({ name: 'local' }); };
+      });
+
+      it('should throw an error', function() {
+        expect(this.fn).toThrow();
+      });
+    });
+
+    describe('with a template but no engine', function() {
+      beforeEach(function() {
+        this.fn = function() { var dataset = new Dataset({ template: '%' }); };
+      });
+
+      it('should throw an error', function() {
+        expect(this.fn).toThrow();
+      });
+    });
+
+    describe('with no template', function() {
+      beforeEach(function() {
+        this.dataset = new Dataset({ local: fixtureData });
+      });
+
+      it('should compile default template', function() {
+        expect(this.dataset.template.render({ value: 'boo' }))
+        .toBe('<li class="tt-suggestion"><p>boo</p></li>');
+      });
+    });
+
+    describe('with a template and engine', function() {
+      beforeEach(function() {
+        this.dataset = new Dataset({
+          local: fixtureData,
+          template: '%',
+          engine: { compile: this.spy = jasmine.createSpy().andReturn('boo') }
+        });
+      });
+
+      it('should compile the template', function() {
+        expect(this.spy)
+        .toHaveBeenCalledWith('<li class="tt-suggestion">%</li>');
+
+        expect(this.dataset.template).toBe('boo');
+      });
+    });
+
     describe('with local data', function () {
       beforeEach(function() {
         this.dataset = new Dataset({ name: 'local', local: fixtureData });
