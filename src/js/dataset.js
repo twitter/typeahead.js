@@ -13,10 +13,6 @@ var Dataset = (function() {
       throw new Error('no template engine specified');
     }
 
-    if(!o.local && !o.prefetch && !o.remote) {
-      throw new Error('one of local, prefetch, or remote is requried');
-    }
-
     this.name = o.name;
     this.limit = o.limit || 5;
     this.template = compileTemplate(o.template, o.engine);
@@ -31,11 +27,6 @@ var Dataset = (function() {
     this.itemHash = {};
     this.adjacencyList = {};
     this.storage = new PersistentStorage(o.name);
-
-    this.transport = o.remote ? new Transport(o.remote) : null;
-
-    o.local && this._processLocalData(o.local);
-    o.prefetch && this._loadPrefetchData(o.prefetch);
   }
 
   utils.mixin(Dataset.prototype, {
@@ -44,7 +35,7 @@ var Dataset = (function() {
     // ---------------
 
     _processLocalData: function(data) {
-      data && this._mergeProcessedData(this._processData(data));
+      this._mergeProcessedData(this._processData(data));
     },
 
     _loadPrefetchData: function(o) {
@@ -256,6 +247,21 @@ var Dataset = (function() {
 
     // public methods
     // ---------------
+
+    // the contents of this function are broken out of the constructor
+    // to help improve the testability of datasets
+    initialize: function(o) {
+      if (!o.local && !o.prefetch && !o.remote) {
+        throw new Error('one of local, prefetch, or remote is requried');
+      }
+
+      this.transport = o.remote ? new Transport(o.remote) : null;
+
+      o.local && this._processLocalData(o.local);
+      o.prefetch && this._loadPrefetchData(o.prefetch);
+
+      return this;
+    },
 
     getSuggestions: function(query, callback) {
       var terms = utils.tokenizeQuery(query);

@@ -18,6 +18,8 @@ describe('Transport', function() {
       maxParallelRequests: 3
     });
 
+    // request cache is hidden in transport's closure
+    // so this is how we access it to spy on its methods
     this.requestCache = RequestCache.instance;
     spyOn(this.requestCache, 'get');
     spyOn(this.requestCache, 'set');
@@ -162,13 +164,4 @@ describe('Transport', function() {
       });
     });
   });
-
-  // helper functions
-  // ----------------
-
-  function MockRequestCache() {
-    this.get = $.noop;
-    this.set = $.noop;
-    MockRequestCache.instance = this;
-  }
 });

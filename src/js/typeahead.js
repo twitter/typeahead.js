@@ -26,7 +26,7 @@
 
         return datasetCache[o.name] ?
           datasetCache[o.name] :
-          datasetCache[o.name] = new Dataset(o);
+          datasetCache[o.name] = new Dataset(o).initialize(o);
       });
 
       return this.each(function() {
