@@ -36,9 +36,10 @@ describe('TypeaheadView', function() {
   // handlers triggered by dropdownView events
   // -----------------------------------------
 
-  describe('when dropdownView triggers select', function() {
+  describe('when dropdownView triggers suggestionSelected', function() {
     beforeEach(function() {
-      this.dropdownView.trigger('select', { value: 'i am selected' });
+      this.dropdownView
+      .trigger('suggestionSelected', { value: 'i am selected' });
     });
 
     it('should update input value', function() {
@@ -50,14 +51,14 @@ describe('TypeaheadView', function() {
       expect(this.inputView.focus).toHaveBeenCalled();
     });
 
-    it('should hide dropdown', function() {
-      expect(this.dropdownView.hide).toHaveBeenCalled();
+    it('should close dropdown', function() {
+      expect(this.dropdownView.close).toHaveBeenCalled();
     });
   });
 
-  describe('when dropdownView triggers cursorOn', function() {
+  describe('when dropdownView triggers cursorMoved', function() {
     beforeEach(function() {
-      this.dropdownView.trigger('cursorOn', { value: 'i am hint' });
+      this.dropdownView.trigger('cursorMoved', { value: 'i am hint' });
     });
 
     it('should clear hint', function() {
@@ -70,24 +71,24 @@ describe('TypeaheadView', function() {
     });
   });
 
-  describe('when dropdownView triggers cursorOff', function() {
+  describe('when dropdownView triggers cursorRemoved', function() {
     it('should reset input value to user query', function() {
       this.inputView.getQuery.andReturn('san   ');
-      this.dropdownView.trigger('cursorOff');
+      this.dropdownView.trigger('cursorRemoved');
 
       expect(this.inputView.setInputValue).toHaveBeenCalledWith('san   ');
     });
 
-    _updateHintSpecHelper('dropdownView', 'cursorOff');
+    _updateHintSpecHelper('dropdownView', 'cursorRemoved');
   });
 
-  describe('when dropdownView triggers suggestionsRender', function() {
-    _updateHintSpecHelper('dropdownView', 'suggestionsRender');
+  describe('when dropdownView triggers suggestionsRendered', function() {
+    _updateHintSpecHelper('dropdownView', 'suggestionsRendered');
   });
 
-  describe('when dropdownView triggers hide', function() {
+  describe('when dropdownView triggers closed', function() {
     beforeEach(function() {
-      this.dropdownView.trigger('hide');
+      this.dropdownView.trigger('closed');
     });
 
     it('should clear hint', function() {
@@ -98,15 +99,15 @@ describe('TypeaheadView', function() {
   // handlers triggered by inputView events
   // --------------------------------------
 
-  describe('when inputView triggers blur', function() {
+  describe('when inputView triggers blured', function() {
     beforeEach(function() {
       this.inputView.getQuery.andReturn('reset');
 
-      this.inputView.trigger('blur');
+      this.inputView.trigger('blured');
     });
 
-    it('should hide dropdown unless mouse is over it', function() {
-      expect(this.dropdownView.hideUnlessMouseIsOverDropdown)
+    it('should close dropdown unless mouse is over it', function() {
+      expect(this.dropdownView.closeUnlessMouseIsOverDropdown)
       .toHaveBeenCalled();
     });
 
@@ -115,14 +116,14 @@ describe('TypeaheadView', function() {
     });
   });
 
-  describe('when inputView triggers enter', function() {
+  describe('when inputView triggers enterKeyed', function() {
     beforeEach(function() {
       this.spy = jasmine.createSpy();
 
       this.dropdownView.getSuggestionUnderCursor
       .andReturn({ value: 'i am selected' });
 
-      this.inputView.trigger('enter', { preventDefault: this.spy });
+      this.inputView.trigger('enterKeyed', { preventDefault: this.spy });
     });
 
     it('should update input value', function() {
@@ -134,94 +135,92 @@ describe('TypeaheadView', function() {
       expect(this.spy).toHaveBeenCalled();
     });
 
-    it('should hide dropdown', function() {
-      expect(this.dropdownView.hide).toHaveBeenCalled();
+    it('should close dropdown', function() {
+      expect(this.dropdownView.close).toHaveBeenCalled();
     });
   });
 
-  describe('when inputView triggers whitespaceChange', function() {
-    _updateHintSpecHelper('inputView', 'whitespaceChange');
+  describe('when inputView triggers whitespaceChanged', function() {
+    _updateHintSpecHelper('inputView', 'whitespaceChanged');
 
-    it('should show the dropdown menu', function() {
-      this.inputView.trigger('whitespaceChange');
-      expect(this.dropdownView.show).toHaveBeenCalled();
+    it('should open the dropdown menu', function() {
+      this.inputView.trigger('whitespaceChanged');
+      expect(this.dropdownView.open).toHaveBeenCalled();
     });
 
     describe('if language direction has changed', function() {
       beforeEach(function() {
-        this.typeaheadView.$node
-        .removeClass('tt-ltr tt-rtl')
-        .addClass('tt-ltr');
-
+        this.typeaheadView.dir = 'ltr';
         this.inputView.getLanguageDirection.andReturn('rtl');
-        this.inputView.trigger('whitespaceChange');
+
+        this.inputView.trigger('whitespaceChanged');
       });
 
-      it('should update language class name', function() {
-        expect(this.typeaheadView.$node).toHaveClass('tt-rtl');
-        expect(this.typeaheadView.$node).not.toHaveClass('tt-ltr');
+      it('should update styling', function() {
+        expect(this.typeaheadView.$node).toHaveCss({ direction: 'rtl' });
+        expect(this.dropdownView.setLanguageDirection)
+        .toHaveBeenCalledWith('rtl');
       });
     });
   });
 
-  describe('when inputView triggers queryChange', function() {
-    it('should show the dropdown menu', function() {
-      this.inputView.trigger('queryChange');
-      expect(this.dropdownView.show).toHaveBeenCalled();
+  describe('when inputView triggers queryChanged', function() {
+    it('should open the dropdown menu', function() {
+      this.inputView.trigger('queryChanged');
+      expect(this.dropdownView.open).toHaveBeenCalled();
     });
 
     it('should clear hint', function() {
-      this.inputView.trigger('queryChange');
+      this.inputView.trigger('queryChanged');
       expect(this.inputView.setHintValue).toHaveBeenCalledWith('');
     });
 
     it('should clear suggestions', function() {
-      this.inputView.trigger('queryChange');
+      this.inputView.trigger('queryChanged');
       expect(this.dropdownView.clearSuggestions).toHaveBeenCalled();
     });
 
     it('should call dropdownView.renderSuggestions for each dataset',
     function() {
-      this.inputView.trigger('queryChange');
+      this.inputView.trigger('queryChanged');
       expect(this.dropdownView.renderSuggestions.callCount).toBe(3);
     });
 
     describe('if language direction has changed', function() {
       beforeEach(function() {
-        this.typeaheadView.$node
-        .removeClass('tt-ltr tt-rtl')
-        .addClass('tt-ltr');
-
+        this.typeaheadView.dir = 'ltr';
         this.inputView.getLanguageDirection.andReturn('rtl');
-        this.inputView.trigger('queryChange');
+
+        this.inputView.trigger('queryChanged');
       });
 
-      it('should update language class name', function() {
-        expect(this.typeaheadView.$node).toHaveClass('tt-rtl');
-        expect(this.typeaheadView.$node).not.toHaveClass('tt-ltr');
+      it('should update styling', function() {
+        expect(this.typeaheadView.$node).toHaveCss({ direction: 'rtl' });
+        expect(this.dropdownView.setLanguageDirection)
+        .toHaveBeenCalledWith('rtl');
       });
     });
   });
 
-  describe('when inputView triggers focus', function() {
+  describe('when inputView triggers focused', function() {
     beforeEach(function() {
-      this.inputView.trigger('focus');
+      this.inputView.trigger('focused');
     });
 
-    it('should show the dropdown menu', function() {
-      expect(this.dropdownView.show).toHaveBeenCalled();
+    it('should open the dropdown menu', function() {
+      expect(this.dropdownView.open).toHaveBeenCalled();
     });
   });
 
-  describe('when inputView triggers esc', function() {
+  describe('when inputView triggers escKeyed', function() {
     beforeEach(function() {
       this.inputView.getQuery.andReturn('reset');
 
-      this.inputView.trigger('esc');
+      this.inputView.trigger('escKeyed');
     });
 
-    it('should hide dropdown', function() {
-      expect(this.dropdownView.hide).toHaveBeenCalled();
+    it('should close dropdown', function() {
+      expect(this.dropdownView.close).toHaveBeenCalled();
     });
 
     it('should reset input value to user query', function() {
@@ -229,18 +228,17 @@ describe('TypeaheadView', function() {
     });
   });
 
-  describe('when inputView triggers up', function() {
-
+  describe('when inputView triggers upKeyed', function() {
     describe('if modifier key was pressed', function() {
       beforeEach(function() {
         this.$e = $.extend($.Event('keydown'), { keyCode: 38, shiftKey: true });
         spyOn(this.$e, 'preventDefault');
 
-        this.inputView.trigger('up', this.$e);
+        this.inputView.trigger('upKeyed', this.$e);
       });
 
-      it('should show the dropdown menu', function() {
-        expect(this.dropdownView.show).toHaveBeenCalled();
+      it('should open the dropdown menu', function() {
+        expect(this.dropdownView.open).toHaveBeenCalled();
       });
 
       it('should not prevent default browser behavior', function() {
@@ -257,11 +255,11 @@ describe('TypeaheadView', function() {
         this.$e = $.extend($.Event('keydown'), { keyCode: 38 });
         spyOn(this.$e, 'preventDefault');
 
-        this.inputView.trigger('up', this.$e);
+        this.inputView.trigger('upKeyed', this.$e);
       });
 
       it('should show the dropdown menu', function() {
-        expect(this.dropdownView.show).toHaveBeenCalled();
+        expect(this.dropdownView.open).toHaveBeenCalled();
       });
 
       it('should prevent default browser behavior', function() {
@@ -274,18 +272,18 @@ describe('TypeaheadView', function() {
     });
   });
 
-  describe('when inputView triggers down', function() {
+  describe('when inputView triggers downKeyed', function() {
 
     describe('if modifier key was pressed', function() {
       beforeEach(function() {
         this.$e = $.extend($.Event('keydown'), { keyCode: 40, shiftKey: true });
         spyOn(this.$e, 'preventDefault');
 
-        this.inputView.trigger('down', this.$e);
+        this.inputView.trigger('downKeyed', this.$e);
       });
 
-      it('should show the dropdown menu', function() {
-        expect(this.dropdownView.show).toHaveBeenCalled();
+      it('should open the dropdown menu', function() {
+        expect(this.dropdownView.open).toHaveBeenCalled();
       });
 
       it('should not prevent default browser behavior', function() {
@@ -302,11 +300,11 @@ describe('TypeaheadView', function() {
         this.$e = $.extend($.Event('keydown'), { keyCode: 40 });
         spyOn(this.$e, 'preventDefault');
 
-        this.inputView.trigger('down', this.$e);
+        this.inputView.trigger('downKeyed', this.$e);
       });
 
-      it('should show the dropdown menu', function() {
-        expect(this.dropdownView.show).toHaveBeenCalled();
+      it('should open the dropdown menu', function() {
+        expect(this.dropdownView.open).toHaveBeenCalled();
       });
 
       it('should prevent default browser behavior', function() {
@@ -319,7 +317,7 @@ describe('TypeaheadView', function() {
     });
   });
 
-  describe('when inputView triggers tab', function() {
+  describe('when inputView triggers tabKeyed', function() {
     beforeEach(function() {
       this.$e = $.extend($.Event('keydown'), { keyCode: 9 });
       spyOn(this.$e, 'preventDefault');
@@ -329,7 +327,7 @@ describe('TypeaheadView', function() {
       beforeEach(function() {
         this.inputView.getHintValue.andReturn('');
 
-        this.inputView.trigger('tab', this.$e);
+        this.inputView.trigger('tabKeyed', this.$e);
       });
 
       it('should not update input value', function() {
@@ -346,7 +344,7 @@ describe('TypeaheadView', function() {
         this.inputView.getQuery.andReturn('app');
         this.inputView.getHintValue.andReturn('apple');
 
-        this.inputView.trigger('tab', this.$e);
+        this.inputView.trigger('tabKeyed', this.$e);
       });
 
       it('should update input value', function() {
@@ -359,7 +357,7 @@ describe('TypeaheadView', function() {
     });
   });
 
-  describe('when inputView triggers left', function() {
+  describe('when inputView triggers leftKeyed', function() {
     beforeEach(function() {
       this.inputView.getQuery.andReturn('app');
       this.inputView.getHintValue.andReturn('apple');
@@ -371,7 +369,7 @@ describe('TypeaheadView', function() {
       beforeEach(function() {
         this.inputView.getLanguageDirection.andReturn('ltr');
 
-        this.inputView.trigger('left');
+        this.inputView.trigger('leftKeyed');
       });
 
       it('should not update input value', function() {
@@ -383,7 +381,7 @@ describe('TypeaheadView', function() {
       beforeEach(function() {
         this.inputView.getLanguageDirection.andReturn('rtl');
 
-        this.inputView.trigger('left');
+        this.inputView.trigger('leftKeyed');
       });
 
       it('should update value of input', function() {
@@ -395,7 +393,7 @@ describe('TypeaheadView', function() {
       beforeEach(function() {
         this.inputView.isCursorAtEnd.andReturn(false);
 
-        this.inputView.trigger('left');
+        this.inputView.trigger('leftKeyed');
       });
 
       it('should not update input value', function() {
@@ -404,7 +402,7 @@ describe('TypeaheadView', function() {
     });
   });
 
-  describe('when inputView triggers right', function() {
+  describe('when inputView triggers rightKeyed', function() {
     beforeEach(function() {
       this.inputView.getQuery.andReturn('app');
       this.inputView.getHintValue.andReturn('apple');
@@ -416,7 +414,7 @@ describe('TypeaheadView', function() {
       beforeEach(function() {
         this.inputView.getLanguageDirection.andReturn('ltr');
 
-        this.inputView.trigger('right');
+        this.inputView.trigger('rightKeyed');
       });
 
       it('should update input value', function() {
@@ -428,7 +426,7 @@ describe('TypeaheadView', function() {
       beforeEach(function() {
         this.inputView.getLanguageDirection.andReturn('rtl');
 
-        this.inputView.trigger('right');
+        this.inputView.trigger('rightKeyed');
       });
 
       it('should not update input value', function() {
@@ -440,7 +438,7 @@ describe('TypeaheadView', function() {
       beforeEach(function() {
         this.inputView.isCursorAtEnd.andReturn(false);
 
-        this.inputView.trigger('right');
+        this.inputView.trigger('rightKeyed');
       });
 
       it('should not update input value', function() {
@@ -465,9 +463,9 @@ describe('TypeaheadView', function() {
       });
     });
 
-    describe('if dropdown menu is closed', function() {
+    describe('if dropdown menu is not visible', function() {
       it('should not show hint', function() {
-        this.dropdownView.isOpen.andReturn(false);
+        this.dropdownView.isVisible.andReturn(false);
         this.inputView.getInputValue.andReturn('san   ');
         this.dropdownView.getFirstSuggestion
         .andReturn({ value: 'desert sand' });
@@ -480,7 +478,7 @@ describe('TypeaheadView', function() {
 
     describe('if top suggestion\'s value begins with query', function() {
       it('should show hint', function() {
-        this.dropdownView.isOpen.andReturn(true);
+        this.dropdownView.isVisible.andReturn(true);
         this.inputView.getInputValue.andReturn('san   ');
         this.dropdownView.getFirstSuggestion
         .andReturn({ value: 'san francisco' });
@@ -495,7 +493,7 @@ describe('TypeaheadView', function() {
     describe('if top suggestion\'s value does not begin with query',
     function() {
       it('should not show hint', function() {
-        this.dropdownView.isOpen.andReturn(true);
+        this.dropdownView.isVisible.andReturn(true);
         this.inputView.getInputValue.andReturn('san   ');
         this.dropdownView.getFirstSuggestion
         .andReturn({ value: 'desert sand' });

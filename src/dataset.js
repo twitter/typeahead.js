@@ -97,8 +97,9 @@ var Dataset = (function() {
         itemHash[id = utils.getUniqueId(item.value)] = item;
 
         utils.each(item.tokens, function(i, token) {
-          var char = token.charAt(0),
-              adjacency = adjacencyList[char] || (adjacencyList[char] = [id]);
+          var character = token.charAt(0),
+              adjacency = adjacencyList[character] ||
+                (adjacencyList[character] = [id]);
 
           !~utils.indexOf(adjacency, id) && adjacency.push(id);
         });
@@ -114,10 +115,10 @@ var Dataset = (function() {
       utils.mixin(this.itemHash, processedData.itemHash);
 
       // merge adjacency list
-      utils.each(processedData.adjacencyList, function(char, adjacency) {
-        var masterAdjacency = that.adjacencyList[char];
+      utils.each(processedData.adjacencyList, function(character, adjacency) {
+        var masterAdjacency = that.adjacencyList[character];
 
-        that.adjacencyList[char] = masterAdjacency ?
+        that.adjacencyList[character] = masterAdjacency ?
           masterAdjacency.concat(adjacency) : adjacency;
       });
     },

@@ -5,6 +5,14 @@
  */
 
 var DropdownView = (function() {
+  var html = {
+        suggestionsList: '<span class="tt-suggestions"></span>'
+      },
+      css = {
+        suggestionsList: { display: 'block' },
+        suggestion: { whiteSpace: 'nowrap', cursor: 'pointer' },
+        suggestionChild: { whiteSpace: 'normal' }
+      };
 
   // constructor
   // -----------
@@ -12,7 +20,9 @@ var DropdownView = (function() {
   function DropdownView(o) {
     utils.bindAll(this);
 
-    this.isMouseOverDropdown;
+    this.isOpen = false;
+    this.isEmpty = true;
+    this.isMouseOverDropdown = false;
 
     this.$menu = $(o.menu)
     .on('mouseenter', this._handleMouseenter)
@@ -34,19 +44,32 @@ var DropdownView = (function() {
     },
 
     _handleMouseover: function($e) {
+      var $suggestion = $($e.currentTarget);
+
       this._getSuggestions().removeClass('tt-is-under-cursor');
-      $($e.currentTarget).addClass('tt-is-under-cursor');
+      $suggestion.addClass('tt-is-under-cursor');
     },
 
     _handleSelection: function($e) {
-      this.trigger('select', formatDataForSuggestion($($e.currentTarget)));
+      var $suggestion = $($e.currentTarget);
+      this.trigger('suggestionSelected', formatDataForSuggestion($suggestion));
+    },
+
+    _show: function() {
+      // can't use jQuery#show because $menu is a span element we want
+      // display: block; not dislay: inline;
+      this.$menu.css('display', 'block');
+    },
+
+    _hide: function() {
+      this.$menu.hide();
     },
 
     _moveCursor: function(increment) {
       var $suggestions, $cur, nextIndex, $underCursor;
 
-      // don't bother moving the cursor if the menu is hidden
-      if (!this.$menu.hasClass('tt-is-open')) {
+      // don't bother moving the cursor if the menu is closed or empty
+      if (!this.isVisible()) {
         return;
       }
 
@@ -60,7 +83,7 @@ var DropdownView = (function() {
       nextIndex = (nextIndex + 1) % ($suggestions.length + 1) - 1;
 
       if (nextIndex === -1) {
-        this.trigger('cursorOff');
+        this.trigger('cursorRemoved');
 
         return;
       }
@@ -71,7 +94,7 @@ var DropdownView = (function() {
       }
 
       $underCursor = $suggestions.eq(nextIndex).addClass('tt-is-under-cursor');
-      this.trigger('cursorOn', { value: $underCursor.data('value') });
+      this.trigger('cursorMoved', { value: $underCursor.data('value') });
     },
 
     _getSuggestions: function() {
@@ -81,37 +104,47 @@ var DropdownView = (function() {
     // public methods
     // --------------
 
-    hideUnlessMouseIsOverDropdown: function() {
+    isVisible: function() {
+      return this.isOpen && !this.isEmpty;
+    },
+
+    closeUnlessMouseIsOverDropdown: function() {
       // this helps detect the scenario a blur event has triggered
-      // this function. we don't want to hide the menu in that case
+      // this function. we don't want to close the menu in that case
       // because it'll prevent the probable associated click event
       // from being fired
       if (!this.isMouseOverDropdown) {
-        this.hide();
+        this.close();
       }
     },
 
-    hide: function() {
-      if (this.$menu.hasClass('tt-is-open')) {
+    close: function() {
+      if (this.isOpen) {
+        this.isOpen = false;
+        this._hide();
+
         this.$menu
-        .removeClass('tt-is-open')
         .find('.tt-suggestions > .tt-suggestion')
         .removeClass('tt-is-under-cursor');
 
-        this.trigger('hide');
+        this.trigger('closed');
       }
     },
 
-    show: function() {
-      if (!this.$menu.hasClass('tt-is-open')) {
-        this.$menu.addClass('tt-is-open');
+    open: function() {
+      if (!this.isOpen) {
+        this.isOpen = true;
+        !this.isEmpty && this._show();
 
-        this.trigger('show');
+        this.trigger('opened');
       }
     },
 
-    isOpen: function() {
-      return this.$menu.hasClass('tt-is-open');
+    setLanguageDirection: function(dir) {
+      var ltrCss = { left: '0', right: 'auto' },
+          rtlCss = { left: 'auto', right:' 0' };
+
+      dir === 'ltr' ? this.$menu.css(ltrCss) : this.$menu.css(rtlCss);
     },
 
     moveCursorUp: function() {
@@ -140,15 +173,19 @@ var DropdownView = (function() {
 
     renderSuggestions: function(query, dataset, suggestions) {
       var datasetClassName = 'tt-dataset-' + dataset.name,
+          $suggestionsList,
           $dataset = this.$menu.find('.' + datasetClassName),
           elBuilder,
           fragment,
-          el;
+          $el;
 
       // first time rendering suggestions for this dataset
       if ($dataset.length === 0) {
-        $dataset = $('<li><ol class="tt-suggestions"></ol></li>')
+        $suggestionsList = $(html.suggestionsList).css(css.suggestionsList);
+
+        $dataset = $('<div></div>')
         .addClass(datasetClassName)
+        .append($suggestionsList)
         .appendTo(this.$menu);
       }
 
@@ -158,15 +195,21 @@ var DropdownView = (function() {
       this.clearSuggestions(dataset.name);
 
       if (suggestions.length > 0) {
-        this.$menu.removeClass('tt-is-empty');
+        this.isEmpty = false;
+        this.isOpen && this._show();
 
         utils.each(suggestions, function(i, suggestion) {
           elBuilder.innerHTML = dataset.template.render(suggestion);
 
-          el = elBuilder.firstChild;
-          el.setAttribute('data-value', suggestion.value);
+          $el = $(elBuilder.firstChild)
+          .css(css.suggestion)
+          .data('value', suggestion.value);
 
-          fragment.appendChild(el);
+          $el.children().each(function() {
+            $(this).css(css.suggestionChild);
+          });
+
+          fragment.appendChild($el[0]);
         });
       }
 
@@ -174,7 +217,7 @@ var DropdownView = (function() {
       .data({ query: query, dataset: dataset.name })
       .append(fragment);
 
-      this.trigger('suggestionsRender');
+      this.trigger('suggestionsRendered');
     },
 
     clearSuggestions: function(datasetName) {
@@ -184,8 +227,10 @@ var DropdownView = (function() {
 
       $suggestions.empty();
 
-      // add empty class if the dropdown menu is empty
-      this._getSuggestions().length === 0 && this.$menu.addClass('tt-is-empty');
+      if (this._getSuggestions().length === 0) {
+        this.isEmpty = true;
+        this._hide();
+      }
     }
   });
 

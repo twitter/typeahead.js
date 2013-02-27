@@ -6,7 +6,9 @@
 
 var utils = {
   isMsie: function() {
-    return (/msie [\w.]+/i).test(navigator.userAgent);
+    var match = /(msie) ([\w.]+)/i.exec(navigator.userAgent);
+
+    return match ? parseInt(match[2], 10) : false;
   },
 
   isString: function(obj) { return typeof obj === 'string'; },
@@ -17,7 +19,7 @@ var utils = {
 
   isFunction: $.isFunction,
 
-  isObject: function(obj) { return obj === Object(obj); },
+  isObject: $.isPlainObject,
 
   isUndefined: function(obj) { return typeof obj === 'undefined'; },
 
@@ -26,7 +28,7 @@ var utils = {
   bindAll: function(obj) {
     var val;
     for (var key in obj) {
-      utils.isFunction(val = obj[key]) && (obj[key] = $.proxy(val, obj));
+      $.isFunction(val = obj[key]) && (obj[key] = $.proxy(val, obj));
     }
   },
 
