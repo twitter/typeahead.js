@@ -12,6 +12,8 @@ var TypeaheadView = (function() {
     dropdown: '<ol class="tt-dropdown-menu tt-is-empty"></ol>'
   };
 
+  var renderedSuggestions = [];
+
   // constructor
   // -----------
 
@@ -172,6 +174,7 @@ var TypeaheadView = (function() {
     },
 
     _handleSelection: function(e) {
+      var query, selectedItem, dataset, selectionCallback;
       var byClick = e.type === 'select',
           suggestionData = byClick ?
             e.data : this.dropdownView.getSuggestionUnderCursor();
@@ -188,6 +191,19 @@ var TypeaheadView = (function() {
         // focus is not a synchronous event in ie, so we deal with it
         byClick && utils.isMsie() ?
           setTimeout(this.dropdownView.hide, 0) : this.dropdownView.hide();
+
+        query = suggestionData.query;
+        selectedItem = renderedSuggestions[suggestionData.index] || renderedSuggestions[0];
+
+        selectionCallback = this.datasets[suggestionData.dataset].selectionCallback;
+        if (selectionCallback && typeof selectionCallback === 'function') {
+          selectionCallback(query, selectedItem);
+        }
+
+        this.inputView.$input.trigger(jQuery.Event('selection', {
+          query: query,
+          selectedItem: selectedItem
+        }));
       }
     },
 
@@ -205,7 +221,7 @@ var TypeaheadView = (function() {
     _renderSuggestions: function(query, dataset, suggestions) {
       if (query !== this.inputView.getQuery()) { return; }
 
-      suggestions = suggestions.slice(0, dataset.limit);
+      suggestions = renderedSuggestions = suggestions.slice(0, dataset.limit);
       this.dropdownView.renderSuggestions(query, dataset, suggestions);
     },
 

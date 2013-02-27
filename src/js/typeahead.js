@@ -62,7 +62,8 @@
           limit: datasetDef.limit,
           template: datasetDef.template,
           engine: datasetDef.engine,
-          getSuggestions: dataset.getSuggestions
+          getSuggestions: dataset.getSuggestions,
+          selectionCallback: datasetDef.selectionCallback
         };
       });
 
