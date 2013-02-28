@@ -68,6 +68,14 @@
           typeahead: new TypeaheadView({ input: this, datasets: datasets })
         });
       });
+    },
+
+    destroy: function() {
+      this.each(function() {
+        var view = $(this).data('typeahead');
+
+        view && view.destroy();
+      });
     }
   };
 

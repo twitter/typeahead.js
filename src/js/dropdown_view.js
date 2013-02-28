@@ -15,10 +15,10 @@ var DropdownView = (function() {
     this.isMouseOverDropdown;
 
     this.$menu = $(o.menu)
-    .on('mouseenter', this._handleMouseenter)
-    .on('mouseleave', this._handleMouseleave)
-    .on('mouseover', '.tt-suggestions > .tt-suggestion', this._handleMouseover)
-    .on('click', '.tt-suggestions > .tt-suggestion', this._handleSelection);
+    .on('mouseenter.tt', this._handleMouseenter)
+    .on('mouseleave.tt', this._handleMouseleave)
+    .on('click.tt', '.tt-suggestion', this._handleSelection)
+    .on('mouseover.tt', '.tt-suggestion', this._handleMouseover);
   }
 
   utils.mixin(DropdownView.prototype, EventTarget, {
@@ -80,6 +80,12 @@ var DropdownView = (function() {
 
     // public methods
     // --------------
+
+    destroy: function() {
+      this.$menu.off('.tt');
+
+      this.$menu = null;
+    },
 
     hideUnlessMouseIsOverDropdown: function() {
       // this helps detect the scenario a blur event has triggered
