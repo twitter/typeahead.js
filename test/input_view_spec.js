@@ -141,6 +141,23 @@ describe('InputView', function() {
     });
   });
 
+  describe('#destroy', function() {
+    beforeEach(function() {
+      this.inputView.destroy();
+    });
+
+    it('should remove event listeners', function() {
+      expect($._data(this.$hint, 'events')).toBeUndefined();
+      expect($._data(this.$input, 'events')).toBeUndefined();
+    });
+
+    it('should drop references to DOM elements', function() {
+      expect(this.inputView.$hint).toBeNull();
+      expect(this.inputView.$input).toBeNull();
+      expect(this.inputView.$overflowHelper).toBeNull();
+    });
+  });
+
   describe('#focus', function() {
     beforeEach(function() {
       this.inputView.focus();

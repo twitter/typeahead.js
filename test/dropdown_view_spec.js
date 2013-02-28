@@ -122,6 +122,20 @@ describe('DropdownView', function() {
     });
   });
 
+  describe('#destroy', function() {
+    beforeEach(function() {
+      this.dropdownView.destroy();
+    });
+
+    it('should remove event listeners', function() {
+      expect($._data(this.$menu, 'events')).toBeUndefined();
+    });
+
+    it('should drop references to DOM elements', function() {
+      expect(this.dropdownView.$menu).toBeNull();
+    });
+  });
+
   describe('#hide', function() {
     var spy;
 
