@@ -449,6 +449,32 @@ describe('TypeaheadView', function() {
     });
   });
 
+  describe('#destroy', function() {
+    beforeEach(function() {
+      this.$input = this.typeaheadView.$node.find('.tt-query');
+      this.typeaheadView.destroy();
+    });
+
+    it('should destroy inputView', function() {
+      expect(this.inputView.destroy).toHaveBeenCalled();
+    });
+
+    it('should destroy dropdownView', function() {
+      expect(this.dropdownView.destroy).toHaveBeenCalled();
+    });
+
+    it('should revert DOM modifications', function() {
+      expect(this.$input).not.toHaveClass('tt-query');
+      expect(this.$input.parent('.twitter-typeahead')).not.toExist();
+      expect(this.$input.siblings('.tt-hint')).not.toExist();
+      expect(this.$input.siblings('.tt-dropdown-menu')).not.toExist();
+    });
+
+    it('should drop references to DOM elements', function() {
+      expect(this.typeaheadView.$node).toBeNull();
+    });
+  });
+
   // spec helpers
   // ------------
 

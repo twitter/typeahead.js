@@ -202,6 +202,18 @@ var TypeaheadView = (function() {
       if (hint !== '' && query !== hint) {
         this.inputView.setInputValue(hint);
       }
+    },
+
+    // public methods
+    // --------------
+
+    destroy: function() {
+      this.inputView.destroy();
+      this.dropdownView.destroy();
+
+      destroyDomStructure(this.$node);
+
+      this.$node = null;
     }
   });
 
@@ -217,6 +229,14 @@ var TypeaheadView = (function() {
       return null;
     }
 
+    // store the original values of the attrs that get modified
+    // so modifications can be reverted on destroy
+    $input.data('ttAttrs', {
+      dir: $input.attr('dir'),
+      autocomplete: $input.attr('autocomplete'),
+      spellcheck: $input.attr('spellcheck')
+    });
+
     // ie7 does not like it when dir is set to auto,
     // it does not like it one bit
     try { !$input.attr('dir') && $input.attr('dir', 'auto'); } catch (e) {}
@@ -228,5 +248,19 @@ var TypeaheadView = (function() {
     .parent()
     .prepend($hint)
     .append(html.dropdown);
+  }
+
+  function destroyDomStructure($node) {
+    var $input = $node.find('.tt-query');
+
+    // need to remove attrs that weren't previously defined and
+    // revert attrs that originally had a value
+    utils.each($input.data('ttAttrs'), function(key, val) {
+      utils.isUndefined(val) ? $input.removeAttr(key) : $input.attr(key, val);
+    });
+
+    $input.detach().removeClass('tt-query').insertAfter($node);
+
+    $node.remove();
   }
 })();
