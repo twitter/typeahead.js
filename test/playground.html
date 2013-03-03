@@ -24,11 +24,14 @@
 
   <body>
     <div class="container">
-      <input class="typeahead" type="text">
+      <input class="states" type="text" placeholder="states">
+      <br>
+      <br>
+      <input class="bad-tokens" type="text" placeholder="bad tokens">
     </div>
 
     <script>
-      $('.typeahead').typeahead({
+      $('.states').typeahead({
         local: [
           "Alabama",
           "Alaska",
@@ -80,6 +83,31 @@
           "West Virginia",
           "Wisconsin",
           "Wyoming"
+        ]
+      });
+
+      $('.bad-tokens').typeahead({
+        local: [
+          {
+            value: 'all bad',
+            tokens: ['  ', ' ', null, undefined, false, 'all', 'bad']
+          },
+          {
+            value: 'whitespace',
+            tokens: ['  ', ' ', '\t', '\n', 'whitespace']
+          },
+          {
+            value: 'undefined',
+            tokens: [undefined, 'undefined']
+          },
+          {
+            value: 'null',
+            tokens: [null, 'null']
+          },
+          {
+            value: 'false',
+            tokens: [false, 'false']
+          }
         ]
       });
     </script>
