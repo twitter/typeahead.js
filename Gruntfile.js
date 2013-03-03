@@ -180,6 +180,13 @@ module.exports = function(grunt) {
           port: 8888, keepalive: true
         }
       }
+    },
+
+    parallel: {
+      dev: [
+        { grunt: true, args: ['server'] },
+        { grunt: true, args: ['watch'] }
+      ]
     }
   });
 
@@ -252,12 +259,14 @@ module.exports = function(grunt) {
   grunt.registerTask('lint', 'jshint');
   grunt.registerTask('test', 'jasmine:js');
   grunt.registerTask('test:browser', ['jasmine:js:build', 'exec:open_spec_runner']);
+  grunt.registerTask('dev', 'parallel:dev');
 
   // load tasks
   // ----------
 
   grunt.loadNpmTasks('grunt-sed');
   grunt.loadNpmTasks('grunt-exec');
+  grunt.loadNpmTasks('grunt-parallel');
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-clean');
