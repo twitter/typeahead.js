@@ -171,6 +171,10 @@ var TypeaheadView = (function() {
       var that = this,
           query = this.inputView.getQuery();
 
+      if (utils.isBlankString(query)) {
+        return;
+      }
+
       utils.each(this.datasets, function(i, dataset) {
         dataset.getSuggestions(query, function(suggestions) {
           that._renderSuggestions(query, dataset, suggestions);

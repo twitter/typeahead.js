@@ -9,6 +9,8 @@ var utils = {
     return (/msie [\w.]+/i).test(navigator.userAgent);
   },
 
+  isBlankString: function(str) { return !str || /^\s*$/.test(str); },
+
   isString: function(obj) { return typeof obj === 'string'; },
 
   isNumber: function(obj) { return typeof obj === 'number'; },

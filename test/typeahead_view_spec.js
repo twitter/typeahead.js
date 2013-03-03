@@ -180,10 +180,28 @@ describe('TypeaheadView', function() {
       expect(this.dropdownView.clearSuggestions).toHaveBeenCalled();
     });
 
-    it('should call dropdownView.renderSuggestions for each dataset',
-    function() {
-      this.inputView.trigger('queryChange');
-      expect(this.dropdownView.renderSuggestions.callCount).toBe(3);
+    describe('if query is a blank string', function() {
+      beforeEach(function() {
+        this.inputView.getQuery.andReturn('  ');
+        this.inputView.trigger('queryChange');
+      });
+
+      it('should not call dropdownView.renderSuggestions for each dataset',
+      function() {
+        expect(this.dropdownView.renderSuggestions.callCount).toBe(0);
+      });
+    });
+
+    describe('if query is not a blank string', function() {
+      beforeEach(function() {
+        this.inputView.getQuery.andReturn('not blank');
+        this.inputView.trigger('queryChange');
+      });
+
+      it('should call dropdownView.renderSuggestions for each dataset',
+      function() {
+        expect(this.dropdownView.renderSuggestions.callCount).toBe(3);
+      });
     });
 
     describe('if language direction has changed', function() {
