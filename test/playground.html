@@ -28,6 +28,9 @@
       <br>
       <br>
       <input class="bad-tokens" type="text" placeholder="bad tokens">
+      <br>
+      <br>
+      <input class="regex-symbols" type="text" placeholder="regex symbols">
     </div>
 
     <script>
@@ -108,6 +111,17 @@
             value: 'false',
             tokens: [false, 'false']
           }
+        ]
+      });
+
+      $('.regex-symbols').typeahead({
+        local: [
+          '*.js',
+          '[Tt]ypeahead.js',
+          '^typeahead.js$',
+          'typeahead.js(0.8.2)',
+          'typeahead.js(@\\d.\\d.\\d)',
+          'typeahead.js@0.8.2'
         ]
       });
     </script>

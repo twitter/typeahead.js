@@ -11,6 +11,11 @@ var utils = {
 
   isBlankString: function(str) { return !str || /^\s*$/.test(str); },
 
+  // http://stackoverflow.com/a/6969486
+  escapeRegExChars: function(str) {
+    return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
+  },
+
   isString: function(obj) { return typeof obj === 'string'; },
 
   isNumber: function(obj) { return typeof obj === 'number'; },
