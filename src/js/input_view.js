@@ -41,9 +41,9 @@ var InputView = (function() {
 
     else {
       this.$input
-      .on('keydown.tt keypress.tt cut.tt paste.tt', function(e) {
+      .on('keydown.tt keypress.tt cut.tt paste.tt', function($e) {
         // if a special key triggered this, ignore it
-        if (that.specialKeyCodeMap[e.which || e.keyCode]) { return; }
+        if (that.specialKeyCodeMap[$e.which || $e.keyCode]) { return; }
 
         // give the browser a chance to update the value of the input
         // before checking to see if the query changed
