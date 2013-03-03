@@ -95,6 +95,7 @@ var TypeaheadView = (function() {
           hint = dataForFirstSuggestion ? dataForFirstSuggestion.value : null,
           inputValue,
           query,
+          escapedQuery,
           beginsWithQuery,
           match;
 
@@ -103,8 +104,9 @@ var TypeaheadView = (function() {
         query = inputValue
         .replace(/\s{2,}/g, ' ') // condense whitespace
         .replace(/^\s+/g, ''); // strip leading whitespace
+        escapedQuery = utils.escapeRegExChars(query);
 
-        beginsWithQuery = new RegExp('^(?:' + query + ')(.*$)', 'i');
+        beginsWithQuery = new RegExp('^(?:' + escapedQuery + ')(.*$)', 'i');
         match = beginsWithQuery.exec(hint);
 
         this.inputView.setHintValue(inputValue + (match ? match[1] : ''));
