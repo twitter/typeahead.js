@@ -72,9 +72,13 @@
 
     destroy: function() {
       this.each(function() {
-        var view = $(this).data('typeahead');
+        var $this = $(this),
+            view = $this.data('typeahead');
 
-        view && view.destroy();
+        if (view) {
+          view.destroy();
+          $this.removeData('typeahead');
+        }
       });
     }
   };
