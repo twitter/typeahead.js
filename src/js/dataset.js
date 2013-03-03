@@ -89,8 +89,13 @@ var Dataset = (function() {
           item = { value: item, tokens: utils.tokenizeText(item) };
         }
 
+        // filter out falsy tokens
+        item.tokens = utils.filter(item.tokens || [], function(token) {
+          return !utils.isBlankString(token);
+        });
+
         // normalize tokens
-        item.tokens = utils.map(item.tokens || [], function(token) {
+        item.tokens = utils.map(item.tokens, function(token) {
           return token.toLowerCase();
         });
 
