@@ -20,6 +20,7 @@ For more information on semantic versioning, please visit http://semver.org/.
 * Fixed bug causing error to be thrown when initializing a typeahead on multiple elements. [#51][51]
 * Tokens with falsy values are now filtered out – was causing wonky behavior. [#75][75]
 * No longer making remote requests for blank queries. [#74][74]
+* Datums with regex characters in their value no longer cause errors. [#77][77]
 * Now compatible with the Closure Compiler. [#48][48]
 * Reference to jQuery is now obtained through window.jQuery, not window.$. [#47][47]
 * Added a plugin method for destroying typeaheads. Won't be documented until v0.9 and might change before then. [#59][59]
@@ -46,6 +47,7 @@ For more information on semantic versioning, please visit http://semver.org/.
 * Share datasets (and caching) between multiple inputs.
 * And much, much more...
 
+[77]: https://github.com/twitter/typeahead.js/pull/77
 [75]: https://github.com/twitter/typeahead.js/pull/75
 [74]: https://github.com/twitter/typeahead.js/pull/74
 [59]: https://github.com/twitter/typeahead.js/pull/59
