@@ -483,7 +483,8 @@ describe('DropdownView', function() {
 
     describe('if there are no suggestions', function() {
       beforeEach(function() {
-        this.dropdownView.on('suggestionsRender', spy = jasmine.createSpy());
+        this.dropdownView
+        .on('suggestionsRender', this.spy = jasmine.createSpy());
 
         spyOn(this.dropdownView, 'clearSuggestions');
 
@@ -495,15 +496,14 @@ describe('DropdownView', function() {
       });
 
       it('should trigger suggestionsRender', function() {
-        expect(spy).toHaveBeenCalled();
+        expect(this.spy).toHaveBeenCalled();
       });
     });
 
     describe('if there are suggestions', function() {
-      var spy;
-
       beforeEach(function() {
-        this.dropdownView.on('suggestionsRender', spy = jasmine.createSpy());
+        this.dropdownView
+        .on('suggestionsRender', this.spy = jasmine.createSpy());
 
         spyOn(this.dropdownView, 'clearSuggestions').andCallThrough();
 
@@ -536,7 +536,7 @@ describe('DropdownView', function() {
       });
 
       it('should trigger suggestionsRender', function() {
-        expect(spy).toHaveBeenCalled();
+        expect(this.spy).toHaveBeenCalled();
       });
     });
   });
