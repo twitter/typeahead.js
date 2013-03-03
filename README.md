@@ -198,7 +198,7 @@ Issues
 
 Have a bug? Please create an issue here on GitHub!
 
-https://github.com/twitter/typeahead/issues
+https://github.com/twitter/typeahead.js/issues
 
 Versioning
 ----------
