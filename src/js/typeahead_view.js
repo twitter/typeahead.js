@@ -16,42 +16,18 @@ var TypeaheadView = (function() {
   // -----------
 
   function TypeaheadView(o) {
+    var $menu, $input, $hint;
+
     utils.bindAll(this);
 
     this.$node = wrapInput(o.input);
     this.datasets = o.datasets;
 
-    // precompile the templates
-    utils.each(this.datasets, function(key, dataset) {
-      var parentTemplate = '<li class="tt-suggestion">%body</li>';
+    $menu = this.$node.find('.tt-dropdown-menu');
+    $input = this.$node.find('.tt-query');
+    $hint = this.$node.find('.tt-hint');
 
-      if (dataset.template) {
-        dataset.template = dataset.engine
-        .compile(parentTemplate.replace('%body', dataset.template));
-      }
-
-      // if no template is provided, render suggestion
-      // as it's value wrapped in a p tag
-      else {
-        dataset.template = {
-          render: function(context) {
-            return parentTemplate
-            .replace('%body', '<p>' + context.value + '</p>');
-          }
-        };
-      }
-    });
-
-    this.inputView = new InputView({
-      input: this.$node.find('.tt-query'),
-      hint: this.$node.find('.tt-hint')
-    });
-
-    this.dropdownView = new DropdownView({
-      menu: this.$node.find('.tt-dropdown-menu')
-    });
-
-    this.dropdownView
+    this.dropdownView = new DropdownView({ menu: $menu })
     .on('select', this._handleSelection)
     .on('cursorOn', this._clearHint)
     .on('cursorOn', this._setInputValueToSuggestionUnderCursor)
@@ -61,7 +37,7 @@ var TypeaheadView = (function() {
     .on('show', this._updateHint)
     .on('hide', this._clearHint);
 
-    this.inputView
+    this.inputView = new InputView({ input: $input, hint: $hint })
     .on('focus', this._showDropdown)
     .on('blur', this._hideDropdown)
     .on('blur', this._setInputValueToQuery)

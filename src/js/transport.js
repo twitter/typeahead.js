@@ -5,86 +5,99 @@
  */
 
 var Transport = (function() {
+  var pendingRequests = 0, maxParallelRequests, requestCache;
 
   function Transport(o) {
-    var rateLimitFn;
-
     utils.bindAll(this);
 
-    o = o || {};
+    o = utils.isString(o) ? { url: o } : o;
 
-    rateLimitFn = (/^throttle$/i).test(o.rateLimitFn) ?
-      utils.throttle : utils.debounce;
+    requestCache = requestCache || new RequestCache();
 
-    this.wait = o.wait || 300;
+    // shared between all instances, last instance to set it wins
+    maxParallelRequests = utils.isNumber(o.maxParallelRequests) ?
+      o.maxParallelRequests : maxParallelRequests || 6;
+
+    this.url = o.url;
     this.wildcard = o.wildcard || '%QUERY';
-    this.maxConcurrentRequests = o.maxConcurrentRequests || 6;
+    this.filter = o.filter;
+    this.replace = o.replace;
 
-    this.concurrentRequests = 0;
-    this.onDeckRequestArgs = null;
+    this.ajaxSettings = {
+      type: 'get',
+      cache: o.cache,
+      timeout: o.timeout,
+      dataType: o.dataType || 'json',
+      beforeSend: o.beforeSend
+    };
 
-    this.cache = new RequestCache();
-
-    this.get = rateLimitFn(this.get, this.wait);
+    this.get = (/^throttle$/i.test(o.rateLimitFn) ?
+      utils.throttle : utils.debounce)(this.get, o.rateLimitWait || 300);
   }
 
   utils.mixin(Transport.prototype, {
 
-    // private methods
-    // ---------------
-
-    _incrementConcurrentRequests: function() {
-      this.concurrentRequests++;
-    },
-
-    _decrementConcurrentRequests: function() {
-      this.concurrentRequests--;
-    },
-
-    _belowConcurrentRequestsThreshold: function() {
-      return this.concurrentRequests < this.maxConcurrentRequests;
-    },
-
     // public methods
     // --------------
 
-    get: function(url, query, cb) {
-      var that = this, resp;
+    get: function(query, cb) {
+      var that = this,
+          encodedQuery = encodeURIComponent(query || ''),
+          url,
+          resp;
 
-      url = url.replace(this.wildcard, encodeURIComponent(query || ''));
+      url = this.replace ?
+        this.replace(this.url, encodedQuery) :
+        this.url.replace(this.wildcard, encodedQuery);
 
-      if (resp = this.cache.get(url)) {
+      if (resp = requestCache.get(url)) {
         cb && cb(resp);
       }
 
-      else if (this._belowConcurrentRequestsThreshold()) {
-        $.ajax({
-          url: url,
-          type: 'GET',
-          dataType: 'json',
-          beforeSend: function() {
-            that._incrementConcurrentRequests();
-          },
-          success: function(resp) {
-            cb && cb(resp);
-            that.cache.set(url, resp);
-          },
-          complete: function() {
-            that._decrementConcurrentRequests();
-
-            if (that.onDeckRequestArgs) {
-              that.get.apply(that, that.onDeckRequestArgs);
-              that.onDeckRequestArgs = null;
-            }
-          }
-        });
+      else if (belowPendingRequestsThreshold()) {
+        incrementPendingRequests();
+        $.ajax(url, this.ajaxSettings).done(done).always(always);
       }
 
       else {
         this.onDeckRequestArgs = [].slice.call(arguments, 0);
       }
+
+      // success callback
+      function done(resp) {
+        resp = that.filter ? that.filter(resp) : resp;
+
+        cb && cb(resp);
+        requestCache.set(url, resp);
+      }
+
+      // comlete callback
+      function always() {
+        decrementPendingRequests();
+
+        // ensures request is always made for the latest query
+        if (that.onDeckRequestArgs) {
+          that.get.apply(that, that.onDeckRequestArgs);
+          that.onDeckRequestArgs = null;
+        }
+      }
     }
   });
 
   return Transport;
+
+  // static methods
+  // --------------
+
+  function incrementPendingRequests() {
+    pendingRequests++;
+  }
+
+  function decrementPendingRequests() {
+    pendingRequests--;
+  }
+
+  function belowPendingRequestsThreshold() {
+    return pendingRequests < maxParallelRequests;
+  }
 })();
