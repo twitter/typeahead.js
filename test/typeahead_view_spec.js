@@ -523,8 +523,11 @@ describe('TypeaheadView', function() {
     });
 
     describe('if top suggestion\'s value begins with query', function() {
-      it('should show hint', function() {
+      beforeEach(function() {
         this.dropdownView.isOpen.andReturn(true);
+      });
+
+      it('should show hint', function() {
         this.inputView.getInputValue.andReturn('san   ');
         this.dropdownView.getFirstSuggestion
         .andReturn({ value: 'san francisco' });
@@ -533,6 +536,17 @@ describe('TypeaheadView', function() {
 
         expect(this.inputView.setHintValue)
         .toHaveBeenCalledWith('san   francisco');
+      });
+
+      it('should escape regex characters', function() {
+        this.inputView.getInputValue.andReturn('*.js(v');
+        this.dropdownView.getFirstSuggestion
+        .andReturn({ value: '*.js(v\\d.\\d.\\d)' });
+
+        this[view].trigger(eventType);
+
+        expect(this.inputView.setHintValue)
+        .toHaveBeenCalledWith('*.js(v\\d.\\d.\\d)');
       });
     });
 
