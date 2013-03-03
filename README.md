@@ -253,7 +253,7 @@ Thanks for assistance and contributions:
 + [@paulirish](https://github.com/paulirish)
 + [@sindresorhus](https://github.com/sindresorhus)
 + [@thisguy](https://twitter.com/thisguy)
-+ [And many others!](contributors)
++ [And many others!](https://github.com/twitter/typeahead.js/contributors)
 
 License
 -------
