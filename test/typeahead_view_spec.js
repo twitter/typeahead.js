@@ -180,10 +180,28 @@ describe('TypeaheadView', function() {
       expect(this.dropdownView.clearSuggestions).toHaveBeenCalled();
     });
 
-    it('should call dropdownView.renderSuggestions for each dataset',
-    function() {
-      this.inputView.trigger('queryChange');
-      expect(this.dropdownView.renderSuggestions.callCount).toBe(3);
+    describe('if query is a blank string', function() {
+      beforeEach(function() {
+        this.inputView.getQuery.andReturn('  ');
+        this.inputView.trigger('queryChange');
+      });
+
+      it('should not call dropdownView.renderSuggestions for each dataset',
+      function() {
+        expect(this.dropdownView.renderSuggestions.callCount).toBe(0);
+      });
+    });
+
+    describe('if query is not a blank string', function() {
+      beforeEach(function() {
+        this.inputView.getQuery.andReturn('not blank');
+        this.inputView.trigger('queryChange');
+      });
+
+      it('should call dropdownView.renderSuggestions for each dataset',
+      function() {
+        expect(this.dropdownView.renderSuggestions.callCount).toBe(3);
+      });
     });
 
     describe('if language direction has changed', function() {
@@ -449,6 +467,32 @@ describe('TypeaheadView', function() {
     });
   });
 
+  describe('#destroy', function() {
+    beforeEach(function() {
+      this.$input = this.typeaheadView.$node.find('.tt-query');
+      this.typeaheadView.destroy();
+    });
+
+    it('should destroy inputView', function() {
+      expect(this.inputView.destroy).toHaveBeenCalled();
+    });
+
+    it('should destroy dropdownView', function() {
+      expect(this.dropdownView.destroy).toHaveBeenCalled();
+    });
+
+    it('should revert DOM modifications', function() {
+      expect(this.$input).not.toHaveClass('tt-query');
+      expect(this.$input.parent('.twitter-typeahead')).not.toExist();
+      expect(this.$input.siblings('.tt-hint')).not.toExist();
+      expect(this.$input.siblings('.tt-dropdown-menu')).not.toExist();
+    });
+
+    it('should drop references to DOM elements', function() {
+      expect(this.typeaheadView.$node).toBeNull();
+    });
+  });
+
   // spec helpers
   // ------------
 
@@ -479,8 +523,11 @@ describe('TypeaheadView', function() {
     });
 
     describe('if top suggestion\'s value begins with query', function() {
-      it('should show hint', function() {
+      beforeEach(function() {
         this.dropdownView.isOpen.andReturn(true);
+      });
+
+      it('should show hint', function() {
         this.inputView.getInputValue.andReturn('san   ');
         this.dropdownView.getFirstSuggestion
         .andReturn({ value: 'san francisco' });
@@ -489,6 +536,17 @@ describe('TypeaheadView', function() {
 
         expect(this.inputView.setHintValue)
         .toHaveBeenCalledWith('san   francisco');
+      });
+
+      it('should escape regex characters', function() {
+        this.inputView.getInputValue.andReturn('*.js(v');
+        this.dropdownView.getFirstSuggestion
+        .andReturn({ value: '*.js(v\\d.\\d.\\d)' });
+
+        this[view].trigger(eventType);
+
+        expect(this.inputView.setHintValue)
+        .toHaveBeenCalledWith('*.js(v\\d.\\d.\\d)');
       });
     });
 

@@ -20,7 +20,7 @@ var Dataset = (function() {
     this.limit = o.limit || 10;
     this._customMatcher = o.matcher || null;
     this._customRanker = o.ranker || null;
-    this._ttl_ms = o.ttl_ms || 3 * 24 * 60 * 60 * 1000; // 3 days;
+    this._ttl_ms = utils.isNumber(o.ttl_ms) ? o.ttl_ms : 24 * 60 * 60 * 1000;
 
     this.keys = {
       version: 'version',
@@ -89,16 +89,22 @@ var Dataset = (function() {
           item = { value: item, tokens: utils.tokenizeText(item) };
         }
 
+        // filter out falsy tokens
+        item.tokens = utils.filter(item.tokens || [], function(token) {
+          return !utils.isBlankString(token);
+        });
+
         // normalize tokens
-        item.tokens = utils.map(item.tokens || [], function(token) {
+        item.tokens = utils.map(item.tokens, function(token) {
           return token.toLowerCase();
         });
 
         itemHash[id = utils.getUniqueId(item.value)] = item;
 
         utils.each(item.tokens, function(i, token) {
-          var char = token.charAt(0),
-              adjacency = adjacencyList[char] || (adjacencyList[char] = [id]);
+          var character = token.charAt(0),
+              adjacency = adjacencyList[character] ||
+                (adjacencyList[character] = [id]);
 
           !~utils.indexOf(adjacency, id) && adjacency.push(id);
         });
@@ -114,10 +120,10 @@ var Dataset = (function() {
       utils.mixin(this.itemHash, processedData.itemHash);
 
       // merge adjacency list
-      utils.each(processedData.adjacencyList, function(char, adjacency) {
-        var masterAdjacency = that.adjacencyList[char];
+      utils.each(processedData.adjacencyList, function(character, adjacency) {
+        var masterAdjacency = that.adjacencyList[character];
 
-        that.adjacencyList[char] = masterAdjacency ?
+        that.adjacencyList[character] = masterAdjacency ?
           masterAdjacency.concat(adjacency) : adjacency;
       });
     },

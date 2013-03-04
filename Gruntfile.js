@@ -16,13 +16,13 @@ var semver = require('semver'),
 
 module.exports = function(grunt) {
   grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),
+    version: grunt.file.readJSON('package.json').version,
 
     buildDir: 'dist',
 
     banner: [
       '/*!',
-      ' * typeahead.js <%= pkg.version %>',
+      ' * typeahead.js <%= version %>',
       ' * https://github.com/twitter/typeahead',
       ' * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT',
       ' */\n\n'
@@ -70,7 +70,7 @@ module.exports = function(grunt) {
     sed: {
       version: {
         pattern: '%VERSION%',
-        replacement: '<%= pkg.version %>',
+        replacement: '<%= version %>',
         path: ['<%= concat.js.dest %>', '<%= concat.jsmin.dest %>']
       }
     },
@@ -133,8 +133,11 @@ module.exports = function(grunt) {
       open_spec_runner: {
         cmd: 'open _SpecRunner.html'
       },
-      git_fail_if_dirty: {
+      git_is_clean: {
         cmd: 'test -z "$(git status --porcelain)"'
+      },
+      git_on_master: {
+        cmd: 'test $(git symbolic-ref --short -q HEAD) = master'
       },
       git_add: {
         cmd: 'git add .'
@@ -154,12 +157,12 @@ module.exports = function(grunt) {
           'zip -r typeahead.js/typeahead.js.zip typeahead.js',
           'git checkout gh-pages',
           'rm -rf releases/latest',
-          'cp -r typeahead.js releases/<%= pkg.version %>',
+          'cp -r typeahead.js releases/<%= version %>',
           'cp -r typeahead.js releases/latest',
-          'git add releases/<%= pkg.version %> releases/latest',
-          'sed -E -i "" \'s/v[0-9]+\\.[0-9]+\\.[0-9]+/v<%= pkg.version %>/\' index.html',
+          'git add releases/<%= version %> releases/latest',
+          'sed -E -i "" \'s/v[0-9]+\\.[0-9]+\\.[0-9]+/v<%= version %>/\' index.html',
           'git add index.html',
-          'git commit -m "Add assets for <%= pkg.version %>."',
+          'git commit -m "Add assets for <%= version %>."',
           'git push',
           'git checkout -',
           'rm -rf typeahead.js'
@@ -177,20 +180,30 @@ module.exports = function(grunt) {
           port: 8888, keepalive: true
         }
       }
+    },
+
+    parallel: {
+      dev: [
+        { grunt: true, args: ['server'] },
+        { grunt: true, args: ['watch'] }
+      ]
     }
   });
 
   grunt.registerTask('release', 'Ship it.', function(version) {
-    var pkg = grunt.file.readJSON('package.json');
+    var curVersion = grunt.config.get('version');
 
-    version = semver.inc(pkg.version, version) || version;
+    version = semver.inc(curVersion, version) || version;
 
-    if (!semver.valid(version) || semver.lte(version, pkg.version)) {
+    if (!semver.valid(version) || semver.lte(version, curVersion)) {
       grunt.fatal('invalid version dummy');
     }
 
+    grunt.config.set('version', version);
+
     grunt.task.run([
-      'exec:git_fail_if_dirty',
+      'exec:git_on_master',
+      'exec:git_is_clean',
       'lint',
       'test',
       'manifests:' + version,
@@ -246,12 +259,14 @@ module.exports = function(grunt) {
   grunt.registerTask('lint', 'jshint');
   grunt.registerTask('test', 'jasmine:js');
   grunt.registerTask('test:browser', ['jasmine:js:build', 'exec:open_spec_runner']);
+  grunt.registerTask('dev', 'parallel:dev');
 
   // load tasks
   // ----------
 
   grunt.loadNpmTasks('grunt-sed');
   grunt.loadNpmTasks('grunt-exec');
+  grunt.loadNpmTasks('grunt-parallel');
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-clean');
