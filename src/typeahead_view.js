@@ -7,7 +7,7 @@
 var TypeaheadView = (function() {
   var html = {
         wrapper: '<span class="twitter-typeahead"></span>',
-        hint: '<input class="tt-hint">',
+        hint: '<input class="tt-hint" type="text" autocomplete="off" spellcheck="off" disabled>',
         dropdown: '<span class="tt-dropdown-menu"></span>'
       },
       css = {
@@ -282,27 +282,32 @@ var TypeaheadView = (function() {
     $dropdown = $dropdown.css(css.dropdown);
 
     $hint
-    .attr({
-      type: 'text',
-      autocomplete: 'off',
-      spellcheck: false,
-      disabled: true
-    })
     .css(css.hint)
-    .css('background', $input.css('background'));
-
-    $input
-    .addClass('tt-query')
-    .attr({ autocomplete: 'off', spellcheck: false })
-    .css(css.query);
+    // copy background styles from query input to hint input
+    .css({
+      backgroundAttachment: $input.css('background-attachment'),
+      backgroundClip: $input.css('background-clip'),
+      backgroundColor: $input.css('background-color'),
+      backgroundImage: $input.css('background-image'),
+      backgroundOrigin: $input.css('background-origin'),
+      backgroundPosition: $input.css('background-position'),
+      backgroundRepeat: $input.css('background-repeat'),
+      backgroundSize: $input.css('background-size')
+    });
 
     // store the original values of the attrs that get modified
     // so modifications can be reverted on destroy
     $input.data('ttAttrs', {
       dir: $input.attr('dir'),
       autocomplete: $input.attr('autocomplete'),
-      spellcheck: $input.attr('spellcheck')
+      spellcheck: $input.attr('spellcheck'),
+      style: $input.attr('style')
     });
+
+    $input
+    .addClass('tt-query')
+    .attr({ autocomplete: 'off', spellcheck: false })
+    .css(css.query);
 
     // ie7 does not like it when dir is set to auto,
     // it does not like it one bit
@@ -324,7 +329,11 @@ var TypeaheadView = (function() {
       utils.isUndefined(val) ? $input.removeAttr(key) : $input.attr(key, val);
     });
 
-    $input.detach().removeClass('tt-query').insertAfter($node);
+    $input
+    .detach()
+    .removeData('ttAttrs')
+    .removeClass('tt-query')
+    .insertAfter($node);
 
     $node.remove();
   }
