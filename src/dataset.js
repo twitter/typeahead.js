@@ -285,7 +285,7 @@ var Dataset = (function() {
   return Dataset;
 
   function compileTemplate(template, engine) {
-    var wrapper = '<li class="tt-suggestion">%body</li>',
+    var wrapper = '<div class="tt-suggestion">%body</div>',
        compiledTemplate;
 
     if (template) {

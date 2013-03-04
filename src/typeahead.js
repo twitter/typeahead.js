@@ -40,11 +40,11 @@
     destroy: function() {
       this.each(function() {
         var $this = $(this),
-            view = $this.data('typeahead');
+            view = $this.data('ttView');
 
         if (view) {
           view.destroy();
-          $this.removeData('typeahead');
+          $this.removeData('ttView');
         }
       });
     }

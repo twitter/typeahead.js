@@ -28,23 +28,25 @@ describe('InputView', function() {
 
   describe('when input gains focus', function() {
     beforeEach(function() {
-      spyOnEvent(this.$input, 'focus');
+      this.inputView.on('focused', this.spy = jasmine.createSpy());
+
       this.$input.blur().focus();
     });
 
-    it('should trigger focus', function() {
-      expect('focus').toHaveBeenTriggeredOn(this.$input);
+    it('should trigger focused', function() {
+      expect(this.spy).toHaveBeenCalled();
     });
   });
 
   describe('when query loses focus', function() {
     beforeEach(function() {
-      spyOnEvent(this.$input, 'blur');
+      this.inputView.on('blured', this.spy = jasmine.createSpy());
+
       this.$input.focus().blur();
     });
 
-    it('should trigger blur', function() {
-      expect('blur').toHaveBeenTriggeredOn(this.$input);
+    it('should trigger blured', function() {
+      expect(this.spy).toHaveBeenCalled();
     });
   });
 
@@ -57,7 +59,7 @@ describe('InputView', function() {
       this.spies = {};
 
       keys.forEach(function(key) {
-        that.inputView.on(key, that.spies[key] = jasmine.createSpy());
+        that.inputView.on(key + 'Keyed', that.spies[key] = jasmine.createSpy());
       });
     });
 
@@ -68,7 +70,7 @@ describe('InputView', function() {
           simulateKeyEvent(this.$input, 'keydown', KEY_MAP[key]);
         });
 
-        it('should trigger ' + key, function() {
+        it('should trigger ' + key + 'Keyed', function() {
           expect(this.spies[key]).toHaveBeenCalled();
         });
       });
@@ -77,8 +79,8 @@ describe('InputView', function() {
 
   describe('when input', function() {
     beforeEach(function() {
-      this.inputView.on('queryChange', this.qcSpy = jasmine.createSpy());
-      this.inputView.on('whitespaceChange', this.wcSpy = jasmine.createSpy());
+      this.inputView.on('queryChanged', this.qcSpy = jasmine.createSpy());
+      this.inputView.on('whitespaceChanged', this.wcSpy = jasmine.createSpy());
     });
 
     describe('if query changed', function() {
@@ -89,11 +91,11 @@ describe('InputView', function() {
         simulateKeyEvent(this.$input, 'input', KEY_MAP.NORMAL);
       });
 
-      it('should trigger queryChange', function() {
+      it('should trigger queryChanged', function() {
         expect(this.qcSpy).toHaveBeenCalled();
       });
 
-      it('should not trigger whitespaceChange', function() {
+      it('should not trigger whitespaceChanged', function() {
         expect(this.wcSpy).not.toHaveBeenCalled();
       });
 
@@ -110,11 +112,11 @@ describe('InputView', function() {
         simulateKeyEvent(this.$input, 'input', KEY_MAP.NORMAL);
       });
 
-      it('should trigger whitespaceChange', function() {
+      it('should trigger whitespaceChanged', function() {
         expect(this.wcSpy).toHaveBeenCalled();
       });
 
-      it('should not trigger queryChange', function() {
+      it('should not trigger queryChanged', function() {
         expect(this.qcSpy).not.toHaveBeenCalled();
       });
 
@@ -131,11 +133,11 @@ describe('InputView', function() {
         simulateKeyEvent(this.$input, 'input', KEY_MAP.NORMAL);
       });
 
-      it('should not trigger queryChange', function() {
+      it('should not trigger queryChanged', function() {
         expect(this.qcSpy).not.toHaveBeenCalled();
       });
 
-      it('should not trigger whitespaceChange', function() {
+      it('should not trigger whitespaceChanged', function() {
         expect(this.wcSpy).not.toHaveBeenCalled();
       });
     });

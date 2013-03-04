@@ -5,12 +5,48 @@
  */
 
 var TypeaheadView = (function() {
-
   var html = {
-    wrapper: '<span class="twitter-typeahead"></span>',
-    hint: '<input class="tt-hint" type="text" autocomplete="off" spellcheck="false" disabled>',
-    dropdown: '<ol class="tt-dropdown-menu tt-is-empty"></ol>'
-  };
+        wrapper: '<span class="twitter-typeahead"></span>',
+        hint: '<input class="tt-hint">',
+        dropdown: '<span class="tt-dropdown-menu"></span>'
+      },
+      css = {
+        wrapper: {
+          position: 'relative',
+          display: 'inline-block'
+        },
+        hint: {
+          position: 'absolute',
+          top: '0',
+          left: '0',
+          borderColor: 'transparent',
+          boxShadow: 'none'
+        },
+        query: {
+          position: 'relative',
+          verticalAlign: 'top',
+          backgroundColor: 'transparent',
+          // ie6-8 doesn't fire hover and click events for elements with
+          // transparent backgrounds, for a workaround, use 1x1 transparent gif
+          backgroundImage: 'url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7)'
+        },
+        dropdown: {
+          position: 'absolute',
+          top: '100%',
+          left: '0',
+          // TODO: should this be configurable?
+          zIndex: '100',
+          display: 'none'
+        }
+      };
+
+  // ie7 specific styling
+  if (utils.isMsie() && utils.isMsie() <= 7) {
+    utils.mixin(css.wrapper, { display: 'inline', zoom: '1' });
+    // if someone can tell me why this is necessary to align
+    // the hint with the query in ie7, i'll send you $5 - @JakeHarding
+    utils.mixin(css.query, { marginTop: '-1px' });
+  }
 
   // constructor
   // -----------
@@ -20,40 +56,41 @@ var TypeaheadView = (function() {
 
     utils.bindAll(this);
 
-    this.$node = wrapInput(o.input);
+    this.$node = buildDomStructure(o.input);
     this.datasets = o.datasets;
+    this.dir = null;
 
     $menu = this.$node.find('.tt-dropdown-menu');
     $input = this.$node.find('.tt-query');
     $hint = this.$node.find('.tt-hint');
 
     this.dropdownView = new DropdownView({ menu: $menu })
-    .on('select', this._handleSelection)
-    .on('cursorOn', this._clearHint)
-    .on('cursorOn', this._setInputValueToSuggestionUnderCursor)
-    .on('cursorOff', this._setInputValueToQuery)
-    .on('cursorOff', this._updateHint)
-    .on('suggestionsRender', this._updateHint)
-    .on('show', this._updateHint)
-    .on('hide', this._clearHint);
+    .on('suggestionSelected', this._handleSelection)
+    .on('cursorMoved', this._clearHint)
+    .on('cursorMoved', this._setInputValueToSuggestionUnderCursor)
+    .on('cursorRemoved', this._setInputValueToQuery)
+    .on('cursorRemoved', this._updateHint)
+    .on('suggestionsRendered', this._updateHint)
+    .on('opened', this._updateHint)
+    .on('closed', this._clearHint);
 
     this.inputView = new InputView({ input: $input, hint: $hint })
-    .on('focus', this._showDropdown)
-    .on('blur', this._hideDropdown)
-    .on('blur', this._setInputValueToQuery)
-    .on('enter', this._handleSelection)
-    .on('queryChange', this._clearHint)
-    .on('queryChange', this._clearSuggestions)
-    .on('queryChange', this._getSuggestions)
-    .on('whitespaceChange', this._updateHint)
-    .on('queryChange whitespaceChange', this._showDropdown)
-    .on('queryChange whitespaceChange', this._setLanguageDirection)
-    .on('esc', this._hideDropdown)
-    .on('esc', this._setInputValueToQuery)
-    .on('tab up down', this._managePreventDefault)
-    .on('up down', this._moveDropdownCursor)
-    .on('up down', this._showDropdown)
-    .on('tab left right', this._autocomplete);
+    .on('focused', this._openDropdown)
+    .on('blured', this._closeDropdown)
+    .on('blured', this._setInputValueToQuery)
+    .on('enterKeyed', this._handleSelection)
+    .on('queryChanged', this._clearHint)
+    .on('queryChanged', this._clearSuggestions)
+    .on('queryChanged', this._getSuggestions)
+    .on('whitespaceChanged', this._updateHint)
+    .on('queryChanged whitespaceChanged', this._openDropdown)
+    .on('queryChanged whitespaceChanged', this._setLanguageDirection)
+    .on('escKeyed', this._closeDropdown)
+    .on('escKeyed', this._setInputValueToQuery)
+    .on('tabKeyed upKeyed downKeyed', this._managePreventDefault)
+    .on('upKeyed downKeyed', this._moveDropdownCursor)
+    .on('upKeyed downKeyed', this._openDropdown)
+    .on('tabKeyed leftKeyed rightKeyed', this._autocomplete);
   }
 
   utils.mixin(TypeaheadView.prototype, EventTarget, {
@@ -67,14 +104,14 @@ var TypeaheadView = (function() {
           preventDefault = false;
 
       switch (e.type) {
-        case 'tab':
+        case 'tabKeyed':
           hint = this.inputView.getHintValue();
           inputValue = this.inputView.getInputValue();
           preventDefault = hint && hint !== inputValue;
           break;
 
-        case 'up':
-        case 'down':
+        case 'upKeyed':
+        case 'downKeyed':
           preventDefault = !$e.shiftKey && !$e.ctrlKey && !$e.metaKey;
           break;
       }
@@ -83,23 +120,27 @@ var TypeaheadView = (function() {
     },
 
     _setLanguageDirection: function() {
-      var dirClassName = 'tt-' + this.inputView.getLanguageDirection();
+      var dir = this.inputView.getLanguageDirection();
 
-      if (!this.$node.hasClass(dirClassName)) {
-        this.$node.removeClass('tt-ltr tt-rtl').addClass(dirClassName);
+      if (dir !== this.dir) {
+        this.dir = dir;
+        this.$node.css('direction', dir);
+        this.dropdownView.setLanguageDirection(dir);
       }
     },
 
     _updateHint: function() {
       var dataForFirstSuggestion = this.dropdownView.getFirstSuggestion(),
           hint = dataForFirstSuggestion ? dataForFirstSuggestion.value : null,
+          dropdownIsVisible = this.dropdownView.isVisible(),
+          inputHasOverflow = this.inputView.isOverflow(),
           inputValue,
           query,
           escapedQuery,
           beginsWithQuery,
           match;
 
-      if (hint && this.dropdownView.isOpen() && !this.inputView.isOverflow()) {
+      if (hint && dropdownIsVisible && !inputHasOverflow) {
         inputValue = this.inputView.getInputValue();
         query = inputValue
         .replace(/\s{2,}/g, ' ') // condense whitespace
@@ -131,26 +172,26 @@ var TypeaheadView = (function() {
       this.inputView.setInputValue(suggestion.value, true);
     },
 
-    _showDropdown: function() {
-      this.dropdownView.show();
+    _openDropdown: function() {
+      this.dropdownView.open();
     },
 
-    _hideDropdown: function(e) {
-      this.dropdownView[e.type === 'blur' ?
-        'hideUnlessMouseIsOverDropdown' : 'hide']();
+    _closeDropdown: function(e) {
+      this.dropdownView[e.type === 'blured' ?
+        'closeUnlessMouseIsOverDropdown' : 'close']();
     },
 
     _moveDropdownCursor: function(e) {
       var $e = e.data;
 
       if (!$e.shiftKey && !$e.ctrlKey && !$e.metaKey) {
-        this.dropdownView[e.type === 'up' ?
+        this.dropdownView[e.type === 'upKeyed' ?
           'moveCursorUp' : 'moveCursorDown']();
       }
     },
 
     _handleSelection: function(e) {
-      var byClick = e.type === 'select',
+      var byClick = e.type === 'suggestionSelected',
           suggestionData = byClick ?
             e.data : this.dropdownView.getSuggestionUnderCursor();
 
@@ -165,7 +206,7 @@ var TypeaheadView = (function() {
 
         // focus is not a synchronous event in ie, so we deal with it
         byClick && utils.isMsie() ?
-          setTimeout(this.dropdownView.hide, 0) : this.dropdownView.hide();
+          setTimeout(this.dropdownView.close, 0) : this.dropdownView.close();
       }
     },
 
@@ -194,10 +235,10 @@ var TypeaheadView = (function() {
     _autocomplete: function(e) {
       var isCursorAtEnd, ignoreEvent, query, hint;
 
-      if (e.type === 'right' || e.type === 'left') {
+      if (e.type === 'rightKeyed' || e.type === 'leftKeyed') {
         isCursorAtEnd = this.inputView.isCursorAtEnd();
         ignoreEvent = this.inputView.getLanguageDirection() === 'ltr' ?
-          e.type === 'left' : e.type === 'right';
+          e.type === 'leftKeyed' : e.type === 'rightKeyed';
 
         if (!isCursorAtEnd || ignoreEvent) { return; }
       }
@@ -225,15 +266,29 @@ var TypeaheadView = (function() {
 
   return TypeaheadView;
 
-  function wrapInput(input) {
-    var $input = $(input),
-        $hint = $(html.hint).css({
-          'background-color': $input.css('background-color')
-        });
+  function buildDomStructure(input) {
+    var $wrapper = $(html.wrapper),
+        $dropdown = $(html.dropdown),
+        $input = $(input),
+        $hint = $(html.hint);
 
-    if ($input.length === 0) {
-      return null;
-    }
+    $wrapper = $wrapper.css(css.wrapper);
+    $dropdown = $dropdown.css(css.dropdown);
+
+    $hint
+    .attr({
+      type: 'text',
+      autocomplete: 'off',
+      spellcheck: false,
+      disabled: true
+    })
+    .css(css.hint)
+    .css('background', $input.css('background'));
+
+    $input
+    .addClass('tt-query')
+    .attr({ autocomplete: 'off', spellcheck: false })
+    .css(css.query);
 
     // store the original values of the attrs that get modified
     // so modifications can be reverted on destroy
@@ -248,12 +303,10 @@ var TypeaheadView = (function() {
     try { !$input.attr('dir') && $input.attr('dir', 'auto'); } catch (e) {}
 
     return $input
-    .attr({ autocomplete: 'off', spellcheck: false })
-    .addClass('tt-query')
-    .wrap(html.wrapper)
+    .wrap($wrapper)
     .parent()
     .prepend($hint)
-    .append(html.dropdown);
+    .append($dropdown);
   }
 
   function destroyDomStructure($node) {

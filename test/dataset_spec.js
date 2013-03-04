@@ -74,7 +74,7 @@ describe('Dataset', function() {
 
       it('should compile default template', function() {
         expect(this.dataset.template.render({ value: 'boo' }))
-        .toBe('<li class="tt-suggestion"><p>boo</p></li>');
+        .toBe('<div class="tt-suggestion"><p>boo</p></div>');
       });
     });
 
@@ -89,7 +89,7 @@ describe('Dataset', function() {
 
       it('should compile the template', function() {
         expect(this.spy)
-        .toHaveBeenCalledWith('<li class="tt-suggestion">t</li>');
+        .toHaveBeenCalledWith('<div class="tt-suggestion">t</div>');
 
         expect(this.dataset.template).toBe('boo');
       });

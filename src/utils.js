@@ -6,7 +6,9 @@
 
 var utils = {
   isMsie: function() {
-    return (/msie [\w.]+/i).test(navigator.userAgent);
+    var match = /(msie) ([\w.]+)/i.exec(navigator.userAgent);
+
+    return match ? parseInt(match[2], 10) : false;
   },
 
   isBlankString: function(str) { return !str || /^\s*$/.test(str); },
