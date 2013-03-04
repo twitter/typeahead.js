@@ -459,8 +459,16 @@ describe('DropdownView', function() {
             return '<li class="tt-suggestion"><p>' + c.value + '</p></li>';
           }
         },
-        mockNewDataset = { name: 'new', template: template },
-        mockOldDataset = { name: 'test', template: template };
+        mockOldDataset = {
+          name: 'test',
+          template: template
+        },
+        mockNewDataset = {
+          name: 'new',
+          header: '<h1>header</h1>',
+          footer: '<h1>footer</h1>',
+          template: template
+        };
 
     beforeEach(function() {
       this.$testDataset = renderTestDataset(this.dropdownView, true);
@@ -469,6 +477,18 @@ describe('DropdownView', function() {
     describe('if new dataset', function() {
       beforeEach(function() {
         this.dropdownView.renderSuggestions('query', mockNewDataset, []);
+      });
+
+      it('should render the header', function() {
+        var $header = this.$menu.find('.tt-dataset-new').children().first();
+        expect($header).toBe('h1');
+        expect($header).toHaveText('header');
+      });
+
+      it('should render the footer', function() {
+        var $footer = this.$menu.find('.tt-dataset-new').children().last();
+        expect($footer).toBe('h1');
+        expect($footer).toHaveText('footer');
       });
 
       it('should append new list for dataset', function() {
