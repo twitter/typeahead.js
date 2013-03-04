@@ -9,6 +9,13 @@ var utils = {
     return (/msie [\w.]+/i).test(navigator.userAgent);
   },
 
+  isBlankString: function(str) { return !str || /^\s*$/.test(str); },
+
+  // http://stackoverflow.com/a/6969486
+  escapeRegExChars: function(str) {
+    return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
+  },
+
   isString: function(obj) { return typeof obj === 'string'; },
 
   isNumber: function(obj) { return typeof obj === 'number'; },
@@ -17,7 +24,7 @@ var utils = {
 
   isFunction: $.isFunction,
 
-  isObject: function(obj) { return obj === Object(obj); },
+  isObject: $.isPlainObject,
 
   isUndefined: function(obj) { return typeof obj === 'undefined'; },
 
@@ -26,7 +33,7 @@ var utils = {
   bindAll: function(obj) {
     var val;
     for (var key in obj) {
-      utils.isFunction(val = obj[key]) && (obj[key] = $.proxy(val, obj));
+      $.isFunction(val = obj[key]) && (obj[key] = $.proxy(val, obj));
     }
   },
 

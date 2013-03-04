@@ -235,6 +235,7 @@ In order to build and test typeahead.js, you'll need to install its devDependenc
 * `grunt test:browser` - Runs the test suite in your default browser.
 * `grunt watch` - Rebuilds *typeahead.js* whenever a source file is modified.
 * `grunt server` - Serves files from the root of typeahead.js on localhost:8888. Useful for using *test/playground.html* for debugging/testing.
+* `grunt dev` - Runs `grunt watch` and `grunt server` in parallel.
 
 Authors
 -------

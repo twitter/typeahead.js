@@ -24,11 +24,17 @@
 
   <body>
     <div class="container">
-      <input class="typeahead" type="text">
+      <input class="states" type="text" placeholder="states">
+      <br>
+      <br>
+      <input class="bad-tokens" type="text" placeholder="bad tokens">
+      <br>
+      <br>
+      <input class="regex-symbols" type="text" placeholder="regex symbols">
     </div>
 
     <script>
-      $('.typeahead').typeahead({
+      $('.states').typeahead({
         local: [
           "Alabama",
           "Alaska",
@@ -80,6 +86,42 @@
           "West Virginia",
           "Wisconsin",
           "Wyoming"
+        ]
+      });
+
+      $('.bad-tokens').typeahead({
+        local: [
+          {
+            value: 'all bad',
+            tokens: ['  ', ' ', null, undefined, false, 'all', 'bad']
+          },
+          {
+            value: 'whitespace',
+            tokens: ['  ', ' ', '\t', '\n', 'whitespace']
+          },
+          {
+            value: 'undefined',
+            tokens: [undefined, 'undefined']
+          },
+          {
+            value: 'null',
+            tokens: [null, 'null']
+          },
+          {
+            value: 'false',
+            tokens: [false, 'false']
+          }
+        ]
+      });
+
+      $('.regex-symbols').typeahead({
+        local: [
+          '*.js',
+          '[Tt]ypeahead.js',
+          '^typeahead.js$',
+          'typeahead.js(0.8.2)',
+          'typeahead.js(@\\d.\\d.\\d)',
+          'typeahead.js@0.8.2'
         ]
       });
     </script>

@@ -28,22 +28,22 @@ var InputView = (function() {
 
     this.$hint = $(o.hint);
     this.$input = $(o.input)
-    .on('blur', this._handleBlur)
-    .on('focus', this._handleFocus)
-    .on('keydown', this._handleSpecialKeyEvent);
+    .on('blur.tt', this._handleBlur)
+    .on('focus.tt', this._handleFocus)
+    .on('keydown.tt', this._handleSpecialKeyEvent);
 
     // ie7 and ie8 don't support the input event
     // ie9 doesn't fire the input event when characters are removed
     // not sure if ie10 is compatible
     if (!utils.isMsie()) {
-      this.$input.on('input', this._compareQueryToInputValue);
+      this.$input.on('input.tt', this._compareQueryToInputValue);
     }
 
     else {
       this.$input
-      .on('keydown keypress cut paste', function(e) {
+      .on('keydown.tt keypress.tt cut.tt paste.tt', function($e) {
         // if a special key triggered this, ignore it
-        if (that.specialKeyCodeMap[e.which || e.keyCode]) { return; }
+        if (that.specialKeyCodeMap[$e.which || $e.keyCode]) { return; }
 
         // give the browser a chance to update the value of the input
         // before checking to see if the query changed
@@ -91,6 +91,13 @@ var InputView = (function() {
 
     // public methods
     // --------------
+
+    destroy: function() {
+      this.$hint.off('.tt');
+      this.$input.off('.tt');
+
+      this.$hint = this.$input = this.$overflowHelper = null;
+    },
 
     focus: function() {
       this.$input.focus();

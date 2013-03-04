@@ -16,42 +16,18 @@ var TypeaheadView = (function() {
   // -----------
 
   function TypeaheadView(o) {
+    var $menu, $input, $hint;
+
     utils.bindAll(this);
 
     this.$node = wrapInput(o.input);
     this.datasets = o.datasets;
 
-    // precompile the templates
-    utils.each(this.datasets, function(key, dataset) {
-      var parentTemplate = '<li class="tt-suggestion">%body</li>';
+    $menu = this.$node.find('.tt-dropdown-menu');
+    $input = this.$node.find('.tt-query');
+    $hint = this.$node.find('.tt-hint');
 
-      if (dataset.template) {
-        dataset.template = dataset.engine
-        .compile(parentTemplate.replace('%body', dataset.template));
-      }
-
-      // if no template is provided, render suggestion
-      // as it's value wrapped in a p tag
-      else {
-        dataset.template = {
-          render: function(context) {
-            return parentTemplate
-            .replace('%body', '<p>' + context.value + '</p>');
-          }
-        };
-      }
-    });
-
-    this.inputView = new InputView({
-      input: this.$node.find('.tt-query'),
-      hint: this.$node.find('.tt-hint')
-    });
-
-    this.dropdownView = new DropdownView({
-      menu: this.$node.find('.tt-dropdown-menu')
-    });
-
-    this.dropdownView
+    this.dropdownView = new DropdownView({ menu: $menu })
     .on('select', this._handleSelection)
     .on('cursorOn', this._clearHint)
     .on('cursorOn', this._setInputValueToSuggestionUnderCursor)
@@ -61,7 +37,7 @@ var TypeaheadView = (function() {
     .on('show', this._updateHint)
     .on('hide', this._clearHint);
 
-    this.inputView
+    this.inputView = new InputView({ input: $input, hint: $hint })
     .on('focus', this._showDropdown)
     .on('blur', this._hideDropdown)
     .on('blur', this._setInputValueToQuery)
@@ -119,6 +95,7 @@ var TypeaheadView = (function() {
           hint = dataForFirstSuggestion ? dataForFirstSuggestion.value : null,
           inputValue,
           query,
+          escapedQuery,
           beginsWithQuery,
           match;
 
@@ -127,8 +104,9 @@ var TypeaheadView = (function() {
         query = inputValue
         .replace(/\s{2,}/g, ' ') // condense whitespace
         .replace(/^\s+/g, ''); // strip leading whitespace
+        escapedQuery = utils.escapeRegExChars(query);
 
-        beginsWithQuery = new RegExp('^(?:' + query + ')(.*$)', 'i');
+        beginsWithQuery = new RegExp('^(?:' + escapedQuery + ')(.*$)', 'i');
         match = beginsWithQuery.exec(hint);
 
         this.inputView.setHintValue(inputValue + (match ? match[1] : ''));
@@ -195,6 +173,10 @@ var TypeaheadView = (function() {
       var that = this,
           query = this.inputView.getQuery();
 
+      if (utils.isBlankString(query)) {
+        return;
+      }
+
       utils.each(this.datasets, function(i, dataset) {
         dataset.getSuggestions(query, function(suggestions) {
           that._renderSuggestions(query, dataset, suggestions);
@@ -226,6 +208,18 @@ var TypeaheadView = (function() {
       if (hint !== '' && query !== hint) {
         this.inputView.setInputValue(hint);
       }
+    },
+
+    // public methods
+    // --------------
+
+    destroy: function() {
+      this.inputView.destroy();
+      this.dropdownView.destroy();
+
+      destroyDomStructure(this.$node);
+
+      this.$node = null;
     }
   });
 
@@ -241,6 +235,14 @@ var TypeaheadView = (function() {
       return null;
     }
 
+    // store the original values of the attrs that get modified
+    // so modifications can be reverted on destroy
+    $input.data('ttAttrs', {
+      dir: $input.attr('dir'),
+      autocomplete: $input.attr('autocomplete'),
+      spellcheck: $input.attr('spellcheck')
+    });
+
     // ie7 does not like it when dir is set to auto,
     // it does not like it one bit
     try { !$input.attr('dir') && $input.attr('dir', 'auto'); } catch (e) {}
@@ -252,5 +254,19 @@ var TypeaheadView = (function() {
     .parent()
     .prepend($hint)
     .append(html.dropdown);
+  }
+
+  function destroyDomStructure($node) {
+    var $input = $node.find('.tt-query');
+
+    // need to remove attrs that weren't previously defined and
+    // revert attrs that originally had a value
+    utils.each($input.data('ttAttrs'), function(key, val) {
+      utils.isUndefined(val) ? $input.removeAttr(key) : $input.attr(key, val);
+    });
+
+    $input.detach().removeClass('tt-query').insertAfter($node);
+
+    $node.remove();
   }
 })();
