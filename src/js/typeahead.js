@@ -5,68 +5,35 @@
  */
 
 (function() {
-  var initializedDatasets = {},
-      transportOptions = {},
-      transport,
-      methods;
-
-  jQuery.fn.typeahead = typeahead;
-  typeahead.configureTransport = configureTransport;
+  var datasetCache = {}, methods;
 
   methods = {
     initialize: function(datasetDefs) {
-      var datasets = {};
+      var datasets;
 
       datasetDefs = utils.isArray(datasetDefs) ? datasetDefs : [datasetDefs];
+
+      if (this.length === 0) {
+        throw new Error('typeahead initialized without DOM element');
+      }
 
       if (datasetDefs.length === 0) {
         throw new Error('no datasets provided');
       }
 
-      delete typeahead.configureTransport;
-      transport = transport || new Transport(transportOptions);
+      datasets = utils.map(datasetDefs, function(o) {
+        o.name = o.name || utils.getUniqueId();
 
-      utils.each(datasetDefs, function(i, datasetDef) {
-        var dataset,
-            name = datasetDef.name = datasetDef.name || utils.getUniqueId();
-
-        // dataset by this name has already been initialized, used it
-        if (initializedDatasets[name]) {
-          dataset = initializedDatasets[name];
-        }
-
-        else {
-          datasetDef.limit = datasetDef.limit || 5;
-
-          if (datasetDef.template && !datasetDef.engine) {
-            throw new Error('no template engine specified for ' + name);
-          }
-
-          dataset = initializedDatasets[name] = new Dataset({
-            name: datasetDef.name,
-            limit: datasetDef.limit,
-            local: datasetDef.local,
-            prefetch: datasetDef.prefetch,
-            ttl_ms: datasetDef.ttl_ms, // temporary – will be removed in future
-            remote: datasetDef.remote,
-            matcher: datasetDef.matcher,
-            ranker: datasetDef.ranker,
-            transport: transport
-          });
-        }
-
-        datasets[name] = {
-          name: datasetDef.name,
-          limit: datasetDef.limit,
-          template: compileTemplate(datasetDef.template, datasetDef.engine),
-          getSuggestions: dataset.getSuggestions
-        };
+        return datasetCache[o.name] ?
+          datasetCache[o.name] :
+          datasetCache[o.name] = new Dataset(o).initialize(o);
       });
 
       return this.each(function() {
-        $(this).data({
-          typeahead: new TypeaheadView({ input: this, datasets: datasets })
-        });
+        var $input = $(this),
+            view = new TypeaheadView({ input: $input, datasets: datasets });
+
+        $input.data('ttView', view);
       });
     },
 
@@ -83,7 +50,7 @@
     }
   };
 
-  function typeahead(method) {
+  jQuery.fn.typeahead = function(method) {
     if (methods[method]) {
       return methods[method].apply(this, [].slice.call(arguments, 1));
     }
@@ -91,30 +58,5 @@
     else {
       return methods.initialize.apply(this, arguments);
     }
-  }
-
-  function configureTransport(o) {
-    transportOptions = o;
-  }
-
-  function compileTemplate(template, engine) {
-    var wrapper = '<li class="tt-suggestion">%body</li>',
-        compiledTemplate;
-
-    if (template) {
-      compiledTemplate = engine.compile(wrapper.replace('%body', template));
-    }
-
-    // if no template is provided, render suggestion
-    // as its value wrapped in a p tag
-    else {
-      compiledTemplate = {
-        render: function(context) {
-          return wrapper.replace('%body', '<p>' + context.value + '</p>');
-        }
-      };
-    }
-
-    return compiledTemplate;
-  }
+  };
 })();

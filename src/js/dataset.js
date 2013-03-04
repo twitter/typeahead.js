@@ -9,18 +9,13 @@ var Dataset = (function() {
   function Dataset(o) {
     utils.bindAll(this);
 
-    this.storage = new PersistentStorage(o.name);
-    this.adjacencyList = {};
-    this.itemHash = {};
+    if (o.template && !o.engine) {
+      throw new Error('no template engine specified');
+    }
 
     this.name = o.name;
-    this.resetDataOnProtocolSwitch = o.resetDataOnProtocolSwitch || false;
-    this.queryUrl = o.remote;
-    this.transport = o.transport;
-    this.limit = o.limit || 10;
-    this._customMatcher = o.matcher || null;
-    this._customRanker = o.ranker || null;
-    this._ttl_ms = utils.isNumber(o.ttl_ms) ? o.ttl_ms : 24 * 60 * 60 * 1000;
+    this.limit = o.limit || 5;
+    this.template = compileTemplate(o.template, o.engine);
 
     this.keys = {
       version: 'version',
@@ -29,8 +24,9 @@ var Dataset = (function() {
       adjacencyList: 'adjacencyList'
     };
 
-    o.local && this._processLocalData(o.local);
-    o.prefetch && this._loadPrefetchData(o.prefetch);
+    this.itemHash = {};
+    this.adjacencyList = {};
+    this.storage = new PersistentStorage(o.name);
   }
 
   utils.mixin(Dataset.prototype, {
@@ -39,16 +35,19 @@ var Dataset = (function() {
     // ---------------
 
     _processLocalData: function(data) {
-      data && this._mergeProcessedData(this._processData(data));
+      this._mergeProcessedData(this._processData(data));
     },
 
-    _loadPrefetchData: function(url) {
+    _loadPrefetchData: function(o) {
       var that = this,
+          version = this.storage.get(this.keys.version),
+          protocol = this.storage.get(this.keys.protocol),
           itemHash = this.storage.get(this.keys.itemHash),
           adjacencyList = this.storage.get(this.keys.adjacencyList),
-          protocol = this.storage.get(this.keys.protocol),
-          version = this.storage.get(this.keys.version),
           isExpired = version !== VERSION || protocol !== utils.getProtocol();
+
+      o = utils.isString(o) ? { url: o } : o;
+      o.ttl = utils.isNumber(o.ttl) ? o.ttl : 24 * 60 * 60 * 1000;
 
       // data was available in local storage, use it
       if (itemHash && adjacencyList && !isExpired) {
@@ -59,20 +58,21 @@ var Dataset = (function() {
       }
 
       else {
-        $.getJSON(url).done(processPrefetchData);
+        $.getJSON(o.url).done(processPrefetchData);
       }
 
       function processPrefetchData(data) {
-        var processedData = that._processData(data),
+        var filteredData = o.filter ? o.filter(data) : data,
+            processedData = that._processData(filteredData),
             itemHash = processedData.itemHash,
             adjacencyList = processedData.adjacencyList;
 
         // store process data in local storage
         // this saves us from processing the data on every page load
-        that.storage.set(that.keys.itemHash, itemHash, that._ttl_ms);
-        that.storage.set(that.keys.adjacencyList, adjacencyList, that._ttl_ms);
-        that.storage.set(that.keys.version, VERSION, that._ttl_ms);
-        that.storage.set(that.keys.protocol, utils.getProtocol(), that._ttl_ms);
+        that.storage.set(that.keys.itemHash, itemHash, o.ttl);
+        that.storage.set(that.keys.adjacencyList, adjacencyList, o.ttl);
+        that.storage.set(that.keys.version, VERSION, o.ttl);
+        that.storage.set(that.keys.protocol, utils.getProtocol(), o.ttl);
 
         that._mergeProcessedData(processedData);
       }
@@ -254,6 +254,21 @@ var Dataset = (function() {
     // public methods
     // ---------------
 
+    // the contents of this function are broken out of the constructor
+    // to help improve the testability of datasets
+    initialize: function(o) {
+      if (!o.local && !o.prefetch && !o.remote) {
+        throw new Error('one of local, prefetch, or remote is requried');
+      }
+
+      this.transport = o.remote ? new Transport(o.remote) : null;
+
+      o.local && this._processLocalData(o.local);
+      o.prefetch && this._loadPrefetchData(o.prefetch);
+
+      return this;
+    },
+
     getSuggestions: function(query, callback) {
       var terms = utils.tokenizeQuery(query);
       var potentiallyMatchingIds = this._getPotentiallyMatchingIds(terms);
@@ -261,11 +276,32 @@ var Dataset = (function() {
       var matchedItems = utils.filter(potentiallyMatchingItems, this._matcher(terms));
       matchedItems.sort(this._ranker);
       callback && callback(matchedItems);
-      if (matchedItems.length < this.limit && this.queryUrl) {
-        this.transport.get(this.queryUrl, query, this._processRemoteSuggestions(callback, matchedItems));
+      if (matchedItems.length < this.limit && this.transport) {
+        this.transport.get(query, this._processRemoteSuggestions(callback, matchedItems));
       }
     }
   });
 
   return Dataset;
+
+  function compileTemplate(template, engine) {
+    var wrapper = '<li class="tt-suggestion">%body</li>',
+       compiledTemplate;
+
+    if (template) {
+      compiledTemplate = engine.compile(wrapper.replace('%body', template));
+    }
+
+    // if no template is provided, render suggestion
+    // as its value wrapped in a p tag
+    else {
+      compiledTemplate = {
+        render: function(context) {
+          return wrapper.replace('%body', '<p>' + context.value + '</p>');
+        }
+      };
+    }
+
+    return compiledTemplate;
+  }
 })();
