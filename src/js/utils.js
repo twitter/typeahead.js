@@ -49,13 +49,7 @@ var utils = {
 
   map: $.map,
 
-  filter: function(obj, test) {
-    var results = $.grep(obj, function(val, key) {
-      return test(val, key, obj);
-    });
-
-    return results;
-  },
+  filter: $.grep,
 
   every: function(obj, test) {
     var result = true;
