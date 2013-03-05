@@ -50,10 +50,8 @@ var utils = {
   map: $.map,
 
   filter: function(obj, test) {
-    var results = [];
-
-    $.each(obj, function(key, val) {
-      if (test(val, key, obj)) { results.push(val); }
+    var results = $.grep(obj, function(val, key) {
+      return test(val, key, obj);
     });
 
     return results;
