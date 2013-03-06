@@ -38,6 +38,9 @@ describe('Transport', function() {
     function respond(req) { req.response(successResp); }
   });
 
+  // public methods
+  // --------------
+
   describe('#get', function() {
     describe('when request is available in cache', function() {
       beforeEach(function() {

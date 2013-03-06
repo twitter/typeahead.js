@@ -12,6 +12,9 @@ describe('DropdownView', function() {
     this.dropdownView = new DropdownView({ menu: this.$menu });
   });
 
+  // event listeners
+  // ---------------
+
   describe('on mouseenter', function() {
     beforeEach(function() {
       renderTestDataset(this.dropdownView, true);
@@ -87,6 +90,9 @@ describe('DropdownView', function() {
       });
     });
   });
+
+  // public methods
+  // --------------
 
   describe('#closeUnlessMouseIsOverDropdown', function() {
     beforeEach(function() {

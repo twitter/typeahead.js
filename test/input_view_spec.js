@@ -26,6 +26,9 @@ describe('InputView', function() {
     this.inputView = new InputView({ input: this.$input, hint: this.$hint });
   });
 
+  // event listeners
+  // ---------------
+
   describe('when input gains focus', function() {
     beforeEach(function() {
       this.inputView.on('focused', this.spy = jasmine.createSpy());
@@ -142,6 +145,9 @@ describe('InputView', function() {
       });
     });
   });
+
+  // public methods
+  // --------------
 
   describe('#destroy', function() {
     beforeEach(function() {

@@ -51,6 +51,9 @@ describe('Dataset', function() {
     clearAjaxRequests();
   });
 
+  // public methods
+  // --------------
+
   describe('#constructor', function() {
     it('should initialize persistent storage', function() {
       expect(new Dataset({ local: fixtureData }).storage).toBeDefined();

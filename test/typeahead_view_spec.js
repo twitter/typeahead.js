@@ -465,6 +465,9 @@ describe('TypeaheadView', function() {
     });
   });
 
+  // public methods
+  // --------------
+
   describe('#destroy', function() {
     beforeEach(function() {
       this.$input = this.typeaheadView.$node.find('.tt-query');

@@ -15,6 +15,9 @@ describe('PersistentStorage', function() {
     ls.clear();
   });
 
+  // public methods
+  // --------------
+
   describe('#get', function() {
 
     it('should access localStorage with prefixed key', function() {
