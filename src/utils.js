@@ -51,15 +51,7 @@ var utils = {
 
   map: $.map,
 
-  filter: function(obj, test) {
-    var results = [];
-
-    $.each(obj, function(key, val) {
-      if (test(val, key, obj)) { results.push(val); }
-    });
-
-    return results;
-  },
+  filter: $.grep,
 
   every: function(obj, test) {
     var result = true;
