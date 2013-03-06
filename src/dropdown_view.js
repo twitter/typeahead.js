@@ -191,7 +191,9 @@ var DropdownView = (function() {
 
         $dataset = $('<div></div>')
         .addClass(datasetClassName)
+        .append(dataset.header)
         .append($suggestionsList)
+        .append(dataset.footer)
         .appendTo(this.$menu);
       }
 
