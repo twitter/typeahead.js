@@ -166,6 +166,8 @@ var TypeaheadView = (function() {
         // focus is not a synchronous event in ie, so we deal with it
         byClick && utils.isMsie() ?
           setTimeout(this.dropdownView.hide, 0) : this.dropdownView.hide();
+        this.inputView.trigger("twitterTypeaheadEvent",suggestionData.data);
+        //The event is triggered on the typeahead input. The initial datum which was supplied is pushed in the event. This may be used using an Event Listener; Very handy for use with Flight
       }
     },
 

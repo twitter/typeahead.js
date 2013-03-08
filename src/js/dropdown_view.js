@@ -171,7 +171,8 @@ var DropdownView = (function() {
 
           el = elBuilder.firstChild;
           el.setAttribute('data-value', suggestion.value);
-
+          el.setAttribute("data-set", JSON.stringify(suggestions[i]));
+          //The original data is passed to the typeahead suggestions; this can be used when an element is selected
           fragment.appendChild(el);
         });
       }
@@ -203,7 +204,8 @@ var DropdownView = (function() {
     return {
       value: $suggestion.data('value'),
       query: $suggestions.data('query'),
-      dataset: $suggestions.data('dataset')
+      dataset: $suggestions.data('set')
+      //Initial datum also being passed here
     };
   }
 })();
