@@ -166,6 +166,7 @@ var TypeaheadView = (function() {
         // focus is not a synchronous event in ie, so we deal with it
         byClick && utils.isMsie() ?
           setTimeout(this.dropdownView.hide, 0) : this.dropdownView.hide();
+        this.inputView.trigger("twitterTypeaheadEvent",suggestionData.data);
       }
     },
 

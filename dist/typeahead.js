@@ -743,6 +743,7 @@
                         elBuilder.innerHTML = dataset.template.render(suggestion);
                         el = elBuilder.firstChild;
                         el.setAttribute("data-value", suggestion.value);
+                        el.setAttribute("data-set", JSON.stringify(suggestions[i]));
                         fragment.appendChild(el);
                     });
                 }
@@ -855,6 +856,7 @@
                     this.inputView.setInputValue(suggestionData.value);
                     byClick ? this.inputView.focus() : e.data.preventDefault();
                     byClick && utils.isMsie() ? setTimeout(this.dropdownView.hide, 0) : this.dropdownView.hide();
+                    this.inputView.trigger("twitterTypeaheadEvent", suggestionData.data);
                 }
             },
             _getSuggestions: function() {

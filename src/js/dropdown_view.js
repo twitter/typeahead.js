@@ -171,6 +171,7 @@ var DropdownView = (function() {
 
           el = elBuilder.firstChild;
           el.setAttribute('data-value', suggestion.value);
+          el.setAttribute("data-set", JSON.stringify(suggestions[i]));
 
           fragment.appendChild(el);
         });
