@@ -259,7 +259,7 @@ var Dataset = (function() {
       var potentiallyMatchingIds = this._getPotentiallyMatchingIds(terms);
       var potentiallyMatchingItems = this._getItemsFromIds(potentiallyMatchingIds);
       var matchedItems = utils.filter(potentiallyMatchingItems, this._matcher(terms));
-      matchedItems.sort(this._ranker);
+      matchedItems = utils.sort(matchedItems, this._ranker);
       callback && callback(matchedItems);
       if (matchedItems.length < this.limit && this.queryUrl) {
         this.transport.get(this.queryUrl, query, this._processRemoteSuggestions(callback, matchedItems));

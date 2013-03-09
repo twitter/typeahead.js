@@ -159,5 +159,42 @@ var utils = {
     return location.protocol;
   },
 
-  noop: function() {}
+  noop: function() {},
+
+  sort: function(array, ranker) {
+    return this._mergesort(array, ranker);
+  },
+
+  _mergesort: function(array, ranker) {
+    if (array.length <= 1) {
+      return array;
+    }
+
+    var pivot = Math.floor(array.length / 2);
+    var left = this.sort(array.slice(0, pivot), ranker);
+    var right = this.sort(array.slice(pivot, array.length), ranker);
+
+    return this._merge(left, right, ranker);
+  },
+
+  _merge: function (left, right, ranker) {
+    var result = [];
+    while (left.length > 0 || right.length > 0) {
+      if (left.length > 0 && right.length > 0) {
+        if (ranker(left[0], right[0]) <= 0) {
+          result.push(left.shift());
+        } else {
+          result.push(right.shift());
+        }
+      } else if (left.length > 0) {
+        result = result.concat(left);
+        left = [];
+      } else if (right.length > 0) {
+        result = result.concat(right);
+        right = [];
+      }
+    }
+
+    return result;
+  }
 };

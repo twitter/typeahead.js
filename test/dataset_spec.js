@@ -233,13 +233,13 @@ describe('Dataset', function() {
     });
 
     it('sorts results: local first, then remote, sorted by graph weight / score within each local/remote section', function() {
-      expect([
+      expect(utils.sort([
         { id: 1, weight: 1000, score: 0 },
         { id: 2, weight: 500, score: 0 },
         { id: 3, weight: 1500, score: 0 },
         { id: 4, weight: 0, score: 100000 },
         { id: 5, weight: 0, score: 250000 }
-      ].sort(this.dataset._ranker)).toEqual([
+      ], this.dataset._ranker)).toEqual([
         { id: 3, weight: 1500, score: 0 },
         { id: 1, weight: 1000, score: 0 },
         { id: 2, weight: 500, score: 0 },
