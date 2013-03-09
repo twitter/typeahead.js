@@ -2,14 +2,14 @@ describe('utils', function() {
   describe('sort', function() {
     beforeEach(function() {
       this.ranker = function(a, b) {
-        if (a < b) return -1;
-        if (a > b) return 1;
+        if (a < b) { return -1; }
+        if (a > b) { return 1; }
         return 0;
       };
     });
 
     it('should sort an empty list', function() {
-      var list = [];  
+      var list = [];
       expect(utils.sort(list, this.ranker)).toEqual([]);
     });
 
