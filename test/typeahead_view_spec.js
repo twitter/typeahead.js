@@ -92,13 +92,31 @@ describe('TypeaheadView', function() {
     _updateHintSpecHelper('dropdownView', 'suggestionsRendered');
   });
 
+  describe('when dropdownView triggers opened', function() {
+    beforeEach(function() {
+      this.spy = spyOnEvent(this.$input, 'typeahead:opened');
+      this.dropdownView.trigger('opened');
+    });
+
+    // TODO: test _updateHint path
+
+    it('should trigger typeahead:opened on the input', function() {
+      expect(this.spy).toHaveBeenTriggered();
+    });
+  });
+
   describe('when dropdownView triggers closed', function() {
     beforeEach(function() {
+      this.spy = spyOnEvent(this.$input, 'typeahead:closed');
       this.dropdownView.trigger('closed');
     });
 
     it('should clear hint', function() {
       expect(this.inputView.setHintValue).toHaveBeenCalledWith('');
+    });
+
+    it('should trigger typeahead:closed on the input', function() {
+      expect(this.spy).toHaveBeenTriggered();
     });
   });
 

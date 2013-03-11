@@ -80,7 +80,8 @@ var TypeaheadView = (function() {
     .on('cursorRemoved', this._updateHint)
     .on('suggestionsRendered', this._updateHint)
     .on('opened', this._updateHint)
-    .on('closed', this._clearHint);
+    .on('closed', this._clearHint)
+    .on('opened closed', this._propagateEvent);
 
     this.inputView = new InputView({ input: $input, hint: $hint })
     .on('focused', this._openDropdown)
@@ -259,6 +260,10 @@ var TypeaheadView = (function() {
       if (hint !== '' && query !== hint) {
         this.inputView.setInputValue(hint);
       }
+    },
+
+    _propagateEvent: function(e) {
+      this.eventBus.trigger(e.type);
     },
 
     // public methods

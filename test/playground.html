@@ -101,7 +101,11 @@
           "Wyoming"
         ]
       })
-      .on('typeahead:selected', logToTextarea);
+      .on([
+        'typeahead:selected',
+        'typeahead:opened',
+        'typeahead:closed'
+      ].join(' '), logToTextarea);
 
       $('.bad-tokens').typeahead({
         local: [
@@ -147,6 +151,7 @@
             stringifiedArgs = JSON ? JSON.stringify(args) : '';
 
         $textarea.val([val, type, stringifiedArgs, '\n'].join('\n'));
+        $textarea[0].scrollTop = $textarea[0].scrollHeight;
       }
     </script>
   </body>
