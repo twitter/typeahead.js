@@ -70,6 +70,8 @@ var TypeaheadView = (function() {
     $input = this.$node.find('.tt-query');
     $hint = this.$node.find('.tt-hint');
 
+    this.eventBus = new EventBus({ el: $input });
+
     this.dropdownView = new DropdownView({ menu: $menu })
     .on('suggestionSelected', this._handleSelection)
     .on('cursorMoved', this._clearHint)
@@ -136,8 +138,8 @@ var TypeaheadView = (function() {
     },
 
     _updateHint: function() {
-      var dataForFirstSuggestion = this.dropdownView.getFirstSuggestion(),
-          hint = dataForFirstSuggestion ? dataForFirstSuggestion.value : null,
+      var suggestion = this.dropdownView.getFirstSuggestion(),
+          hint = suggestion ? suggestion.value : null,
           dropdownIsVisible = this.dropdownView.isVisible(),
           inputHasOverflow = this.inputView.isOverflow(),
           inputValue,
@@ -198,11 +200,11 @@ var TypeaheadView = (function() {
 
     _handleSelection: function(e) {
       var byClick = e.type === 'suggestionSelected',
-          suggestionData = byClick ?
+          suggestion = byClick ?
             e.data : this.dropdownView.getSuggestionUnderCursor();
 
-      if (suggestionData) {
-        this.inputView.setInputValue(suggestionData.value);
+      if (suggestion) {
+        this.inputView.setInputValue(suggestion.value);
 
         // if triggered by click, ensure the query input still has focus
         // if triggered by keypress, prevent default browser behavior
@@ -213,6 +215,8 @@ var TypeaheadView = (function() {
         // focus is not a synchronous event in ie, so we deal with it
         byClick && utils.isMsie() ?
           setTimeout(this.dropdownView.close, 0) : this.dropdownView.close();
+
+        this.eventBus.trigger('selected', suggestion);
       }
     },
 
