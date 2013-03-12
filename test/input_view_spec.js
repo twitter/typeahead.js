@@ -149,6 +149,19 @@ describe('InputView', function() {
   // public methods
   // --------------
 
+  describe('#constructor', function() {
+    beforeEach(function() {
+      this.inputView.destroy();
+
+      this.$input.val('hey there');
+      this.inputView = new InputView({ input: this.$input, hint: this.$hint });
+    });
+
+    it('should default the query to the value of the input', function() {
+      expect(this.inputView.getQuery()).toBe('hey there');
+    });
+  });
+
   describe('#destroy', function() {
     beforeEach(function() {
       this.inputView.destroy();
