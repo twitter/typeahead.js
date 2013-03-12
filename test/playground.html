@@ -30,6 +30,9 @@
       <br>
       <br>
       <input class="regex-symbols" type="text" placeholder="regex symbols">
+      <br>
+      <br>
+      <input class="header-footer" type="text" placeholder="header footer">
     </div>
 
     <script>
@@ -123,6 +126,19 @@
           'typeahead.js@0.8.2'
         ]
       });
+      
+      $('.header-footer').typeahead([
+        {
+          header: '<h3>Header</h3>',
+          footer: '<h3>Footer</h3>',
+          local: ['a', 'ab', 'abc', 'abcd', 'abcde']
+        },
+        {
+          header: '<h3>Start</h3>',
+          footer: '<h3>End</h3>',
+          local: ['abc', 'bcd', 'cde', 'def', 'efg']
+        }
+      ]);
     </script>
   </body>
 </html>

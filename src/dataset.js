@@ -15,6 +15,8 @@ var Dataset = (function() {
 
     this.name = o.name;
     this.limit = o.limit || 5;
+    this.header = o.header;
+    this.footer = o.footer;
     this.template = compileTemplate(o.template, o.engine);
 
     this.keys = {
