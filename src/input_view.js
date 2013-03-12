@@ -192,8 +192,8 @@ var InputView = (function() {
 
   function compareQueries(a, b) {
     // strips leading whitespace and condenses all whitespace
-    a = (a || '').replace(/^\s*/g, '').replace(/\s{2,}/g, ' ').toLowerCase();
-    b = (b || '').replace(/^\s*/g, '').replace(/\s{2,}/g, ' ').toLowerCase();
+    a = (a || '').replace(/^\s*/g, '').replace(/\s{2,}/g, ' ');
+    b = (b || '').replace(/^\s*/g, '').replace(/\s{2,}/g, ' ');
 
     return a === b;
   }
