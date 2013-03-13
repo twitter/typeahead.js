@@ -165,7 +165,15 @@ When configuring `remote`, the following options are available:
 
 typeahead.js triggers the following custom events:
 
-**TODO**
+* `typeahead:initialized` – Triggered after initialization. If data needs to be prefetched, this event will not be triggered until after the prefetched data is processed.
+
+* `typeahead:opened` – Triggered when the dropdown menu of a typeahead is opened.
+
+* `typeahead:closed` – Triggered when the dropdown menu of a typeahead is closed.
+
+* `typeahead:selected` – Triggered when a suggestion from the dropdown menu is explicitly selected. The datum for the selected suggestion is passed to the event handler as an argument.
+
+All custom events are triggered on the element initialized as a typeahead.
 
 ### Template Engine Compatibility
 
