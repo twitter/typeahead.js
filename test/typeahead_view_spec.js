@@ -361,6 +361,7 @@ describe('TypeaheadView', function() {
       beforeEach(function() {
         this.inputView.getQuery.andReturn('app');
         this.inputView.getHintValue.andReturn('apple');
+        this.dropdownView.getFirstSuggestion.andReturn({ value: 'apple' });
 
         this.inputView.trigger('tabKeyed', this.$e);
       });
@@ -379,6 +380,7 @@ describe('TypeaheadView', function() {
     beforeEach(function() {
       this.inputView.getQuery.andReturn('app');
       this.inputView.getHintValue.andReturn('apple');
+      this.dropdownView.getFirstSuggestion.andReturn({ value: 'apple' });
       this.inputView.isCursorAtEnd.andReturn(true);
       this.inputView.getLanguageDirection.andReturn('ltr');
     });
@@ -424,6 +426,7 @@ describe('TypeaheadView', function() {
     beforeEach(function() {
       this.inputView.getQuery.andReturn('app');
       this.inputView.getHintValue.andReturn('apple');
+      this.dropdownView.getFirstSuggestion.andReturn({ value: 'apple' });
       this.inputView.isCursorAtEnd.andReturn(true);
       this.inputView.getLanguageDirection.andReturn('ltr');
     });

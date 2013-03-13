@@ -239,7 +239,7 @@ var TypeaheadView = (function() {
     },
 
     _autocomplete: function(e) {
-      var isCursorAtEnd, ignoreEvent, query, hint;
+      var isCursorAtEnd, ignoreEvent, query, hint, suggestion;
 
       if (e.type === 'rightKeyed' || e.type === 'leftKeyed') {
         isCursorAtEnd = this.inputView.isCursorAtEnd();
@@ -253,7 +253,8 @@ var TypeaheadView = (function() {
       hint = this.inputView.getHintValue();
 
       if (hint !== '' && query !== hint) {
-        this.inputView.setInputValue(hint);
+        suggestion = this.dropdownView.getFirstSuggestion();
+        this.inputView.setInputValue(suggestion.value);
       }
     },
 
