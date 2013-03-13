@@ -24,8 +24,6 @@ var InputView = (function() {
       40: 'down'
     };
 
-    this.query = '';
-
     this.$hint = $(o.hint);
     this.$input = $(o.input)
     .on('blur.tt', this._handleBlur)
@@ -50,6 +48,10 @@ var InputView = (function() {
         setTimeout(that._compareQueryToInputValue, 0);
       });
     }
+
+    // the query defaults to whatever the value of the input is
+    // on initialization, it'll most likely be an empty string
+    this.query = this.$input.val();
 
     // helps with calculating the width of the input's value
     this.$overflowHelper = buildOverflowHelper(this.$input);
