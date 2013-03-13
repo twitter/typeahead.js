@@ -504,8 +504,8 @@ describe('DropdownView', function() {
 
     describe('if there are no suggestions', function() {
       beforeEach(function() {
-        this.dropdownView.
-        on('suggestionsRendered', this.spy = jasmine.createSpy());
+        this.dropdownView
+        .on('suggestionsRendered', this.spy = jasmine.createSpy());
 
         spyOn(this.dropdownView, 'clearSuggestions');
 
@@ -535,10 +535,6 @@ describe('DropdownView', function() {
         );
       });
 
-      it('should call clearSuggestions', function() {
-        expect(this.dropdownView.clearSuggestions).toHaveBeenCalledWith('test');
-      });
-
       it('should update data values on list', function() {
         expect(this.$testDataset).toHaveData('query', 'query');
         expect(this.$testDataset).toHaveData('dataset', 'test');
@@ -562,6 +558,10 @@ describe('DropdownView', function() {
     beforeEach(function() {
       renderTestDataset(this.dropdownView, true);
       this.dropdownView.clearSuggestions();
+    });
+
+    it('should hide all datasets', function() {
+      expect(this.$menu.find('[class^="tt-dataset-"]')).toBeHidden();
     });
 
     it('should remove all suggestions', function() {
