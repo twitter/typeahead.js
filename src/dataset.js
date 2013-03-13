@@ -10,7 +10,7 @@ var Dataset = (function() {
     utils.bindAll(this);
 
     if (o.template && !o.engine) {
-      throw new Error('no template engine specified');
+      $.error('no template engine specified');
     }
 
     this.name = o.name;
@@ -130,65 +130,57 @@ var Dataset = (function() {
       });
     },
 
-    _getPotentiallyMatchingIds: function(terms) {
-      var potentiallyMatchingIds = [];
-      var lists = [];
-      utils.map(terms, utils.bind(function(term) {
-        var list = this.adjacencyList[term.charAt(0)];
-        if (!list) { return; }
+    _getLocalSuggestions: function(terms) {
+      var that = this,
+          firstChars = [],
+          lists = [],
+          shortestList,
+          suggestions = [];
+
+      // create a unique array of the first chars in
+      // the terms this comes in handy when multiple
+      // terms start with the same letter
+      utils.each(terms, function(i, term) {
+        var firstChar = term.charAt(0);
+        !~firstChars.indexOf(firstChar) && firstChars.push(firstChar);
+      });
+
+      utils.each(firstChars, function(i, firstChar) {
+        var list = that.adjacencyList[firstChar];
+
+        // break out of the loop early
+        if (!list) { return false; }
+
         lists.push(list);
-      },this));
-      if (lists.length === 1) {
-        return lists[0];
-      }
-      var listLengths = [];
-      $.each(lists, function(i, list) {
-        listLengths.push(list.length);
+
+        if (!shortestList || list.length < shortestList.length) {
+          shortestList = list;
+        }
       });
-      var shortestListIndex = utils.indexOf(listLengths, Math.min.apply(null, listLengths)) || 0;
-      var shortestList = lists[shortestListIndex] || [];
-      potentiallyMatchingIds = utils.map(shortestList, function(item) {
-        var idInEveryList = utils.every(lists, function(list) {
-          return utils.indexOf(list, item) > -1;
+
+      // no suggestions :(
+      if (lists.length < firstChars.length) {
+        return [];
+      }
+
+      // populate suggestions
+      utils.each(shortestList, function(i, id) {
+        var item = that.itemHash[id], isCandidate, isMatch;
+
+        isCandidate = utils.every(lists, function(list) {
+          return ~utils.indexOf(list, id);
         });
-        if (idInEveryList) {
-          return item;
-        }
-      });
-      return potentiallyMatchingIds;
-    },
 
-    _getItemsFromIds: function(ids) {
-      var items = [];
-      utils.map(ids, utils.bind(function(id) {
-        var item = this.itemHash[id];
-        if (item) {
-          items.push(item);
-        }
-      }, this));
-      return items;
-    },
-
-    _matcher: function(terms) {
-      if (this._customMatcher) {
-        var customMatcher = this._customMatcher;
-        return function(item) {
-          return customMatcher(item);
-        };
-      } else {
-        return function(item) {
-          var tokens = item.tokens;
-          var allTermsMatched = utils.every(terms, function(term) {
-            var tokensMatched = utils.filter(tokens, function(token) {
-              return token.indexOf(term) === 0;
-            });
-            return tokensMatched.length;
+        isMatch = isCandidate && utils.every(terms, function(term) {
+          return utils.some(item.tokens, function(token) {
+            return token.indexOf(term) === 0;
           });
-          if (allTermsMatched) {
-            return item;
-          }
-        };
-      }
+        });
+
+        isMatch && suggestions.push(item);
+      });
+
+      return suggestions;
     },
 
     _compareItems: function(a, b, areLocalItems) {
@@ -224,33 +216,6 @@ var Dataset = (function() {
     _processRemoteSuggestions: function(callback, matchedItems) {
       var that = this;
 
-      return function(data) {
-        //convert remote suggestions to object
-        utils.each(data, function(i, remoteItem) {
-          var isDuplicate = false;
-
-          remoteItem = utils.isString(remoteItem) ?
-            { value: remoteItem } : remoteItem;
-
-          // checks for duplicates
-          utils.each(matchedItems, function(i, localItem) {
-            if (remoteItem.value === localItem.value) {
-              isDuplicate = true;
-
-              // break out of each loop
-              return false;
-            }
-          });
-
-          !isDuplicate && matchedItems.push(remoteItem);
-
-          // if we're at the limit, we no longer need to process
-          // the remote results and can break out of the each loop
-          return matchedItems.length < that.limit;
-        });
-
-        callback && callback(matchedItems);
-      };
     },
 
     // public methods
@@ -271,15 +236,48 @@ var Dataset = (function() {
       return this;
     },
 
-    getSuggestions: function(query, callback) {
-      var terms = utils.tokenizeQuery(query);
-      var potentiallyMatchingIds = this._getPotentiallyMatchingIds(terms);
-      var potentiallyMatchingItems = this._getItemsFromIds(potentiallyMatchingIds);
-      var matchedItems = utils.filter(potentiallyMatchingItems, this._matcher(terms));
-      matchedItems.sort(this._ranker);
-      callback && callback(matchedItems);
-      if (matchedItems.length < this.limit && this.transport) {
-        this.transport.get(query, this._processRemoteSuggestions(callback, matchedItems));
+    getSuggestions: function(query, cb) {
+      var that = this,
+          terms = utils.tokenizeQuery(query),
+          suggestions = this._getLocalSuggestions(terms)
+          .sort(this._ranker)
+          .slice(0, this.limit);
+
+      cb && cb(suggestions);
+
+      if (suggestions.length < this.limit && this.transport) {
+        this.transport.get(query, processRemoteData);
+      }
+
+      // callback for transport.get
+      function processRemoteData(data) {
+        suggestions = suggestions.slice(0);
+
+        // convert remote suggestions to object
+        utils.each(data, function(i, remoteItem) {
+          var isDuplicate = false;
+
+          remoteItem = utils.isString(remoteItem) ?
+            { value: remoteItem } : remoteItem;
+
+          // checks for duplicates
+          utils.each(suggestions, function(i, suggestion) {
+            if (remoteItem.value === suggestion.value) {
+              isDuplicate = true;
+
+              // break out of each loop
+              return false;
+            }
+          });
+
+          !isDuplicate && suggestions.push(remoteItem);
+
+          // if we're at the limit, we no longer need to process
+          // the remote results and can break out of the each loop
+          return suggestions.length < that.limit;
+        });
+
+        cb && cb(suggestions);
       }
     }
   });

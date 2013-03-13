@@ -242,18 +242,6 @@ describe('Dataset', function() {
       this.dataset = new Dataset({}).initialize({ local: fixtureData });
     });
 
-    it('allow for a custom matching function to be defined', function() {
-      this.dataset._customMatcher = function(item) { return item; };
-
-      this.dataset.getSuggestions('ca', function(items) {
-        expect(items).toEqual([
-          { tokens: ['coconut'], value: 'coconut' },
-          { tokens: ['cake'], value: 'cake' },
-          { tokens: ['coffee'], value: 'coffee' }
-        ]);
-      });
-    });
-
     it('allow for a custom ranking function to be defined', function() {
       this.dataset._customRanker = function(a, b) {
         return a.value.length > b.value.length ?
@@ -277,7 +265,7 @@ describe('Dataset', function() {
     });
 
     it('network requests are not triggered with enough local results', function() {
-      this.dataset.limit = 1;
+      this.dataset.limit = 3;
       this.dataset.getSuggestions('c', function(items) {
         expect(items).toEqual([
           { tokens: ['coconut'], value: 'coconut' },
@@ -323,16 +311,29 @@ describe('Dataset', function() {
     });
 
     it('concatenates local and remote results and dedups them', function() {
-      var local = [expectedItemHash.cake, expectedItemHash.coffee],
-          remote = [expectedItemHash.coconut, expectedItemHash.cake];
+      var spy = jasmine.createSpy(),
+          remote = [expectedItemHash.grape, expectedItemHash.cake];
 
-      this.dataset._processRemoteSuggestions(function(items) {
-        expect(items).toEqual([
-          expectedItemHash.cake,
-          expectedItemHash.coffee,
-          expectedItemHash.coconut
-        ]);
-      }, local)(remote);
+      this.dataset.transport.get.andCallFake(function(q, cb) { cb(remote); });
+
+      this.dataset.getSuggestions('c', spy);
+
+      expect(spy.callCount).toBe(2);
+
+      // local suggestions
+      expect(spy.argsForCall[0]).toContain([
+        expectedItemHash.coconut,
+        expectedItemHash.cake,
+        expectedItemHash.coffee
+      ]);
+
+      // local + remote suggestions
+      expect(spy.argsForCall[1]).toContain([
+        expectedItemHash.coconut,
+        expectedItemHash.cake,
+        expectedItemHash.coffee,
+        expectedItemHash.grape
+      ]);
     });
 
     it('sorts results: local first, then remote, sorted by graph weight / score within each local/remote section', function() {
@@ -349,11 +350,6 @@ describe('Dataset', function() {
         { id: 5, weight: 0, score: 250000 },
         { id: 4, weight: 0, score: 100000 }
       ]);
-    });
-
-    it('only returns unique ids when looking up potentially matching ids', function() {
-      this.dataset.adjacencyList = { a: [1, 2, 3, 4], b: [3, 4, 5, 6] };
-      expect(this.dataset._getPotentiallyMatchingIds(['a','b'])).toEqual([3, 4]);
     });
   });
 
