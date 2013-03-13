@@ -67,6 +67,20 @@ var utils = {
     return !!result;
   },
 
+  some: function(obj, test) {
+    var result = false;
+
+    if (!obj) { return result; }
+
+    $.each(obj, function(key, val) {
+      if (result = test.call(null, val, key, obj)) {
+        return false;
+      }
+    });
+
+    return !!result;
+  },
+
   mixin: $.extend,
 
   getUniqueId: (function() {
@@ -126,19 +140,6 @@ var utils = {
 
       return result;
     };
-  },
-
-  uniqueArray: function(array) {
-    var u = {}, a = [];
-
-    for(var i = 0, l = array.length; i < l; ++i) {
-      if(u.hasOwnProperty(array[i])) { continue; }
-
-      a.push(array[i]);
-      u[array[i]] = 1;
-    }
-
-    return a;
   },
 
   tokenizeQuery: function(str) {
