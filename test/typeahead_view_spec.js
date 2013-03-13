@@ -23,6 +23,7 @@ describe('TypeaheadView', function() {
 
     this.typeaheadView = new TypeaheadView({
       input: this.$input,
+      eventBus: new EventBus({ el: this.$input }),
       datasets: mockDatasets
     });
 

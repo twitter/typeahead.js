@@ -66,11 +66,11 @@ var TypeaheadView = (function() {
     this.datasets = o.datasets;
     this.dir = null;
 
+    this.eventBus = o.eventBus;
+
     $menu = this.$node.find('.tt-dropdown-menu');
     $input = this.$node.find('.tt-query');
     $hint = this.$node.find('.tt-hint');
-
-    this.eventBus = new EventBus({ el: $input });
 
     this.dropdownView = new DropdownView({ menu: $menu })
     .on('suggestionSelected', this._handleSelection)

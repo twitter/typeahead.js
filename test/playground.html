@@ -47,6 +47,13 @@
     </div>
 
     <script>
+      $('input').on([
+        'typeahead:initialized',
+        'typeahead:selected',
+        'typeahead:opened',
+        'typeahead:closed'
+      ].join(' '), logToTextarea);
+
       $('.states').typeahead({
         local: [
           "Alabama",
@@ -100,12 +107,7 @@
           "Wisconsin",
           "Wyoming"
         ]
-      })
-      .on([
-        'typeahead:selected',
-        'typeahead:opened',
-        'typeahead:closed'
-      ].join(' '), logToTextarea);
+      });
 
       $('.bad-tokens').typeahead({
         local: [

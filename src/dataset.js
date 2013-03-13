@@ -10,12 +10,21 @@ var Dataset = (function() {
     utils.bindAll(this);
 
     if (o.template && !o.engine) {
-      throw new Error('no template engine specified');
+      $.error('no template engine specified');
+    }
+
+    if (!o.local && !o.prefetch && !o.remote) {
+      $.error('one of local, prefetch, or remote is requried');
     }
 
     this.name = o.name;
     this.limit = o.limit || 5;
     this.template = compileTemplate(o.template, o.engine);
+
+    // used in #initialize
+    this.local = o.local;
+    this.prefetch = o.prefetch;
+    this.remote = o.remote;
 
     this.keys = {
       version: 'version',
@@ -40,6 +49,7 @@ var Dataset = (function() {
 
     _loadPrefetchData: function(o) {
       var that = this,
+          deferred,
           version = this.storage.get(this.keys.version),
           protocol = this.storage.get(this.keys.protocol),
           itemHash = this.storage.get(this.keys.itemHash),
@@ -55,11 +65,15 @@ var Dataset = (function() {
           itemHash: itemHash,
           adjacencyList: adjacencyList
         });
+
+        deferred = $.Deferred().resolve();
       }
 
       else {
-        $.getJSON(o.url).done(processPrefetchData);
+        deferred = $.getJSON(o.url).done(processPrefetchData);
       }
+
+      return deferred;
 
       function processPrefetchData(data) {
         var filteredData = o.filter ? o.filter(data) : data,
@@ -256,17 +270,20 @@ var Dataset = (function() {
 
     // the contents of this function are broken out of the constructor
     // to help improve the testability of datasets
-    initialize: function(o) {
-      if (!o.local && !o.prefetch && !o.remote) {
-        throw new Error('one of local, prefetch, or remote is requried');
-      }
+    initialize: function() {
+      var deferred;
 
-      this.transport = o.remote ? new Transport(o.remote) : null;
+      this.local && this._processLocalData(this.local);
+      this.transport = this.remote ? new Transport(this.remote) : null;
 
-      o.local && this._processLocalData(o.local);
-      o.prefetch && this._loadPrefetchData(o.prefetch);
+      deferred = this.prefetch ?
+        this._loadPrefetchData(this.prefetch) :
+        $.Deferred().resolve();
 
-      return this;
+      this.local = this.prefetch = this.remote = null;
+      this.initialize = function() { return deferred; };
+
+      return deferred;
     },
 
     getSuggestions: function(query, callback) {

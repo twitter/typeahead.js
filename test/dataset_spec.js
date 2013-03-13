@@ -70,6 +70,16 @@ describe('Dataset', function() {
       });
     });
 
+    describe('when called without local, prefetch, or remote', function() {
+      beforeEach(function() {
+        this.fn = function() { this.dataset = new Dataset(); };
+      });
+
+      it('should throw an error', function() {
+        expect(this.fn).toThrow();
+      });
+    });
+
     describe('when called with no template', function() {
       beforeEach(function() {
         this.dataset = new Dataset({ local: fixtureData });
@@ -100,23 +110,22 @@ describe('Dataset', function() {
   });
 
   describe('#initialize', function() {
-    beforeEach(function() {
-      this.dataset = new Dataset({ name: '#initialize' });
-    });
+    it('should return Deferred instance', function() {
+      var returnVal;
 
-    describe('when called without local, prefetch, or remote', function() {
-      beforeEach(function() {
-        this.fn = function() { this.dataset.initialize({}); };
-      });
+      this.dataset = new Dataset({ local: fixtureData });
+      returnVal = this.dataset.initialize();
 
-      it('should throw an error', function() {
-        expect(this.fn).toThrow();
-      });
+      // eh, have to rely on duck typing unfortunately
+      expect(returnVal.fail).toBeDefined();
+      expect(returnVal.done).toBeDefined();
+      expect(returnVal.always).toBeDefined();
     });
 
     describe('when called with local', function() {
       beforeEach(function() {
-        this.dataset.initialize({ local: fixtureData });
+        this.dataset = new Dataset({ local: fixtureData });
+        this.dataset.initialize();
       });
 
       it('should process and merge the data', function() {
@@ -128,8 +137,9 @@ describe('Dataset', function() {
     describe('when called with prefetch', function() {
       describe('if data is available in storage', function() {
         beforeEach(function() {
+          this.dataset = new Dataset({ prefetch: '/prefetch.json' });
           this.dataset.storage.get.andCallFake(mockStorageFns.getHit);
-          this.dataset.initialize({ prefetch: '/prefetch.json' });
+          this.dataset.initialize();
         });
 
         it('should not make ajax request', function() {
@@ -146,10 +156,6 @@ describe('Dataset', function() {
         // default ttl
         var ttl = 24 * 60 * 60 * 1000;
 
-        beforeEach(function() {
-          this.dataset.storage.get.andCallFake(mockStorageFns.getMiss);
-        });
-
         describe('if filter was passed in', function() {
           var filteredAdjacencyList = { f: ['filter'] },
               filteredItemHash = {
@@ -157,12 +163,15 @@ describe('Dataset', function() {
               };
 
           beforeEach(function() {
-            this.dataset.initialize({
+            this.dataset = new Dataset({
               prefetch: {
                 url: '/prefetch.json',
                 filter: function(data) { return ['filter']; }
               }
             });
+
+            this.dataset.storage.get.andCallFake(mockStorageFns.getMiss);
+            this.dataset.initialize();
 
             this.request = mostRecentAjaxRequest();
             this.request.response(prefetchResp);
@@ -194,7 +203,11 @@ describe('Dataset', function() {
 
         describe('if filter was not passed in', function() {
           beforeEach(function() {
-            this.dataset.initialize({ prefetch: '/prefetch.json' });
+            this.dataset = new Dataset({ prefetch: '/prefetch.json' });
+
+            this.dataset.storage.get.andCallFake(mockStorageFns.getMiss);
+
+            this.dataset.initialize();
 
             this.request = mostRecentAjaxRequest();
             this.request.response(prefetchResp);
@@ -228,7 +241,8 @@ describe('Dataset', function() {
 
     describe('when called with remote', function() {
       beforeEach(function() {
-        this.dataset.initialize({ remote: '/remote' });
+        this.dataset = new Dataset({ remote: '/remote' });
+        this.dataset.initialize();
       });
 
       it('should initialize the transport', function() {
@@ -239,7 +253,8 @@ describe('Dataset', function() {
 
   describe('Datasource options', function() {
     beforeEach(function() {
-      this.dataset = new Dataset({}).initialize({ local: fixtureData });
+      this.dataset = new Dataset({ local: fixtureData });
+      this.dataset.initialize();
     });
 
     it('allow for a custom matching function to be defined', function() {
@@ -272,8 +287,8 @@ describe('Dataset', function() {
 
   describe('Matching, ranking, combining, returning results', function() {
     beforeEach(function() {
-      this.dataset = new Dataset({})
-      .initialize({ local: fixtureData, remote: '/remote' });
+      this.dataset = new Dataset({ local: fixtureData, remote: '/remote' });
+      this.dataset.initialize();
     });
 
     it('network requests are not triggered with enough local results', function() {
@@ -362,7 +377,8 @@ describe('Dataset', function() {
       var fixtureData = ['course-106', 'user_name', 'One-Two', 'two three'];
 
       beforeEach(function() {
-        this.dataset = new Dataset({}).initialize({ local: fixtureData });
+        this.dataset = new Dataset({ local: fixtureData });
+        this.dataset.initialize();
       });
 
       it('normalizes capitalization to match items', function() {
@@ -407,7 +423,8 @@ describe('Dataset', function() {
     var fixtureData = [{ value: 'course-106', tokens: ['course-106'] }];
 
     beforeEach(function() {
-      this.dataset = new Dataset({}).initialize({ local: fixtureData });
+      this.dataset = new Dataset({ local: fixtureData });
+      this.dataset.initialize();
     });
 
     it('matches items with dashes', function() {
