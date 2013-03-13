@@ -197,14 +197,13 @@ var DropdownView = (function() {
         .appendTo(this.$menu);
       }
 
-      elBuilder = document.createElement('div');
-      fragment = document.createDocumentFragment();
-
-      this.clearSuggestions(dataset.name);
-
+      // suggestions to be rendered
       if (suggestions.length > 0) {
         this.isEmpty = false;
         this.isOpen && this._show();
+
+        elBuilder = document.createElement('div');
+        fragment = document.createDocumentFragment();
 
         utils.each(suggestions, function(i, suggestion) {
           elBuilder.innerHTML = dataset.template.render(suggestion);
@@ -219,20 +218,31 @@ var DropdownView = (function() {
 
           fragment.appendChild($el[0]);
         });
+
+        // show this dataset in case it was previously empty
+        // and render the new suggestions
+        $dataset
+        .show()
+        .find('.tt-suggestions')
+        .data({ query: query, dataset: dataset.name })
+        .html(fragment);
       }
 
-      $dataset.find('> .tt-suggestions')
-      .data({ query: query, dataset: dataset.name })
-      .append(fragment);
+      // no suggestions to render
+      else {
+        this.clearSuggestions(dataset.name);
+      }
 
       this.trigger('suggestionsRendered');
     },
 
     clearSuggestions: function(datasetName) {
-      var $suggestions = datasetName ?
-          this.$menu.find('.tt-dataset-' + datasetName + ' .tt-suggestions') :
-          this.$menu.find('.tt-suggestions');
+      var $datasets = datasetName ?
+            this.$menu.find('.tt-dataset-' + datasetName) :
+            this.$menu.find('[class^="tt-dataset-"]'),
+          $suggestions = $datasets.find('.tt-suggestions');
 
+      $datasets.hide();
       $suggestions.empty();
 
       if (this._getSuggestions().length === 0) {
