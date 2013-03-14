@@ -94,9 +94,9 @@ When defining a dataset, the following options are available:
 
 * `engine` – The template engine used to compile/render `template`. Any engine can use used as long as it adheres to the [expected API][template-engine-compatibility]. **Required** if `template` is set.
 
-* `header` - The header rendered before suggestions in the dropdown menu. Can be either a DOM element or HTML.
+* `header` – The header rendered before suggestions in the dropdown menu. Can be either a DOM element or HTML.
 
-* `footer` - The footer rendered after suggestions in the dropdown menu. Can be either a DOM element or HTML.
+* `footer` – The footer rendered after suggestions in the dropdown menu. Can be either a DOM element or HTML.
 
 * `local` – An array of [datums][datum].
 
@@ -235,6 +235,15 @@ For simple autocomplete use cases, the typeahead component [Bootstrap][bootstrap
 * If you're customizing Bootstrap, exclude the typeahead component. If you're depending on the standard *bootstrap.js*, ensure *typeahead.js* is loaded after it.
 * The DOM structure of the dropdown menu used by typeahead.js differs from the DOM structure of the Bootstrap dropdown menu. You'll need to load some [additional CSS][typeahead.js-bootstrap.css] in order to get the typeahead.js dropdown menu to fit the default Bootstrap theme.
 
+Browser Support
+---------------
+
+* Chrome
+* Firefox 3.5+
+* Safari 4+
+* Internet Explorer 7+
+* Opera 11+
+
 Issues
 ------
 
@@ -289,12 +298,12 @@ Shoutouts!
 
 Thanks for assistance and contributions:
 
-+ [@fat](https://github.com/fat)
-+ [@garann](https://github.com/garann)
-+ [@paulirish](https://github.com/paulirish)
-+ [@sindresorhus](https://github.com/sindresorhus)
-+ [@thisguy](https://twitter.com/thisguy)
-+ [And many others!](contributors)
+* [@fat](https://github.com/fat)
+* [@garann](https://github.com/garann)
+* [@paulirish](https://github.com/paulirish)
+* [@sindresorhus](https://github.com/sindresorhus)
+* [@thisguy](https://twitter.com/thisguy)
+* [And many others!](contributors)
 
 License
 -------
