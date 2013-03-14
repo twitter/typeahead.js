@@ -88,6 +88,8 @@ var utils = {
     return function() { return counter++; };
   })(),
 
+  defer: function(fn) { setTimeout(fn, 0); },
+
   debounce: function(func, wait, immediate) {
     var timeout, result;
 

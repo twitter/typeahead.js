@@ -47,7 +47,11 @@
         }));
 
         $.when.apply($, deferreds)
-        .always(function() { eventBus.trigger('initialized'); });
+        .always(function() {
+          // deferring to make it possible to attach a listener
+          // for typeahead:initialized after calling jQuery#typeahead
+          utils.defer(function() { eventBus.trigger('initialized'); });
+        });
       }
     },
 

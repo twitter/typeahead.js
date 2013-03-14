@@ -156,7 +156,7 @@ var Dataset = (function() {
       // terms start with the same letter
       utils.each(terms, function(i, term) {
         var firstChar = term.charAt(0);
-        !~firstChars.indexOf(firstChar) && firstChars.push(firstChar);
+        !~utils.indexOf(firstChars, firstChar) && firstChars.push(firstChar);
       });
 
       utils.each(firstChars, function(i, firstChar) {
