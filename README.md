@@ -65,6 +65,19 @@ $('input.twitter-search').typeahead([
 ]);
 ```
 
+#### jQuery#typeahead('destroy')
+
+Destroys previously initialized typeaheads. This entails reverting DOM modifications and removing event handlers.
+
+```javascript
+$('input.typeahead-devs').typeahead({
+  name: 'accounts',
+  local: ['timtrueman', 'JakeHarding', 'vskarich']
+});
+
+$('input.typeahead-devs').typeahead('destroy');
+```
+
 ### Dataset
 
 A dataset is an object that defines a set of data that hydrates suggestions. Typeaheads can be backed by multiple datasets. Given a query, a typeahead instance will inspect its backing datasets and display relevant suggestions to the end-user. 
