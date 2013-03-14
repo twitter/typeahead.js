@@ -78,7 +78,7 @@ describe('DropdownView', function() {
     it('should trigger suggestionSelected', function() {
       expect(this.spy).toHaveBeenCalledWith({
         type: 'suggestionSelected',
-        data: { value: 'one' }
+        data: { value: 'one', tokens: ['one'], datum: { value: 'one' } }
       });
     });
   });
@@ -431,7 +431,11 @@ describe('DropdownView', function() {
 
         suggestion = this.dropdownView.getSuggestionUnderCursor();
 
-        expect(suggestion).toEqual({ value: 'one' });
+        expect(suggestion).toEqual({
+          value: 'one',
+          tokens: ['one'],
+          datum: { value: 'one' }
+        });
       });
     });
   });
@@ -444,7 +448,11 @@ describe('DropdownView', function() {
     it('should return obj with data about suggestion under the cursor',
     function() {
       var suggestion = this.dropdownView.getFirstSuggestion();
-      expect(suggestion).toEqual({ value: 'one' });
+      expect(suggestion).toEqual({
+        value: 'one',
+        tokens: ['one'],
+        datum: { value: 'one' }
+      });
     });
   });
 
@@ -471,7 +479,7 @@ describe('DropdownView', function() {
 
     describe('if new dataset', function() {
       beforeEach(function() {
-        this.dropdownView.renderSuggestions('query', mockNewDataset, []);
+        this.dropdownView.renderSuggestions(mockNewDataset, []);
       });
 
       it('should render the header', function() {
@@ -498,7 +506,7 @@ describe('DropdownView', function() {
 
         spyOn(this.dropdownView, 'clearSuggestions');
 
-        this.dropdownView.renderSuggestions('query', mockOldDataset, []);
+        this.dropdownView.renderSuggestions(mockOldDataset, []);
       });
 
       it('should call clearSuggestions', function() {
@@ -518,20 +526,19 @@ describe('DropdownView', function() {
         spyOn(this.dropdownView, 'clearSuggestions').andCallThrough();
 
         this.dropdownView.renderSuggestions(
-          'query',
           mockOldDataset,
-          [{ value: 'i am a value' }]
+          [{ datum: { value: 'i am a value' } }]
         );
       });
 
       it('should overwrite previous suggestions', function() {
         var $suggestions = this.$testDataset.children(),
             $suggestion = $suggestions.first(),
-            suggestion = $suggestion.data('suggestion');
+            datum = $suggestion.data('suggestion').datum;
 
         expect($suggestions.length).toBe(1);
         expect($suggestion).toHaveText('i am a value');
-        expect(suggestion).toEqual({ value: 'i am a value' });
+        expect(datum).toEqual({ value: 'i am a value' });
       });
 
       it('should trigger suggestionsRendered', function() {
@@ -563,8 +570,7 @@ describe('DropdownView', function() {
   // ----------------
 
   function renderTestDataset(view, open) {
-    var mockQuery = 'test q',
-        mockDataset = {
+    var mockDataset = {
           name: 'test' ,
           template: {
             render: function(c) {
@@ -573,12 +579,12 @@ describe('DropdownView', function() {
           }
         },
          mockSuggestions = [
-          { value: 'one' },
-          { value: 'two' },
-          { value: 'three' }
+          { value: 'one', tokens: ['one'], datum: { value: 'one' } },
+          { value: 'two', tokens: ['two'], datum: { value: 'two' } },
+          { value: 'three', tokens: ['three'], datum: { value: 'three' } }
         ];
 
-    view.renderSuggestions(mockQuery, mockDataset, mockSuggestions);
+    view.renderSuggestions(mockDataset, mockSuggestions);
     open && view.open();
 
     return $('#jasmine-fixtures .tt-dataset-test > .tt-suggestions');

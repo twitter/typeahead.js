@@ -1,20 +1,27 @@
 describe('Dataset', function() {
-  var fixtureData = ['grape', 'coconut', 'cake', 'tea', 'coffee'],
+  var fixtureStrings = ['grape', 'coconut', 'cake', 'tea', 'coffee'],
+      fixtureDatums = [
+      { value: 'grape' },
+      { value: 'coconut' },
+      { value: 'cake' },
+      { value: 'tea' },
+      { value: 'coffee' }
+      ],
       expectedAdjacencyList = {
         g: ['grape'],
         c: ['coconut', 'cake', 'coffee'],
         t: ['tea']
       },
       expectedItemHash = {
-        grape: { tokens: ['grape'], value: 'grape' },
-        coconut: { tokens: ['coconut'], value: 'coconut' },
-        cake: { tokens: ['cake'], value: 'cake' },
-        tea: { tokens: ['tea'], value: 'tea' },
-        coffee: { tokens: ['coffee'], value: 'coffee' }
+        grape: createItem('grape'),
+        coconut: createItem('coconut'),
+        cake: createItem('cake'),
+        tea: createItem('tea'),
+        coffee: createItem('coffee')
       },
       prefetchResp = {
         status: 200,
-        responseText: JSON.stringify(fixtureData)
+        responseText: JSON.stringify(fixtureStrings)
       },
       mockStorageFns = {
         getMiss: function() {
@@ -56,7 +63,7 @@ describe('Dataset', function() {
 
   describe('#constructor', function() {
     it('should initialize persistent storage', function() {
-      expect(new Dataset({ local: fixtureData }).storage).toBeDefined();
+      expect(new Dataset({ local: fixtureStrings }).storage).toBeDefined();
       expect(PersistentStorage).toHaveBeenCalled();
     });
 
@@ -82,7 +89,7 @@ describe('Dataset', function() {
 
     describe('when called with no template', function() {
       beforeEach(function() {
-        this.dataset = new Dataset({ local: fixtureData });
+        this.dataset = new Dataset({ local: fixtureStrings });
       });
 
       it('should compile default template', function() {
@@ -94,7 +101,7 @@ describe('Dataset', function() {
     describe('when called with a template and engine', function() {
       beforeEach(function() {
         this.dataset = new Dataset({
-          local: fixtureData,
+          local: fixtureStrings,
           template: 't',
           engine: { compile: this.spy = jasmine.createSpy().andReturn('boo') }
         });
@@ -113,7 +120,7 @@ describe('Dataset', function() {
     it('should return Deferred instance', function() {
       var returnVal;
 
-      this.dataset = new Dataset({ local: fixtureData });
+      this.dataset = new Dataset({ local: fixtureStrings });
       returnVal = this.dataset.initialize();
 
       // eh, have to rely on duck typing unfortunately
@@ -124,13 +131,18 @@ describe('Dataset', function() {
 
     describe('when called with local', function() {
       beforeEach(function() {
-        this.dataset = new Dataset({ local: fixtureData });
-        this.dataset.initialize();
+        this.dataset1 = new Dataset({ local: fixtureStrings });
+        this.dataset2 = new Dataset({ local: fixtureDatums });
+
+        this.dataset1.initialize();
+        this.dataset2.initialize();
       });
 
       it('should process and merge the data', function() {
-        expect(this.dataset.itemHash).toEqual(expectedItemHash);
-        expect(this.dataset.adjacencyList).toEqual(expectedAdjacencyList);
+        expect(this.dataset1.itemHash).toEqual(expectedItemHash);
+        expect(this.dataset1.adjacencyList).toEqual(expectedAdjacencyList);
+        expect(this.dataset2.itemHash).toEqual(expectedItemHash);
+        expect(this.dataset2.adjacencyList).toEqual(expectedAdjacencyList);
       });
     });
 
@@ -158,9 +170,7 @@ describe('Dataset', function() {
 
         describe('if filter was passed in', function() {
           var filteredAdjacencyList = { f: ['filter'] },
-              filteredItemHash = {
-                filter: { tokens: ['filter'], value: 'filter' }
-              };
+              filteredItemHash = { filter: createItem('filter') };
 
           beforeEach(function() {
             this.dataset = new Dataset({
@@ -181,7 +191,7 @@ describe('Dataset', function() {
             expect(this.request).not.toBeNull();
           });
 
-          it('should process and merge filtered data', function() {
+          it('should process and merge fileered data', function() {
             expect(this.dataset.adjacencyList).toEqual(filteredAdjacencyList);
             expect(this.dataset.itemHash).toEqual(filteredItemHash);
           });
@@ -251,31 +261,9 @@ describe('Dataset', function() {
     });
   });
 
-  describe('Datasource options', function() {
+  describe('Matching, combining, returning results', function() {
     beforeEach(function() {
-      this.dataset = new Dataset({ local: fixtureData });
-      this.dataset.initialize();
-    });
-
-    it('allow for a custom ranking function to be defined', function() {
-      this.dataset._customRanker = function(a, b) {
-        return a.value.length > b.value.length ?
-          1 : a.value.length === b.value.length ? 0 : -1;
-      };
-
-      this.dataset.getSuggestions('c', function(items) {
-        expect(items).toEqual([
-          { tokens: ['cake'], value: 'cake' },
-          { tokens: ['coffee'], value: 'coffee' },
-          { tokens: ['coconut'], value: 'coconut' }
-        ]);
-      });
-    });
-  });
-
-  describe('Matching, ranking, combining, returning results', function() {
-    beforeEach(function() {
-      this.dataset = new Dataset({ local: fixtureData, remote: '/remote' });
+      this.dataset = new Dataset({ local: fixtureStrings, remote: '/remote' });
       this.dataset.initialize();
     });
 
@@ -283,9 +271,9 @@ describe('Dataset', function() {
       this.dataset.limit = 3;
       this.dataset.getSuggestions('c', function(items) {
         expect(items).toEqual([
-          { tokens: ['coconut'], value: 'coconut' },
-          { tokens: ['cake'], value: 'cake' },
-          { tokens: ['coffee'], value: 'coffee' }
+          createItem('coconut'),
+          createItem('cake'),
+          createItem('coffee')
         ]);
       });
 
@@ -294,9 +282,9 @@ describe('Dataset', function() {
       this.dataset.limit = 100;
       this.dataset.getSuggestions('c', function(items) {
         expect(items).toEqual([
-          { tokens: ['coconut'], value: 'coconut' },
-          { tokens: ['cake'], value: 'cake' },
-          { tokens: ['coffee'], value: 'coffee' }
+          createItem('coconut'),
+          createItem('cake'),
+          createItem('coffee')
         ]);
       });
 
@@ -306,9 +294,9 @@ describe('Dataset', function() {
     it('matches', function() {
       this.dataset.getSuggestions('c', function(items) {
         expect(items).toEqual([
-          { tokens: ['coconut'], value: 'coconut' },
-          { tokens: ['cake'], value: 'cake' },
-          { tokens: ['coffee'], value: 'coffee' }
+          createItem('coconut'),
+          createItem('cake'),
+          createItem('coffee')
         ]);
       });
     });
@@ -350,22 +338,6 @@ describe('Dataset', function() {
         expectedItemHash.grape
       ]);
     });
-
-    it('sorts results: local first, then remote, sorted by graph weight / score within each local/remote section', function() {
-      expect([
-        { id: 1, weight: 1000, score: 0 },
-        { id: 2, weight: 500, score: 0 },
-        { id: 3, weight: 1500, score: 0 },
-        { id: 4, weight: 0, score: 100000 },
-        { id: 5, weight: 0, score: 250000 }
-      ].sort(this.dataset._ranker)).toEqual([
-        { id: 3, weight: 1500, score: 0 },
-        { id: 1, weight: 1000, score: 0 },
-        { id: 2, weight: 500, score: 0 },
-        { id: 5, weight: 0, score: 250000 },
-        { id: 4, weight: 0, score: 100000 }
-      ]);
-    });
   });
 
   describe('tokenization', function() {
@@ -379,27 +351,22 @@ describe('Dataset', function() {
 
       it('normalizes capitalization to match items', function() {
         this.dataset.getSuggestions('Cours', function(items) {
-          expect(items)
-          .toEqual([{ tokens: ['course', '106'], value: 'course-106' }]);
+          expect(items).toEqual([createItem('course-106')]);
         });
         this.dataset.getSuggestions('cOuRsE 106', function(items) {
-          expect(items)
-          .toEqual([{ tokens: ['course', '106'], value: 'course-106' }]);
+          expect(items).toEqual([createItem('course-106')]);
         });
         this.dataset.getSuggestions('one two', function(items) {
-          expect(items)
-          .toEqual([{ tokens: ['one', 'two'], value: 'One-Two' }]);
+          expect(items).toEqual([createItem('One-Two')]);
         });
         this.dataset.getSuggestions('THREE TWO', function(items) {
-          expect(items)
-          .toEqual([{ tokens: ['two', 'three'], value: 'two three' }]);
+          expect(items).toEqual([createItem('two three')]);
         });
       });
 
       it('matches items with dashes', function() {
         this.dataset.getSuggestions('106 course', function(items) {
-          expect(items)
-          .toEqual([{ tokens: ['course', '106'], value: 'course-106' }]);
+          expect(items).toEqual([createItem('course-106')]);
         });
         this.dataset.getSuggestions('course-106', function(items) {
           expect(items).toEqual([]);
@@ -408,15 +375,14 @@ describe('Dataset', function() {
 
       it('matches items with underscores', function() {
         this.dataset.getSuggestions('user name', function(items) {
-          expect(items)
-          .toEqual([{ tokens: ['user', 'name'], value: 'user_name' }]);
+          expect(items).toEqual([createItem('user_name')]);
         });
       });
     });
   });
 
   describe('with datum objects', function() {
-    var fixtureData = [{ value: 'course-106', tokens: ['course-106'] }];
+    var fixtureData = [{ value: 'course-106' }];
 
     beforeEach(function() {
       this.dataset = new Dataset({ local: fixtureData });
@@ -425,13 +391,24 @@ describe('Dataset', function() {
 
     it('matches items with dashes', function() {
       this.dataset.getSuggestions('106 course', function(items) {
-        expect(items).toEqual([]);
+        expect(items).toEqual([createItem('course-106')]);
       });
 
       this.dataset.getSuggestions('course-106', function(items) {
-        expect(items)
-        .toEqual([{ value: 'course-106', tokens: ['course-106'] }]);
+        expect(items).toEqual([]);
       });
     });
   });
+
+  // helper functions
+  // ----------------
+
+  function createItem(val) {
+    return {
+      value: val,
+      tokens: utils.tokenizeText(val),
+      datum: { value: val }
+    };
+  }
 });
+
