@@ -5,7 +5,7 @@
  */
 
 (function() {
-  var datasetCache = {}, viewKey = 'ttView', methods;
+  var cache = {}, viewKey = 'ttView', methods;
 
   methods = {
     initialize: function(datasetDefs) {
@@ -22,11 +22,13 @@
       }
 
       datasets = utils.map(datasetDefs, function(o) {
-        o.name = o.name || utils.getUniqueId();
+        var dataset = cache[o.name] ? cache[o.name] :  new Dataset(o);
 
-        return datasetCache[o.name] ?
-          datasetCache[o.name] :
-          datasetCache[o.name] = new Dataset(o);
+        if (o.name) {
+          cache[o.name] = dataset;
+        }
+
+        return dataset;
       });
 
       return this.each(initialize);
