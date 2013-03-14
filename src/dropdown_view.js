@@ -52,7 +52,7 @@ var DropdownView = (function() {
 
     _handleSelection: function($e) {
       var $suggestion = $($e.currentTarget);
-      this.trigger('suggestionSelected', getSuggestionData($suggestion));
+      this.trigger('suggestionSelected', extractSuggestion($suggestion));
     },
 
     _show: function() {
@@ -94,7 +94,7 @@ var DropdownView = (function() {
       }
 
       $underCursor = $suggestions.eq(nextIndex).addClass('tt-is-under-cursor');
-      this.trigger('cursorMoved', getSuggestionData($underCursor));
+      this.trigger('cursorMoved', extractSuggestion($underCursor));
     },
 
     _getSuggestions: function() {
@@ -166,16 +166,16 @@ var DropdownView = (function() {
           .filter('.tt-is-under-cursor')
           .first();
 
-      return $suggestion.length > 0 ? getSuggestionData($suggestion) : null;
+      return $suggestion.length > 0 ? extractSuggestion($suggestion) : null;
     },
 
     getFirstSuggestion: function() {
       var $suggestion = this._getSuggestions().first();
 
-      return $suggestion.length > 0 ? getSuggestionData($suggestion) : null;
+      return $suggestion.length > 0 ? extractSuggestion($suggestion) : null;
     },
 
-    renderSuggestions: function(query, dataset, suggestions) {
+    renderSuggestions: function(dataset, suggestions) {
       var datasetClassName = 'tt-dataset-' + dataset.name,
           $suggestionsList,
           $dataset = this.$menu.find('.' + datasetClassName),
@@ -204,7 +204,7 @@ var DropdownView = (function() {
         fragment = document.createDocumentFragment();
 
         utils.each(suggestions, function(i, suggestion) {
-          elBuilder.innerHTML = dataset.template.render(suggestion);
+          elBuilder.innerHTML = dataset.template.render(suggestion.datum);
 
           $el = $(elBuilder.firstChild)
           .css(css.suggestion)
@@ -251,7 +251,7 @@ var DropdownView = (function() {
   // helper functions
   // ----------------
 
-  function getSuggestionData($el) {
+  function extractSuggestion($el) {
     return $el.data('suggestion');
   }
 })();

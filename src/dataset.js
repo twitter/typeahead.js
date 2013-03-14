@@ -21,7 +21,8 @@ var Dataset = (function() {
     this.limit = o.limit || 5;
     this.header = o.header;
     this.footer = o.footer;
-    this.template = compileTemplate(o.template, o.engine);
+    this.valueKey = o.valueKey || 'value';
+    this.template = compileTemplate(o.template, o.engine, this.valueKey);
 
     // used in #initialize
     this.local = o.local;
@@ -95,18 +96,25 @@ var Dataset = (function() {
     },
 
     _processData: function(data) {
-      var itemHash = {}, adjacencyList = {};
+      var that = this, itemHash = {}, adjacencyList = {};
 
-      utils.each(data, function(i, item) {
-        var id;
+      utils.each(data, function(i, datum) {
+        var value = utils.isString(datum) ? datum : datum[that.valueKey],
+            tokens = datum.tokens || utils.tokenizeText(value),
+            item = { value: value, tokens: tokens },
+            id;
 
-        // convert string datums to datum objects
-        if (utils.isString(item)) {
-          item = { value: item, tokens: utils.tokenizeText(item) };
+        if (utils.isString(datum)) {
+          item.datum = {};
+          item.datum[that.valueKey] = datum;
+        }
+
+        else {
+          item.datum = datum;
         }
 
         // filter out falsy tokens
-        item.tokens = utils.filter(item.tokens || [], function(token) {
+        item.tokens = utils.filter(item.tokens, function(token) {
           return !utils.isBlankString(token);
         });
 
@@ -197,41 +205,6 @@ var Dataset = (function() {
       return suggestions;
     },
 
-    _compareItems: function(a, b, areLocalItems) {
-      var aScoreBoost = !a.score_boost ? 0 : a.score_boost,
-      bScoreBoost = !b.score_boost ? 0 : b.score_boost,
-      aScore = !a.score ? 0 : a.score,
-      bScore = !b.score ? 0 : b.score;
-
-      if(areLocalItems) {
-        return (b.weight + bScoreBoost) - (a.weight + aScoreBoost);
-      } else {
-        return (bScore + bScoreBoost) - (aScore + aScoreBoost);
-      }
-    },
-
-    _ranker: function(a, b) {
-      if (this._customRanker) {
-        return this._customRanker(a, b);
-      } else {
-        // Anything local should always be first (anything with a non-zero weight) and remote results (non-zero scores), and sort by weight/score within each category
-        var aIsLocal = a.weight && a.weight !== 0;
-        var bIsLocal = b.weight && b.weight !== 0;
-        if (aIsLocal && !bIsLocal) {
-          return -1;
-        } else if (bIsLocal && !aIsLocal) {
-          return 1;
-        } else {
-          return (aIsLocal && bIsLocal) ? this._compareItems(a, b, true) : this._compareItems(a, b, false);
-        }
-      }
-    },
-
-    _processRemoteSuggestions: function(callback, matchedItems) {
-      var that = this;
-
-    },
-
     // public methods
     // ---------------
 
@@ -256,9 +229,7 @@ var Dataset = (function() {
     getSuggestions: function(query, cb) {
       var that = this,
           terms = utils.tokenizeQuery(query),
-          suggestions = this._getLocalSuggestions(terms)
-          .sort(this._ranker)
-          .slice(0, this.limit);
+          suggestions = this._getLocalSuggestions(terms).slice(0, this.limit);
 
       cb && cb(suggestions);
 
@@ -301,7 +272,7 @@ var Dataset = (function() {
 
   return Dataset;
 
-  function compileTemplate(template, engine) {
+  function compileTemplate(template, engine, valueKey) {
     var wrapper = '<div class="tt-suggestion">%body</div>',
        compiledTemplate;
 
@@ -314,7 +285,7 @@ var Dataset = (function() {
     else {
       compiledTemplate = {
         render: function(context) {
-          return wrapper.replace('%body', '<p>' + context.value + '</p>');
+          return wrapper.replace('%body', '<p>' + context[valueKey] + '</p>');
         }
       };
     }
