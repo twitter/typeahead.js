@@ -52,7 +52,7 @@ var DropdownView = (function() {
 
     _handleSelection: function($e) {
       var $suggestion = $($e.currentTarget);
-      this.trigger('suggestionSelected', formatDataForSuggestion($suggestion));
+      this.trigger('suggestionSelected', getSuggestionData($suggestion));
     },
 
     _show: function() {
@@ -94,7 +94,7 @@ var DropdownView = (function() {
       }
 
       $underCursor = $suggestions.eq(nextIndex).addClass('tt-is-under-cursor');
-      this.trigger('cursorMoved', { value: $underCursor.data('value') });
+      this.trigger('cursorMoved', getSuggestionData($underCursor));
     },
 
     _getSuggestions: function() {
@@ -166,15 +166,13 @@ var DropdownView = (function() {
           .filter('.tt-is-under-cursor')
           .first();
 
-      return $suggestion.length > 0 ?
-        formatDataForSuggestion($suggestion) : null;
+      return $suggestion.length > 0 ? getSuggestionData($suggestion) : null;
     },
 
     getFirstSuggestion: function() {
       var $suggestion = this._getSuggestions().first();
 
-      return $suggestion.length > 0 ?
-        formatDataForSuggestion($suggestion) : null;
+      return $suggestion.length > 0 ? getSuggestionData($suggestion) : null;
     },
 
     renderSuggestions: function(query, dataset, suggestions) {
@@ -210,7 +208,7 @@ var DropdownView = (function() {
 
           $el = $(elBuilder.firstChild)
           .css(css.suggestion)
-          .data('value', suggestion.value);
+          .data('suggestion', suggestion);
 
           $el.children().each(function() {
             $(this).css(css.suggestionChild);
@@ -221,11 +219,7 @@ var DropdownView = (function() {
 
         // show this dataset in case it was previously empty
         // and render the new suggestions
-        $dataset
-        .show()
-        .find('.tt-suggestions')
-        .data({ query: query, dataset: dataset.name })
-        .html(fragment);
+        $dataset.show().find('.tt-suggestions').html(fragment);
       }
 
       // no suggestions to render
@@ -254,13 +248,10 @@ var DropdownView = (function() {
 
   return DropdownView;
 
-  function formatDataForSuggestion($suggestion) {
-    var $suggestions = $suggestion.parents('.tt-suggestions').first();
+  // helper functions
+  // ----------------
 
-    return {
-      value: $suggestion.data('value'),
-      query: $suggestions.data('query'),
-      dataset: $suggestions.data('dataset')
-    };
+  function getSuggestionData($el) {
+    return $el.data('suggestion');
   }
 })();

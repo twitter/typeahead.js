@@ -10,6 +10,11 @@
         margin: 50px auto;
       }
 
+      .typeahead-wrapper {
+        display: block;
+        margin: 50px 0;
+      }
+
       .tt-dropdown-menu {
         background-color: #fff;
         border: 1px solid #000;
@@ -18,24 +23,40 @@
       .tt-suggestion.tt-is-under-cursor {
         background-color: #ccc;
       }
+
+      .triggered-events {
+        float: right;
+        width: 500px;
+        height: 300px;
+      }
     </style>
   </head>
 
   <body>
     <div class="container">
-      <input class="states" type="text" placeholder="states">
-      <br>
-      <br>
-      <input class="bad-tokens" type="text" placeholder="bad tokens">
-      <br>
-      <br>
-      <input class="regex-symbols" type="text" placeholder="regex symbols">
-      <br>
-      <br>
-      <input class="header-footer" type="text" placeholder="header footer">
+      <textarea class="triggered-events"></textarea>
+      <div class="typeahead-wrapper">
+        <input class="states" type="text" placeholder="states" value="Michigan">
+      </div>
+      <div class="typeahead-wrapper">
+        <input class="bad-tokens" type="text" placeholder="bad tokens">
+      </div>
+      <div class="typeahead-wrapper">
+        <input class="regex-symbols" type="text" placeholder="regex symbols">
+      </div>
+      <div class="typeahead-wrapper">
+        <input class="header-footer" type="text" placeholder="header footer">
+      </div>
     </div>
 
     <script>
+      $('input').on([
+        'typeahead:initialized',
+        'typeahead:selected',
+        'typeahead:opened',
+        'typeahead:closed'
+      ].join(' '), logToTextarea);
+
       $('.states').typeahead({
         local: [
           "Alabama",
@@ -139,6 +160,17 @@
           local: ['abc', 'bcd', 'cde', 'def', 'efg']
         }
       ]);
+
+      function logToTextarea($e) {
+        var $textarea = $('.triggered-events'),
+            val = $textarea.val(),
+            args = [].slice.call(arguments, 1)
+            type = $e.type,
+            stringifiedArgs = JSON ? JSON.stringify(args) : '';
+
+        $textarea.val([val, type, stringifiedArgs, '\n'].join('\n'));
+        $textarea[0].scrollTop = $textarea[0].scrollHeight;
+      }
     </script>
   </body>
 </html>

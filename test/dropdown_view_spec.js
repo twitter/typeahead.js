@@ -65,28 +65,20 @@ describe('DropdownView', function() {
   });
 
   describe('on suggestion click', function() {
-
     beforeEach(function() {
       this.dropdownView
       .on('suggestionSelected', this.spy = jasmine.createSpy());
 
       this.$testDataset = renderTestDataset(this.dropdownView, true);
 
-      this.$suggestion = this.$testDataset
-      .data('query', 'test query')
-      .data('dataset', 'test dataset')
-      .find('.tt-suggestion:nth-child(1)')
-      .click();
+      this.$suggestion = this.$testDataset.find('.tt-suggestion:nth-child(1)');
+      this.$suggestion.click();
     });
 
     it('should trigger suggestionSelected', function() {
       expect(this.spy).toHaveBeenCalledWith({
         type: 'suggestionSelected',
-        data: {
-          query: 'test query',
-          dataset: 'test dataset',
-          value: 'one'
-        }
+        data: { value: 'one' }
       });
     });
   });
@@ -430,15 +422,16 @@ describe('DropdownView', function() {
     describe('if suggestion is under the cursor', function() {
       it('should return obj with data about suggestion under the cursor',
       function() {
-        var $suggestion = this.$menu
-            .find('.tt-suggestion')
-            .first()
-            .addClass('tt-is-under-cursor'),
-            suggestionData = this.dropdownView.getSuggestionUnderCursor();
+        var suggestion;
 
-        expect(suggestionData.value).toBe($suggestion.data('value'));
-        expect(suggestionData.query).toBe(this.$testDataset.data('query'));
-        expect(suggestionData.dataset).toBe(this.$testDataset.data('dataset'));
+        this.$menu
+        .find('.tt-suggestion')
+        .first()
+        .addClass('tt-is-under-cursor');
+
+        suggestion = this.dropdownView.getSuggestionUnderCursor();
+
+        expect(suggestion).toEqual({ value: 'one' });
       });
     });
   });
@@ -450,12 +443,8 @@ describe('DropdownView', function() {
 
     it('should return obj with data about suggestion under the cursor',
     function() {
-      var $firstSuggestion = this.dropdownView._getSuggestions().first(),
-          suggestionData = this.dropdownView.getFirstSuggestion();
-
-      expect(suggestionData.value).toBe($firstSuggestion.data('value'));
-      expect(suggestionData.query).toBe(this.$testDataset.data('query'));
-      expect(suggestionData.dataset).toBe(this.$testDataset.data('dataset'));
+      var suggestion = this.dropdownView.getFirstSuggestion();
+      expect(suggestion).toEqual({ value: 'one' });
     });
   });
 
@@ -535,17 +524,14 @@ describe('DropdownView', function() {
         );
       });
 
-      it('should update data values on list', function() {
-        expect(this.$testDataset).toHaveData('query', 'query');
-        expect(this.$testDataset).toHaveData('dataset', 'test');
-      });
-
       it('should overwrite previous suggestions', function() {
-        var $suggestions = this.$testDataset.children();
+        var $suggestions = this.$testDataset.children(),
+            $suggestion = $suggestions.first(),
+            suggestion = $suggestion.data('suggestion');
 
         expect($suggestions.length).toBe(1);
-        expect($suggestions.first()).toHaveText('i am a value');
-        expect($suggestions.first()).toHaveData('value', 'i am a value');
+        expect($suggestion).toHaveText('i am a value');
+        expect(suggestion).toEqual({ value: 'i am a value' });
       });
 
       it('should trigger suggestionsRendered', function() {

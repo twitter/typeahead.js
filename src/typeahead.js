@@ -5,7 +5,7 @@
  */
 
 (function() {
-  var datasetCache = {}, methods;
+  var datasetCache = {}, viewKey = 'ttView', methods;
 
   methods = {
     initialize: function(datasetDefs) {
@@ -14,11 +14,11 @@
       datasetDefs = utils.isArray(datasetDefs) ? datasetDefs : [datasetDefs];
 
       if (this.length === 0) {
-        throw new Error('typeahead initialized without DOM element');
+        $.error('typeahead initialized without DOM element');
       }
 
       if (datasetDefs.length === 0) {
-        throw new Error('no datasets provided');
+        $.error('no datasets provided');
       }
 
       datasets = utils.map(datasetDefs, function(o) {
@@ -26,25 +26,39 @@
 
         return datasetCache[o.name] ?
           datasetCache[o.name] :
-          datasetCache[o.name] = new Dataset(o).initialize(o);
+          datasetCache[o.name] = new Dataset(o);
       });
 
-      return this.each(function() {
+      return this.each(initialize);
+
+      function initialize() {
         var $input = $(this),
-            view = new TypeaheadView({ input: $input, datasets: datasets });
+            deferreds,
+            eventBus = new EventBus({ el: $input });
 
-        $input.data('ttView', view);
-      });
+        deferreds = utils.map(datasets, function(dataset) {
+          return dataset.initialize();
+        });
+
+        $input.data(viewKey, new TypeaheadView({
+          input: $input,
+          eventBus: eventBus = new EventBus({ el: $input }),
+          datasets: datasets
+        }));
+
+        $.when.apply($, deferreds)
+        .always(function() { eventBus.trigger('initialized'); });
+      }
     },
 
     destroy: function() {
       this.each(function() {
         var $this = $(this),
-            view = $this.data('ttView');
+            view = $this.data(viewKey);
 
         if (view) {
           view.destroy();
-          $this.removeData('ttView');
+          $this.removeData(viewKey);
         }
       });
     }

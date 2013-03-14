@@ -19,10 +19,11 @@ describe('TypeaheadView', function() {
     setFixtures(fixture);
 
     $fixtures = $('#jasmine-fixtures');
-    $input = $fixtures.find('.tt-test');
+    this.$input = $fixtures.find('.tt-test');
 
     this.typeaheadView = new TypeaheadView({
-      input: $input,
+      input: this.$input,
+      eventBus: new EventBus({ el: this.$input }),
       datasets: mockDatasets
     });
 
@@ -38,6 +39,8 @@ describe('TypeaheadView', function() {
 
   describe('when dropdownView triggers suggestionSelected', function() {
     beforeEach(function() {
+      this.spyEvent = spyOnEvent(this.$input, 'typeahead:selected');
+
       this.dropdownView
       .trigger('suggestionSelected', { value: 'i am selected' });
     });
@@ -53,6 +56,10 @@ describe('TypeaheadView', function() {
 
     it('should close dropdown', function() {
       expect(this.dropdownView.close).toHaveBeenCalled();
+    });
+
+    it('should trigger typeahead:selected on the input', function() {
+      expect(this.spyEvent).toHaveBeenTriggered();
     });
   });
 
@@ -86,13 +93,31 @@ describe('TypeaheadView', function() {
     _updateHintSpecHelper('dropdownView', 'suggestionsRendered');
   });
 
+  describe('when dropdownView triggers opened', function() {
+    beforeEach(function() {
+      this.spy = spyOnEvent(this.$input, 'typeahead:opened');
+      this.dropdownView.trigger('opened');
+    });
+
+    // TODO: test _updateHint path
+
+    it('should trigger typeahead:opened on the input', function() {
+      expect(this.spy).toHaveBeenTriggered();
+    });
+  });
+
   describe('when dropdownView triggers closed', function() {
     beforeEach(function() {
+      this.spy = spyOnEvent(this.$input, 'typeahead:closed');
       this.dropdownView.trigger('closed');
     });
 
     it('should clear hint', function() {
       expect(this.inputView.setHintValue).toHaveBeenCalledWith('');
+    });
+
+    it('should trigger typeahead:closed on the input', function() {
+      expect(this.spy).toHaveBeenTriggered();
     });
   });
 
@@ -119,6 +144,7 @@ describe('TypeaheadView', function() {
   describe('when inputView triggers enterKeyed', function() {
     beforeEach(function() {
       this.spy = jasmine.createSpy();
+      this.spyEvent = spyOnEvent(this.$input, 'typeahead:selected');
 
       this.dropdownView.getSuggestionUnderCursor
       .andReturn({ value: 'i am selected' });
@@ -137,6 +163,10 @@ describe('TypeaheadView', function() {
 
     it('should close dropdown', function() {
       expect(this.dropdownView.close).toHaveBeenCalled();
+    });
+
+    it('should trigger typeahead:selected on the input', function() {
+      expect(this.spyEvent).toHaveBeenTriggered();
     });
   });
 
@@ -473,7 +503,6 @@ describe('TypeaheadView', function() {
 
   describe('#destroy', function() {
     beforeEach(function() {
-      this.$input = this.typeaheadView.$node.find('.tt-query');
       this.typeaheadView.destroy();
     });
 
