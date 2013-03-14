@@ -215,7 +215,7 @@ var TypeaheadView = (function() {
 
         // focus is not a synchronous event in ie, so we deal with it
         byClick && utils.isMsie() ?
-          setTimeout(this.dropdownView.close, 0) : this.dropdownView.close();
+          utils.defer(this.dropdownView.close) : this.dropdownView.close();
 
         this.eventBus.trigger('selected', suggestion);
       }

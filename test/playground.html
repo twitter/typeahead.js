@@ -50,13 +50,6 @@
     </div>
 
     <script>
-      $('input').on([
-        'typeahead:initialized',
-        'typeahead:selected',
-        'typeahead:opened',
-        'typeahead:closed'
-      ].join(' '), logToTextarea);
-
       $('.states').typeahead({
         local: [
           "Alabama",
@@ -160,6 +153,13 @@
           local: ['abc', 'bcd', 'cde', 'def', 'efg']
         }
       ]);
+
+      $('input').on([
+        'typeahead:initialized',
+        'typeahead:selected',
+        'typeahead:opened',
+        'typeahead:closed'
+      ].join(' '), logToTextarea);
 
       function logToTextarea($e) {
         var $textarea = $('.triggered-events'),
