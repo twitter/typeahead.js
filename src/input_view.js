@@ -45,7 +45,7 @@ var InputView = (function() {
 
         // give the browser a chance to update the value of the input
         // before checking to see if the query changed
-        setTimeout(that._compareQueryToInputValue, 0);
+        utils.defer(that._compareQueryToInputValue);
       });
     }
 
