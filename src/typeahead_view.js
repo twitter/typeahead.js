@@ -217,30 +217,23 @@ var TypeaheadView = (function() {
         byClick && utils.isMsie() ?
           utils.defer(this.dropdownView.close) : this.dropdownView.close();
 
-        this.eventBus.trigger('selected', suggestion);
+        this.eventBus.trigger('selected', suggestion.datum);
       }
     },
 
     _getSuggestions: function() {
-      var that = this,
-          query = this.inputView.getQuery();
+      var that = this, query = this.inputView.getQuery();
 
-      if (utils.isBlankString(query)) {
-        return;
-      }
+      if (utils.isBlankString(query)) { return; }
 
       utils.each(this.datasets, function(i, dataset) {
         dataset.getSuggestions(query, function(suggestions) {
-          that._renderSuggestions(query, dataset, suggestions);
+          // only render the suggestions if the query hasn't changed
+          if (query === that.inputView.getQuery()) {
+            that.dropdownView.renderSuggestions(dataset, suggestions);
+          }
         });
       });
-    },
-
-    _renderSuggestions: function(query, dataset, suggestions) {
-      if (query !== this.inputView.getQuery()) { return; }
-
-      suggestions = suggestions.slice(0, dataset.limit);
-      this.dropdownView.renderSuggestions(query, dataset, suggestions);
     },
 
     _autocomplete: function(e) {
