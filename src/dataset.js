@@ -17,14 +17,14 @@ var Dataset = (function() {
       $.error('one of local, prefetch, or remote is requried');
     }
 
-    this.name = o.name;
+    this.name = o.name || utils.getUniqueId();
     this.limit = o.limit || 5;
     this.header = o.header;
     this.footer = o.footer;
     this.valueKey = o.valueKey || 'value';
     this.template = compileTemplate(o.template, o.engine, this.valueKey);
 
-    // used in #initialize
+    // used then deleted in #initialize
     this.local = o.local;
     this.prefetch = o.prefetch;
     this.remote = o.remote;
@@ -38,7 +38,10 @@ var Dataset = (function() {
 
     this.itemHash = {};
     this.adjacencyList = {};
-    this.storage = new PersistentStorage(o.name);
+
+    // only initialize storage if there's a name otherwise
+    // loading from storage on subsequent page loads is impossible
+    this.storage = o.name ? new PersistentStorage(o.name) : null;
   }
 
   utils.mixin(Dataset.prototype, {
@@ -53,11 +56,19 @@ var Dataset = (function() {
     _loadPrefetchData: function(o) {
       var that = this,
           deferred,
-          version = this.storage.get(this.keys.version),
-          protocol = this.storage.get(this.keys.protocol),
-          itemHash = this.storage.get(this.keys.itemHash),
-          adjacencyList = this.storage.get(this.keys.adjacencyList),
-          isExpired = version !== VERSION || protocol !== utils.getProtocol();
+          version,
+          protocol,
+          itemHash,
+          adjacencyList,
+          isExpired;
+
+      if (this.storage) {
+        version = this.storage.get(this.keys.version);
+        protocol = this.storage.get(this.keys.protocol);
+        itemHash = this.storage.get(this.keys.itemHash);
+        adjacencyList = this.storage.get(this.keys.adjacencyList);
+        isExpired = version !== VERSION || protocol !== utils.getProtocol();
+      }
 
       o = utils.isString(o) ? { url: o } : o;
       o.ttl = utils.isNumber(o.ttl) ? o.ttl : 24 * 60 * 60 * 1000;
@@ -84,12 +95,14 @@ var Dataset = (function() {
             itemHash = processedData.itemHash,
             adjacencyList = processedData.adjacencyList;
 
-        // store process data in local storage
+        // store process data in local storage, if storage is available
         // this saves us from processing the data on every page load
-        that.storage.set(that.keys.itemHash, itemHash, o.ttl);
-        that.storage.set(that.keys.adjacencyList, adjacencyList, o.ttl);
-        that.storage.set(that.keys.version, VERSION, o.ttl);
-        that.storage.set(that.keys.protocol, utils.getProtocol(), o.ttl);
+        if (that.storage) {
+          that.storage.set(that.keys.itemHash, itemHash, o.ttl);
+          that.storage.set(that.keys.adjacencyList, adjacencyList, o.ttl);
+          that.storage.set(that.keys.version, VERSION, o.ttl);
+          that.storage.set(that.keys.protocol, utils.getProtocol(), o.ttl);
+        }
 
         that._mergeProcessedData(processedData);
       }

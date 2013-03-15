@@ -62,9 +62,29 @@ describe('Dataset', function() {
   // --------------
 
   describe('#constructor', function() {
-    it('should initialize persistent storage', function() {
-      expect(new Dataset({ local: fixtureStrings }).storage).toBeDefined();
-      expect(PersistentStorage).toHaveBeenCalled();
+    describe('when called with a name', function() {
+    beforeEach(function() {
+      this.dataset = new Dataset({
+        name: '#constructor',
+        local: fixtureStrings
+      });
+    });
+
+      it('should initialize persistent storage', function() {
+        expect(this.dataset.storage).toBeDefined();
+        expect(PersistentStorage).toHaveBeenCalled();
+      });
+    });
+
+    describe('when called with no name', function() {
+      beforeEach(function() {
+        this.dataset = new Dataset({ local: fixtureStrings });
+      });
+
+      it('should not use persistent storage', function() {
+        expect(this.dataset.storage).toBeNull();
+        expect(PersistentStorage).not.toHaveBeenCalled();
+      });
     });
 
     describe('when called with a template but no engine', function() {
@@ -149,7 +169,11 @@ describe('Dataset', function() {
     describe('when called with prefetch', function() {
       describe('if data is available in storage', function() {
         beforeEach(function() {
-          this.dataset = new Dataset({ prefetch: '/prefetch.json' });
+          this.dataset = new Dataset({
+            name: 'prefetch',
+            prefetch: '/prefetch.json'
+          });
+
           this.dataset.storage.get.andCallFake(mockStorageFns.getHit);
           this.dataset.initialize();
         });
@@ -174,6 +198,7 @@ describe('Dataset', function() {
 
           beforeEach(function() {
             this.dataset = new Dataset({
+              name: 'prefetch',
               prefetch: {
                 url: '/prefetch.json',
                 filter: function(data) { return ['filter']; }
@@ -213,10 +238,12 @@ describe('Dataset', function() {
 
         describe('if filter was not passed in', function() {
           beforeEach(function() {
-            this.dataset = new Dataset({ prefetch: '/prefetch.json' });
+            this.dataset = new Dataset({
+              name: 'prefetch',
+              prefetch: '/prefetch.json'
+            });
 
             this.dataset.storage.get.andCallFake(mockStorageFns.getMiss);
-
             this.dataset.initialize();
 
             this.request = mostRecentAjaxRequest();
