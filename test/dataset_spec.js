@@ -342,7 +342,7 @@ describe('Dataset', function() {
 
     it('concatenates local and remote results and dedups them', function() {
       var spy = jasmine.createSpy(),
-          remote = [expectedItemHash.grape, expectedItemHash.cake];
+          remote = [fixtureDatums[0], fixtureStrings[2]];
 
       this.dataset.transport.get.andCallFake(function(q, cb) { cb(remote); });
 
@@ -351,14 +351,14 @@ describe('Dataset', function() {
       expect(spy.callCount).toBe(2);
 
       // local suggestions
-      expect(spy.argsForCall[0]).toContain([
+      expect(spy.argsForCall[0][0]).toEqual([
         expectedItemHash.coconut,
         expectedItemHash.cake,
         expectedItemHash.coffee
       ]);
 
       // local + remote suggestions
-      expect(spy.argsForCall[1]).toContain([
+      expect(spy.argsForCall[1][0]).toEqual([
         expectedItemHash.coconut,
         expectedItemHash.cake,
         expectedItemHash.coffee,
