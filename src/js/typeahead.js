@@ -51,7 +51,7 @@
             remote: datasetDef.remote,
             matcher: datasetDef.matcher,
             ranker: datasetDef.ranker,
-            transport: transport
+            transportOptions: transportOptions
           });
         }
 
