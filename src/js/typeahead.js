@@ -38,7 +38,7 @@
         else {
           datasetDef.limit = datasetDef.limit || 5;
 
-          if (datasetDef.template && !datasetDef.engine) {
+          if (datasetDef.template && !datasetDef.engine && typeof datasetDef.template != 'function') {
             throw new Error('no template engine specified for ' + name);
           }
 
@@ -101,7 +101,15 @@
     var wrapper = '<li class="tt-suggestion">%body</li>',
         compiledTemplate;
 
-    if (template) {
+    if (typeof template == 'function') {
+      compiledTemplate = {
+        render : function(context) {
+          return wrapper.replace('%body', template(context));
+        }
+      };
+    }
+
+    else if (template) {
       compiledTemplate = engine.compile(wrapper.replace('%body', template));
     }
 
