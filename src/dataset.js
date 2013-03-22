@@ -108,35 +108,41 @@ var Dataset = (function() {
       }
     },
 
+    _transformDatum: function(datum) {
+      var value = utils.isString(datum) ? datum : datum[this.valueKey],
+          tokens = datum.tokens || utils.tokenizeText(value),
+          item = { value: value, tokens: tokens };
+
+      if (utils.isString(datum)) {
+        item.datum = {};
+        item.datum[this.valueKey] = datum;
+      }
+
+      else {
+        item.datum = datum;
+      }
+
+      // filter out falsy tokens
+      item.tokens = utils.filter(item.tokens, function(token) {
+        return !utils.isBlankString(token);
+      });
+
+      // normalize tokens
+      item.tokens = utils.map(item.tokens, function(token) {
+        return token.toLowerCase();
+      });
+
+      return item;
+    },
+
     _processData: function(data) {
       var that = this, itemHash = {}, adjacencyList = {};
 
       utils.each(data, function(i, datum) {
-        var value = utils.isString(datum) ? datum : datum[that.valueKey],
-            tokens = datum.tokens || utils.tokenizeText(value),
-            item = { value: value, tokens: tokens },
-            id;
+        var item = that._transformDatum(datum),
+            id = utils.getUniqueId(item.value);
 
-        if (utils.isString(datum)) {
-          item.datum = {};
-          item.datum[that.valueKey] = datum;
-        }
-
-        else {
-          item.datum = datum;
-        }
-
-        // filter out falsy tokens
-        item.tokens = utils.filter(item.tokens, function(token) {
-          return !utils.isBlankString(token);
-        });
-
-        // normalize tokens
-        item.tokens = utils.map(item.tokens, function(token) {
-          return token.toLowerCase();
-        });
-
-        itemHash[id = utils.getUniqueId(item.value)] = item;
+        itemHash[id] = item;
 
         utils.each(item.tokens, function(i, token) {
           var character = token.charAt(0),
@@ -255,23 +261,15 @@ var Dataset = (function() {
         suggestions = suggestions.slice(0);
 
         // convert remote suggestions to object
-        utils.each(data, function(i, remoteItem) {
-          var isDuplicate = false;
-
-          remoteItem = utils.isString(remoteItem) ?
-            { value: remoteItem } : remoteItem;
+        utils.each(data, function(i, datum) {
+          var item = that._transformDatum(datum), isDuplicate;
 
           // checks for duplicates
-          utils.each(suggestions, function(i, suggestion) {
-            if (remoteItem.value === suggestion.value) {
-              isDuplicate = true;
-
-              // break out of each loop
-              return false;
-            }
+          isDuplicate = utils.some(suggestions, function(suggestion) {
+            return item.value === suggestion.value;
           });
 
-          !isDuplicate && suggestions.push(remoteItem);
+          !isDuplicate && suggestions.push(item);
 
           // if we're at the limit, we no longer need to process
           // the remote results and can break out of the each loop
