@@ -35,11 +35,13 @@ $(document).ready(function() {
   $('.example-sports .typeahead').typeahead([
     {
       name: 'nba-teams',
-      prefetch: '../data/nba.json'
+      prefetch: '../data/nba.json',
+      header: '<h3 class="league-name">NBA Teams</h3>'
     },
     {
       name: 'nhl-teams',
-      prefetch: '../data/nhl.json'
+      prefetch: '../data/nhl.json',
+      header: '<h3 class="league-name">NHL Teams</h3>'
     }
   ]);
 

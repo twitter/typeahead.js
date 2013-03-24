@@ -23,7 +23,7 @@ $(document).ready(function() {
     , ghostwriter.selectAll
     , 'FlIgHt'
     , ghostwriter.selectAll
-    , '  type'
+    , 'type'
     , ghostwriter.right
     , ghostwriter.esc
     , ghostwriter.selectAll
