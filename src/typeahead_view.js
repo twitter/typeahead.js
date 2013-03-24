@@ -253,6 +253,8 @@ var TypeaheadView = (function() {
       if (hint !== '' && query !== hint) {
         suggestion = this.dropdownView.getFirstSuggestion();
         this.inputView.setInputValue(suggestion.value);
+
+        this.eventBus.trigger('autocompleted', suggestion.datum);
       }
     },
 
