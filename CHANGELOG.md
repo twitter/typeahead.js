@@ -15,6 +15,19 @@ For more information on semantic versioning, please visit http://semver.org/.
 
 ---
 
+### 0.9.0 March 24, 2013
+
+**Custom events, no more typeahead.css, and an improved API**
+
+* Implemented the triggering of custom events. [#106][106]
+* Got rid of typeahead.css and now apply styling through JavaScript. [#15][15]
+* Made the API more flexible and addressed a handful of remote issues by rewriting the transport component. [#25][25]
+* Added support for dataset headers and footers. [#81][81]
+* No longer cache unnamed datasets. [#116][116]
+* Made the key name of the value property configurable. [#115][115]
+* Input values set before initialization of typeaheads are now respected. [#109][109]
+* Fixed an input value/hint casing bug. [#108][108]
+
 ### 0.8.2 March 04, 2013
 
 * Fixed bug causing error to be thrown when initializing a typeahead on multiple elements. [#51][51]
@@ -47,6 +60,12 @@ For more information on semantic versioning, please visit http://semver.org/.
 * Share datasets (and caching) between multiple inputs.
 * And much, much more...
 
+[116]: https://github.com/twitter/typeahead.js/pull/116
+[115]: https://github.com/twitter/typeahead.js/pull/115
+[109]: https://github.com/twitter/typeahead.js/pull/109
+[108]: https://github.com/twitter/typeahead.js/pull/108
+[106]: https://github.com/twitter/typeahead.js/pull/106
+[81]: https://github.com/twitter/typeahead.js/pull/81
 [77]: https://github.com/twitter/typeahead.js/pull/77
 [75]: https://github.com/twitter/typeahead.js/pull/75
 [74]: https://github.com/twitter/typeahead.js/pull/74
@@ -59,5 +78,7 @@ For more information on semantic versioning, please visit http://semver.org/.
 [38]: https://github.com/twitter/typeahead.js/pull/38
 [34]: https://github.com/twitter/typeahead.js/pull/34
 [26]: https://github.com/twitter/typeahead.js/pull/26
+[25]: https://github.com/twitter/typeahead.js/pull/25
+[15]: https://github.com/twitter/typeahead.js/pull/15
 [6]: https://github.com/twitter/typeahead.js/pull/6
 [3]: https://github.com/twitter/typeahead.js/pull/3
