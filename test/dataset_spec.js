@@ -288,6 +288,22 @@ describe('Dataset', function() {
     });
   });
 
+  describe('#getSuggestions', function() {
+    describe('when length of query is less than minLength', function() {
+      beforeEach(function() {
+        this.spy = jasmine.createSpy();
+
+        this.dataset = new Dataset({ local: fixtureStrings, minLength: 3 });
+        this.dataset.initialize();
+      });
+
+      it('should be a noop', function() {
+        this.dataset.getSuggestions('co', this.spy);
+        expect(this.spy).not.toHaveBeenCalled();
+      });
+    });
+  });
+
   describe('Matching, combining, returning results', function() {
     beforeEach(function() {
       this.dataset = new Dataset({ local: fixtureStrings, remote: '/remote' });

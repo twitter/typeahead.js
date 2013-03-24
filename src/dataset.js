@@ -19,6 +19,7 @@ var Dataset = (function() {
 
     this.name = o.name || utils.getUniqueId();
     this.limit = o.limit || 5;
+    this.minLength = o.minLength || 1;
     this.header = o.header;
     this.footer = o.footer;
     this.valueKey = o.valueKey || 'value';
@@ -246,9 +247,15 @@ var Dataset = (function() {
     },
 
     getSuggestions: function(query, cb) {
-      var that = this,
-          terms = utils.tokenizeQuery(query),
-          suggestions = this._getLocalSuggestions(terms).slice(0, this.limit);
+      var that = this, terms, suggestions;
+
+      // don't do anything until the minLength constraint is met
+      if (query.length < this.minLength) {
+        return;
+      }
+
+      terms = utils.tokenizeQuery(query);
+      suggestions = this._getLocalSuggestions(terms).slice(0, this.limit);
 
       cb && cb(suggestions);
 
