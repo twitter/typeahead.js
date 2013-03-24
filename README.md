@@ -217,15 +217,15 @@ By default, the dropdown menu created by typeahead.js is going to look ugly and 
 ```html
 <span class="tt-dropdown-menu">
   {{#dataset}}
-    {{{header}}}
     <div class="tt-dataset-{{name}}">
+      {{{header}}}
       <span class="tt-suggestions">
         {{#suggestions}}
           <div class="tt-suggestion">{{{html}}}</div>
         {{/suggestions}}
       </span>
+      {{{footer}}}
     </div>
-    {{{footer}}}
   {{/dataset}}
 </span>
 ```
