@@ -389,6 +389,7 @@ describe('TypeaheadView', function() {
 
     describe('if hint differs from query', function() {
       beforeEach(function() {
+        this.spyEvent = spyOnEvent(this.$input, 'typeahead:autocompleted');
         this.inputView.getQuery.andReturn('app');
         this.inputView.getHintValue.andReturn('apple');
         this.dropdownView.getFirstSuggestion.andReturn({ value: 'apple' });
@@ -403,11 +404,16 @@ describe('TypeaheadView', function() {
       it('should prevent default browser behavior', function() {
         expect(this.$e.preventDefault).toHaveBeenCalled();
       });
+
+      it('should trigger typeahead:autocompleted on the input', function() {
+        expect(this.spyEvent).toHaveBeenTriggered();
+      });
     });
   });
 
   describe('when inputView triggers leftKeyed', function() {
     beforeEach(function() {
+      this.spyEvent = spyOnEvent(this.$input, 'typeahead:autocompleted');
       this.inputView.getQuery.andReturn('app');
       this.inputView.getHintValue.andReturn('apple');
       this.dropdownView.getFirstSuggestion.andReturn({ value: 'apple' });
@@ -437,6 +443,10 @@ describe('TypeaheadView', function() {
       it('should update value of input', function() {
         expect(this.inputView.setInputValue).toHaveBeenCalled();
       });
+
+      it('should trigger typeahead:autocompleted on the input', function() {
+        expect(this.spyEvent).toHaveBeenTriggered();
+      });
     });
 
     describe('if cursor is not at then end of the query', function() {
@@ -454,6 +464,7 @@ describe('TypeaheadView', function() {
 
   describe('when inputView triggers rightKeyed', function() {
     beforeEach(function() {
+      this.spyEvent = spyOnEvent(this.$input, 'typeahead:autocompleted');
       this.inputView.getQuery.andReturn('app');
       this.inputView.getHintValue.andReturn('apple');
       this.dropdownView.getFirstSuggestion.andReturn({ value: 'apple' });
@@ -470,6 +481,10 @@ describe('TypeaheadView', function() {
 
       it('should update input value', function() {
         expect(this.inputView.setInputValue).toHaveBeenCalled();
+      });
+
+      it('should trigger typeahead:autocompleted on the input', function() {
+        expect(this.spyEvent).toHaveBeenTriggered();
       });
     });
 
