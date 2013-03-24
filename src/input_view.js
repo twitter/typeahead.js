@@ -24,8 +24,6 @@ var InputView = (function() {
       40: 'down'
     };
 
-    this.query = '';
-
     this.$hint = $(o.hint);
     this.$input = $(o.input)
     .on('blur.tt', this._handleBlur)
@@ -47,9 +45,13 @@ var InputView = (function() {
 
         // give the browser a chance to update the value of the input
         // before checking to see if the query changed
-        setTimeout(that._compareQueryToInputValue, 0);
+        utils.defer(that._compareQueryToInputValue);
       });
     }
+
+    // the query defaults to whatever the value of the input is
+    // on initialization, it'll most likely be an empty string
+    this.query = this.$input.val();
 
     // helps with calculating the width of the input's value
     this.$overflowHelper = buildOverflowHelper(this.$input);
@@ -60,18 +62,18 @@ var InputView = (function() {
     // ---------------
 
     _handleFocus: function() {
-      this.trigger('focus');
+      this.trigger('focused');
     },
 
     _handleBlur: function() {
-      this.trigger('blur');
+      this.trigger('blured');
     },
 
     _handleSpecialKeyEvent: function($e) {
       // which is normalized and consistent (but not for IE)
       var keyName = this.specialKeyCodeMap[$e.which || $e.keyCode];
 
-      keyName && this.trigger(keyName, $e);
+      keyName && this.trigger(keyName + 'Keyed', $e);
     },
 
     _compareQueryToInputValue: function() {
@@ -81,11 +83,11 @@ var InputView = (function() {
             this.query.length !== inputValue.length : false;
 
       if (isSameQueryExceptWhitespace) {
-        this.trigger('whitespaceChange', { value: this.query });
+        this.trigger('whitespaceChanged', { value: this.query });
       }
 
       else if (!isSameQuery) {
-        this.trigger('queryChange', { value: this.query = inputValue });
+        this.trigger('queryChanged', { value: this.query = inputValue });
       }
     },
 
@@ -192,8 +194,8 @@ var InputView = (function() {
 
   function compareQueries(a, b) {
     // strips leading whitespace and condenses all whitespace
-    a = (a || '').replace(/^\s*/g, '').replace(/\s{2,}/g, ' ').toLowerCase();
-    b = (b || '').replace(/^\s*/g, '').replace(/\s{2,}/g, ' ').toLowerCase();
+    a = (a || '').replace(/^\s*/g, '').replace(/\s{2,}/g, ' ');
+    b = (b || '').replace(/^\s*/g, '').replace(/\s{2,}/g, ' ');
 
     return a === b;
   }

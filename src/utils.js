@@ -6,7 +6,9 @@
 
 var utils = {
   isMsie: function() {
-    return (/msie [\w.]+/i).test(navigator.userAgent);
+    var match = /(msie) ([\w.]+)/i.exec(navigator.userAgent);
+
+    return match ? parseInt(match[2], 10) : false;
   },
 
   isBlankString: function(str) { return !str || /^\s*$/.test(str); },
@@ -49,15 +51,7 @@ var utils = {
 
   map: $.map,
 
-  filter: function(obj, test) {
-    var results = [];
-
-    $.each(obj, function(key, val) {
-      if (test(val, key, obj)) { results.push(val); }
-    });
-
-    return results;
-  },
+  filter: $.grep,
 
   every: function(obj, test) {
     var result = true;
@@ -73,12 +67,28 @@ var utils = {
     return !!result;
   },
 
+  some: function(obj, test) {
+    var result = false;
+
+    if (!obj) { return result; }
+
+    $.each(obj, function(key, val) {
+      if (result = test.call(null, val, key, obj)) {
+        return false;
+      }
+    });
+
+    return !!result;
+  },
+
   mixin: $.extend,
 
   getUniqueId: (function() {
     var counter = 0;
     return function() { return counter++; };
   })(),
+
+  defer: function(fn) { setTimeout(fn, 0); },
 
   debounce: function(func, wait, immediate) {
     var timeout, result;
@@ -132,19 +142,6 @@ var utils = {
 
       return result;
     };
-  },
-
-  uniqueArray: function(array) {
-    var u = {}, a = [];
-
-    for(var i = 0, l = array.length; i < l; ++i) {
-      if(u.hasOwnProperty(array[i])) { continue; }
-
-      a.push(array[i]);
-      u[array[i]] = 1;
-    }
-
-    return a;
   },
 
   tokenizeQuery: function(str) {

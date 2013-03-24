@@ -1,17 +1,18 @@
 var semver = require('semver'),
     f = require('util').format,
     jsFiles = [
-      'src/js/version.js',
-      'src/js/utils.js',
-      'src/js/event_target.js',
-      'src/js/persistent_storage.js',
-      'src/js/request_cache.js',
-      'src/js/transport.js',
-      'src/js/dataset.js',
-      'src/js/input_view.js',
-      'src/js/dropdown_view.js',
-      'src/js/typeahead_view.js',
-      'src/js/typeahead.js'
+      'src/version.js',
+      'src/utils.js',
+      'src/event_target.js',
+      'src/event_bus.js',
+      'src/persistent_storage.js',
+      'src/request_cache.js',
+      'src/transport.js',
+      'src/dataset.js',
+      'src/input_view.js',
+      'src/dropdown_view.js',
+      'src/typeahead_view.js',
+      'src/typeahead.js'
     ];
 
 module.exports = function(grunt) {
@@ -28,41 +29,13 @@ module.exports = function(grunt) {
       ' */\n\n'
     ].join('\n'),
 
-    less: {
-      css: {
-        src: 'src/css/typeahead.css',
-        dest: '<%= buildDir %>/typeahead.css'
-      },
-      cssmin: {
-        options: { yuicompress: true },
-        src: 'src/css/typeahead.css',
-        dest: '<%= buildDir %>/typeahead.min.css'
-      }
-    },
-
     concat: {
-      css: {
-        options: {
-          banner: '<%= banner %>',
-          stripBanners: true
-        },
-        src: '<%= less.css.dest %>',
-        dest: '<%= less.css.dest %>'
-      },
-      cssmin: {
-        options: {
-          banner: '<%= banner %>',
-          stripBanners: true
-        },
-        src: '<%= less.cssmin.dest %>',
-        dest: '<%= less.cssmin.dest %>'
-      },
       js: {
-        src: ['src/js/intro.js', jsFiles, 'src/js/outro.js'],
+        src: ['src/intro.js', jsFiles, 'src/outro.js'],
         dest: '<%= buildDir %>/typeahead.js'
       },
       jsmin: {
-        src: ['src/js/intro.js', jsFiles, 'src/js/outro.js'],
+        src: ['src/intro.js', jsFiles, 'src/outro.js'],
         dest: '<%= buildDir %>/typeahead.min.js'
       }
     },
@@ -111,10 +84,6 @@ module.exports = function(grunt) {
       js: {
         files: jsFiles,
         tasks: 'build:js'
-      },
-      css: {
-        files: '<%= less.css.src %>',
-        tasks: 'build:css'
       }
     },
 
@@ -252,9 +221,7 @@ module.exports = function(grunt) {
   // -------
 
   grunt.registerTask('default', 'build');
-  grunt.registerTask('build', ['build:js', 'build:css']);
-  grunt.registerTask('build:js', ['concat:js', 'concat:jsmin', 'sed:version', 'uglify']);
-  grunt.registerTask('build:css', ['less', 'concat:css', 'concat:cssmin']);
+  grunt.registerTask('build', ['concat:js', 'concat:jsmin', 'sed:version', 'uglify']);
   grunt.registerTask('server', 'connect:server');
   grunt.registerTask('lint', 'jshint');
   grunt.registerTask('test', 'jasmine:js');
@@ -267,7 +234,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-sed');
   grunt.loadNpmTasks('grunt-exec');
   grunt.loadNpmTasks('grunt-parallel');
-  grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-uglify');

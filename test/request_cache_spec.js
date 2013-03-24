@@ -5,6 +5,9 @@ describe('RequestCache', function() {
     this.requestCache = new RequestCache({ sizeLimit: 3 });
   });
 
+  // public methods
+  // --------------
+
   describe('#get', function() {
     it('should return undefined if miss', function() {
       expect(this.requestCache.get('miss')).toBeUndefined();

@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link rel="stylesheet" type="text/css" href="../dist/typeahead.css">
     <script src="vendor/jquery-1.9.1.js"></script>
     <script src="../dist/typeahead.js"></script>
 
@@ -9,6 +8,11 @@
       .container {
         width: 800px;
         margin: 50px auto;
+      }
+
+      .typeahead-wrapper {
+        display: block;
+        margin: 50px 0;
       }
 
       .tt-dropdown-menu {
@@ -19,22 +23,35 @@
       .tt-suggestion.tt-is-under-cursor {
         background-color: #ccc;
       }
+
+      .triggered-events {
+        float: right;
+        width: 500px;
+        height: 300px;
+      }
     </style>
   </head>
 
   <body>
     <div class="container">
-      <input class="states" type="text" placeholder="states">
-      <br>
-      <br>
-      <input class="bad-tokens" type="text" placeholder="bad tokens">
-      <br>
-      <br>
-      <input class="regex-symbols" type="text" placeholder="regex symbols">
+      <textarea class="triggered-events"></textarea>
+      <div class="typeahead-wrapper">
+        <input class="states" type="text" placeholder="states" value="Michigan">
+      </div>
+      <div class="typeahead-wrapper">
+        <input class="bad-tokens" type="text" placeholder="bad tokens">
+      </div>
+      <div class="typeahead-wrapper">
+        <input class="regex-symbols" type="text" placeholder="regex symbols">
+      </div>
+      <div class="typeahead-wrapper">
+        <input class="header-footer" type="text" placeholder="header footer">
+      </div>
     </div>
 
     <script>
       $('.states').typeahead({
+        valueKey: 'state',
         local: [
           "Alabama",
           "Alaska",
@@ -124,6 +141,37 @@
           'typeahead.js@0.8.2'
         ]
       });
+      
+      $('.header-footer').typeahead([
+        {
+          header: '<h3>Header</h3>',
+          footer: '<h3>Footer</h3>',
+          local: ['a', 'ab', 'abc', 'abcd', 'abcde']
+        },
+        {
+          header: '<h3>Start</h3>',
+          footer: '<h3>End</h3>',
+          local: ['abc', 'bcd', 'cde', 'def', 'efg']
+        }
+      ]);
+
+      $('input').on([
+        'typeahead:initialized',
+        'typeahead:selected',
+        'typeahead:opened',
+        'typeahead:closed'
+      ].join(' '), logToTextarea);
+
+      function logToTextarea($e) {
+        var $textarea = $('.triggered-events'),
+            val = $textarea.val(),
+            args = [].slice.call(arguments, 1)
+            type = $e.type,
+            stringifiedArgs = JSON ? JSON.stringify(args) : '';
+
+        $textarea.val([val, type, stringifiedArgs, '\n'].join('\n'));
+        $textarea[0].scrollTop = $textarea[0].scrollHeight;
+      }
     </script>
   </body>
 </html>

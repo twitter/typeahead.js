@@ -1,15 +1,5 @@
 describe('DropdownView', function() {
-  var fixture = [
-    '<ol class="tt-dropdown-menu">',
-      '<li class="tt-dataset-test">',
-        '<ol class="tt-suggestions" data-query="test q" data-dataset="test">',
-          '<li class="tt-suggestion" data-value="one">one</li>',
-          '<li class="tt-suggestion" data-value="two">two</li>',
-          '<li class="tt-suggestion" data-value="three">three</li>',
-        '</ol>',
-      '</li>',
-    '</ol>'
-  ].join('\n');
+  var fixture = '<ol class="tt-dropdown-menu" style="display: none;"></ol>';
 
   beforeEach(function() {
     var $fixtures;
@@ -18,13 +8,17 @@ describe('DropdownView', function() {
 
     $fixtures = $('#jasmine-fixtures');
     this.$menu = $fixtures.find('.tt-dropdown-menu');
-    this.$testSet = $fixtures.find('.tt-dataset-test > .tt-suggestions');
 
     this.dropdownView = new DropdownView({ menu: this.$menu });
   });
 
-  describe('when mouseenter', function() {
+  // event listeners
+  // ---------------
+
+  describe('on mouseenter', function() {
     beforeEach(function() {
+      renderTestDataset(this.dropdownView, true);
+
       this.$menu.mouseleave().mouseenter();
     });
 
@@ -33,7 +27,7 @@ describe('DropdownView', function() {
     });
   });
 
-  describe('when mouseleave', function() {
+  describe('on mouseleave', function() {
     beforeEach(function() {
       this.$menu.mouseenter().mouseleave();
     });
@@ -43,81 +37,79 @@ describe('DropdownView', function() {
     });
   });
 
-  describe('when mouseover suggestion', function() {
-    var spy, $suggestion1, $suggestion2, $suggestion3;
-
+  describe('on suggestion mouseover', function() {
     beforeEach(function() {
-      this.dropdownView.on('cursorOn', spy = jasmine.createSpy());
+      this.dropdownView.on('cursorMoved', this.spy = jasmine.createSpy());
 
-      $suggestion1 = this.$testSet.find('.tt-suggestion:nth-child(1)');
-      $suggestion2 = this.$testSet.find('.tt-suggestion:nth-child(2)');
-      $suggestion3 = this.$testSet.find('.tt-suggestion:nth-child(3)');
+      this.$testDataset = renderTestDataset(this.dropdownView, true);
+
+      this.$suggestion1 = this.$testDataset.find('.tt-suggestion:nth-child(1)');
+      this.$suggestion2 = this.$testDataset.find('.tt-suggestion:nth-child(2)');
+      this.$suggestion3 = this.$testDataset.find('.tt-suggestion:nth-child(3)');
 
       // start with suggestion1 highlighted
-      $suggestion1.addClass('tt-is-under-cursor');
+      this.$suggestion1.addClass('tt-is-under-cursor');
 
-      $suggestion2.mouseover();
+      this.$suggestion2.mouseover();
     });
 
     it('should add tt-is-under-cursor class to suggestion', function() {
-      expect($suggestion2).toHaveClass('tt-is-under-cursor');
+      expect(this.$suggestion2).toHaveClass('tt-is-under-cursor');
     });
 
     it('should remove tt-is-under-cursor class from other suggestions',
     function() {
-      expect($suggestion1).not.toHaveClass('tt-is-under-cursor');
-      expect($suggestion3).not.toHaveClass('tt-is-under-cursor');
+      expect(this.$suggestion1).not.toHaveClass('tt-is-under-cursor');
+      expect(this.$suggestion3).not.toHaveClass('tt-is-under-cursor');
     });
   });
 
-  describe('when click suggestion', function() {
-    var spy, $suggestion;
-
+  describe('on suggestion click', function() {
     beforeEach(function() {
-      this.dropdownView.on('select', spy = jasmine.createSpy());
+      this.dropdownView
+      .on('suggestionSelected', this.spy = jasmine.createSpy());
 
-      $suggestion = this.$testSet
-      .data('query', 'test query')
-      .data('dataset', 'test dataset')
-      .find('.tt-suggestion:nth-child(1)').click();
+      this.$testDataset = renderTestDataset(this.dropdownView, true);
+
+      this.$suggestion = this.$testDataset.find('.tt-suggestion:nth-child(1)');
+      this.$suggestion.click();
     });
 
-    it('should trigger select', function() {
-      expect(spy).toHaveBeenCalledWith({
-        type: 'select',
-        data: {
-          query: 'test query',
-          dataset: 'test dataset',
-          value: 'one'
-        }
+    it('should trigger suggestionSelected', function() {
+      expect(this.spy).toHaveBeenCalledWith({
+        type: 'suggestionSelected',
+        data: { value: 'one', tokens: ['one'], datum: { value: 'one' } }
       });
     });
   });
 
-  describe('#hideUnlessMouseIsOverDropdown', function() {
+  // public methods
+  // --------------
+
+  describe('#closeUnlessMouseIsOverDropdown', function() {
     beforeEach(function() {
-      spyOn(this.dropdownView, 'hide');
+      spyOn(this.dropdownView, 'close');
     });
 
     describe('if isMouseOverDropdown is true', function() {
       beforeEach(function() {
         this.dropdownView.isMouseOverDropdown = true;
-        this.dropdownView.hideUnlessMouseIsOverDropdown();
+        this.dropdownView.closeUnlessMouseIsOverDropdown();
       });
 
-      it('should not call hide', function() {
-        expect(this.dropdownView.hide).not.toHaveBeenCalled();
+      it('should not call close', function() {
+        expect(this.dropdownView.close).not.toHaveBeenCalled();
       });
     });
 
     describe('if isMouseOverDropdown is false', function() {
       beforeEach(function() {
         this.dropdownView.isMouseOverDropdown = false;
-        this.dropdownView.hideUnlessMouseIsOverDropdown();
+        this.dropdownView.closeUnlessMouseIsOverDropdown();
       });
 
-      it('should call hide', function() {
-        expect(this.dropdownView.hide).toHaveBeenCalled();
+      it('should call close', function() {
+        expect(this.dropdownView.close).toHaveBeenCalled();
       });
     });
   });
@@ -136,123 +128,118 @@ describe('DropdownView', function() {
     });
   });
 
-  describe('#hide', function() {
-    var spy;
-
-    beforeEach(function() {
-      this.dropdownView.on('hide', spy = jasmine.createSpy());
-    });
-
-    describe('if menu has tt-is-open class', function() {
+  describe('#close', function() {
+    describe('if open', function() {
       beforeEach(function() {
-        this.$menu.addClass('tt-is-open')
+        renderTestDataset(this.dropdownView, true);
+        this.dropdownView.on('closed', this.spy = jasmine.createSpy());
+
+        this.$menu
         .find('.tt-suggestions > .tt-suggestion')
         .addClass('.tt-is-under-cursor');
 
-        this.dropdownView.hide();
+        this.dropdownView.close();
       });
 
-      it('should remove tt-is-open class', function() {
-        expect(this.$menu).not.toHaveClass('tt-is-open');
+      it('should close menu', function() {
+        expect(this.$menu).toBeHidden();
       });
 
       it('should remove tt-is-under-cursor class from suggestions', function() {
-        var $suggestions = this.$menu.find('.tt-suggestions > .tt-suggestion');
+        var $suggestions = this.$menu.find('.tt-suggestion');
+
         expect($suggestions).not.toHaveClass('tt-is-under-cursor');
       });
 
-      it('should trigger hide', function() {
-        expect(spy).toHaveBeenCalled();
+      it('should trigger closed', function() {
+        expect(this.spy).toHaveBeenCalled();
       });
     });
 
-    describe('if menu does not have tt-is-open class', function() {
+    describe('if not open', function() {
       beforeEach(function() {
-        this.$menu.removeClass('tt-is-open');
+        renderTestDataset(this.dropdownView, false);
+        this.dropdownView.on('closed', this.spy = jasmine.createSpy());
 
-        this.dropdownView.hide();
+        this.dropdownView.close();
       });
 
-      it('should not add the tt-is-open class', function() {
-        expect(this.$menu).not.toHaveClass('tt-is-open');
+      it('should keep menu hidden', function() {
+        expect(this.$menu).toBeHidden();
       });
 
-      it('should not trigger hide', function() {
-        expect(spy).not.toHaveBeenCalled();
+      it('should not trigger closed', function() {
+        expect(this.spy).not.toHaveBeenCalled();
       });
     });
   });
 
-  describe('#show', function() {
-    var spy;
-
-    beforeEach(function() {
-      this.dropdownView.on('show', spy = jasmine.createSpy());
-    });
-
-    describe('if menu has tt-is-open class', function() {
+  describe('#open', function() {
+    describe('if open', function() {
       beforeEach(function() {
-        this.$menu.addClass('tt-is-open');
+        renderTestDataset(this.dropdownView, true);
+        this.dropdownView.on('opened', this.spy = jasmine.createSpy());
 
-        this.dropdownView.show();
+        this.dropdownView.open();
       });
 
-      it('should not remove tt-is-open class', function() {
-        expect(this.$menu).toHaveClass('tt-is-open');
+      it('should keep menu visible', function() {
+        expect(this.$menu).toBeVisible();
       });
 
-      it('should not trigger show', function() {
-        expect(spy).not.toHaveBeenCalled();
+      it('should not trigger opened', function() {
+        expect(this.spy).not.toHaveBeenCalled();
       });
     });
 
-    describe('if menu does not have tt-is-open class', function() {
+    describe('if not open', function() {
       beforeEach(function() {
-        this.$menu.removeClass('tt-is-open');
+        renderTestDataset(this.dropdownView, false);
+        this.dropdownView.on('opened', this.spy = jasmine.createSpy());
 
-        this.dropdownView.show();
+        this.dropdownView.open();
       });
 
-      it('should add the tt-is-open class', function() {
-        expect(this.$menu).toHaveClass('tt-is-open');
+      it('should make menu visible', function() {
+        expect(this.$menu).toBeVisible();
       });
 
-      it('should trigger show', function() {
-        expect(spy).toHaveBeenCalled();
+      it('should trigger opened', function() {
+        expect(this.spy).toHaveBeenCalled();
       });
     });
   });
 
   describe('#moveCursorUp', function() {
-    var cursorOnSpy, cursorOffSpy;
-
     beforeEach(function() {
-      this.dropdownView.on('cursorOn', cursorOnSpy = jasmine.createSpy());
-      this.dropdownView.on('cursorOff', cursorOffSpy = jasmine.createSpy());
+      this.dropdownView
+      .on('cursorMoved', this.cursorMovedSpy = jasmine.createSpy())
+      .on('cursorRemoved', this.cursorRemovedSpy = jasmine.createSpy());
     });
 
-    describe('if menu is closed', function() {
+    describe('if not visible', function() {
       beforeEach(function() {
-        this.dropdownView.hide();
+        renderTestDataset(this.dropdownView, false);
+
         this.dropdownView.moveCursorUp();
       });
 
       it('should not move the cursor to any suggestion', function() {
-        expect(this.$testSet.find('.under-cursor')).not.toExist();
+        expect(this.$menu.find('.tt-is-under-cursor')).not.toExist();
       });
 
-      it('should not trigger cursorOn', function() {
-        expect(cursorOnSpy).not.toHaveBeenCalled();
+      it('should not trigger cursorMoved', function() {
+        expect(this.cursorMovedSpy).not.toHaveBeenCalled();
       });
 
-      it('should not trigger cursorOff', function() {
-        expect(cursorOffSpy).not.toHaveBeenCalled();
+      it('should not trigger cursorRemoved', function() {
+        expect(this.cursorRemovedSpy).not.toHaveBeenCalled();
       });
     });
 
-    describe('if menu is open', function() {
+    describe('if visible', function() {
       beforeEach(function() {
-        this.dropdownView.show();
+        renderTestDataset(this.dropdownView, true);
       });
 
       describe('if no suggestion is under the cursor', function() {
@@ -261,21 +248,22 @@ describe('DropdownView', function() {
         });
 
         it('should move cursor to last suggestion', function() {
-          var $lastSuggestion = this.$testSet.find('.tt-suggestion').last(),
-              $suggestionUnderCursor = this.$testSet
-              .find('.tt-is-under-cursor');
+          var $lastSuggestion = this.$menu
+              .find('.tt-suggestion')
+              .last(),
+              $suggestionUnderCursor = this.$menu.find('.tt-is-under-cursor');
 
           expect($lastSuggestion).toBe($suggestionUnderCursor);
         });
 
-        it('should trigger cursorOn', function() {
-          expect(cursorOnSpy).toHaveBeenCalled();
+        it('should trigger cursorMoved', function() {
+          expect(this.cursorMovedSpy).toHaveBeenCalled();
         });
       });
 
       describe('if the last suggestion is under the cursor', function() {
         beforeEach(function() {
-          this.$testSet
+          this.$menu
           .find('.tt-suggestion')
           .last()
           .addClass('tt-is-under-cursor');
@@ -284,9 +272,8 @@ describe('DropdownView', function() {
         });
 
         it('should move cursor to previous suggestion', function() {
-          var $suggestionUnderCursor = this.$testSet
-              .find('.tt-is-under-cursor'),
-               $prevSuggestion = this.$testSet
+          var $suggestionUnderCursor = this.$menu.find('.tt-is-under-cursor'),
+               $prevSuggestion = this.$menu
               .find('.tt-suggestion')
               .last()
               .prev();
@@ -294,14 +281,14 @@ describe('DropdownView', function() {
           expect($prevSuggestion).toBe($suggestionUnderCursor);
         });
 
-        it('should trigger cursorOn', function() {
-          expect(cursorOnSpy).toHaveBeenCalled();
+        it('should trigger cursorMoved', function() {
+          expect(this.cursorMovedSpy).toHaveBeenCalled();
         });
       });
 
       describe('if the first suggestion is under the cursor', function() {
         beforeEach(function() {
-          this.$testSet
+          this.$menu
           .find('.tt-suggestion')
           .first()
           .addClass('tt-is-under-cursor');
@@ -310,50 +297,48 @@ describe('DropdownView', function() {
         });
 
         it('should remove the cursor', function() {
-          var $suggestionUnderCursor = this.$testSet
-              .find('.tt-is-under-cursor');
+          var $suggestionUnderCursor = this.$menu.find('.tt-is-under-cursor');
 
           expect($suggestionUnderCursor).not.toExist();
         });
 
-        it('should trigger cursorOff', function() {
-          expect(cursorOffSpy).toHaveBeenCalled();
+        it('should trigger cursorRemoved', function() {
+          expect(this.cursorRemovedSpy).toHaveBeenCalled();
         });
       });
     });
   });
 
   describe('#moveCursorDown', function() {
-    var cursorOnSpy, cursorOffSpy;
-
     beforeEach(function() {
-      this.dropdownView.on('cursorOn', cursorOnSpy = jasmine.createSpy());
-      this.dropdownView.on('cursorOff', cursorOffSpy = jasmine.createSpy());
+      this.dropdownView
+      .on('cursorMoved', this.cursorMovedSpy = jasmine.createSpy())
+      .on('cursorRemoved', this.cursorRemovedSpy = jasmine.createSpy());
     });
 
-    describe('if menu is closed', function() {
+    describe('if not visible', function() {
       beforeEach(function() {
-        this.dropdownView.hide();
+        renderTestDataset(this.dropdownView, false);
 
         this.dropdownView.moveCursorDown();
       });
 
       it('should not move the cursor to any suggestion', function() {
-        expect(this.$testSet.find('.under-cursor')).not.toExist();
+        expect(this.$menu.find('.tt-is-under-cursor')).not.toExist();
       });
 
-      it('should not trigger cursorOn', function() {
-        expect(cursorOnSpy).not.toHaveBeenCalled();
+      it('should not trigger cursorMoved', function() {
+        expect(this.cursorMovedSpy).not.toHaveBeenCalled();
       });
 
-      it('should not trigger cursorOff', function() {
-        expect(cursorOffSpy).not.toHaveBeenCalled();
+      it('should not trigger cursorRemoved', function() {
+        expect(this.cursorRemovedSpy).not.toHaveBeenCalled();
       });
     });
 
-    describe('if menu is open', function() {
+    describe('if visible', function() {
       beforeEach(function() {
-        this.dropdownView.show();
+        renderTestDataset(this.dropdownView, true);
       });
 
       describe('if no suggestion is under the cursor', function() {
@@ -362,21 +347,22 @@ describe('DropdownView', function() {
         });
 
         it('should move cursor to first suggestion', function() {
-          var $firstSuggestion = this.$testSet.find('.tt-suggestion').first(),
-              $suggestionUnderCursor = this.$testSet
+          var $firstSuggestion = this.$menu
+              .find('.tt-suggestion').first(),
+              $suggestionUnderCursor = this.$menu
               .find('.tt-is-under-cursor');
 
           expect($firstSuggestion).toBe($suggestionUnderCursor);
         });
 
-        it('should trigger cursorOn', function() {
-          expect(cursorOnSpy).toHaveBeenCalled();
+        it('should trigger cursorMoved', function() {
+          expect(this.cursorMovedSpy).toHaveBeenCalled();
         });
       });
 
       describe('if the first suggestion is under the cursor', function() {
         beforeEach(function() {
-          this.$testSet
+          this.$menu
           .find('.tt-suggestion')
           .first()
           .addClass('tt-is-under-cursor');
@@ -385,9 +371,8 @@ describe('DropdownView', function() {
         });
 
         it('should move cursor to next suggestion', function() {
-          var $suggestionUnderCursor = this.$testSet
-              .find('.tt-is-under-cursor'),
-               $nextSuggestion = this.$testSet
+          var $suggestionUnderCursor = this.$menu.find('.tt-is-under-cursor'),
+               $nextSuggestion = this.$menu
               .find('.tt-suggestion')
               .first()
               .next();
@@ -395,14 +380,14 @@ describe('DropdownView', function() {
           expect($nextSuggestion).toBe($suggestionUnderCursor);
         });
 
-        it('should trigger cursorOn', function() {
-          expect(cursorOnSpy).toHaveBeenCalled();
+        it('should trigger cursorMoved', function() {
+          expect(this.cursorMovedSpy).toHaveBeenCalled();
         });
       });
 
       describe('if the last suggestion is under the cursor', function() {
         beforeEach(function() {
-          this.$testSet
+          this.$menu
           .find('.tt-suggestion')
           .last()
           .addClass('tt-is-under-cursor');
@@ -411,20 +396,23 @@ describe('DropdownView', function() {
         });
 
         it('should remove the cursor', function() {
-          var $suggestionUnderCursor = this.$testSet
-              .find('.tt-is-under-cursor');
+          var $suggestionUnderCursor = this.$menu.find('.tt-is-under-cursor');
 
           expect($suggestionUnderCursor).not.toExist();
         });
 
-        it('should trigger cursorOff', function() {
-          expect(cursorOffSpy).toHaveBeenCalled();
+        it('should trigger cursorRemoved', function() {
+          expect(this.cursorRemovedSpy).toHaveBeenCalled();
         });
       });
     });
   });
 
   describe('#getSuggestionUnderCursor', function() {
+    beforeEach(function() {
+      this.$testDataset = renderTestDataset(this.dropdownView, true);
+    });
+
     describe('if no suggestion is under the cursor', function() {
       it('should return null', function() {
         expect(this.dropdownView.getSuggestionUnderCursor()).toBeNull();
@@ -432,48 +420,78 @@ describe('DropdownView', function() {
     });
 
     describe('if suggestion is under the cursor', function() {
-      var $suggestion;
+      it('should return obj with data about suggestion under the cursor',
+      function() {
+        var suggestion;
 
-      beforeEach(function() {
-        $suggestion = this.$testSet
+        this.$menu
         .find('.tt-suggestion')
         .first()
         .addClass('tt-is-under-cursor');
-      });
 
-      it('should return obj with data about suggestion under the cursor',
-      function() {
-        var suggestionData = this.dropdownView.getSuggestionUnderCursor();
+        suggestion = this.dropdownView.getSuggestionUnderCursor();
 
-        expect(suggestionData.value).toBe($suggestion.data('value'));
-        expect(suggestionData.query).toBe(this.$testSet.data('query'));
-        expect(suggestionData.dataset).toBe(this.$testSet.data('dataset'));
+        expect(suggestion).toEqual({
+          value: 'one',
+          tokens: ['one'],
+          datum: { value: 'one' }
+        });
       });
     });
   });
 
   describe('#getFirstSuggestion', function() {
+    beforeEach(function() {
+      this.$testDataset = renderTestDataset(this.dropdownView, true);
+    });
+
     it('should return obj with data about suggestion under the cursor',
     function() {
-      var $firstSuggestion = this.dropdownView._getSuggestions().first(),
-          suggestionData = this.dropdownView.getFirstSuggestion();
-
-      expect(suggestionData.value).toBe($firstSuggestion.data('value'));
-      expect(suggestionData.query).toBe(this.$testSet.data('query'));
-      expect(suggestionData.dataset).toBe(this.$testSet.data('dataset'));
+      var suggestion = this.dropdownView.getFirstSuggestion();
+      expect(suggestion).toEqual({
+        value: 'one',
+        tokens: ['one'],
+        datum: { value: 'one' }
+      });
     });
   });
 
   describe('#renderSuggestions', function() {
     var template = {
-          render: function(c) { return '<p>' + c.value + '</p>';  }
+          render: function(c) {
+            return '<li class="tt-suggestion"><p>' + c.value + '</p></li>';
+          }
         },
-        mockNewDataset = { name: 'new', template: template },
-        mockOldDataset = { name: 'test', template: template };
+        mockOldDataset = {
+          name: 'test',
+          template: template
+        },
+        mockNewDataset = {
+          name: 'new',
+          header: '<h1>header</h1>',
+          footer: '<h1>footer</h1>',
+          template: template
+        };
+
+    beforeEach(function() {
+      this.$testDataset = renderTestDataset(this.dropdownView, true);
+    });
 
     describe('if new dataset', function() {
       beforeEach(function() {
-        this.dropdownView.renderSuggestions('query', mockNewDataset, []);
+        this.dropdownView.renderSuggestions(mockNewDataset, []);
+      });
+
+      it('should render the header', function() {
+        var $header = this.$menu.find('.tt-dataset-new').children().first();
+        expect($header).toBe('h1');
+        expect($header).toHaveText('header');
+      });
+
+      it('should render the footer', function() {
+        var $footer = this.$menu.find('.tt-dataset-new').children().last();
+        expect($footer).toBe('h1');
+        expect($footer).toHaveText('footer');
       });
 
       it('should append new list for dataset', function() {
@@ -484,18 +502,18 @@ describe('DropdownView', function() {
     describe('if there are no suggestions', function() {
       beforeEach(function() {
         this.dropdownView
-        .on('suggestionsRender', this.spy = jasmine.createSpy());
+        .on('suggestionsRendered', this.spy = jasmine.createSpy());
 
         spyOn(this.dropdownView, 'clearSuggestions');
 
-        this.dropdownView.renderSuggestions('query', mockOldDataset, []);
+        this.dropdownView.renderSuggestions(mockOldDataset, []);
       });
 
       it('should call clearSuggestions', function() {
         expect(this.dropdownView.clearSuggestions).toHaveBeenCalledWith('test');
       });
 
-      it('should trigger suggestionsRender', function() {
+      it('should trigger suggestionsRendered', function() {
         expect(this.spy).toHaveBeenCalled();
       });
     });
@@ -503,39 +521,27 @@ describe('DropdownView', function() {
     describe('if there are suggestions', function() {
       beforeEach(function() {
         this.dropdownView
-        .on('suggestionsRender', this.spy = jasmine.createSpy());
+        .on('suggestionsRendered', this.spy = jasmine.createSpy());
 
         spyOn(this.dropdownView, 'clearSuggestions').andCallThrough();
 
         this.dropdownView.renderSuggestions(
-          'query',
           mockOldDataset,
-          [{ value: 'i am a value' }]
+          [{ datum: { value: 'i am a value' } }]
         );
       });
 
-      it('should call clearSuggestions', function() {
-        expect(this.dropdownView.clearSuggestions).toHaveBeenCalledWith('test');
-      });
-
-      it('should remove tt-is-empty class from menu', function() {
-        expect(this.dropdownView.$menu).not.toHaveClass('tt-is-empty');
-      });
-
-      it('should update data values on list', function() {
-        expect(this.$testSet).toHaveData('query', 'query');
-        expect(this.$testSet).toHaveData('dataset', 'test');
-      });
-
       it('should overwrite previous suggestions', function() {
-        var $suggestions = this.$testSet.children();
+        var $suggestions = this.$testDataset.children(),
+            $suggestion = $suggestions.first(),
+            datum = $suggestion.data('suggestion').datum;
 
         expect($suggestions.length).toBe(1);
-        expect($suggestions.first()).toHaveText('i am a value');
-        expect($suggestions.first()).toHaveData('value', 'i am a value');
+        expect($suggestion).toHaveText('i am a value');
+        expect(datum).toEqual({ value: 'i am a value' });
       });
 
-      it('should trigger suggestionsRender', function() {
+      it('should trigger suggestionsRendered', function() {
         expect(this.spy).toHaveBeenCalled();
       });
     });
@@ -543,15 +549,44 @@ describe('DropdownView', function() {
 
   describe('#clearSuggestions', function() {
     beforeEach(function() {
+      renderTestDataset(this.dropdownView, true);
       this.dropdownView.clearSuggestions();
+    });
+
+    it('should hide all datasets', function() {
+      expect(this.$menu.find('[class^="tt-dataset-"]')).toBeHidden();
     });
 
     it('should remove all suggestions', function() {
       expect(this.$menu.find('.tt-suggestion')).not.toExist();
     });
 
-    it('should add tt-is-empty class to menu', function() {
-      expect(this.$menu).toHaveClass('tt-is-empty');
+    it('should close menu', function() {
+      expect(this.$menu).toBeHidden();
     });
   });
+
+  // helper functions
+  // ----------------
+
+  function renderTestDataset(view, open) {
+    var mockDataset = {
+          name: 'test' ,
+          template: {
+            render: function(c) {
+              return '<li class="tt-suggestion"><p>' + c.value + '</p></li>';
+            }
+          }
+        },
+         mockSuggestions = [
+          { value: 'one', tokens: ['one'], datum: { value: 'one' } },
+          { value: 'two', tokens: ['two'], datum: { value: 'two' } },
+          { value: 'three', tokens: ['three'], datum: { value: 'three' } }
+        ];
+
+    view.renderSuggestions(mockDataset, mockSuggestions);
+    open && view.open();
+
+    return $('#jasmine-fixtures .tt-dataset-test > .tt-suggestions');
+  }
 });
