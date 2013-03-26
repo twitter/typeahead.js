@@ -113,7 +113,7 @@ describe('Dataset', function() {
       });
 
       it('should compile default template', function() {
-        expect(this.dataset.template.render({ value: 'boo' }))
+        expect(this.dataset.template({ value: 'boo' }))
         .toBe('<div class="tt-suggestion"><p>boo</p></div>');
       });
     });
@@ -123,7 +123,9 @@ describe('Dataset', function() {
         this.dataset = new Dataset({
           local: fixtureStrings,
           template: 't',
-          engine: { compile: this.spy = jasmine.createSpy().andReturn('boo') }
+          engine: {
+            compile: this.spy = jasmine.createSpy().andReturn({ render: 'boo' })
+          }
         });
       });
 
