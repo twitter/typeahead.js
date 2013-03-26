@@ -13,10 +13,6 @@
 
       datasetDefs = utils.isArray(datasetDefs) ? datasetDefs : [datasetDefs];
 
-      if (this.length === 0) {
-        $.error('typeahead initialized without DOM element');
-      }
-
       if (datasetDefs.length === 0) {
         $.error('no datasets provided');
       }
