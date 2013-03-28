@@ -14,7 +14,7 @@ var Dataset = (function() {
     }
 
     if (!o.local && !o.prefetch && !o.remote) {
-      $.error('one of local, prefetch, or remote is requried');
+      $.error('one of local, prefetch, or remote is required');
     }
 
     this.name = o.name || utils.getUniqueId();
