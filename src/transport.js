@@ -5,7 +5,10 @@
  */
 
 var Transport = (function() {
-  var pendingRequests = 0, maxParallelRequests, requestCache;
+  var pendingRequestsCount = 0,
+      pendingRequests = {},
+      maxPendingRequests,
+      requestCache;
 
   function Transport(o) {
     utils.bindAll(this);
@@ -15,8 +18,8 @@ var Transport = (function() {
     requestCache = requestCache || new RequestCache();
 
     // shared between all instances, last instance to set it wins
-    maxParallelRequests = utils.isNumber(o.maxParallelRequests) ?
-      o.maxParallelRequests : maxParallelRequests || 6;
+    maxPendingRequests = utils.isNumber(o.maxParallelRequests) ?
+      o.maxParallelRequests : maxPendingRequests || 6;
 
     this.url = o.url;
     this.wildcard = o.wildcard || '%QUERY';
@@ -37,6 +40,32 @@ var Transport = (function() {
 
   utils.mixin(Transport.prototype, {
 
+    // private methods
+    // ---------------
+
+    _sendRequest: function(url) {
+      var that = this, jqXhr = pendingRequests[url];
+
+      if (!jqXhr) {
+        incrementPendingRequests();
+        jqXhr = pendingRequests[url] =
+          $.ajax(url, this.ajaxSettings).always(always);
+      }
+
+      return jqXhr;
+
+      function always() {
+        decrementPendingRequests();
+        pendingRequests[url] = null;
+
+        // ensures request is always made for the last query
+        if (that.onDeckRequestArgs) {
+          that.get.apply(that, that.onDeckRequestArgs);
+          that.onDeckRequestArgs = null;
+        }
+      }
+    },
+
     // public methods
     // --------------
 
@@ -50,36 +79,31 @@ var Transport = (function() {
         this.replace(this.url, encodedQuery) :
         this.url.replace(this.wildcard, encodedQuery);
 
+      // in-memory cache hit
       if (resp = requestCache.get(url)) {
-        cb && cb(resp);
+        cb && cb(this.filter ? this.filter(resp) : resp);
       }
 
+      // under the pending request threshold, so fire off a request
       else if (belowPendingRequestsThreshold()) {
-        incrementPendingRequests();
-        $.ajax(url, this.ajaxSettings).done(done).always(always);
+        this._sendRequest(url).done(done);
       }
 
+      // at the pending request threshold, so hang out in the on deck circle
       else {
         this.onDeckRequestArgs = [].slice.call(arguments, 0);
       }
 
       // success callback
       function done(resp) {
-        resp = that.filter ? that.filter(resp) : resp;
+        var data = that.filter ? that.filter(resp) : resp;
 
-        cb && cb(resp);
+        cb && cb(data);
+
+        // cache the resp and not the result of applying filter
+        // in case multiple datasets use the same url and
+        // have different filters
         requestCache.set(url, resp);
-      }
-
-      // comlete callback
-      function always() {
-        decrementPendingRequests();
-
-        // ensures request is always made for the latest query
-        if (that.onDeckRequestArgs) {
-          that.get.apply(that, that.onDeckRequestArgs);
-          that.onDeckRequestArgs = null;
-        }
       }
     }
   });
@@ -90,14 +114,14 @@ var Transport = (function() {
   // --------------
 
   function incrementPendingRequests() {
-    pendingRequests++;
+    pendingRequestsCount++;
   }
 
   function decrementPendingRequests() {
-    pendingRequests--;
+    pendingRequestsCount--;
   }
 
   function belowPendingRequestsThreshold() {
-    return pendingRequests < maxParallelRequests;
+    return pendingRequestsCount < maxPendingRequests;
   }
 })();
