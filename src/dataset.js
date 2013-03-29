@@ -288,10 +288,12 @@ var Dataset = (function() {
         wrappedTemplate,
         compiledTemplate;
 
+    // precompiled template
     if (utils.isFunction(template)) {
      compiledTemplate = template;
     }
 
+    // string template that needs to be compiled
     else if (utils.isString(template)) {
       wrappedTemplate = wrapper.replace('%body', template);
       compiledTemplate = engine.compile(wrappedTemplate).render;

@@ -136,6 +136,16 @@ describe('Dataset', function() {
         expect(this.dataset.template).toBe('boo');
       });
     });
+
+    describe('when called with a compiled template', function() {
+      beforeEach(function() {
+        this.dataset = new Dataset({ local: fixtureStrings, template: $.noop });
+      });
+
+      it('should use it', function() {
+        expect(this.dataset.template).toBe($.noop);
+      });
+    });
   });
 
   describe('#initialize', function() {
