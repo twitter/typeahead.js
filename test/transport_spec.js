@@ -57,11 +57,17 @@ describe('Transport', function() {
       });
 
       it('should call filter', function() {
-        expect(this.transport.filter).toHaveBeenCalled();
+        waitsFor(function() {
+          return this.transport.filter.callCount === 1;
+        });
       });
 
       it('should invoke callback with data', function() {
-        expect(this.spy).toHaveBeenCalledWith(['val']);
+        waitsFor(function() { return this.spy.callCount === 1; });
+
+        runs(function() {
+          expect(this.spy).toHaveBeenCalledWith(['val']);
+        });
       });
     });
 
@@ -120,7 +126,8 @@ describe('Transport', function() {
       });
 
       it('should set args for the on-deck request', function() {
-        expect(this.transport.onDeckRequestArgs).toEqual(['bad', $.noop]);
+        expect(this.transport.onDeckRequestArgs)
+        .toEqual(['http://example.com?q=bad', $.noop]);
       });
     });
 
