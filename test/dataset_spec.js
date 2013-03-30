@@ -344,26 +344,30 @@ describe('Dataset', function() {
       var spy = jasmine.createSpy(),
           remote = [fixtureDatums[0], fixtureStrings[2]];
 
-      this.dataset.transport.get.andCallFake(function(q, cb) { cb(remote); });
+      this.dataset.transport.get.andCallFake(function(q, cb) {
+        utils.defer(function() { cb(remote); });
+      });
 
       this.dataset.getSuggestions('c', spy);
 
-      expect(spy.callCount).toBe(2);
+      waitsFor(function() { return spy.callCount === 2; });
 
-      // local suggestions
-      expect(spy.argsForCall[0][0]).toEqual([
-        expectedItemHash.coconut,
-        expectedItemHash.cake,
-        expectedItemHash.coffee
-      ]);
+      runs(function() {
+        // local suggestions
+        expect(spy.argsForCall[0][0]).toEqual([
+          expectedItemHash.coconut,
+          expectedItemHash.cake,
+          expectedItemHash.coffee
+        ]);
 
-      // local + remote suggestions
-      expect(spy.argsForCall[1][0]).toEqual([
-        expectedItemHash.coconut,
-        expectedItemHash.cake,
-        expectedItemHash.coffee,
-        expectedItemHash.grape
-      ]);
+        // local + remote suggestions
+        expect(spy.argsForCall[1][0]).toEqual([
+          expectedItemHash.coconut,
+          expectedItemHash.cake,
+          expectedItemHash.coffee,
+          expectedItemHash.grape
+        ]);
+      });
     });
   });
 
