@@ -34,14 +34,40 @@ var Transport = (function() {
       beforeSend: o.beforeSend
     };
 
-    this.get = (/^throttle$/i.test(o.rateLimitFn) ?
-      utils.throttle : utils.debounce)(this.get, o.rateLimitWait || 300);
+    this._get = (/^throttle$/i.test(o.rateLimitFn) ?
+      utils.throttle : utils.debounce)(this._get, o.rateLimitWait || 300);
   }
 
   utils.mixin(Transport.prototype, {
 
     // private methods
     // ---------------
+
+    _get: function(url, cb) {
+      var that = this;
+
+      // under the pending request threshold, so fire off a request
+      if (belowPendingRequestsThreshold()) {
+        this._sendRequest(url).done(done);
+      }
+
+      // at the pending request threshold, so hang out in the on deck circle
+      else {
+        this.onDeckRequestArgs = [].slice.call(arguments, 0);
+      }
+
+      // success callback
+      function done(resp) {
+        var data = that.filter ? that.filter(resp) : resp;
+
+        cb && cb(data);
+
+        // cache the resp and not the results of applying filter
+        // in case multiple datasets use the same url and
+        // have different filters
+        requestCache.set(url, resp);
+      }
+    },
 
     _sendRequest: function(url) {
       var that = this, jqXhr = pendingRequests[url];
@@ -60,7 +86,7 @@ var Transport = (function() {
 
         // ensures request is always made for the last query
         if (that.onDeckRequestArgs) {
-          that.get.apply(that, that.onDeckRequestArgs);
+          that._get.apply(that, that.onDeckRequestArgs);
           that.onDeckRequestArgs = null;
         }
       }
@@ -75,36 +101,24 @@ var Transport = (function() {
           url,
           resp;
 
+      cb = cb || utils.noop;
+
       url = this.replace ?
         this.replace(this.url, encodedQuery) :
         this.url.replace(this.wildcard, encodedQuery);
 
       // in-memory cache hit
       if (resp = requestCache.get(url)) {
-        cb && cb(this.filter ? this.filter(resp) : resp);
+        // defer to stay consistent with behavior of ajax call
+        utils.defer(function() { cb(that.filter ? that.filter(resp) : resp); });
       }
 
-      // under the pending request threshold, so fire off a request
-      else if (belowPendingRequestsThreshold()) {
-        this._sendRequest(url).done(done);
-      }
-
-      // at the pending request threshold, so hang out in the on deck circle
       else {
-        this.onDeckRequestArgs = [].slice.call(arguments, 0);
+        this._get(url, cb);
       }
 
-      // success callback
-      function done(resp) {
-        var data = that.filter ? that.filter(resp) : resp;
-
-        cb && cb(data);
-
-        // cache the resp and not the result of applying filter
-        // in case multiple datasets use the same url and
-        // have different filters
-        requestCache.set(url, resp);
-      }
+      // return bool indicating whether or not a cache hit occurred
+      return !!resp;
     }
   });
 

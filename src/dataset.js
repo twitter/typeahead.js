@@ -248,13 +248,18 @@ var Dataset = (function() {
     getSuggestions: function(query, cb) {
       var that = this,
           terms = utils.tokenizeQuery(query),
-          suggestions = this._getLocalSuggestions(terms).slice(0, this.limit);
+          suggestions = this._getLocalSuggestions(terms).slice(0, this.limit),
+          cacheHit = false;
 
-      cb && cb(suggestions);
 
       if (suggestions.length < this.limit && this.transport) {
-        this.transport.get(query, processRemoteData);
+        cacheHit = this.transport.get(query, processRemoteData);
       }
+
+      // if a cache hit occurred, skip rendering local suggestions
+      // because the rendering of local/remote suggestions is already
+      // in the event loop
+      !cacheHit && cb && cb(suggestions);
 
       // callback for transport.get
       function processRemoteData(data) {
