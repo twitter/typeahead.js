@@ -9,7 +9,7 @@ var Dataset = (function() {
   function Dataset(o) {
     utils.bindAll(this);
 
-    if (o.template && !o.engine) {
+    if (utils.isString(o.template) && !o.engine) {
       $.error('no template engine specified');
     }
 
@@ -285,19 +285,25 @@ var Dataset = (function() {
 
   function compileTemplate(template, engine, valueKey) {
     var wrapper = '<div class="tt-suggestion">%body</div>',
-       compiledTemplate;
+        wrappedTemplate,
+        compiledTemplate;
 
-    if (template) {
-      compiledTemplate = engine.compile(wrapper.replace('%body', template));
+    // precompiled template
+    if (utils.isFunction(template)) {
+     compiledTemplate = template;
+    }
+
+    // string template that needs to be compiled
+    else if (utils.isString(template)) {
+      wrappedTemplate = wrapper.replace('%body', template);
+      compiledTemplate = engine.compile(wrappedTemplate).render;
     }
 
     // if no template is provided, render suggestion
     // as its value wrapped in a p tag
     else {
-      compiledTemplate = {
-        render: function(context) {
-          return wrapper.replace('%body', '<p>' + context[valueKey] + '</p>');
-        }
+      compiledTemplate = function(context) {
+        return wrapper.replace('%body', '<p>' + context[valueKey] + '</p>');
       };
     }
 

@@ -457,10 +457,8 @@ describe('DropdownView', function() {
   });
 
   describe('#renderSuggestions', function() {
-    var template = {
-          render: function(c) {
-            return '<li class="tt-suggestion"><p>' + c.value + '</p></li>';
-          }
+    var template = function(c) {
+          return '<li class="tt-suggestion"><p>' + c.value + '</p></li>';
         },
         mockOldDataset = {
           name: 'test',
@@ -572,10 +570,8 @@ describe('DropdownView', function() {
   function renderTestDataset(view, open) {
     var mockDataset = {
           name: 'test' ,
-          template: {
-            render: function(c) {
-              return '<li class="tt-suggestion"><p>' + c.value + '</p></li>';
-            }
+          template: function(c) {
+            return '<li class="tt-suggestion"><p>' + c.value + '</p></li>';
           }
         },
          mockSuggestions = [
