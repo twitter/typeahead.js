@@ -120,12 +120,14 @@ describe('Dataset', function() {
 
     describe('when called with a template and engine', function() {
       beforeEach(function() {
+        this.spy = jasmine.createSpy().andReturn({
+          render: function() { return 'boo!'; }
+        });
+
         this.dataset = new Dataset({
           local: fixtureStrings,
           template: 't',
-          engine: {
-            compile: this.spy = jasmine.createSpy().andReturn({ render: 'boo' })
-          }
+          engine: { compile: this.spy }
         });
       });
 
@@ -133,7 +135,7 @@ describe('Dataset', function() {
         expect(this.spy)
         .toHaveBeenCalledWith('<div class="tt-suggestion">t</div>');
 
-        expect(this.dataset.template).toBe('boo');
+        expect(this.dataset.template()).toBe('boo!');
       });
     });
 
