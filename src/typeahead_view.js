@@ -272,6 +272,15 @@ var TypeaheadView = (function() {
       destroyDomStructure(this.$node);
 
       this.$node = null;
+    },
+
+    setQuery: function(query) {
+      this.inputView.setQuery(query);
+      this.inputView.setInputValue(query);
+
+      this._clearHint();
+      this._clearSuggestions();
+      this._getSuggestions();
     }
   });
 

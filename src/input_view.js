@@ -113,6 +113,10 @@ var InputView = (function() {
       return this.query;
     },
 
+    setQuery: function(query) {
+      this.query = query;
+    },
+
     getInputValue: function() {
       return this.$input.val();
     },
@@ -120,10 +124,7 @@ var InputView = (function() {
     setInputValue: function(value, silent) {
       this.$input.val(value);
 
-      // strict equal to support function(value) signature
-      if (silent !== true) {
-        this._compareQueryToInputValue();
-      }
+      !silent && this._compareQueryToInputValue();
     },
 
     getHintValue: function() {
