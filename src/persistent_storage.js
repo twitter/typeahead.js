@@ -8,9 +8,9 @@ var PersistentStorage = (function() {
   var ls = window.localStorage, methods;
 
   function PersistentStorage(namespace) {
-    this.prefix = ["__", namespace, "__"].join("");
-    this.ttlKey = "__ttl__";
-    this.keyMatcher = new RegExp("^" + this.prefix);
+    this.prefix = ['__', namespace, '__'].join('');
+    this.ttlKey = '__ttl__';
+    this.keyMatcher = new RegExp('^' + this.prefix);
   }
 
   if (window.localStorage && window.JSON) {
@@ -63,7 +63,7 @@ var PersistentStorage = (function() {
         for (i = 0; i < len; i++) {
           if ((key = ls.key(i)).match(this.keyMatcher)) {
             // gather keys to remove after loop exits
-            keys.push(key.replace(this.keyMatcher, ""));
+            keys.push(key.replace(this.keyMatcher, ''));
           }
         }
 
