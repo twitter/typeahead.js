@@ -295,28 +295,30 @@ var Dataset = (function() {
 
   function compileTemplate(template, engine, valueKey) {
     var wrapper = '<div class="tt-suggestion">%body</div>',
+        renderFn,
         wrappedTemplate,
         compiledTemplate;
 
     // precompiled template
     if (utils.isFunction(template)) {
-     compiledTemplate = template;
+      renderFn = template;
     }
 
     // string template that needs to be compiled
     else if (utils.isString(template)) {
       wrappedTemplate = wrapper.replace('%body', template);
-      compiledTemplate = engine.compile(wrappedTemplate).render;
+      compiledTemplate = engine.compile(wrappedTemplate);
+      renderFn = utils.bind(compiledTemplate.render, compiledTemplate);
     }
 
     // if no template is provided, render suggestion
     // as its value wrapped in a p tag
     else {
-      compiledTemplate = function(context) {
+      renderFn = function(context) {
         return wrapper.replace('%body', '<p>' + context[valueKey] + '</p>');
       };
     }
 
-    return compiledTemplate;
+    return renderFn;
   }
 })();
