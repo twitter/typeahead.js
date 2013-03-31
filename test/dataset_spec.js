@@ -36,7 +36,7 @@ describe('Dataset', function() {
             return expectedAdjacencyList;
           }
 
-          else if (/version/.test(key)) {
+          else if (/thumbprint/.test(key)) {
             return VERSION;
           }
 
@@ -244,7 +244,7 @@ describe('Dataset', function() {
             expect(this.dataset.storage.set)
             .toHaveBeenCalledWith('protocol', utils.getProtocol(), ttl);
             expect(this.dataset.storage.set)
-            .toHaveBeenCalledWith('version', VERSION, ttl);
+            .toHaveBeenCalledWith('thumbprint', VERSION, ttl);
           });
         });
 
@@ -282,7 +282,7 @@ describe('Dataset', function() {
             expect(this.dataset.storage.set)
             .toHaveBeenCalledWith('protocol', utils.getProtocol(), ttl);
             expect(this.dataset.storage.set)
-            .toHaveBeenCalledWith('version', VERSION, ttl);
+            .toHaveBeenCalledWith('thumbprint', VERSION, ttl);
           });
         });
       });
