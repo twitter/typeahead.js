@@ -54,15 +54,26 @@
     },
 
     destroy: function() {
-      this.each(function() {
-        var $this = $(this),
-            view = $this.data(viewKey);
+      return this.each(destroy);
+
+      function destroy() {
+        var $this = $(this), view = $this.data(viewKey);
 
         if (view) {
           view.destroy();
           $this.removeData(viewKey);
         }
-      });
+      }
+    },
+
+    setQuery: function(query) {
+      return this.each(setQuery);
+
+      function setQuery() {
+        var view = $(this).data(viewKey);
+
+        view && view.setQuery(query);
+      }
     }
   };
 
