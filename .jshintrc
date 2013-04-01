@@ -4,7 +4,7 @@
   "noarg": true,
   "noempty": true,
   "nonew": true,
-  "quotmark": true,
+  "quotmark": "single",
   "regexp": true,
   "trailing": true,
 
