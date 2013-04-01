@@ -5,20 +5,27 @@
  */
 
 var Dataset = (function() {
+  var keys = {
+        thumbprint: 'thumbprint',
+        protocol: 'protocol',
+        itemHash: 'itemHash',
+        adjacencyList: 'adjacencyList'
+      };
 
   function Dataset(o) {
     utils.bindAll(this);
 
-    if (o.template && !o.engine) {
+    if (utils.isString(o.template) && !o.engine) {
       $.error('no template engine specified');
     }
 
     if (!o.local && !o.prefetch && !o.remote) {
-      $.error('one of local, prefetch, or remote is requried');
+      $.error('one of local, prefetch, or remote is required');
     }
 
     this.name = o.name || utils.getUniqueId();
     this.limit = o.limit || 5;
+    this.minLength = o.minLength || 1;
     this.header = o.header;
     this.footer = o.footer;
     this.valueKey = o.valueKey || 'value';
@@ -28,13 +35,6 @@ var Dataset = (function() {
     this.local = o.local;
     this.prefetch = o.prefetch;
     this.remote = o.remote;
-
-    this.keys = {
-      version: 'version',
-      protocol: 'protocol',
-      itemHash: 'itemHash',
-      adjacencyList: 'adjacencyList'
-    };
 
     this.itemHash = {};
     this.adjacencyList = {};
@@ -55,29 +55,32 @@ var Dataset = (function() {
 
     _loadPrefetchData: function(o) {
       var that = this,
-          deferred,
-          version,
-          protocol,
-          itemHash,
-          adjacencyList,
-          isExpired;
+          thumbprint = VERSION + (o.thumbprint || ''),
+          storedThumbprint,
+          storedProtocol,
+          storedItemHash,
+          storedAdjacencyList,
+          isExpired,
+          deferred;
 
       if (this.storage) {
-        version = this.storage.get(this.keys.version);
-        protocol = this.storage.get(this.keys.protocol);
-        itemHash = this.storage.get(this.keys.itemHash);
-        adjacencyList = this.storage.get(this.keys.adjacencyList);
-        isExpired = version !== VERSION || protocol !== utils.getProtocol();
+        storedThumbprint = this.storage.get(keys.thumbprint);
+        storedProtocol = this.storage.get(keys.protocol);
+        storedItemHash = this.storage.get(keys.itemHash);
+        storedAdjacencyList = this.storage.get(keys.adjacencyList);
       }
+
+      isExpired = storedThumbprint !== thumbprint ||
+        storedProtocol !== utils.getProtocol();
 
       o = utils.isString(o) ? { url: o } : o;
       o.ttl = utils.isNumber(o.ttl) ? o.ttl : 24 * 60 * 60 * 1000;
 
       // data was available in local storage, use it
-      if (itemHash && adjacencyList && !isExpired) {
+      if (storedItemHash && storedAdjacencyList && !isExpired) {
         this._mergeProcessedData({
-          itemHash: itemHash,
-          adjacencyList: adjacencyList
+          itemHash: storedItemHash,
+          adjacencyList: storedAdjacencyList
         });
 
         deferred = $.Deferred().resolve();
@@ -98,10 +101,10 @@ var Dataset = (function() {
         // store process data in local storage, if storage is available
         // this saves us from processing the data on every page load
         if (that.storage) {
-          that.storage.set(that.keys.itemHash, itemHash, o.ttl);
-          that.storage.set(that.keys.adjacencyList, adjacencyList, o.ttl);
-          that.storage.set(that.keys.version, VERSION, o.ttl);
-          that.storage.set(that.keys.protocol, utils.getProtocol(), o.ttl);
+          that.storage.set(keys.itemHash, itemHash, o.ttl);
+          that.storage.set(keys.adjacencyList, adjacencyList, o.ttl);
+          that.storage.set(keys.thumbprint, thumbprint, o.ttl);
+          that.storage.set(keys.protocol, utils.getProtocol(), o.ttl);
         }
 
         that._mergeProcessedData(processedData);
@@ -246,15 +249,24 @@ var Dataset = (function() {
     },
 
     getSuggestions: function(query, cb) {
-      var that = this,
-          terms = utils.tokenizeQuery(query),
-          suggestions = this._getLocalSuggestions(terms).slice(0, this.limit);
+      var that = this, terms, suggestions, cacheHit = false;
 
-      cb && cb(suggestions);
+      // don't do anything until the minLength constraint is met
+      if (query.length < this.minLength) {
+        return;
+      }
+
+      terms = utils.tokenizeQuery(query);
+      suggestions = this._getLocalSuggestions(terms).slice(0, this.limit);
 
       if (suggestions.length < this.limit && this.transport) {
-        this.transport.get(query, processRemoteData);
+        cacheHit = this.transport.get(query, processRemoteData);
       }
+
+      // if a cache hit occurred, skip rendering local suggestions
+      // because the rendering of local/remote suggestions is already
+      // in the event loop
+      !cacheHit && cb && cb(suggestions);
 
       // callback for transport.get
       function processRemoteData(data) {
@@ -285,22 +297,30 @@ var Dataset = (function() {
 
   function compileTemplate(template, engine, valueKey) {
     var wrapper = '<div class="tt-suggestion">%body</div>',
-       compiledTemplate;
+        renderFn,
+        wrappedTemplate,
+        compiledTemplate;
 
-    if (template) {
-      compiledTemplate = engine.compile(wrapper.replace('%body', template));
+    // precompiled template
+    if (utils.isFunction(template)) {
+      renderFn = template;
+    }
+
+    // string template that needs to be compiled
+    else if (utils.isString(template)) {
+      wrappedTemplate = wrapper.replace('%body', template);
+      compiledTemplate = engine.compile(wrappedTemplate);
+      renderFn = utils.bind(compiledTemplate.render, compiledTemplate);
     }
 
     // if no template is provided, render suggestion
     // as its value wrapped in a p tag
     else {
-      compiledTemplate = {
-        render: function(context) {
-          return wrapper.replace('%body', '<p>' + context[valueKey] + '</p>');
-        }
+      renderFn = function(context) {
+        return wrapper.replace('%body', '<p>' + context[valueKey] + '</p>');
       };
     }
 
-    return compiledTemplate;
+    return renderFn;
   }
 })();

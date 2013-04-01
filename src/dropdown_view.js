@@ -204,7 +204,7 @@ var DropdownView = (function() {
         fragment = document.createDocumentFragment();
 
         utils.each(suggestions, function(i, suggestion) {
-          elBuilder.innerHTML = dataset.template.render(suggestion.datum);
+          elBuilder.innerHTML = dataset.template(suggestion.datum);
 
           $el = $(elBuilder.firstChild)
           .css(css.suggestion)

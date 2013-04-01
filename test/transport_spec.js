@@ -45,8 +45,9 @@ describe('Transport', function() {
     describe('when request is available in cache', function() {
       beforeEach(function() {
         this.spy = jasmine.createSpy();
-        this.requestCache.get.andReturn(successData);
+        this.requestCache.get.andReturn({ data: ['val'] });
 
+        this.transport.filter = jasmine.createSpy().andReturn(['val']);
         this.transport.get('query', this.spy);
         this.request = mostRecentAjaxRequest();
       });
@@ -55,8 +56,18 @@ describe('Transport', function() {
         expect(this.request).toBeNull();
       });
 
-      it('should invoke callback with response from cache', function() {
-        expect(this.spy).toHaveBeenCalledWith(successData);
+      it('should call filter', function() {
+        waitsFor(function() {
+          return this.transport.filter.callCount === 1;
+        });
+      });
+
+      it('should invoke callback with data', function() {
+        waitsFor(function() { return this.spy.callCount === 1; });
+
+        runs(function() {
+          expect(this.spy).toHaveBeenCalledWith(['val']);
+        });
       });
     });
 
@@ -80,6 +91,22 @@ describe('Transport', function() {
 
         expect(this.request.url).toEqual('http://example.com?q=$$has%20space');
       });
+
+      it('should piggyback off of pending requests', function() {
+        this.spy1 = jasmine.createSpy();
+        this.spy2 = jasmine.createSpy();
+        this.transport2 = new Transport({ url: 'http://example.com?q=%QUERY' });
+
+        this.transport.get('hazel', this.spy1);
+        this.transport2.get('hazel', this.spy2);
+
+        this.request = mostRecentAjaxRequest();
+        this.request.response(successResp);
+
+        expect(ajaxRequests.length).toBe(1);
+        expect(this.spy1).toHaveBeenCalledWith(successData);
+        expect(this.spy2).toHaveBeenCalledWith(successData);
+      });
     });
 
     describe('when at concurrent request threshold', function() {
@@ -87,7 +114,7 @@ describe('Transport', function() {
         this.goodRequests = [];
 
         for (var i = 0; i < 3; i++) {
-          this.transport.get('good');
+          this.transport.get('good' + i);
           this.goodRequests.push(mostRecentAjaxRequest());
         }
 
@@ -99,7 +126,8 @@ describe('Transport', function() {
       });
 
       it('should set args for the on-deck request', function() {
-        expect(this.transport.onDeckRequestArgs).toEqual(['bad', $.noop]);
+        expect(this.transport.onDeckRequestArgs)
+        .toEqual(['http://example.com?q=bad', $.noop]);
       });
     });
 
@@ -153,7 +181,7 @@ describe('Transport', function() {
         var requests = [];
 
         for (var i = 0; i < 3; i++) {
-          this.transport.get('good');
+          this.transport.get('good' + i);
           requests.push(mostRecentAjaxRequest());
         }
 

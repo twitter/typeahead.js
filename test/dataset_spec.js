@@ -36,7 +36,7 @@ describe('Dataset', function() {
             return expectedAdjacencyList;
           }
 
-          else if (/version/.test(key)) {
+          else if (/thumbprint/.test(key)) {
             return VERSION;
           }
 
@@ -113,17 +113,21 @@ describe('Dataset', function() {
       });
 
       it('should compile default template', function() {
-        expect(this.dataset.template.render({ value: 'boo' }))
+        expect(this.dataset.template({ value: 'boo' }))
         .toBe('<div class="tt-suggestion"><p>boo</p></div>');
       });
     });
 
     describe('when called with a template and engine', function() {
       beforeEach(function() {
+        this.spy = jasmine.createSpy().andReturn({
+          render: function() { return 'boo!'; }
+        });
+
         this.dataset = new Dataset({
           local: fixtureStrings,
           template: 't',
-          engine: { compile: this.spy = jasmine.createSpy().andReturn('boo') }
+          engine: { compile: this.spy }
         });
       });
 
@@ -131,7 +135,17 @@ describe('Dataset', function() {
         expect(this.spy)
         .toHaveBeenCalledWith('<div class="tt-suggestion">t</div>');
 
-        expect(this.dataset.template).toBe('boo');
+        expect(this.dataset.template()).toBe('boo!');
+      });
+    });
+
+    describe('when called with a compiled template', function() {
+      beforeEach(function() {
+        this.dataset = new Dataset({ local: fixtureStrings, template: $.noop });
+      });
+
+      it('should use it', function() {
+        expect(this.dataset.template).toBe($.noop);
       });
     });
   });
@@ -232,7 +246,7 @@ describe('Dataset', function() {
             expect(this.dataset.storage.set)
             .toHaveBeenCalledWith('protocol', utils.getProtocol(), ttl);
             expect(this.dataset.storage.set)
-            .toHaveBeenCalledWith('version', VERSION, ttl);
+            .toHaveBeenCalledWith('thumbprint', VERSION, ttl);
           });
         });
 
@@ -270,7 +284,7 @@ describe('Dataset', function() {
             expect(this.dataset.storage.set)
             .toHaveBeenCalledWith('protocol', utils.getProtocol(), ttl);
             expect(this.dataset.storage.set)
-            .toHaveBeenCalledWith('version', VERSION, ttl);
+            .toHaveBeenCalledWith('thumbprint', VERSION, ttl);
           });
         });
       });
@@ -284,6 +298,22 @@ describe('Dataset', function() {
 
       it('should initialize the transport', function() {
         expect(Transport).toHaveBeenCalledWith('/remote');
+      });
+    });
+  });
+
+  describe('#getSuggestions', function() {
+    describe('when length of query is less than minLength', function() {
+      beforeEach(function() {
+        this.spy = jasmine.createSpy();
+
+        this.dataset = new Dataset({ local: fixtureStrings, minLength: 3 });
+        this.dataset.initialize();
+      });
+
+      it('should be a noop', function() {
+        this.dataset.getSuggestions('co', this.spy);
+        expect(this.spy).not.toHaveBeenCalled();
       });
     });
   });
@@ -344,26 +374,30 @@ describe('Dataset', function() {
       var spy = jasmine.createSpy(),
           remote = [fixtureDatums[0], fixtureStrings[2]];
 
-      this.dataset.transport.get.andCallFake(function(q, cb) { cb(remote); });
+      this.dataset.transport.get.andCallFake(function(q, cb) {
+        utils.defer(function() { cb(remote); });
+      });
 
       this.dataset.getSuggestions('c', spy);
 
-      expect(spy.callCount).toBe(2);
+      waitsFor(function() { return spy.callCount === 2; });
 
-      // local suggestions
-      expect(spy.argsForCall[0][0]).toEqual([
-        expectedItemHash.coconut,
-        expectedItemHash.cake,
-        expectedItemHash.coffee
-      ]);
+      runs(function() {
+        // local suggestions
+        expect(spy.argsForCall[0][0]).toEqual([
+          expectedItemHash.coconut,
+          expectedItemHash.cake,
+          expectedItemHash.coffee
+        ]);
 
-      // local + remote suggestions
-      expect(spy.argsForCall[1][0]).toEqual([
-        expectedItemHash.coconut,
-        expectedItemHash.cake,
-        expectedItemHash.coffee,
-        expectedItemHash.grape
-      ]);
+        // local + remote suggestions
+        expect(spy.argsForCall[1][0]).toEqual([
+          expectedItemHash.coconut,
+          expectedItemHash.cake,
+          expectedItemHash.coffee,
+          expectedItemHash.grape
+        ]);
+      });
     });
   });
 
