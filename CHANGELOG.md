@@ -15,6 +15,16 @@ For more information on semantic versioning, please visit http://semver.org/.
 
 ---
 
+### 0.9.1 Aprl 1, 2013
+
+* Multiple requests no longer get sent for a query when datasets share a remote source. [#152][152]
+* Datasets now support precompiled templates. [#137][137]
+* Cached remote suggestions now get rendered immediately. [#156][156]
+* Added typeahead:autocompleted event. [#132][132]
+* Added a plugin method for programmatically setting the query. Experimental. [#159][159]
+* Added minLength option for datasets. Experimental. [#131][131]
+* Prefetch objects now support thumbprint option. Experimental. [#157][157]
+
 ### 0.9.0 March 24, 2013
 
 **Custom events, no more typeahead.css, and an improved API**
@@ -60,6 +70,14 @@ For more information on semantic versioning, please visit http://semver.org/.
 * Share datasets (and caching) between multiple inputs.
 * And much, much more...
 
+
+[159]: https://github.com/twitter/typeahead.js/pull/159
+[157]: https://github.com/twitter/typeahead.js/pull/157
+[156]: https://github.com/twitter/typeahead.js/pull/156
+[152]: https://github.com/twitter/typeahead.js/pull/152
+[137]: https://github.com/twitter/typeahead.js/pull/137
+[132]: https://github.com/twitter/typeahead.js/pull/132
+[131]: https://github.com/twitter/typeahead.js/pull/131
 [116]: https://github.com/twitter/typeahead.js/pull/116
 [115]: https://github.com/twitter/typeahead.js/pull/115
 [109]: https://github.com/twitter/typeahead.js/pull/109

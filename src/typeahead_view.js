@@ -253,6 +253,8 @@ var TypeaheadView = (function() {
       if (hint !== '' && query !== hint) {
         suggestion = this.dropdownView.getFirstSuggestion();
         this.inputView.setInputValue(suggestion.value);
+
+        this.eventBus.trigger('autocompleted', suggestion.datum);
       }
     },
 
@@ -270,6 +272,15 @@ var TypeaheadView = (function() {
       destroyDomStructure(this.$node);
 
       this.$node = null;
+    },
+
+    setQuery: function(query) {
+      this.inputView.setQuery(query);
+      this.inputView.setInputValue(query);
+
+      this._clearHint();
+      this._clearSuggestions();
+      this._getSuggestions();
     }
   });
 

@@ -52,6 +52,7 @@
     <script>
       $('.states').typeahead({
         valueKey: 'state',
+        minLength: 3,
         local: [
           "Alabama",
           "Alaska",
@@ -158,6 +159,7 @@
       $('input').on([
         'typeahead:initialized',
         'typeahead:selected',
+        'typeahead:autocompleted',
         'typeahead:opened',
         'typeahead:closed'
       ].join(' '), logToTextarea);
