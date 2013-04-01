@@ -95,9 +95,9 @@ When defining a dataset, the following options are available:
 
 * `limit` – The max number of suggestions from the dataset to display for a given query. Defaults to `5`.
 
-* `template` – The template used to render suggestions. If not provided, suggestions will render as their value contained in a `<p>` element (i.e. `<p>value</p>`).
+* `template` – The template used to render suggestions. Can be a string or a precompiled template. If not provided, suggestions will render as their value contained in a `<p>` element (i.e. `<p>value</p>`).
 
-* `engine` – The template engine used to compile/render `template`. Any engine can use used as long as it adheres to the [expected API][template-engine-compatibility]. **Required** if `template` is set.
+* `engine` – The template engine used to compile/render `template` if it is a string. Any engine can use used as long as it adheres to the [expected API][template-engine-compatibility]. **Required** if `template` is a string.
 
 * `header` – The header rendered before suggestions in the dropdown menu. Can be either a DOM element or HTML.
 
@@ -190,6 +190,8 @@ typeahead.js triggers the following custom events:
 * `typeahead:closed` – Triggered when the dropdown menu of a typeahead is closed.
 
 * `typeahead:selected` – Triggered when a suggestion from the dropdown menu is explicitly selected. The datum for the selected suggestion is passed to the event handler as an argument.
+
+* `typeahead:autocompleted` – Triggered when the query is autocompleted. The datum used for autocompletion is passed to the event handler as an argument.
 
 All custom events are triggered on the element initialized as a typeahead.
 
