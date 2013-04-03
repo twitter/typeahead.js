@@ -571,7 +571,7 @@ describe('DropdownView', function() {
     var mockDataset = {
           name: 'test' ,
           template: function(c) {
-            return '<li class="tt-suggestion"><p>' + c.value + '</p></li>';
+            return '<li><p>' + c.value + '</p></li>';
           }
         },
          mockSuggestions = [
