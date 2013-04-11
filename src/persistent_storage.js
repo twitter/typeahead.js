@@ -5,7 +5,13 @@
  */
 
 var PersistentStorage = (function() {
-  var ls = window.localStorage, methods;
+  var ls, methods;
+
+  try {
+    ls = window.localStorage;
+  } catch (err) {
+    ls = null;
+  }
 
   function PersistentStorage(namespace) {
     this.prefix = ['__', namespace, '__'].join('');
@@ -13,7 +19,7 @@ var PersistentStorage = (function() {
     this.keyMatcher = new RegExp('^' + this.prefix);
   }
 
-  if (window.localStorage && window.JSON) {
+  if (ls && window.JSON) {
     methods = {
 
       // private methods
