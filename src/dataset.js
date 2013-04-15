@@ -296,8 +296,7 @@ var Dataset = (function() {
   return Dataset;
 
   function compileTemplate(template, engine, valueKey) {
-    var renderFn,
-        compiledTemplate;
+    var renderFn, compiledTemplate;
 
     // precompiled template
     if (utils.isFunction(template)) {

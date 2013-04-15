@@ -207,7 +207,7 @@ var DropdownView = (function() {
 
         utils.each(suggestions, function(i, suggestion) {
           compiledHtml = dataset.template(suggestion.datum);
-          elBuilder.innerHTML = wrapper.replace("%body", compiledHtml);
+          elBuilder.innerHTML = wrapper.replace('%body', compiledHtml);
 
           $el = $(elBuilder.firstChild)
           .css(css.suggestion)
