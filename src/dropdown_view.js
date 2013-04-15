@@ -177,6 +177,8 @@ var DropdownView = (function() {
 
     renderSuggestions: function(dataset, suggestions) {
       var datasetClassName = 'tt-dataset-' + dataset.name,
+          wrapper = '<div class="tt-suggestion">%body</div>',
+          compiledHtml,
           $suggestionsList,
           $dataset = this.$menu.find('.' + datasetClassName),
           elBuilder,
@@ -204,7 +206,8 @@ var DropdownView = (function() {
         fragment = document.createDocumentFragment();
 
         utils.each(suggestions, function(i, suggestion) {
-          elBuilder.innerHTML = dataset.template(suggestion.datum);
+          compiledHtml = dataset.template(suggestion.datum);
+          elBuilder.innerHTML = wrapper.replace('%body', compiledHtml);
 
           $el = $(elBuilder.firstChild)
           .css(css.suggestion)

@@ -296,10 +296,7 @@ var Dataset = (function() {
   return Dataset;
 
   function compileTemplate(template, engine, valueKey) {
-    var wrapper = '<div class="tt-suggestion">%body</div>',
-        renderFn,
-        wrappedTemplate,
-        compiledTemplate;
+    var renderFn, compiledTemplate;
 
     // precompiled template
     if (utils.isFunction(template)) {
@@ -308,8 +305,7 @@ var Dataset = (function() {
 
     // string template that needs to be compiled
     else if (utils.isString(template)) {
-      wrappedTemplate = wrapper.replace('%body', template);
-      compiledTemplate = engine.compile(wrappedTemplate);
+      compiledTemplate = engine.compile(template);
       renderFn = utils.bind(compiledTemplate.render, compiledTemplate);
     }
 
@@ -317,7 +313,7 @@ var Dataset = (function() {
     // as its value wrapped in a p tag
     else {
       renderFn = function(context) {
-        return wrapper.replace('%body', '<p>' + context[valueKey] + '</p>');
+        return '<p>' + context[valueKey] + '</p>';
       };
     }
 
