@@ -15,6 +15,11 @@ For more information on semantic versioning, please visit http://semver.org/.
 
 ---
 
+### 0.9.2 Aprl 14, 2013
+
+* Prefetch usage no longer breaks when cookies are disabled. [#190][190]
+* Precompiled templates are now wrapped in the appropriate DOM element. [#172][172]
+
 ### 0.9.1 Aprl 1, 2013
 
 * Multiple requests no longer get sent for a query when datasets share a remote source. [#152][152]
@@ -71,6 +76,8 @@ For more information on semantic versioning, please visit http://semver.org/.
 * And much, much more...
 
 
+[190]: https://github.com/twitter/typeahead.js/pull/190
+[172]: https://github.com/twitter/typeahead.js/pull/172
 [159]: https://github.com/twitter/typeahead.js/pull/159
 [157]: https://github.com/twitter/typeahead.js/pull/157
 [156]: https://github.com/twitter/typeahead.js/pull/156
