@@ -1,11 +1,11 @@
 /*!
- * typeahead.js 0.9.1
+ * typeahead.js 0.9.2
  * https://github.com/twitter/typeahead
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
 (function($) {
-    var VERSION = "0.9.1";
+    var VERSION = "0.9.2";
     var utils = {
         isMsie: function() {
             var match = /(msie) ([\w.]+)/i.exec(navigator.userAgent);
@@ -187,13 +187,18 @@
         return EventBus;
     }();
     var PersistentStorage = function() {
-        var ls = window.localStorage, methods;
+        var ls, methods;
+        try {
+            ls = window.localStorage;
+        } catch (err) {
+            ls = null;
+        }
         function PersistentStorage(namespace) {
             this.prefix = [ "__", namespace, "__" ].join("");
             this.ttlKey = "__ttl__";
             this.keyMatcher = new RegExp("^" + this.prefix);
         }
-        if (window.localStorage && window.JSON) {
+        if (ls && window.JSON) {
             methods = {
                 _prefix: function(key) {
                     return this.prefix + key;
@@ -539,16 +544,15 @@
         });
         return Dataset;
         function compileTemplate(template, engine, valueKey) {
-            var wrapper = '<div class="tt-suggestion">%body</div>', renderFn, wrappedTemplate, compiledTemplate;
+            var renderFn, compiledTemplate;
             if (utils.isFunction(template)) {
                 renderFn = template;
             } else if (utils.isString(template)) {
-                wrappedTemplate = wrapper.replace("%body", template);
-                compiledTemplate = engine.compile(wrappedTemplate);
+                compiledTemplate = engine.compile(template);
                 renderFn = utils.bind(compiledTemplate.render, compiledTemplate);
             } else {
                 renderFn = function(context) {
-                    return wrapper.replace("%body", "<p>" + context[valueKey] + "</p>");
+                    return "<p>" + context[valueKey] + "</p>";
                 };
             }
             return renderFn;
@@ -797,7 +801,7 @@
                 return $suggestion.length > 0 ? extractSuggestion($suggestion) : null;
             },
             renderSuggestions: function(dataset, suggestions) {
-                var datasetClassName = "tt-dataset-" + dataset.name, $suggestionsList, $dataset = this.$menu.find("." + datasetClassName), elBuilder, fragment, $el;
+                var datasetClassName = "tt-dataset-" + dataset.name, wrapper = '<div class="tt-suggestion">%body</div>', compiledHtml, $suggestionsList, $dataset = this.$menu.find("." + datasetClassName), elBuilder, fragment, $el;
                 if ($dataset.length === 0) {
                     $suggestionsList = $(html.suggestionsList).css(css.suggestionsList);
                     $dataset = $("<div></div>").addClass(datasetClassName).append(dataset.header).append($suggestionsList).append(dataset.footer).appendTo(this.$menu);
@@ -808,7 +812,8 @@
                     elBuilder = document.createElement("div");
                     fragment = document.createDocumentFragment();
                     utils.each(suggestions, function(i, suggestion) {
-                        elBuilder.innerHTML = dataset.template(suggestion.datum);
+                        compiledHtml = dataset.template(suggestion.datum);
+                        elBuilder.innerHTML = wrapper.replace("%body", compiledHtml);
                         $el = $(elBuilder.firstChild).css(css.suggestion).data("suggestion", suggestion);
                         $el.children().each(function() {
                             $(this).css(css.suggestionChild);
