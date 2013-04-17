@@ -175,7 +175,7 @@ var DropdownView = (function() {
       return $suggestion.length > 0 ? extractSuggestion($suggestion) : null;
     },
 
-    renderSuggestions: function(dataset, suggestions) {
+    renderSuggestions: function(dataset, suggestions, query) {
       var datasetClassName = 'tt-dataset-' + dataset.name,
           wrapper = '<div class="tt-suggestion">%body</div>',
           compiledHtml,
@@ -197,8 +197,15 @@ var DropdownView = (function() {
         .appendTo(this.$menu);
       }
 
+      // noresultHtml specified and there are no results (but has an input query val)
+      if (suggestions.length == 0 && query && dataset.noresultsHtml != null)
+      {
+          this.isEmpty = true;
+          this.isOpen && this._show();
+          $dataset.show().find(".tt-suggestions").html(dataset.noresultsHtml);
+      }
       // suggestions to be rendered
-      if (suggestions.length > 0) {
+      else if (suggestions.length > 0) {
         this.isEmpty = false;
         this.isOpen && this._show();
 
