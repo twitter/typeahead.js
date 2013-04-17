@@ -28,6 +28,7 @@ var Dataset = (function() {
     this.minLength = o.minLength || 1;
     this.header = o.header;
     this.footer = o.footer;
+    this.noresultsHtml = o.noresultsHtml;    
     this.valueKey = o.valueKey || 'value';
     this.template = compileTemplate(o.template, o.engine, this.valueKey);
 
