@@ -719,7 +719,7 @@
             },
             _handleSelection: function($e) {
                 var $suggestion = $($e.currentTarget);
-                this.trigger("suggestionSelected", extractSuggestion($suggestion));
+                this.trigger("suggestionSelected", this.extractSuggestion($suggestion));
             },
             _show: function() {
                 this.$menu.css("display", "block");
@@ -728,7 +728,7 @@
                 this.$menu.hide();
             },
             _moveCursor: function(increment) {
-                var $suggestions, $cur, nextIndex, $underCursor;
+                var $suggestions, $cur, nextIndex;
                 if (!this.isVisible()) {
                     return;
                 }
@@ -743,8 +743,12 @@
                 } else if (nextIndex < -1) {
                     nextIndex = $suggestions.length - 1;
                 }
-                $underCursor = $suggestions.eq(nextIndex).addClass("tt-is-under-cursor");
-                this.trigger("cursorMoved", extractSuggestion($underCursor));
+                this._highlight(nextIndex);
+            },
+            _highlight: function(index) {
+                var $underCursor, $suggestions = this._getSuggestions();
+                $underCursor = $suggestions.eq(index).addClass("tt-is-under-cursor");
+                this.trigger("cursorMoved", this.extractSuggestion($underCursor));
             },
             _getSuggestions: function() {
                 return this.$menu.find(".tt-suggestions > .tt-suggestion");
@@ -794,11 +798,14 @@
             },
             getSuggestionUnderCursor: function() {
                 var $suggestion = this._getSuggestions().filter(".tt-is-under-cursor").first();
-                return $suggestion.length > 0 ? extractSuggestion($suggestion) : null;
+                return $suggestion.length > 0 ? this.extractSuggestion($suggestion) : null;
             },
             getFirstSuggestion: function() {
                 var $suggestion = this._getSuggestions().first();
-                return $suggestion.length > 0 ? extractSuggestion($suggestion) : null;
+                return $suggestion.length > 0 ? this.extractSuggestion($suggestion) : null;
+            },
+            extractSuggestion: function($el) {
+                return $el.data("suggestion");
             },
             renderSuggestions: function(dataset, suggestions) {
                 var datasetClassName = "tt-dataset-" + dataset.name, wrapper = '<div class="tt-suggestion">%body</div>', compiledHtml, $suggestionsList, $dataset = this.$menu.find("." + datasetClassName), elBuilder, fragment, $el;
@@ -837,9 +844,6 @@
             }
         });
         return DropdownView;
-        function extractSuggestion($el) {
-            return $el.data("suggestion");
-        }
     }();
     var TypeaheadView = function() {
         var html = {
@@ -897,7 +901,7 @@
             $hint = this.$node.find(".tt-hint");
             this.dropdownView = new DropdownView({
                 menu: $menu
-            }).on("suggestionSelected", this._handleSelection).on("cursorMoved", this._clearHint).on("cursorMoved", this._setInputValueToSuggestionUnderCursor).on("cursorRemoved", this._setInputValueToQuery).on("cursorRemoved", this._updateHint).on("suggestionsRendered", this._updateHint).on("opened", this._updateHint).on("closed", this._clearHint).on("opened closed", this._propagateEvent);
+            }).on("suggestionSelected", this._handleSelection).on("cursorMoved", this._clearHint).on("cursorRemoved", this._updateHint).on("suggestionsRendered", this._updateHint).on("opened", this._updateHint).on("closed", this._clearHint).on("opened closed", this._propagateEvent);
             this.inputView = new InputView({
                 input: $input,
                 hint: $hint
@@ -929,14 +933,9 @@
                 }
             },
             _updateHint: function() {
-                var suggestion = this.dropdownView.getFirstSuggestion(), hint = suggestion ? suggestion.value : null, dropdownIsVisible = this.dropdownView.isVisible(), inputHasOverflow = this.inputView.isOverflow(), inputValue, query, escapedQuery, beginsWithQuery, match;
-                if (hint && dropdownIsVisible && !inputHasOverflow) {
-                    inputValue = this.inputView.getInputValue();
-                    query = inputValue.replace(/\s{2,}/g, " ").replace(/^\s+/g, "");
-                    escapedQuery = utils.escapeRegExChars(query);
-                    beginsWithQuery = new RegExp("^(?:" + escapedQuery + ")(.*$)", "i");
-                    match = beginsWithQuery.exec(hint);
-                    this.inputView.setHintValue(inputValue + (match ? match[1] : ""));
+                var $suggestion = this.dropdownView._getSuggestions().first(), suggestion = $suggestion.length > 0 ? this.dropdownView.extractSuggestion($suggestion) : null, hint = suggestion ? suggestion.value : null, dropdownIsVisible = this.dropdownView.isVisible(), inputHasOverflow = this.inputView.isOverflow(), inputValue, query, escapedQuery, beginsWithQuery, match;
+                if (dropdownIsVisible) {
+                    this.dropdownView._highlight(0);
                 }
             },
             _clearHint: function() {
@@ -985,6 +984,7 @@
                         }
                     });
                 });
+                that.dropdownView.moveCursorDown();
             },
             _autocomplete: function(e) {
                 var isCursorAtEnd, ignoreEvent, query, hint, suggestion;

@@ -75,13 +75,14 @@ var TypeaheadView = (function() {
     this.dropdownView = new DropdownView({ menu: $menu })
     .on('suggestionSelected', this._handleSelection)
     .on('cursorMoved', this._clearHint)
-    .on('cursorMoved', this._setInputValueToSuggestionUnderCursor)
-    .on('cursorRemoved', this._setInputValueToQuery)
+    // .on('cursorMoved', this._setInputValueToSuggestionUnderCursor)
+    // .on('cursorRemoved', this._setInputValueToQuery)
     .on('cursorRemoved', this._updateHint)
     .on('suggestionsRendered', this._updateHint)
     .on('opened', this._updateHint)
     .on('closed', this._clearHint)
-    .on('opened closed', this._propagateEvent);
+    .on('opened closed', this._propagateEvent)
+    
 
     this.inputView = new InputView({ input: $input, hint: $hint })
     .on('focused', this._openDropdown)
@@ -139,7 +140,8 @@ var TypeaheadView = (function() {
     },
 
     _updateHint: function() {
-      var suggestion = this.dropdownView.getFirstSuggestion(),
+      var $suggestion = this.dropdownView._getSuggestions().first(),
+          suggestion = $suggestion.length > 0 ? this.dropdownView.extractSuggestion($suggestion) : null,
           hint = suggestion ? suggestion.value : null,
           dropdownIsVisible = this.dropdownView.isVisible(),
           inputHasOverflow = this.inputView.isOverflow(),
@@ -149,18 +151,22 @@ var TypeaheadView = (function() {
           beginsWithQuery,
           match;
 
-      if (hint && dropdownIsVisible && !inputHasOverflow) {
-        inputValue = this.inputView.getInputValue();
-        query = inputValue
-        .replace(/\s{2,}/g, ' ') // condense whitespace
-        .replace(/^\s+/g, ''); // strip leading whitespace
-        escapedQuery = utils.escapeRegExChars(query);
-
-        beginsWithQuery = new RegExp('^(?:' + escapedQuery + ')(.*$)', 'i');
-        match = beginsWithQuery.exec(hint);
-
-        this.inputView.setHintValue(inputValue + (match ? match[1] : ''));
+      if (dropdownIsVisible) {
+        this.dropdownView._highlight(0);  
       }
+
+      // if (hint && dropdownIsVisible && !inputHasOverflow) {
+      //   inputValue = this.inputView.getInputValue();
+      //   query = inputValue
+      //   .replace(/\s{2,}/g, ' ') // condense whitespace
+      //   .replace(/^\s+/g, ''); // strip leading whitespace
+      //   escapedQuery = utils.escapeRegExChars(query);
+      // 
+      //   beginsWithQuery = new RegExp('^(?:' + escapedQuery + ')(.*$)', 'i');
+      //   match = beginsWithQuery.exec(hint);
+      // 
+      //   this.inputView.setHintValue(inputValue + (match ? match[1] : ''));
+      // }
     },
 
     _clearHint: function() {
@@ -234,6 +240,8 @@ var TypeaheadView = (function() {
           }
         });
       });
+      
+      that.dropdownView.moveCursorDown();
     },
 
     _autocomplete: function(e) {

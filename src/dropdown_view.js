@@ -52,7 +52,7 @@ var DropdownView = (function() {
 
     _handleSelection: function($e) {
       var $suggestion = $($e.currentTarget);
-      this.trigger('suggestionSelected', extractSuggestion($suggestion));
+      this.trigger('suggestionSelected', this.extractSuggestion($suggestion));
     },
 
     _show: function() {
@@ -66,7 +66,7 @@ var DropdownView = (function() {
     },
 
     _moveCursor: function(increment) {
-      var $suggestions, $cur, nextIndex, $underCursor;
+      var $suggestions, $cur, nextIndex;
 
       // don't bother moving the cursor if the menu is closed or empty
       if (!this.isVisible()) {
@@ -92,9 +92,16 @@ var DropdownView = (function() {
         // circle to last suggestion
         nextIndex = $suggestions.length - 1;
       }
+      
+      this._highlight(nextIndex);
+    },
+    
 
-      $underCursor = $suggestions.eq(nextIndex).addClass('tt-is-under-cursor');
-      this.trigger('cursorMoved', extractSuggestion($underCursor));
+    _highlight: function(index) {
+      var $underCursor, $suggestions = this._getSuggestions();
+      
+      $underCursor = $suggestions.eq(index).addClass("tt-is-under-cursor");
+      this.trigger("cursorMoved", this.extractSuggestion($underCursor));
     },
 
     _getSuggestions: function() {
@@ -166,13 +173,17 @@ var DropdownView = (function() {
           .filter('.tt-is-under-cursor')
           .first();
 
-      return $suggestion.length > 0 ? extractSuggestion($suggestion) : null;
+      return $suggestion.length > 0 ? this.extractSuggestion($suggestion) : null;
     },
 
     getFirstSuggestion: function() {
       var $suggestion = this._getSuggestions().first();
 
-      return $suggestion.length > 0 ? extractSuggestion($suggestion) : null;
+      return $suggestion.length > 0 ? this.extractSuggestion($suggestion) : null;
+    },
+    
+    extractSuggestion: function($el) {
+      return $el.data('suggestion');
     },
 
     renderSuggestions: function(dataset, suggestions) {
@@ -251,10 +262,4 @@ var DropdownView = (function() {
 
   return DropdownView;
 
-  // helper functions
-  // ----------------
-
-  function extractSuggestion($el) {
-    return $el.data('suggestion');
-  }
 })();
