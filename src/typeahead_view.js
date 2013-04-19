@@ -217,7 +217,7 @@ var TypeaheadView = (function() {
         byClick && utils.isMsie() ?
           utils.defer(this.dropdownView.close) : this.dropdownView.close();
 
-        this.eventBus.trigger('selected', suggestion.datum);
+        this.eventBus.trigger('selected', suggestion.datum, suggestion.dataset);
       }
     },
 

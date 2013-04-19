@@ -78,7 +78,7 @@ describe('DropdownView', function() {
     it('should trigger suggestionSelected', function() {
       expect(this.spy).toHaveBeenCalledWith({
         type: 'suggestionSelected',
-        data: { value: 'one', tokens: ['one'], datum: { value: 'one' } }
+        data: { value: 'one', tokens: ['one'], datum: { value: 'one' }, dataset: 'test' }
       });
     });
   });
@@ -434,7 +434,8 @@ describe('DropdownView', function() {
         expect(suggestion).toEqual({
           value: 'one',
           tokens: ['one'],
-          datum: { value: 'one' }
+          datum: { value: 'one' },
+          dataset: 'test'
         });
       });
     });
@@ -451,7 +452,8 @@ describe('DropdownView', function() {
       expect(suggestion).toEqual({
         value: 'one',
         tokens: ['one'],
-        datum: { value: 'one' }
+        datum: { value: 'one' },
+        dataset: 'test'
       });
     });
   });
