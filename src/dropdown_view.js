@@ -94,11 +94,32 @@ var DropdownView = (function() {
       }
 
       $underCursor = $suggestions.eq(nextIndex).addClass('tt-is-under-cursor');
+
+      // make the cursor visible in view
+      this._ensureCursorVisible($cur, $underCursor);
+
       this.trigger('cursorMoved', extractSuggestion($underCursor));
     },
 
     _getSuggestions: function() {
       return this.$menu.find('.tt-suggestions > .tt-suggestion');
+    },
+
+    _ensureCursorVisible: function($cur, $underCursor) {
+      var $view, viewHeight, cursorTop, cursorHeight, cursorBottom;
+
+      cursorTop = $underCursor.position().top;
+      $view = $underCursor.closest('.tt-suggestions');
+      if (cursorTop < 0) {
+        $view.scrollTop($view.scrollTop() + cursorTop);
+      } else {
+        viewHeight = $view.height();
+        cursorHeight = $underCursor.outerHeight();
+        cursorBottom = cursorTop + cursorHeight;
+        if (viewHeight < cursorBottom) {
+          $view.scrollTop($view.scrollTop() + (cursorBottom - viewHeight));
+        }
+      }
     },
 
     // public methods
