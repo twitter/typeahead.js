@@ -812,6 +812,7 @@
                     elBuilder = document.createElement("div");
                     fragment = document.createDocumentFragment();
                     utils.each(suggestions, function(i, suggestion) {
+                        suggestion.dataset = dataset.name;
                         compiledHtml = dataset.template(suggestion.datum);
                         elBuilder.innerHTML = wrapper.replace("%body", compiledHtml);
                         $el = $(elBuilder.firstChild).css(css.suggestion).data("suggestion", suggestion);
@@ -970,7 +971,7 @@
                     this.inputView.setInputValue(suggestion.value);
                     byClick ? this.inputView.focus() : e.data.preventDefault();
                     byClick && utils.isMsie() ? utils.defer(this.dropdownView.close) : this.dropdownView.close();
-                    this.eventBus.trigger("selected", suggestion.datum);
+                    this.eventBus.trigger("selected", suggestion.datum, suggestion.dataset);
                 }
             },
             _getSuggestions: function() {
