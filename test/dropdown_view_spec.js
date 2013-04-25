@@ -247,6 +247,12 @@ describe('DropdownView', function() {
         renderTestDataset(this.dropdownView, true);
       });
 
+      it('should ensure the cursor is visible', function() {
+        spyOn(this.dropdownView, '_ensureVisibility');
+        this.dropdownView.moveCursorUp();
+        expect(this.dropdownView._ensureVisibility).toHaveBeenCalled();
+      });
+
       describe('if no suggestion is under the cursor', function() {
         beforeEach(function() {
           this.dropdownView.moveCursorUp();
@@ -344,6 +350,12 @@ describe('DropdownView', function() {
     describe('if visible', function() {
       beforeEach(function() {
         renderTestDataset(this.dropdownView, true);
+      });
+
+      it('should ensure the cursor is visible', function() {
+        spyOn(this.dropdownView, '_ensureVisibility');
+        this.dropdownView.moveCursorUp();
+        expect(this.dropdownView._ensureVisibility).toHaveBeenCalled();
       });
 
       describe('if no suggestion is under the cursor', function() {

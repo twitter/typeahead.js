@@ -95,8 +95,9 @@ var DropdownView = (function() {
 
       $underCursor = $suggestions.eq(nextIndex).addClass('tt-is-under-cursor');
 
-      // make the cursor visible in view
-      this._ensureCursorVisible($cur, $underCursor);
+      // in the case of scrollable overflow
+      // make sure the cursor is visible in the menu
+      this._ensureVisibility($underCursor);
 
       this.trigger('cursorMoved', extractSuggestion($underCursor));
     },
@@ -105,20 +106,20 @@ var DropdownView = (function() {
       return this.$menu.find('.tt-suggestions > .tt-suggestion');
     },
 
-    _ensureCursorVisible: function($cur, $underCursor) {
-      var $view, viewHeight, cursorTop, cursorHeight, cursorBottom;
+    _ensureVisibility: function($el) {
+      var menuHeight = this.$menu.height() +
+            parseInt(this.$menu.css('paddingTop'), 10) +
+            parseInt(this.$menu.css('paddingBottom'), 10),
+          menuScrollTop = this.$menu.scrollTop(),
+          elTop = $el.position().top,
+          elBottom = elTop + $el.outerHeight(true);
 
-      cursorTop = $underCursor.position().top;
-      $view = $underCursor.closest('.tt-suggestions');
-      if (cursorTop < 0) {
-        $view.scrollTop($view.scrollTop() + cursorTop);
-      } else {
-        viewHeight = $view.height();
-        cursorHeight = $underCursor.outerHeight();
-        cursorBottom = cursorTop + cursorHeight;
-        if (viewHeight < cursorBottom) {
-          $view.scrollTop($view.scrollTop() + (cursorBottom - viewHeight));
-        }
+      if (elTop < 0) {
+        this.$menu.scrollTop(menuScrollTop + elTop);
+      }
+
+      else if (menuHeight < elBottom) {
+        this.$menu.scrollTop(menuScrollTop + (elBottom - menuHeight));
       }
     },
 
