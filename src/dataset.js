@@ -75,6 +75,7 @@ var Dataset = (function() {
 
       o = utils.isString(o) ? { url: o } : o;
       o.ttl = utils.isNumber(o.ttl) ? o.ttl : 24 * 60 * 60 * 1000;
+      o.dataType = o.dataType || 'json';
 
       // data was available in local storage, use it
       if (storedItemHash && storedAdjacencyList && !isExpired) {
@@ -87,7 +88,7 @@ var Dataset = (function() {
       }
 
       else {
-        deferred = $.getJSON(o.url).done(processPrefetchData);
+        deferred = $.ajax(o).done(processPrefetchData);
       }
 
       return deferred;

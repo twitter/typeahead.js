@@ -410,6 +410,7 @@
                     url: o
                 } : o;
                 o.ttl = utils.isNumber(o.ttl) ? o.ttl : 24 * 60 * 60 * 1e3;
+                o.dataType = o.dataType || "json";
                 if (storedItemHash && storedAdjacencyList && !isExpired) {
                     this._mergeProcessedData({
                         itemHash: storedItemHash,
@@ -417,7 +418,7 @@
                     });
                     deferred = $.Deferred().resolve();
                 } else {
-                    deferred = $.getJSON(o.url).done(processPrefetchData);
+                    deferred = $.ajax(o).done(processPrefetchData);
                 }
                 return deferred;
                 function processPrefetchData(data) {

@@ -146,6 +146,8 @@ When configuring `prefetch`, the following options are available:
 
 * `url` – A URL to a JSON file containing an array of datums. **Required.**
 
+* `dataType` – The type of data you're expecting from the server. See the [jQuery.ajax docs][jquery-ajax] for more info. Defaults to `json`.
+
 * `ttl` – The time (in milliseconds) the prefetched data should be cached in localStorage. Defaults to `86400000` (1 day).
 
 * `filter` – A function with the signature `filter(parsedResponse)` that transforms the response body into an array of datums. Expected to return an array of datums.
