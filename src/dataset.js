@@ -262,7 +262,7 @@ var Dataset = (function() {
       terms = utils.tokenizeQuery(query);
       suggestions = this._getLocalSuggestions(terms).slice(0, this.limit);
 
-      // add any synchronous computed suggestions
+      // add any computed suggestions
       if (suggestions.length < this.limit && this.computed) {
         // if the computed function takes one argument then we expect that
         // argument to be the query, and the function to synchronously return
@@ -283,7 +283,7 @@ var Dataset = (function() {
           // short-circuit right ot the procssAsyncData - there is no cache
           return
         } else {
-          $.error('the computed argument must accept one or two arguments');
+          $.error('the computed function must accept one or two arguments');
         }
       }
 
