@@ -97,7 +97,7 @@ describe('Dataset', function() {
       });
     });
 
-    describe('when called without local, prefetch, or remote', function() {
+    describe('when called without local, prefetch, computed or remote', function() {
       beforeEach(function() {
         this.fn = function() { this.dataset = new Dataset(); };
       });
@@ -316,7 +316,59 @@ describe('Dataset', function() {
         expect(this.spy).not.toHaveBeenCalled();
       });
     });
+
+    describe('with a synchronous computed function', function () {
+      beforeEach(function() {
+        var spy = this.spy = jasmine.createSpy();
+        this.dataset = new Dataset({
+          computed: function (q) {
+            spy();
+            return ['charlie'];
+          }
+        });
+        this.dataset.initialize();
+      });
+
+      it('should return the suggestions of the fixture', function() {
+        this.dataset.getSuggestions('xyz', function (items) {
+          expect(items).toEqual([createItem('charlie')]);
+        });
+        expect(this.spy).toHaveBeenCalled();
+      });
+    });
+
+    describe('with an asynchronous computed function', function () {
+      it('should call the suggestions callback with the fixture', function() {
+        var spy = jasmine.createSpy(), fixture = ['charlie'], term = 'xyz';
+
+        this.dataset = new Dataset({
+          computed: function (q, cb) {
+            setTimeout(function () {
+              spy(q, cb);
+              cb(fixture);
+            }, 0);
+          }
+        });
+
+        this.dataset.initialize();
+
+        this.dataset.getSuggestions(term, function (items) {
+          expect(items.length).toEqual(fixture.length); // 1
+          expect(items[0]).toEqual(createItem(fixture[0]));
+        });
+
+        waitsFor(function() {
+          return spy.callCount == 1
+        }, "the async function should have been called", 10);
+
+        runs(function () {
+          expect(spy.argsForCall[0][0]).toEqual(term)
+        });
+      });
+    });
+
   });
+
 
   describe('Matching, combining, returning results', function() {
     beforeEach(function() {

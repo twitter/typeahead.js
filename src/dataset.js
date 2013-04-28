@@ -19,8 +19,8 @@ var Dataset = (function() {
       $.error('no template engine specified');
     }
 
-    if (!o.local && !o.prefetch && !o.remote) {
-      $.error('one of local, prefetch, or remote is required');
+    if (!o.local && !o.prefetch && !o.remote && !o.computed) {
+      $.error('one of local, prefetch, computed or remote is required');
     }
 
     this.name = o.name || utils.getUniqueId();
@@ -35,6 +35,9 @@ var Dataset = (function() {
     this.local = o.local;
     this.prefetch = o.prefetch;
     this.remote = o.remote;
+
+    // this is preserved
+    this.computed = o.computed;
 
     this.itemHash = {};
     this.adjacencyList = {};
@@ -259,8 +262,33 @@ var Dataset = (function() {
       terms = utils.tokenizeQuery(query);
       suggestions = this._getLocalSuggestions(terms).slice(0, this.limit);
 
+      // add any synchronous computed suggestions
+      if (suggestions.length < this.limit && this.computed) {
+        // if the computed function takes one argument then we expect that
+        // argument to be the query, and the function to synchronously return
+        // suggestions
+        if (this.computed.length == 1) {
+          utils.each(this.computed(query), function(i, datum) {
+            suggestions.push(that._transformDatum(datum));
+            return suggestions.length < that.limit;
+          });
+        } else if (this.computed.length == 2) {
+          // we have an asynchronous computed function that accepts a callback
+          // argument; this can be used to avoid caching, or for queries that
+          // cannot be used with the remote or local data options
+          this.computed(query, processAsyncData);
+        
+          // if we have an async computed, then we do not want to also check 
+          // the cache logic below for calculating computed values; we 
+          // short-circuit right ot the procssAsyncData - there is no cache
+          return
+        } else {
+          $.error('the computed argument must accept one or two arguments');
+        }
+      }
+
       if (suggestions.length < this.limit && this.transport) {
-        cacheHit = this.transport.get(query, processRemoteData);
+        cacheHit = this.transport.get(query, processAsyncData);
       }
 
       // if a cache hit occurred, skip rendering local suggestions
@@ -269,7 +297,7 @@ var Dataset = (function() {
       !cacheHit && cb && cb(suggestions);
 
       // callback for transport.get
-      function processRemoteData(data) {
+      function processAsyncData(data) {
         suggestions = suggestions.slice(0);
 
         // convert remote suggestions to object
