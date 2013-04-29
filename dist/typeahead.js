@@ -376,8 +376,8 @@
             if (utils.isString(o.template) && !o.engine) {
                 $.error("no template engine specified");
             }
-            if (!o.local && !o.prefetch && !o.remote) {
-                $.error("one of local, prefetch, or remote is required");
+            if (!o.local && !o.prefetch && !o.remote && !o.computed) {
+                $.error("one of local, prefetch, computed or remote is required");
             }
             this.name = o.name || utils.getUniqueId();
             this.limit = o.limit || 5;
@@ -389,6 +389,7 @@
             this.local = o.local;
             this.prefetch = o.prefetch;
             this.remote = o.remote;
+            this.computed = o.computed;
             this.itemHash = {};
             this.adjacencyList = {};
             this.storage = o.name ? new PersistentStorage(o.name) : null;
@@ -524,11 +525,24 @@
                 }
                 terms = utils.tokenizeQuery(query);
                 suggestions = this._getLocalSuggestions(terms).slice(0, this.limit);
+                if (suggestions.length < this.limit && this.computed) {
+                    if (this.computed.length == 1) {
+                        utils.each(this.computed(query), function(i, datum) {
+                            suggestions.push(that._transformDatum(datum));
+                            return suggestions.length < that.limit;
+                        });
+                    } else if (this.computed.length == 2) {
+                        this.computed(query, processAsyncData);
+                        return;
+                    } else {
+                        $.error("the computed function must accept one or two arguments");
+                    }
+                }
                 if (suggestions.length < this.limit && this.transport) {
-                    cacheHit = this.transport.get(query, processRemoteData);
+                    cacheHit = this.transport.get(query, processAsyncData);
                 }
                 !cacheHit && cb && cb(suggestions);
-                function processRemoteData(data) {
+                function processAsyncData(data) {
                     suggestions = suggestions.slice(0);
                     utils.each(data, function(i, datum) {
                         var item = that._transformDatum(datum), isDuplicate;
