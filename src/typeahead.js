@@ -40,7 +40,7 @@
 
         $input.data(viewKey, new TypeaheadView({
           input: $input,
-          eventBus: eventBus = new EventBus({ el: $input }),
+          eventBus: eventBus,
           datasets: datasets
         }));
 
