@@ -85,7 +85,7 @@ $('input.typeahead-devs').typeahead('destroy');
 
 ### Dataset
 
-A dataset is an object that defines a set of data that hydrates suggestions. Typeaheads can be backed by multiple datasets. Given a query, a typeahead instance will inspect its backing datasets and display relevant suggestions to the end-user. 
+A dataset is an object that defines a set of data that hydrates suggestions. Typeaheads can be backed by multiple datasets. Given a query, a typeahead instance will inspect its backing datasets and display relevant suggestions to the end-user.
 
 When defining a dataset, the following options are available:
 
@@ -189,9 +189,9 @@ typeahead.js triggers the following custom events:
 
 * `typeahead:closed` – Triggered when the dropdown menu of a typeahead is closed.
 
-* `typeahead:selected` – Triggered when a suggestion from the dropdown menu is explicitly selected. The datum for the selected suggestion is passed to the event handler as an argument.
+* `typeahead:selected` – Triggered when a suggestion from the dropdown menu is explicitly selected. The datum for the selected suggestion and the dataset it belongs to are passed to the event handler as an argument.
 
-* `typeahead:autocompleted` – Triggered when the query is autocompleted. The datum used for autocompletion is passed to the event handler as an argument.
+* `typeahead:autocompleted` – Triggered when the query is autocompleted. The datum used for autocompletion and the dataset it belongs to are passed to the event handler as an argument.
 
 All custom events are triggered on the element initialized as a typeahead.
 
