@@ -386,6 +386,7 @@
             this.footer = o.footer;
             this.valueKey = o.valueKey || "value";
             this.template = compileTemplate(o.template, o.engine, this.valueKey);
+            this.transformSuggestions = o.transformSuggestions;
             this.local = o.local;
             this.prefetch = o.prefetch;
             this.remote = o.remote;
@@ -504,6 +505,7 @@
                     });
                     isMatch && suggestions.push(item);
                 });
+                suggestions = this.transformSuggestions ? this.transformSuggestions(terms, suggestions) : suggestions;
                 return suggestions;
             },
             initialize: function() {
