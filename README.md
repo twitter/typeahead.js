@@ -83,6 +83,10 @@ $('input.typeahead-devs').typeahead({
 $('input.typeahead-devs').typeahead('destroy');
 ```
 
+#### jQuery#typeahead('setQuery', query)
+
+Sets the current query of the typeahead. This is always preferable to using `$("input.typeahead").val(query)`, which will result in unexpected behavior. To clear the query, simply set it to an empty string.
+
 ### Dataset
 
 A dataset is an object that defines a set of data that hydrates suggestions. Typeaheads can be backed by multiple datasets. Given a query, a typeahead instance will inspect its backing datasets and display relevant suggestions to the end-user. 
