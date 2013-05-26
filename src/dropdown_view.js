@@ -149,6 +149,7 @@ var DropdownView = (function() {
     close: function() {
       if (this.isOpen) {
         this.isOpen = false;
+        this.isMouseOverDropdown = false;
         this._hide();
 
         this.$menu
