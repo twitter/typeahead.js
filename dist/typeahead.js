@@ -767,6 +767,7 @@
                     this._hide();
                     this.$menu.find(".tt-suggestions > .tt-suggestion").removeClass("tt-is-under-cursor");
                     this.trigger("closed");
+                    this.isMouseOverDropdown = false;
                 }
             },
             open: function() {
