@@ -17,7 +17,7 @@ Other methods:
 * [Download zipball of latest release][zipball].
 * Download latest *[typeahead.js][typeahead.js]* or *[typeahead.min.js][typeahead.min.js]*.
 
-**Note:** typeahead.js has a dependency on [jQuery][jquery] 1.9+, it must be loaded before *typeahead.js*.
+**Note:** typeahead.js has a dependency on [jQuery][jquery] 1.9+, which must be loaded before *typeahead.js*.
 
 Examples
 --------
