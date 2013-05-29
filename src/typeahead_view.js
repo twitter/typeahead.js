@@ -87,7 +87,7 @@ var TypeaheadView = (function() {
     .on('focused', this._openDropdown)
     .on('blured', this._closeDropdown)
     .on('blured', this._setInputValueToQuery)
-    .on('enterKeyed', this._handleSelection)
+    .on('enterKeyed tabKeyed', this._handleSelection)
     .on('queryChanged', this._clearHint)
     .on('queryChanged', this._clearSuggestions)
     .on('queryChanged', this._getSuggestions)
