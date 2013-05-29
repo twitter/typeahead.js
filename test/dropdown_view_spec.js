@@ -143,6 +143,9 @@ describe('DropdownView', function() {
         .find('.tt-suggestions > .tt-suggestion')
         .addClass('.tt-is-under-cursor');
 
+        // HACK: let's just assume this has been set to true
+        this.dropdownView.isMouseOverDropdown = true;
+
         this.dropdownView.close();
       });
 
@@ -154,6 +157,10 @@ describe('DropdownView', function() {
         var $suggestions = this.$menu.find('.tt-suggestion');
 
         expect($suggestions).not.toHaveClass('tt-is-under-cursor');
+      });
+
+      it('should set isMouseOverDropdown to false', function() {
+        expect(this.dropdownView.isMouseOverDropdown).toBe(false);
       });
 
       it('should trigger closed', function() {
