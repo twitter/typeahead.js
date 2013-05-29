@@ -9,6 +9,11 @@ var PersistentStorage = (function() {
 
   try {
     ls = window.localStorage;
+
+    // while in private browsing mode, some browsers make
+    // localStorage available, but throw an error when used
+    ls.setItem('~~~', '!');
+    ls.removeItem('~~~');
   } catch (err) {
     ls = null;
   }
