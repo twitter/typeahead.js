@@ -134,6 +134,7 @@ var DropdownView = (function() {
         .removeClass('tt-is-under-cursor');
 
         this.trigger('closed');
+        this.isMouseOverDropdown = false;
       }
     },
 
