@@ -29,13 +29,26 @@ module.exports = function(grunt) {
       ' */\n\n'
     ].join('\n'),
 
-    concat: {
+    uglify: {
+      options: {
+        banner: '<%= banner %>',
+        enclose: { 'window.jQuery': '$' }
+      },
       js: {
-        src: ['src/intro.js', jsFiles, 'src/outro.js'],
+        options: {
+          mangle: false,
+          beautify: true,
+          compress: false
+        },
+        src: jsFiles,
         dest: '<%= buildDir %>/typeahead.js'
       },
       jsmin: {
-        src: ['src/intro.js', jsFiles, 'src/outro.js'],
+        options: {
+          mangle: true,
+          compress: true
+        },
+        src: jsFiles,
         dest: '<%= buildDir %>/typeahead.min.js'
       }
     },
@@ -44,30 +57,7 @@ module.exports = function(grunt) {
       version: {
         pattern: '%VERSION%',
         replacement: '<%= version %>',
-        path: ['<%= concat.js.dest %>', '<%= concat.jsmin.dest %>']
-      }
-    },
-
-    uglify: {
-      options: {
-        banner: '<%= banner %>'
-      },
-      js: {
-        options: {
-          mangle: false,
-          beautify: true,
-          compress: false
-        },
-        src: '<%= concat.js.dest %>',
-        dest: '<%= concat.js.dest %>'
-      },
-      jsmin: {
-        options: {
-          mangle: true,
-          compress: true
-        },
-        src: '<%= concat.jsmin.dest %>',
-        dest: '<%= concat.jsmin.dest %>'
+        path: ['<%= uglify.js.dest %>', '<%= uglify.jsmin.dest %>']
       }
     },
 
@@ -221,7 +211,7 @@ module.exports = function(grunt) {
   // -------
 
   grunt.registerTask('default', 'build');
-  grunt.registerTask('build', ['concat:js', 'concat:jsmin', 'sed:version', 'uglify']);
+  grunt.registerTask('build', ['uglify', 'sed:version']);
   grunt.registerTask('server', 'connect:server');
   grunt.registerTask('lint', 'jshint');
   grunt.registerTask('test', 'jasmine:js');
