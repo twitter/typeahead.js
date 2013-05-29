@@ -351,7 +351,7 @@ Licensed under the MIT License
 <!-- links to third party projects -->
 [jasmine]: http://pivotal.github.com/jasmine/
 [grunt-cli]: https://github.com/gruntjs/grunt-cli
-[bower]: http://twitter.github.com/bower/
+[bower]: http://bower.io/
 [jQuery]: http://jquery.com/
 [jquery-ajax]: http://api.jquery.com/jQuery.ajax/
 [hogan.js]: http://twitter.github.com/hogan.js/
