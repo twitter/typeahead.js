@@ -113,6 +113,8 @@ When defining a dataset, the following options are available:
 
 * `remote` – Can be a URL to fetch suggestions from when the data provided by `local` and `prefetch` is insufficient or, if more configurability is needed, a [remote options object][remote].
 
+* `transformSuggestions` - A function with the signature `function(terms, suggestions)` that can transform the array of suggestions after they're matched but before they're rendered. Primarily useful for locally sorting suggestions.
+
 ### Datum
 
 The individual units that compose datasets are called datums. The canonical form of a datum is an object with a `value` property and a `tokens` property. `value` is the string that represents the underlying value of the datum and `tokens` is a collection of strings that aid typeahead.js in matching datums with a given query.

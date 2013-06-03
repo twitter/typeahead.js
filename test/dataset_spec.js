@@ -370,6 +370,21 @@ describe('Dataset', function() {
       });
     });
 
+    it('allows matched suggestions to be transformed', function() {
+      this.dataset.transformSuggestions = function(terms, suggestions) {
+        return suggestions.sort(function (a,b) {
+          return a.value > b.value ? 1 : -1;
+        });
+      };
+      this.dataset.getSuggestions('c', function(items) {
+        expect(items).toEqual([
+          createItem('cake'),
+          createItem('coconut'),
+          createItem('coffee')
+        ]);
+      });
+    });
+
     it('concatenates local and remote results and dedups them', function() {
       var spy = jasmine.createSpy(),
           remote = [fixtureDatums[0], fixtureStrings[2]];
