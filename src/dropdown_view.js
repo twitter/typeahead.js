@@ -59,6 +59,7 @@ var DropdownView = (function() {
     _handleClickOutSideSuggestion: function(){
       this.close();
     },
+    
     _show: function() {
       // can't use jQuery#show because $menu is a span element we want
       // display: block; not dislay: inline;
