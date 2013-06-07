@@ -28,6 +28,7 @@ var DropdownView = (function() {
     .on('mouseenter.tt', this._handleMouseenter)
     .on('mouseleave.tt', this._handleMouseleave)
     .on('click.tt', '.tt-suggestion', this._handleSelection)
+    .on('click.tt', ':not(.t-suggestion)', this._handleCloseWhenNotClickSuggestion)
     .on('mouseover.tt', '.tt-suggestion', this._handleMouseover);
   }
 
@@ -54,7 +55,10 @@ var DropdownView = (function() {
       var $suggestion = $($e.currentTarget);
       this.trigger('suggestionSelected', extractSuggestion($suggestion));
     },
-
+    
+    _handleCloseWhenNotClickSuggestion: function(){
+      this.close();
+    },
     _show: function() {
       // can't use jQuery#show because $menu is a span element we want
       // display: block; not dislay: inline;
