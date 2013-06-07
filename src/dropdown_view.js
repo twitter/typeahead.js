@@ -28,7 +28,7 @@ var DropdownView = (function() {
     .on('mouseenter.tt', this._handleMouseenter)
     .on('mouseleave.tt', this._handleMouseleave)
     .on('click.tt', '.tt-suggestion', this._handleSelection)
-    .on('click.tt', ':not(.t-suggestion)', this._handleCloseWhenNotClickSuggestion)
+    .on('click.tt', ':not(.t-suggestion)', this._handleClickOutSideSuggestion)
     .on('mouseover.tt', '.tt-suggestion', this._handleMouseover);
   }
 
@@ -56,7 +56,7 @@ var DropdownView = (function() {
       this.trigger('suggestionSelected', extractSuggestion($suggestion));
     },
     
-    _handleCloseWhenNotClickSuggestion: function(){
+    _handleClickOutSideSuggestion: function(){
       this.close();
     },
     _show: function() {
