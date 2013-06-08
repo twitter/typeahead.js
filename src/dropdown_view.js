@@ -28,7 +28,7 @@ var DropdownView = (function() {
     .on('mouseenter.tt', this._handleMouseenter)
     .on('mouseleave.tt', this._handleMouseleave)
     .on('click.tt', '.tt-suggestion', this._handleSelection)
-    .on('click.tt', ':not(.t-suggestion)', this._handleClickOutSideSuggestion)
+    .on('click.tt', ':not(.tt-suggestion)', this._handleClickOutSideSuggestion)
     .on('mouseover.tt', '.tt-suggestion', this._handleMouseover);
   }
 
