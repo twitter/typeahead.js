@@ -28,7 +28,8 @@ var DropdownView = (function() {
     .on('mouseenter.tt', this._handleMouseenter)
     .on('mouseleave.tt', this._handleMouseleave)
     .on('click.tt', '.tt-suggestion', this._handleSelection)
-    .on('mouseover.tt', '.tt-suggestion', this._handleMouseover);
+    .on('mouseover.tt', '.tt-suggestion', this._handleMouseover)
+    .on('mouseleave.tt', '.tt-suggestion', this._handleSuggestionMouseleave);
   }
 
   utils.mixin(DropdownView.prototype, EventTarget, {
@@ -46,8 +47,11 @@ var DropdownView = (function() {
     _handleMouseover: function($e) {
       var $suggestion = $($e.currentTarget);
 
-      this._getSuggestions().removeClass('tt-is-under-cursor');
       $suggestion.addClass('tt-is-under-cursor');
+    },
+
+    _handleSuggestionMouseleave: function() {
+      this._getSuggestions().removeClass('tt-is-under-cursor');
     },
 
     _handleSelection: function($e) {

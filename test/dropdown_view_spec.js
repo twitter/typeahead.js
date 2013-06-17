@@ -50,6 +50,7 @@ describe('DropdownView', function() {
       // start with suggestion1 highlighted
       this.$suggestion1.addClass('tt-is-under-cursor');
 
+      this.$suggestion1.mouseleave();
       this.$suggestion2.mouseover();
     });
 
