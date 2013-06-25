@@ -78,7 +78,12 @@ describe('DropdownView', function() {
     it('should trigger suggestionSelected', function() {
       expect(this.spy).toHaveBeenCalledWith({
         type: 'suggestionSelected',
-        data: { value: 'one', tokens: ['one'], datum: { value: 'one' } }
+        data: {
+          value: 'one',
+          tokens: ['one'],
+          datum: { value: 'one' },
+          dataset: 'test'
+        }
       });
     });
   });
@@ -138,6 +143,9 @@ describe('DropdownView', function() {
         .find('.tt-suggestions > .tt-suggestion')
         .addClass('.tt-is-under-cursor');
 
+        // HACK: let's just assume this has been set to true
+        this.dropdownView.isMouseOverDropdown = true;
+
         this.dropdownView.close();
       });
 
@@ -149,6 +157,10 @@ describe('DropdownView', function() {
         var $suggestions = this.$menu.find('.tt-suggestion');
 
         expect($suggestions).not.toHaveClass('tt-is-under-cursor');
+      });
+
+      it('should set isMouseOverDropdown to false', function() {
+        expect(this.dropdownView.isMouseOverDropdown).toBe(false);
       });
 
       it('should trigger closed', function() {
@@ -240,6 +252,12 @@ describe('DropdownView', function() {
     describe('if visible', function() {
       beforeEach(function() {
         renderTestDataset(this.dropdownView, true);
+      });
+
+      it('should ensure the cursor is visible', function() {
+        spyOn(this.dropdownView, '_ensureVisibility');
+        this.dropdownView.moveCursorUp();
+        expect(this.dropdownView._ensureVisibility).toHaveBeenCalled();
       });
 
       describe('if no suggestion is under the cursor', function() {
@@ -341,6 +359,12 @@ describe('DropdownView', function() {
         renderTestDataset(this.dropdownView, true);
       });
 
+      it('should ensure the cursor is visible', function() {
+        spyOn(this.dropdownView, '_ensureVisibility');
+        this.dropdownView.moveCursorUp();
+        expect(this.dropdownView._ensureVisibility).toHaveBeenCalled();
+      });
+
       describe('if no suggestion is under the cursor', function() {
         beforeEach(function() {
           this.dropdownView.moveCursorDown();
@@ -434,7 +458,8 @@ describe('DropdownView', function() {
         expect(suggestion).toEqual({
           value: 'one',
           tokens: ['one'],
-          datum: { value: 'one' }
+          datum: { value: 'one' },
+          dataset: 'test'
         });
       });
     });
@@ -451,7 +476,8 @@ describe('DropdownView', function() {
       expect(suggestion).toEqual({
         value: 'one',
         tokens: ['one'],
-        datum: { value: 'one' }
+        datum: { value: 'one' },
+        dataset: 'test'
       });
     });
   });

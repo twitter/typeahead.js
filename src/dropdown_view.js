@@ -94,11 +94,33 @@ var DropdownView = (function() {
       }
 
       $underCursor = $suggestions.eq(nextIndex).addClass('tt-is-under-cursor');
+
+      // in the case of scrollable overflow
+      // make sure the cursor is visible in the menu
+      this._ensureVisibility($underCursor);
+
       this.trigger('cursorMoved', extractSuggestion($underCursor));
     },
 
     _getSuggestions: function() {
       return this.$menu.find('.tt-suggestions > .tt-suggestion');
+    },
+
+    _ensureVisibility: function($el) {
+      var menuHeight = this.$menu.height() +
+            parseInt(this.$menu.css('paddingTop'), 10) +
+            parseInt(this.$menu.css('paddingBottom'), 10),
+          menuScrollTop = this.$menu.scrollTop(),
+          elTop = $el.position().top,
+          elBottom = elTop + $el.outerHeight(true);
+
+      if (elTop < 0) {
+        this.$menu.scrollTop(menuScrollTop + elTop);
+      }
+
+      else if (menuHeight < elBottom) {
+        this.$menu.scrollTop(menuScrollTop + (elBottom - menuHeight));
+      }
     },
 
     // public methods
@@ -127,6 +149,7 @@ var DropdownView = (function() {
     close: function() {
       if (this.isOpen) {
         this.isOpen = false;
+        this.isMouseOverDropdown = false;
         this._hide();
 
         this.$menu
@@ -206,6 +229,7 @@ var DropdownView = (function() {
         fragment = document.createDocumentFragment();
 
         utils.each(suggestions, function(i, suggestion) {
+          suggestion.dataset = dataset.name;
           compiledHtml = dataset.template(suggestion.datum);
           elBuilder.innerHTML = wrapper.replace('%body', compiledHtml);
 

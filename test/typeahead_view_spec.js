@@ -409,6 +409,35 @@ describe('TypeaheadView', function() {
         expect(this.spyEvent).toHaveBeenTriggered();
       });
     });
+
+    describe('if suggestion is highlighted', function() {
+      beforeEach(function() {
+        this.spy = jasmine.createSpy();
+        this.spyEvent = spyOnEvent(this.$input, 'typeahead:selected');
+
+        this.dropdownView.getSuggestionUnderCursor
+        .andReturn({ value: 'i am selected' });
+
+        this.inputView.trigger('tabKeyed', { preventDefault: this.spy });
+      });
+
+      it('should update input value', function() {
+        expect(this.inputView.setInputValue)
+        .toHaveBeenCalledWith('i am selected');
+      });
+
+      it('should prevent blur', function() {
+        expect(this.spy).toHaveBeenCalled();
+      });
+
+      it('should close dropdown', function() {
+        expect(this.dropdownView.close).toHaveBeenCalled();
+      });
+
+      it('should trigger typeahead:selected on the input', function() {
+        expect(this.spyEvent).toHaveBeenTriggered();
+      });
+    });
   });
 
   describe('when inputView triggers leftKeyed', function() {
