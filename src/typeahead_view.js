@@ -87,7 +87,7 @@ var TypeaheadView = (function() {
     .on('focused', this._openDropdown)
     .on('blured', this._closeDropdown)
     .on('blured', this._setInputValueToQuery)
-    .on('enterKeyed', this._handleSelection)
+    .on('enterKeyed tabKeyed', this._handleSelection)
     .on('queryChanged', this._clearHint)
     .on('queryChanged', this._clearSuggestions)
     .on('queryChanged', this._getSuggestions)
@@ -217,7 +217,7 @@ var TypeaheadView = (function() {
         byClick && utils.isMsie() ?
           utils.defer(this.dropdownView.close) : this.dropdownView.close();
 
-        this.eventBus.trigger('selected', suggestion.datum);
+        this.eventBus.trigger('selected', suggestion.datum, suggestion.dataset);
       }
     },
 
@@ -254,7 +254,11 @@ var TypeaheadView = (function() {
         suggestion = this.dropdownView.getFirstSuggestion();
         this.inputView.setInputValue(suggestion.value);
 
-        this.eventBus.trigger('autocompleted', suggestion.datum);
+        this.eventBus.trigger(
+          'autocompleted',
+          suggestion.datum,
+          suggestion.dataset
+        );
       }
     },
 

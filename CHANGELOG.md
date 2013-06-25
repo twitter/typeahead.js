@@ -15,12 +15,20 @@ For more information on semantic versioning, please visit http://semver.org/.
 
 ---
 
-### 0.9.2 Aprl 14, 2013
+### 0.9.3 June 24, 2013
+
+* Ensure cursor visibility in menus with overflow. [#209][209]
+* Fixed bug that led to the menu staying open when it should have been closed. [#260][260]
+* Private browsing in Safari no longer breaks prefetch. [#270][270]
+* Pressing tab while a suggestion is highlighted now results in a selection. [#266][266]
+* Dataset name is now passed as an argument for typeahead:selected event. [#207][207]
+
+### 0.9.2 April 14, 2013
 
 * Prefetch usage no longer breaks when cookies are disabled. [#190][190]
 * Precompiled templates are now wrapped in the appropriate DOM element. [#172][172]
 
-### 0.9.1 Aprl 1, 2013
+### 0.9.1 April 1, 2013
 
 * Multiple requests no longer get sent for a query when datasets share a remote source. [#152][152]
 * Datasets now support precompiled templates. [#137][137]
@@ -75,7 +83,11 @@ For more information on semantic versioning, please visit http://semver.org/.
 * Share datasets (and caching) between multiple inputs.
 * And much, much more...
 
-
+[270]: https://github.com/twitter/typeahead.js/pull/270
+[266]: https://github.com/twitter/typeahead.js/pull/266
+[260]: https://github.com/twitter/typeahead.js/pull/260
+[209]: https://github.com/twitter/typeahead.js/pull/209
+[207]: https://github.com/twitter/typeahead.js/pull/207
 [190]: https://github.com/twitter/typeahead.js/pull/190
 [172]: https://github.com/twitter/typeahead.js/pull/172
 [159]: https://github.com/twitter/typeahead.js/pull/159
