@@ -42,6 +42,8 @@ var Dataset = (function() {
     // only initialize storage if there's a name otherwise
     // loading from storage on subsequent page loads is impossible
     this.storage = o.name ? new PersistentStorage(o.name) : null;
+	
+    this.allowDuplicates = o.allowDuplicates || false;
   }
 
   utils.mixin(Dataset.prototype, {
@@ -277,7 +279,7 @@ var Dataset = (function() {
           var item = that._transformDatum(datum), isDuplicate;
 
           // checks for duplicates
-          isDuplicate = utils.some(suggestions, function(suggestion) {
+          isDuplicate = that.allowDuplicates ? false : utils.some(suggestions, function(suggestion) {
             return item.value === suggestion.value;
           });
 
