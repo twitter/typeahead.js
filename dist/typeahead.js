@@ -1,11 +1,11 @@
 /*!
- * typeahead.js 0.9.2
+ * typeahead.js 0.9.3
  * https://github.com/twitter/typeahead
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
 (function($) {
-    var VERSION = "0.9.2";
+    var VERSION = "0.9.3";
     var utils = {
         isMsie: function() {
             var match = /(msie) ([\w.]+)/i.exec(navigator.userAgent);
@@ -190,6 +190,8 @@
         var ls, methods;
         try {
             ls = window.localStorage;
+            ls.setItem("~~~", "!");
+            ls.removeItem("~~~");
         } catch (err) {
             ls = null;
         }
@@ -744,10 +746,19 @@
                     nextIndex = $suggestions.length - 1;
                 }
                 $underCursor = $suggestions.eq(nextIndex).addClass("tt-is-under-cursor");
+                this._ensureVisibility($underCursor);
                 this.trigger("cursorMoved", extractSuggestion($underCursor));
             },
             _getSuggestions: function() {
                 return this.$menu.find(".tt-suggestions > .tt-suggestion");
+            },
+            _ensureVisibility: function($el) {
+                var menuHeight = this.$menu.height() + parseInt(this.$menu.css("paddingTop"), 10) + parseInt(this.$menu.css("paddingBottom"), 10), menuScrollTop = this.$menu.scrollTop(), elTop = $el.position().top, elBottom = elTop + $el.outerHeight(true);
+                if (elTop < 0) {
+                    this.$menu.scrollTop(menuScrollTop + elTop);
+                } else if (menuHeight < elBottom) {
+                    this.$menu.scrollTop(menuScrollTop + (elBottom - menuHeight));
+                }
             },
             destroy: function() {
                 this.$menu.off(".tt");
@@ -764,6 +775,7 @@
             close: function() {
                 if (this.isOpen) {
                     this.isOpen = false;
+                    this.isMouseOverDropdown = false;
                     this._hide();
                     this.$menu.find(".tt-suggestions > .tt-suggestion").removeClass("tt-is-under-cursor");
                     this.trigger("closed");
@@ -812,6 +824,7 @@
                     elBuilder = document.createElement("div");
                     fragment = document.createDocumentFragment();
                     utils.each(suggestions, function(i, suggestion) {
+                        suggestion.dataset = dataset.name;
                         compiledHtml = dataset.template(suggestion.datum);
                         elBuilder.innerHTML = wrapper.replace("%body", compiledHtml);
                         $el = $(elBuilder.firstChild).css(css.suggestion).data("suggestion", suggestion);
@@ -901,7 +914,7 @@
             this.inputView = new InputView({
                 input: $input,
                 hint: $hint
-            }).on("focused", this._openDropdown).on("blured", this._closeDropdown).on("blured", this._setInputValueToQuery).on("enterKeyed", this._handleSelection).on("queryChanged", this._clearHint).on("queryChanged", this._clearSuggestions).on("queryChanged", this._getSuggestions).on("whitespaceChanged", this._updateHint).on("queryChanged whitespaceChanged", this._openDropdown).on("queryChanged whitespaceChanged", this._setLanguageDirection).on("escKeyed", this._closeDropdown).on("escKeyed", this._setInputValueToQuery).on("tabKeyed upKeyed downKeyed", this._managePreventDefault).on("upKeyed downKeyed", this._moveDropdownCursor).on("upKeyed downKeyed", this._openDropdown).on("tabKeyed leftKeyed rightKeyed", this._autocomplete);
+            }).on("focused", this._openDropdown).on("blured", this._closeDropdown).on("blured", this._setInputValueToQuery).on("enterKeyed tabKeyed", this._handleSelection).on("queryChanged", this._clearHint).on("queryChanged", this._clearSuggestions).on("queryChanged", this._getSuggestions).on("whitespaceChanged", this._updateHint).on("queryChanged whitespaceChanged", this._openDropdown).on("queryChanged whitespaceChanged", this._setLanguageDirection).on("escKeyed", this._closeDropdown).on("escKeyed", this._setInputValueToQuery).on("tabKeyed upKeyed downKeyed", this._managePreventDefault).on("upKeyed downKeyed", this._moveDropdownCursor).on("upKeyed downKeyed", this._openDropdown).on("tabKeyed leftKeyed rightKeyed", this._autocomplete);
         }
         utils.mixin(TypeaheadView.prototype, EventTarget, {
             _managePreventDefault: function(e) {
@@ -970,7 +983,7 @@
                     this.inputView.setInputValue(suggestion.value);
                     byClick ? this.inputView.focus() : e.data.preventDefault();
                     byClick && utils.isMsie() ? utils.defer(this.dropdownView.close) : this.dropdownView.close();
-                    this.eventBus.trigger("selected", suggestion.datum);
+                    this.eventBus.trigger("selected", suggestion.datum, suggestion.dataset);
                 }
             },
             _getSuggestions: function() {
@@ -1000,7 +1013,7 @@
                 if (hint !== "" && query !== hint) {
                     suggestion = this.dropdownView.getFirstSuggestion();
                     this.inputView.setInputValue(suggestion.value);
-                    this.eventBus.trigger("autocompleted", suggestion.datum);
+                    this.eventBus.trigger("autocompleted", suggestion.datum, suggestion.dataset);
                 }
             },
             _propagateEvent: function(e) {
