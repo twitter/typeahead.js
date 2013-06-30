@@ -205,7 +205,7 @@ var DropdownView = (function() {
       return $suggestion.length > 0 ? extractSuggestion($suggestion) : null;
     },
 
-    renderSuggestions: function(dataset, suggestions) {
+    renderSuggestions: function(dataset, suggestions, query) {
       var datasetClassName = 'tt-dataset-' + dataset.name,
           wrapper = '<div class="tt-suggestion">%body</div>',
           compiledHtml,
@@ -250,6 +250,9 @@ var DropdownView = (function() {
 
           fragment.appendChild($el[0]);
         });
+
+        // if highligting is enabled, let bearhug do its thing
+        dataset.highlight && bearhug({ node: fragment, pattern: query });
 
         // show this dataset in case it was previously empty
         // and render the new suggestions

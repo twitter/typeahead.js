@@ -30,6 +30,7 @@ var Dataset = (function() {
     this.footer = o.footer;
     this.valueKey = o.valueKey || 'value';
     this.template = compileTemplate(o.template, o.engine, this.valueKey);
+    this.highlight = !!o.highlight;
 
     // used then deleted in #initialize
     this.local = o.local;
