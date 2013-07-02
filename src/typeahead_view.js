@@ -200,11 +200,22 @@ var TypeaheadView = (function() {
     },
 
     _handleSelection: function(e) {
-      var byClick = e.type === 'suggestionSelected',
-          suggestion = byClick ?
-            e.data : this.dropdownView.getSuggestionUnderCursor();
+      var byClick = e.type === 'suggestionSelected';
 
-      if (suggestion) {
+      var suggestion, modifierPressed;
+
+      if(byClick){
+        suggestion = e.data;
+        modifierPressed = false;
+      } 
+
+      else {
+        suggestion = this.dropdownView.getSuggestionUnderCursor();
+        var $e = e.data;
+        modifierPressed = $e.shiftKey || $e.ctrlKey || $e.metaKey || $e.altKey;
+      }
+
+      if (suggestion && !modifierPressed) {
         this.inputView.setInputValue(suggestion.value);
 
         // if triggered by click, ensure the query input still has focus
