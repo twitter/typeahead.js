@@ -28,7 +28,8 @@ var DropdownView = (function() {
     .on('mouseenter.tt', this._handleMouseenter)
     .on('mouseleave.tt', this._handleMouseleave)
     .on('click.tt', '.tt-suggestion', this._handleSelection)
-    .on('mouseover.tt', '.tt-suggestion', this._handleMouseover);
+    .on('mouseover.tt', '.tt-suggestion', this._handleSuggestionMouseover)
+    .on('mouseleave.tt', '.tt-suggestion', this._handleSuggestionMouseleave);
   }
 
   utils.mixin(DropdownView.prototype, EventTarget, {
@@ -43,16 +44,22 @@ var DropdownView = (function() {
       this.isMouseOverDropdown = false;
     },
 
-    _handleMouseover: function($e) {
+    _handleSelection: function($e) {
+      var $suggestion = $($e.currentTarget);
+      this.trigger('suggestionSelected', extractSuggestion($suggestion));
+    },
+
+    _handleSuggestionMouseover: function($e) {
       var $suggestion = $($e.currentTarget);
 
       this._getSuggestions().removeClass('tt-is-under-cursor');
       $suggestion.addClass('tt-is-under-cursor');
     },
 
-    _handleSelection: function($e) {
+    _handleSuggestionMouseleave: function($e) {
       var $suggestion = $($e.currentTarget);
-      this.trigger('suggestionSelected', extractSuggestion($suggestion));
+
+      $suggestion.removeClass('tt-is-under-cursor');
     },
 
     _show: function() {

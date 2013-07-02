@@ -87,7 +87,12 @@ var Dataset = (function() {
       }
 
       else {
-        deferred = $.getJSON(o.url).done(processPrefetchData);
+        deferred = $.ajax({
+          type: 'get',
+          url: o.url,
+          dataType: o.dataType || 'json',
+          beforeSend: o.beforeSend
+        }).done(processPrefetchData);
       }
 
       return deferred;

@@ -201,10 +201,22 @@ var TypeaheadView = (function() {
 
     _handleSelection: function(e) {
       var byClick = e.type === 'suggestionSelected',
-          suggestion = byClick ?
-            e.data : this.dropdownView.getSuggestionUnderCursor();
+          suggestion,
+          modifierPressed,
+          $e;
 
-      if (suggestion) {
+      if(byClick) {
+        suggestion = e.data;
+        modifierPressed = false;
+      }
+
+      else {
+        suggestion = this.dropdownView.getSuggestionUnderCursor();
+        $e = e.data;
+        modifierPressed = $e.shiftKey || $e.ctrlKey || $e.metaKey || $e.altKey;
+      }
+
+      if (suggestion && !modifierPressed) {
         this.inputView.setInputValue(suggestion.value);
 
         // if triggered by click, ensure the query input still has focus
@@ -228,8 +240,9 @@ var TypeaheadView = (function() {
 
       utils.each(this.datasets, function(i, dataset) {
         dataset.getSuggestions(query, function(suggestions) {
-          // only render the suggestions if the query hasn't changed
-          if (query === that.inputView.getQuery()) {
+          // only render the suggestions if the view hasn't
+          // been destroyed and if the query hasn't changed
+          if (that.$node && query === that.inputView.getQuery()) {
             that.dropdownView.renderSuggestions(dataset, suggestions);
           }
         });
