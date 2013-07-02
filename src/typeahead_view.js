@@ -200,18 +200,19 @@ var TypeaheadView = (function() {
     },
 
     _handleSelection: function(e) {
-      var byClick = e.type === 'suggestionSelected';
+      var byClick = e.type === 'suggestionSelected',
+          suggestion,
+          modifierPressed,
+          $e;
 
-      var suggestion, modifierPressed;
-
-      if(byClick){
+      if(byClick) {
         suggestion = e.data;
         modifierPressed = false;
-      } 
+      }
 
       else {
         suggestion = this.dropdownView.getSuggestionUnderCursor();
-        var $e = e.data;
+        $e = e.data;
         modifierPressed = $e.shiftKey || $e.ctrlKey || $e.metaKey || $e.altKey;
       }
 
