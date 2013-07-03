@@ -183,6 +183,8 @@ When configuring `remote`, the following options are available:
 
 * `filter` – A function with the signature `filter(parsedResponse)` that transforms the response body into an array of datums. Expected to return an array of datums.
 
+* `ajaxSettings` - An object that will set other properties of the `jQuery.ajax` request.
+
 ### Custom Events
 
 typeahead.js triggers the following custom events:
