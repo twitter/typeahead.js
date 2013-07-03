@@ -243,7 +243,7 @@ var TypeaheadView = (function() {
           // only render the suggestions if the view hasn't
           // been destroyed and if the query hasn't changed
           if (that.$node && query === that.inputView.getQuery()) {
-            that.dropdownView.renderSuggestions(dataset, suggestions);
+            that.dropdownView.renderSuggestions(dataset, suggestions, query);
           }
         });
       });

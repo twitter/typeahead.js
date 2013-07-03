@@ -3,6 +3,7 @@ var semver = require('semver'),
     jsFiles = [
       'src/version.js',
       'src/utils.js',
+      'src/bearhug.js',
       'src/event_target.js',
       'src/event_bus.js',
       'src/persistent_storage.js',
