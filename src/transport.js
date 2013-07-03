@@ -26,13 +26,13 @@ var Transport = (function() {
     this.filter = o.filter;
     this.replace = o.replace;
 
-    this.ajaxSettings = {
+    this.ajaxSettings = utils.mixin(o.ajaxSettings || {}, {
       type: 'get',
       cache: o.cache,
       timeout: o.timeout,
       dataType: o.dataType || 'json',
       beforeSend: o.beforeSend
-    };
+    });
 
     this._get = (/^throttle$/i.test(o.rateLimitFn) ?
       utils.throttle : utils.debounce)(this._get, o.rateLimitWait || 300);
