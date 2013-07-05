@@ -7,7 +7,6 @@
 var TypeaheadView = (function() {
   var html = {
         wrapper: '<span class="twitter-typeahead"></span>',
-        hint: '<input class="tt-hint" type="text" autocomplete="off" spellcheck="off" disabled>',
         dropdown: '<span class="tt-dropdown-menu"></span>'
       },
       css = {
@@ -294,10 +293,25 @@ var TypeaheadView = (function() {
     var $wrapper = $(html.wrapper),
         $dropdown = $(html.dropdown),
         $input = $(input),
-        $hint = $(html.hint);
+        $hint = $(input.clone());
 
     $wrapper = $wrapper.css(css.wrapper);
     $dropdown = $dropdown.css(css.dropdown);
+
+    // prepare hint
+    $hint.removeAttr("id").removeAttr("name");
+    $hint.addClass("tt-hint").attr({
+        autocomplete: "off",
+        spellcheck: false,
+        disabled: "disabled",
+    });
+
+    // remove "data-" attributes
+    var hintData = $hint.data();
+    var hintDataKeys = $.map(hintData , function(value, key) {   return key; });
+    for(i = 0; i < hintDataKeys.length; i++) {
+        $hint.removeAttr("data-" + hintDataKeys[i]);
+    }
 
     $hint
     .css(css.hint)
