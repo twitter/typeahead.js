@@ -5,323 +5,265 @@
  */
 
 var Dataset = (function() {
-  var keys = {
-        thumbprint: 'thumbprint',
-        protocol: 'protocol',
-        itemHash: 'itemHash',
-        adjacencyList: 'adjacencyList'
-      };
+  var keys = { data: 'data', protocol: 'protocol', thumbprint: 'thumbprint' };
+
+  // constructor
+  // -----------
 
   function Dataset(o) {
-    utils.bindAll(this);
-
-    if (utils.isString(o.template) && !o.engine) {
-      $.error('no template engine specified');
-    }
-
-    if (!o.local && !o.prefetch && !o.remote) {
+    if (!o || (!o.local && !o.prefetch && !o.remote)) {
       $.error('one of local, prefetch, or remote is required');
     }
 
     this.name = o.name || utils.getUniqueId();
     this.limit = o.limit || 5;
-    this.minLength = o.minLength || 1;
-    this.header = o.header;
-    this.footer = o.footer;
     this.valueKey = o.valueKey || 'value';
-    this.template = compileTemplate(o.template, o.engine, this.valueKey);
 
-    // used then deleted in #initialize
-    this.local = o.local;
-    this.prefetch = o.prefetch;
-    this.remote = o.remote;
+    this.local = getLocal(o);
+    this.prefetch = getPrefetch(o);
+    this.remote = getRemote(o);
 
-    this.itemHash = {};
-    this.adjacencyList = {};
+    // the backing data structure used for fast pattern matching
+    this.index = new this.SearchIndex();
 
     // only initialize storage if there's a name otherwise
     // loading from storage on subsequent page loads is impossible
     this.storage = o.name ? new PersistentStorage(o.name) : null;
   }
 
+  // instance methods
+  // ----------------
+
   utils.mixin(Dataset.prototype, {
 
-    // private methods
-    // ---------------
+    SearchIndex: SearchIndex,
 
-    _processLocalData: function(data) {
-      this._mergeProcessedData(this._processData(data));
-    },
+    // ### private methods
 
-    _loadPrefetchData: function(o) {
-      var that = this,
-          thumbprint = VERSION + (o.thumbprint || ''),
-          storedThumbprint,
-          storedProtocol,
-          storedItemHash,
-          storedAdjacencyList,
-          isExpired,
-          deferred;
+    _loadPrefetch: function loadPrefetch(o) {
+      var that = this, serialized, deferred;
 
-      if (this.storage) {
-        storedThumbprint = this.storage.get(keys.thumbprint);
-        storedProtocol = this.storage.get(keys.protocol);
-        storedItemHash = this.storage.get(keys.itemHash);
-        storedAdjacencyList = this.storage.get(keys.adjacencyList);
-      }
-
-      isExpired = storedThumbprint !== thumbprint ||
-        storedProtocol !== utils.getProtocol();
-
-      o = utils.isString(o) ? { url: o } : o;
-      o.ttl = utils.isNumber(o.ttl) ? o.ttl : 24 * 60 * 60 * 1000;
-
-      // data was available in local storage, use it
-      if (storedItemHash && storedAdjacencyList && !isExpired) {
-        this._mergeProcessedData({
-          itemHash: storedItemHash,
-          adjacencyList: storedAdjacencyList
-        });
-
+      if (serialized = this._readFromStorage(o.thumbprint)) {
+        this.index.bootstrap(serialized);
         deferred = $.Deferred().resolve();
       }
 
       else {
-        deferred = $.ajax({
-          type: 'get',
-          url: o.url,
-          dataType: o.dataType || 'json',
-          beforeSend: o.beforeSend
-        }).done(processPrefetchData);
+        deferred = $.ajax(o.url, o.ajax).done(handlePrefetchResponse);
       }
 
       return deferred;
 
-      function processPrefetchData(data) {
-        var filteredData = o.filter ? o.filter(data) : data,
-            processedData = that._processData(filteredData),
-            itemHash = processedData.itemHash,
-            adjacencyList = processedData.adjacencyList;
+      function handlePrefetchResponse(resp) {
+        var filtered, normalized;
 
-        // store process data in local storage, if storage is available
-        // this saves us from processing the data on every page load
-        if (that.storage) {
-          that.storage.set(keys.itemHash, itemHash, o.ttl);
-          that.storage.set(keys.adjacencyList, adjacencyList, o.ttl);
-          that.storage.set(keys.thumbprint, thumbprint, o.ttl);
-          that.storage.set(keys.protocol, utils.getProtocol(), o.ttl);
-        }
+        filtered = o.filter ? o.filter(resp) : resp;
+        that.add(filtered);
 
-        that._mergeProcessedData(processedData);
+        that._saveToStorage(that.index.serialize(), o.thumbprint, o.ttl);
       }
     },
 
-    _transformDatum: function(datum) {
-      var value = utils.isString(datum) ? datum : datum[this.valueKey],
-          tokens = datum.tokens || utils.tokenizeText(value),
-          item = { value: value, tokens: tokens };
+    _getFromRemote: function getFromRemote(query, cb) {
+      var that = this, url, uriEncodedQuery;
 
-      if (utils.isString(datum)) {
-        item.datum = {};
-        item.datum[this.valueKey] = datum;
+      uriEncodedQuery = encodeURIComponent(query || '');
+
+      url = this.remote.replace ?
+        this.remote.replace(this.remote.url, uriEncodedQuery) :
+        this.remote.url.replace(this.remote.wildcard, uriEncodedQuery);
+
+      return this.transport.get(url, this.remote.ajax, handleRemoteResponse);
+
+      function handleRemoteResponse(resp) {
+        var filtered = that.remote.filter ? that.remote.filter(resp) : resp;
+
+        cb(that._normalize(filtered));
       }
-
-      else {
-        item.datum = datum;
-      }
-
-      // filter out falsy tokens
-      item.tokens = utils.filter(item.tokens, function(token) {
-        return !utils.isBlankString(token);
-      });
-
-      // normalize tokens
-      item.tokens = utils.map(item.tokens, function(token) {
-        return token.toLowerCase();
-      });
-
-      return item;
     },
 
-    _processData: function(data) {
-      var that = this, itemHash = {}, adjacencyList = {};
-
-      utils.each(data, function(i, datum) {
-        var item = that._transformDatum(datum),
-            id = utils.getUniqueId(item.value);
-
-        itemHash[id] = item;
-
-        utils.each(item.tokens, function(i, token) {
-          var character = token.charAt(0),
-              adjacency = adjacencyList[character] ||
-                (adjacencyList[character] = [id]);
-
-          !~utils.indexOf(adjacency, id) && adjacency.push(id);
-        });
-      });
-
-      return { itemHash: itemHash, adjacencyList: adjacencyList };
-    },
-
-    _mergeProcessedData: function(processedData) {
+    _normalize: function normalize(data) {
       var that = this;
 
-      // merge item hash
-      utils.mixin(this.itemHash, processedData.itemHash);
+      return utils.map(data, normalizeRawDatum);
 
-      // merge adjacency list
-      utils.each(processedData.adjacencyList, function(character, adjacency) {
-        var masterAdjacency = that.adjacencyList[character];
+      function normalizeRawDatum(raw) {
+        var value, datum;
 
-        that.adjacencyList[character] = masterAdjacency ?
-          masterAdjacency.concat(adjacency) : adjacency;
-      });
-    },
+        value = utils.isString(raw) ? raw : raw[that.valueKey];
+        datum = { value: value };
 
-    _getLocalSuggestions: function(terms) {
-      var that = this,
-          firstChars = [],
-          lists = [],
-          shortestList,
-          suggestions = [];
+        utils.isString(raw) ?
+          (datum.raw = {})[that.valueKey] = raw :
+          datum.raw = raw;
 
-      // create a unique array of the first chars in
-      // the terms this comes in handy when multiple
-      // terms start with the same letter
-      utils.each(terms, function(i, term) {
-        var firstChar = term.charAt(0);
-        !~utils.indexOf(firstChars, firstChar) && firstChars.push(firstChar);
-      });
-
-      utils.each(firstChars, function(i, firstChar) {
-        var list = that.adjacencyList[firstChar];
-
-        // break out of the loop early
-        if (!list) { return false; }
-
-        lists.push(list);
-
-        if (!shortestList || list.length < shortestList.length) {
-          shortestList = list;
-        }
-      });
-
-      // no suggestions :(
-      if (lists.length < firstChars.length) {
-        return [];
+        return datum;
       }
-
-      // populate suggestions
-      utils.each(shortestList, function(i, id) {
-        var item = that.itemHash[id], isCandidate, isMatch;
-
-        isCandidate = utils.every(lists, function(list) {
-          return ~utils.indexOf(list, id);
-        });
-
-        isMatch = isCandidate && utils.every(terms, function(term) {
-          return utils.some(item.tokens, function(token) {
-            return token.indexOf(term) === 0;
-          });
-        });
-
-        isMatch && suggestions.push(item);
-      });
-
-      return suggestions;
     },
 
-    // public methods
-    // ---------------
+    _saveToStorage: function saveToStorage(data, thumbprint, ttl) {
+      if (this.storage) {
+        this.storage.set(keys.data, data, ttl);
+        this.storage.set(keys.protocol, location.protocol, ttl);
+        this.storage.set(keys.thumbprint, thumbprint, ttl);
+      }
+    },
+
+    _readFromStorage: function readFromStorage(thumbprint) {
+      var stored = {};
+
+      if (this.storage) {
+        stored.data = this.storage.get(keys.data);
+        stored.protocol = this.storage.get(keys.protocol);
+        stored.thumbprint = this.storage.get(keys.thumbprint);
+      }
+      // the stored data is considered expired if the thumbprints
+      // don't match or if the protocol it was originally stored under
+      // has changed
+      isExpired = stored.thumbprint !== thumbprint ||
+        stored.protocol !== location.protocol;
+
+      return stored.data && !isExpired ? stored.data : null;
+    },
+
+    // ### public methods
 
     // the contents of this function are broken out of the constructor
     // to help improve the testability of datasets
-    initialize: function() {
-      var deferred;
-
-      this.local && this._processLocalData(this.local);
-      this.transport = this.remote ? new Transport(this.remote) : null;
+    initialize: function initialize() {
+      var that = this, deferred;
 
       deferred = this.prefetch ?
-        this._loadPrefetchData(this.prefetch) :
-        $.Deferred().resolve();
+        this._loadPrefetch(this.prefetch) : $.Deferred().resolve();
 
-      this.local = this.prefetch = this.remote = null;
-      this.initialize = function() { return deferred; };
+      // make sure local is added to the index after prefetch
+      this.local && deferred.done(addLocalToIndex);
+
+      this.transport = this.remote ? new Transport(this.remote) : null;
+      this.initialize = function initialize() { return deferred; };
 
       return deferred;
+
+      function addLocalToIndex() { that.add(that.local); }
     },
 
-    getSuggestions: function(query, cb) {
-      var that = this, terms, suggestions, cacheHit = false;
+    add: function add(data) {
+      var normalized;
 
-      // don't do anything until the minLength constraint is met
-      if (query.length < this.minLength) {
-        return;
+      data = utils.isArray(data) ? data : [data];
+
+      normalized = this._normalize(data);
+      this.index.add(normalized);
+    },
+
+    get: function get(query, cb) {
+      var that = this, matches, cacheHit = false;
+
+      matches = this.index.get(query).slice(0, this.limit);
+
+      if (matches.length < this.limit && this.transport) {
+        cacheHit = this._getFromRemote(query, returnRemoteMatches);
       }
 
-      terms = utils.tokenizeQuery(query);
-      suggestions = this._getLocalSuggestions(terms).slice(0, this.limit);
-
-      if (suggestions.length < this.limit && this.transport) {
-        cacheHit = this.transport.get(query, processRemoteData);
-      }
-
-      // if a cache hit occurred, skip rendering local suggestions
-      // because the rendering of local/remote suggestions is already
+      // if a cache hit occurred, skip rendering local matches
+      // because the rendering of local/remote matches is already
       // in the event loop
-      !cacheHit && cb && cb(suggestions);
+      !cacheHit && cb && cb(matches);
 
-      // callback for transport.get
-      function processRemoteData(data) {
-        suggestions = suggestions.slice(0);
+      function returnRemoteMatches(remoteMatches) {
+        var matchesWithBackfill = matches.slice(0);
 
-        // convert remote suggestions to object
-        utils.each(data, function(i, datum) {
-          var item = that._transformDatum(datum), isDuplicate;
+        utils.each(remoteMatches, function(i, remoteMatch) {
+          var isDuplicate;
 
           // checks for duplicates
-          isDuplicate = utils.some(suggestions, function(suggestion) {
-            return item.value === suggestion.value;
+          isDuplicate = utils.some(matchesWithBackfill, function(match) {
+            return remoteMatch.value === match.value;
           });
 
-          !isDuplicate && suggestions.push(item);
+          !isDuplicate && matchesWithBackfill.push(remoteMatch);
 
           // if we're at the limit, we no longer need to process
           // the remote results and can break out of the each loop
-          return suggestions.length < that.limit;
+          return matchesWithBackfill.length < that.limit;
         });
 
-        cb && cb(suggestions);
+        cb && cb(matchesWithBackfill);
       }
     }
   });
 
   return Dataset;
 
-  function compileTemplate(template, engine, valueKey) {
-    var renderFn, compiledTemplate;
+  // helper functions
+  // ----------------
 
-    // precompiled template
-    if (utils.isFunction(template)) {
-      renderFn = template;
+  function getLocal(o) {
+    return o.local || null;
+  }
+
+  function getPrefetch(o) {
+    var prefetch, defaults;
+
+    defaults = {
+      url: null,
+      thumbprint: '',
+      ttl: 24 * 60 * 60 * 1000, // 1 day
+      filter: null,
+      ajax: {}
+    };
+
+    if (prefetch = o.prefetch || null) {
+      // support basic (url) and advanced configuration
+      prefetch = utils.isString(prefetch) ? { url: prefetch } : prefetch;
+
+      prefetch = utils.mixin(defaults, prefetch);
+      prefetch.thumbprint = VERSION + prefetch.thumbprint;
+
+      prefetch.ajax.method = prefetch.ajax.method || 'get';
+      prefetch.ajax.dataType = prefetch.ajax.dataType || 'json';
     }
 
-    // string template that needs to be compiled
-    else if (utils.isString(template)) {
-      compiledTemplate = engine.compile(template);
-      renderFn = utils.bind(compiledTemplate.render, compiledTemplate);
+    return prefetch;
+  }
+
+  function getRemote(o) {
+    var remote, defaults;
+
+    defaults = {
+      url: null,
+      wildcard: '%QUERY',
+      replace: null,
+      rateLimitBy: 'debounce',
+      rateLimitWait: 300,
+      send: null,
+      filter: null,
+      ajax: {}
+    };
+
+    if (remote = o.remote || null) {
+      // support basic (url) and advanced configuration
+      remote = utils.isString(remote) ? { url: remote } : remote;
+
+      remote = utils.mixin(defaults, remote);
+      remote.rateLimiter = /^throttle$/i.test(remote.rateLimitBy) ?
+        byThrottle(remote.rateLimitWait) : byDebounce(remote.rateLimitWait);
+
+      remote.ajax.method = remote.ajax.method || 'get';
+      remote.ajax.dataType = remote.ajax.dataType || 'json';
+
+      delete remote.rateLimitBy;
+      delete remote.rateLimitWait;
     }
 
-    // if no template is provided, render suggestion
-    // as its value wrapped in a p tag
-    else {
-      renderFn = function(context) {
-        return '<p>' + context[valueKey] + '</p>';
-      };
+    return remote;
+
+    function byDebounce(wait) {
+      return function(fn) { return utils.debounce(fn, wait); };
     }
 
-    return renderFn;
+    function byThrottle(wait) {
+      return function(fn) { return utils.throttle(fn, wait); };
+    }
   }
 })();

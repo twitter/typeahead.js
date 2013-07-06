@@ -18,17 +18,22 @@ var PersistentStorage = (function() {
     ls = null;
   }
 
+  // constructor
+  // -----------
+
   function PersistentStorage(namespace) {
     this.prefix = ['__', namespace, '__'].join('');
     this.ttlKey = '__ttl__';
     this.keyMatcher = new RegExp('^' + this.prefix);
   }
 
+  // instance methods
+  // ----------------
+
   if (ls && window.JSON) {
     methods = {
 
-      // private methods
-      // ---------------
+      // ### private
 
       _prefix: function(key) {
         return this.prefix + key;
@@ -38,8 +43,7 @@ var PersistentStorage = (function() {
         return this._prefix(key) + this.ttlKey;
       },
 
-      // public methods
-      // --------------
+      // ### public
 
       get: function(key) {
         if (this.isExpired(key)) {
@@ -106,6 +110,9 @@ var PersistentStorage = (function() {
   utils.mixin(PersistentStorage.prototype, methods);
 
   return PersistentStorage;
+
+  // helper functions
+  // ----------------
 
   function now() {
     return new Date().getTime();
