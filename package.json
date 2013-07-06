@@ -37,7 +37,8 @@
     "grunt-contrib-jasmine": "~0.4",
     "grunt-contrib-clean": "~0.4.0",
     "semver": "~1.1.3",
-    "grunt-parallel": "0.0.2"
+    "grunt-parallel": "0.0.2",
+    "karma": "~0.8.6"
   },
   "scripts": {
     "test": "grunt test"
