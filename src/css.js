@@ -39,6 +39,14 @@ css = {
   },
   suggestionChild: {
     whiteSpace: 'normal'
+  },
+  ltr: {
+    left: '0',
+    right: 'auto'
+  },
+  rtl: {
+    left: 'auto',
+    right:' 0'
   }
 };
 
