@@ -5,6 +5,17 @@
  */
 
 var InputView = (function() {
+  var specialKeyCodeMap;
+
+  specialKeyCodeMap = {
+    9: 'tab',
+    27: 'esc',
+    37: 'left',
+    39: 'right',
+    13: 'enter',
+    38: 'up',
+    40: 'down'
+  };
 
   // constructor
   // -----------
@@ -12,40 +23,27 @@ var InputView = (function() {
   function InputView(o) {
     var that = this;
 
-    utils.bindAll(this);
-
-    this.specialKeyCodeMap = {
-      9: 'tab',
-      27: 'esc',
-      37: 'left',
-      39: 'right',
-      13: 'enter',
-      38: 'up',
-      40: 'down'
-    };
-
     this.$hint = $(o.hint);
     this.$input = $(o.input)
-    .on('blur.tt', this._handleBlur)
-    .on('focus.tt', this._handleFocus)
-    .on('keydown.tt', this._handleSpecialKeyEvent);
+    .on('blur.tt', utils.bind(this._onBlur, this))
+    .on('focus.tt', utils.bind(this._onFocus, this))
+    .on('keydown.tt', utils.bind(this._onKeydown, this));
 
     // ie7 and ie8 don't support the input event
     // ie9 doesn't fire the input event when characters are removed
     // not sure if ie10 is compatible
     if (!utils.isMsie()) {
-      this.$input.on('input.tt', this._compareQueryToInputValue);
+      this.$input.on('input.tt', utils.bind(this._onInput, this));
     }
 
     else {
-      this.$input
-      .on('keydown.tt keypress.tt cut.tt paste.tt', function($e) {
+      this.$input.on('keydown.tt keypress.tt cut.tt paste.tt', function($e) {
         // if a special key triggered this, ignore it
-        if (that.specialKeyCodeMap[$e.which || $e.keyCode]) { return; }
+        if (specialKeyCodeMap[$e.which || $e.keyCode]) { return; }
 
         // give the browser a chance to update the value of the input
         // before checking to see if the query changed
-        utils.defer(that._compareQueryToInputValue);
+        utils.defer(utils.bind(that._onInput, that, $e));
       });
     }
 
@@ -57,105 +55,167 @@ var InputView = (function() {
     this.$overflowHelper = buildOverflowHelper(this.$input);
   }
 
-  utils.mixin(InputView.prototype, EventTarget, {
-    // private methods
-    // ---------------
+  // static methods
+  // --------------
 
-    _handleFocus: function() {
+  InputView.normalizeQuery = function(str) {
+    // strips leading whitespace and condenses all whitespace
+    return (str || '').replace(/^\s*/g, '').replace(/\s{2,}/g, ' ');
+  };
+
+  // instance methods
+  // ----------------
+
+  utils.mixin(InputView.prototype, EventEmitter, {
+
+    // ### private
+
+    _onBlur: function onBlur($e) {
+      this.resetInputValue();
+      this.trigger('blurred');
+    },
+
+    _onFocus: function onFocus($e) {
       this.trigger('focused');
     },
 
-    _handleBlur: function() {
-      this.trigger('blured');
-    },
+    _onKeydown: function onKeydown($e) {
+      // which is normalized and consistent (but not for ie)
+      var keyName = specialKeyCodeMap[$e.which || $e.keyCode];
 
-    _handleSpecialKeyEvent: function($e) {
-      // which is normalized and consistent (but not for IE)
-      var keyName = this.specialKeyCodeMap[$e.which || $e.keyCode];
-
-      keyName && this.trigger(keyName + 'Keyed', $e);
-    },
-
-    _compareQueryToInputValue: function() {
-      var inputValue = this.getInputValue(),
-          isSameQuery = compareQueries(this.query, inputValue),
-          isSameQueryExceptWhitespace = isSameQuery ?
-            this.query.length !== inputValue.length : false;
-
-      if (isSameQueryExceptWhitespace) {
-        this.trigger('whitespaceChanged', { value: this.query });
-      }
-
-      else if (!isSameQuery) {
-        this.trigger('queryChanged', { value: this.query = inputValue });
+      this._managePreventDefault(keyName, $e);
+      if (keyName && this._shouldTrigger(keyName, $e)) {
+        this.trigger(keyName + 'Keyed', $e);
       }
     },
 
-    // public methods
-    // --------------
-
-    destroy: function() {
-      this.$hint.off('.tt');
-      this.$input.off('.tt');
-
-      this.$hint = this.$input = this.$overflowHelper = null;
+    _onInput: function onInput($e) {
+      this._checkInputValue();
     },
 
-    focus: function() {
+    _managePreventDefault: function managePreventDefault(keyName, $e) {
+      var preventDefault, hintValue, inputValue;
+
+      switch (keyName) {
+        case 'tab':
+          hintValue = this.getHintValue();
+          inputValue = this.getInputValue();
+
+          preventDefault = hintValue &&
+            hintValue !== inputValue &&
+            !withModifier($e);
+          break;
+
+        case 'up':
+        case 'down':
+          preventDefault = !withModifier($e);
+          break;
+
+        default:
+          preventDefault = false;
+      }
+
+      preventDefault && $e.preventDefault();
+    },
+
+    _shouldTrigger: function shouldTrigger(keyName, $e) {
+      var trigger;
+
+      switch (keyName) {
+        case 'tab':
+          trigger = !withModifier($e);
+          break;
+
+        default:
+          trigger = true;
+      }
+
+      return trigger;
+    },
+
+    _checkInputValue: function checkInputValue() {
+      var inputValue, areEquivalent, hasDifferentWhitespace;
+
+      inputValue = this.getInputValue();
+      areEquivalent = areQueriesEquivalent(inputValue, this.query);
+      hasDifferentWhitespace = areEquivalent ?
+        this.query.length !== inputValue.length : false;
+
+      if (!areEquivalent) {
+        this.trigger('queryChanged', this.query = inputValue);
+      }
+
+      else if (hasDifferentWhitespace) {
+        this.trigger('whitespaceChanged', this.query);
+      }
+    },
+
+    // ### public
+
+    focus: function focus() {
       this.$input.focus();
     },
 
-    blur: function() {
+    blur: function blur() {
       this.$input.blur();
     },
 
-    getQuery: function() {
+    getQuery: function getQuery() {
       return this.query;
     },
 
-    setQuery: function(query) {
+    setQuery: function setQuery(query) {
       this.query = query;
     },
 
-    getInputValue: function() {
+    getInputValue: function getInputValue() {
       return this.$input.val();
     },
 
-    setInputValue: function(value, silent) {
+    setInputValue: function setInputValue(value, silent) {
       this.$input.val(value);
 
-      !silent && this._compareQueryToInputValue();
+      !silent && this._checkInputValue();
     },
 
-    getHintValue: function() {
+    getHintValue: function getHintValue() {
       return this.$hint.val();
     },
 
-    setHintValue: function(value) {
+    setHintValue: function setHintValue(value) {
       this.$hint.val(value);
     },
 
-    getLanguageDirection: function() {
+    resetInputValue: function resetInputValue() {
+      this.$input.val(this.query);
+    },
+
+    clearHint: function clearHint() {
+      this.$hint.val('');
+    },
+
+    getLanguageDirection: function getLanguageDirection() {
       return (this.$input.css('direction') || 'ltr').toLowerCase();
     },
 
-    isOverflow: function() {
+    hasOverflow: function hasOverflow() {
       this.$overflowHelper.text(this.getInputValue());
 
       return this.$overflowHelper.width() > this.$input.width();
     },
 
     isCursorAtEnd: function() {
-      var valueLength = this.$input.val().length,
-          selectionStart = this.$input[0].selectionStart,
-          range;
+      var valueLength, selectionStart, range;
+
+      valueLength = this.$input.val().length;
+      selectionStart = this.$input[0].selectionStart;
 
       if (utils.isNumber(selectionStart)) {
        return selectionStart === valueLength;
       }
 
       else if (document.selection) {
-        // this won't work unless the input has focus, the good news
+        // NOTE: this won't work unless the input has focus, the good news
         // is this code should only get called when the input has focus
         range = document.selection.createRange();
         range.moveStart('character', -valueLength);
@@ -168,6 +228,9 @@ var InputView = (function() {
   });
 
   return InputView;
+
+  // helper functions
+  // ----------------
 
   function buildOverflowHelper($input) {
     return $('<span></span>')
@@ -193,11 +256,11 @@ var InputView = (function() {
     .insertAfter($input);
   }
 
-  function compareQueries(a, b) {
-    // strips leading whitespace and condenses all whitespace
-    a = (a || '').replace(/^\s*/g, '').replace(/\s{2,}/g, ' ');
-    b = (b || '').replace(/^\s*/g, '').replace(/\s{2,}/g, ' ');
+  function areQueriesEquivalent(a, b) {
+    return InputView.normalizeQuery(a) === InputView.normalizeQuery(b);
+  }
 
-    return a === b;
+  function withModifier($e) {
+    return $e.altKey || $e.ctrlKey || $e.metaKey || $e.shiftKey;
   }
 })();
