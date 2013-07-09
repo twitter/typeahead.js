@@ -383,6 +383,7 @@
             }
             this.name = o.name || utils.getUniqueId();
             this.limit = o.limit || 5;
+            this.suggestionsCallback = o.suggestionsCallback || null;
             this.minLength = o.minLength || 1;
             this.header = o.header;
             this.footer = o.footer;
@@ -525,7 +526,11 @@
                     return;
                 }
                 terms = utils.tokenizeQuery(query);
-                suggestions = this._getLocalSuggestions(terms).slice(0, this.limit);
+                suggestions = this._getLocalSuggestions(terms);
+                if (this.suggestionsCallback && typeof this.suggestionsCallback === "function") {
+                    suggestions = this.suggestionsCallback(suggestions);
+                }
+                suggestions = suggestions.slice(0, this.limit);
                 if (suggestions.length < this.limit && this.transport) {
                     cacheHit = this.transport.get(query, processRemoteData);
                 }
