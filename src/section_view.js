@@ -79,6 +79,10 @@ var SectionView = (function() {
 
     clear: function clear() {
       this.$el.empty();
+    },
+
+    isEmpty: function isEmpty() {
+      return this.$el.is(':empty');
     }
   });
 

@@ -75,6 +75,19 @@ describe('SectionView', function() {
     waitsFor(function() { return spy.callCount; });
   });
 
+  describe('#isEmpty', function() {
+    it('should return true when empty', function() {
+      expect(this.section.isEmpty()).toBe(true);
+    });
+
+    it('should return false when not empty', function() {
+      this.dataset.get.andCallFake(fakeGetWithSyncResults);
+      this.section.update('woah');
+
+      expect(this.section.isEmpty()).toBe(false);
+    });
+  });
+
   function fakeGetWithSyncResults(query, cb) {
     cb([
       { value: 'one', raw: { value: 'one' } },
