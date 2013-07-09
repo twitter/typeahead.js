@@ -6,33 +6,44 @@
 
 // inspired by https://github.com/jharding/boomerang
 
-var EventEmitter = (function(root, undefined) {
+var EventEmitter = (function() {
   var splitter = /\s+/, nextTick = getNextTick();
 
   return mixin({ mixin: mixin });
 
   function mixin(obj) {
-    obj.on = on;
+    obj.onSync = onSync;
+    obj.onAsync = onAsync;
     obj.off = off;
     obj.trigger = trigger;
 
     return obj;
   }
 
-  function on(types, cb, context) {
+  function on(method, types, cb, context) {
     var type;
 
     if (!cb) { return this; }
 
-    this._callbacks = this._callbacks || {};
     types = types.split(splitter);
+    cb = context ? bindContext(cb, context) : cb;
+
+    this._callbacks = this._callbacks || {};
 
     while (type = types.shift()) {
-      this._callbacks[type] = this._callbacks[type] || [];
-      this._callbacks[type].push(context ? bindContext(cb, context) : cb);
+      this._callbacks[type] = this._callbacks[type] || { sync: [], async: [] };
+      this._callbacks[type][method].push(cb);
     }
 
     return this;
+  }
+
+  function onAsync(types, cb, context) {
+    return on.call(this, 'async', types, cb, context);
+  }
+
+  function onSync(types, cb, context) {
+    return on.call(this, 'sync', types, cb, context);
   }
 
   function off(types) {
@@ -50,48 +61,52 @@ var EventEmitter = (function(root, undefined) {
   }
 
   function trigger(types) {
-    var type, callbacks, args = [].slice.call(arguments, 1);
+    var that = this, type, callbacks, args, syncFlush, asyncFlush;
 
     if (!this._callbacks) { return this; }
 
     types = types.split(splitter);
+    args = [].slice.call(arguments, 1);
 
-    while (type = types.shift()) {
-      if (callbacks = this._callbacks[type]) {
-        for (var i = 0; i < callbacks.length; i += 1) {
-          nextTick(this, callbacks[i], [type].concat(args));
-        }
-      }
+    while ((type = types.shift()) && (callbacks = this._callbacks[type])) {
+      syncFlush = getFlush(callbacks.sync, this, [type].concat(args));
+      asyncFlush = getFlush(callbacks.async, this, [type].concat(args));
+
+      syncFlush() && nextTick(asyncFlush);
     }
 
     return this;
+  }
+
+  function getFlush(callbacks, context, args) {
+    return flush;
+
+    function flush() {
+      var cancelled;
+
+      for (var i = 0; !cancelled && i < callbacks.length; i += 1) {
+        // only cancel if the callback explicitly returns false
+        cancelled = callbacks[i].apply(context, args) === false;
+      }
+
+      return !cancelled;
+    }
   }
 
   function getNextTick() {
     var nextTickFn, messageChannel;
 
     // IE10+
-    if (root.setImmediate) {
-      nextTickFn = function nextTickSetImmediate(context, fn, args) {
-        setImmediate(function() { fn.apply(context, args); });
-      };
-    }
-
-    // modern browsers
-    // http://www.nonblocking.io/2011/06/windownexttick.html
-    else if (root.MessageChannel) {
-      channel = new MessageChannel();
-
-      nextTickFn = function nextTickMessageChannel(context, fn, args) {
-        channel.port1.onmessage = function() { fn.apply(context, args); };
-        channel.port2.postMessage(0);
+    if (window.setImmediate) {
+      nextTickFn = function nextTickSetImmediate(fn) {
+        setImmediate(function() { fn(); });
       };
     }
 
     // old browsers
     else {
-      nextTickFn = function nextTickSetImmediate(context, fn, args) {
-        setTimeout(function() { fn.apply(context, args); });
+      nextTickFn = function nextTickSetTimeout(fn) {
+        setTimeout(function() { fn(); }, 0);
       };
     }
 
@@ -103,4 +118,4 @@ var EventEmitter = (function(root, undefined) {
       fn.bind(context) :
       function() { fn.apply(context, [].slice.call(arguments, 0)); };
   }
-})(this);
+})();
