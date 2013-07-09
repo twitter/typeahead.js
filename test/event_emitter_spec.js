@@ -2,14 +2,7 @@ describe('EventEmitter', function() {
 
   beforeEach(function() {
     this.spy = jasmine.createSpy();
-    this.target = EventEmitter.mixin({});
-  });
-
-  it('.mixin should mix in methods', function() {
-    expect(this.target.onSync).toBeDefined();
-    expect(this.target.onAsync).toBeDefined();
-    expect(this.target.off).toBeDefined();
-    expect(this.target.trigger).toBeDefined();
+    this.target = utils.mixin({}, EventEmitter);
   });
 
   it('methods should be chainable', function() {

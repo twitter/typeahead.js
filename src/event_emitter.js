@@ -9,16 +9,12 @@
 var EventEmitter = (function() {
   var splitter = /\s+/, nextTick = getNextTick();
 
-  return mixin({ mixin: mixin });
-
-  function mixin(obj) {
-    obj.onSync = onSync;
-    obj.onAsync = onAsync;
-    obj.off = off;
-    obj.trigger = trigger;
-
-    return obj;
-  }
+  return {
+    onSync: onSync,
+    onAsync: onAsync,
+    off: off,
+    trigger: trigger
+  };
 
   function on(method, types, cb, context) {
     var type;
