@@ -77,11 +77,11 @@ var SearchIndex = (function() {
         node = that.trie;
         chars = token.split('');
 
-        while ((ch = chars.shift()) && node.children[ch]) {
+        while (node && (ch = chars.shift())) {
           node = node.children[ch];
         }
 
-        if (chars.length === 0) {
+        if (node && chars.length === 0) {
           ids = node.ids.slice(0);
           matches = matches ? getIntersection(matches, ids) : ids;
         }
@@ -122,7 +122,7 @@ var SearchIndex = (function() {
       }
 
       else if (arrayA[ai] > arrayB[bi]) {
-        ai++;
+        bi++;
       }
 
       else {
