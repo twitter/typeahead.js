@@ -21,19 +21,31 @@ var InputView = (function() {
   // -----------
 
   function InputView(o) {
-    var that = this;
+    var that = this, onBlur, onFocus, onKeydown, onInput;
+
+    o = o || {};
+
+    if (!o.hint || !o.input) {
+      $.error('hint and/or input are missing');
+    }
+
+    // bound functions
+    onBlur = utils.bind(this._onBlur, this);
+    onFocus = utils.bind(this._onFocus, this);
+    onKeydown = utils.bind(this._onKeydown, this);
+    onInput = utils.bind(this._onInput, this);
 
     this.$hint = $(o.hint);
     this.$input = $(o.input)
-    .on('blur.tt', utils.bind(this._onBlur, this))
-    .on('focus.tt', utils.bind(this._onFocus, this))
-    .on('keydown.tt', utils.bind(this._onKeydown, this));
+    .on('blur.tt', onBlur)
+    .on('focus.tt', onFocus)
+    .on('keydown.tt', onKeydown);
 
     // ie7 and ie8 don't support the input event
     // ie9 doesn't fire the input event when characters are removed
     // not sure if ie10 is compatible
     if (!utils.isMsie()) {
-      this.$input.on('input.tt', utils.bind(this._onInput, this));
+      this.$input.on('input.tt', onInput);
     }
 
     else {
