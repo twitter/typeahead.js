@@ -14,12 +14,13 @@ var TypeaheadView = (function() {
     var $menu, $input, $hint, sections;
 
     o = o || {};
+    o.hint = utils.isUndefined(o.hint) ? true : o.hint;
 
     if (!o.input || !o.sections) {
       $.error('missing input and/or sections');
     }
 
-    this.$node = buildDomStructure(o.input);
+    this.$node = buildDomStructure(o.input, o.hint);
 
     $menu = this.$node.find('.tt-dropdown-menu');
     $input = this.$node.find('.tt-input');
@@ -193,7 +194,7 @@ var TypeaheadView = (function() {
       hint = this.input.getHintValue();
       query = this.input.getQuery();
 
-      if (hint !== '' && query !== hint && this.input.isCursorAtEnd()) {
+      if (hint && query !== hint && this.input.isCursorAtEnd()) {
         datum = this.dropdown.getDatumForTopSuggestion();
         datum && this.input.setInputValue(datum.value);
       }
@@ -216,7 +217,7 @@ var TypeaheadView = (function() {
 
   return TypeaheadView;
 
-  function buildDomStructure(input) {
+  function buildDomStructure(input, withHint) {
     var $input, $wrapper, $dropdown, $hint;
 
     $input = $(input);
@@ -236,13 +237,17 @@ var TypeaheadView = (function() {
     $input
     .addClass('tt-input')
     .attr({ autocomplete: 'off', spellcheck: false })
-    .css(css.input);
+    .css(withHint ? css.input : css.inputWithNoHint);
 
     // ie7 does not like it when dir is set to auto,
     // it does not like it one bit
     try { !$input.attr('dir') && $input.attr('dir', 'auto'); } catch (e) {}
 
-    return $input.wrap($wrapper).parent().prepend($hint).append($dropdown);
+    return $input
+    .wrap($wrapper)
+    .parent()
+    .prepend(withHint ? $hint : null)
+    .append($dropdown);
   }
 
   function getBackgroundStyles($el) {

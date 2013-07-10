@@ -25,10 +25,8 @@ describe('InputView', function() {
   });
 
   it('should throw an error if no hint and/or input is provided', function() {
-    expect(noHint).toThrow();
     expect(noInput).toThrow();
 
-    function noHint() { new InputView({ input: '.input' }); }
     function noInput() { new InputView({ hint: '.hint' }); }
   });
 

@@ -23,6 +23,10 @@ css = {
     verticalAlign: 'top',
     backgroundColor: 'transparent'
   },
+  inputWithNoHint: {
+    position: 'relative',
+    verticalAlign: 'top'
+  },
   dropdown: {
     position: 'absolute',
     top: '100%',

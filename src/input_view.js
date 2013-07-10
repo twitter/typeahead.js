@@ -25,8 +25,8 @@ var InputView = (function() {
 
     o = o || {};
 
-    if (!o.hint || !o.input) {
-      $.error('hint and/or input are missing');
+    if (!o.input) {
+      $.error('input is missing');
     }
 
     // bound functions
@@ -40,6 +40,11 @@ var InputView = (function() {
     .on('blur.tt', onBlur)
     .on('focus.tt', onFocus)
     .on('keydown.tt', onKeydown);
+
+    // if no hint, noop all the hint related functions
+    if (this.$hint.length === 0) {
+      this.setHintValue = this.getHintValue = this.clearHint = utils.noop;
+    }
 
     // ie7 and ie8 don't support the input event
     // ie9 doesn't fire the input event when characters are removed
