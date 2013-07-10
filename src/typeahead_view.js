@@ -176,7 +176,7 @@ var TypeaheadView = (function() {
 
       datum = this.dropdown.getDatumForTopSuggestion();
 
-      if (datum && this.dropdown.isOpen && !this.input.hasOverflow()) {
+      if (datum && this.dropdown.isVisible() && !this.input.hasOverflow()) {
         inputValue = this.input.getInputValue();
         query = InputView.normalizeQuery(inputValue);
         escapedQuery = _.escapeRegExChars(query);

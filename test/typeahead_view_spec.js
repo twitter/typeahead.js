@@ -67,7 +67,7 @@ describe('TypeaheadView', function() {
 
     it('should update the hint', function() {
       this.dropdown.getDatumForTopSuggestion.andReturn(testDatum);
-      this.dropdown.isOpen = true;
+      this.dropdown.isVisible.andReturn(true);
       this.input.hasOverflow.andReturn(false);
       this.input.getInputValue.andReturn(testDatum.value.slice(0, 2));
 
@@ -80,7 +80,7 @@ describe('TypeaheadView', function() {
   describe('when dropdown triggers sectionRendered', function() {
     it('should update the hint', function() {
       this.dropdown.getDatumForTopSuggestion.andReturn(testDatum);
-      this.dropdown.isOpen = true;
+      this.dropdown.isVisible.andReturn(true);
       this.input.hasOverflow.andReturn(false);
       this.input.getInputValue.andReturn(testDatum.value.slice(0, 2));
 
@@ -93,7 +93,7 @@ describe('TypeaheadView', function() {
   describe('when dropdown triggers opened', function() {
     it('should update the hint', function() {
       this.dropdown.getDatumForTopSuggestion.andReturn(testDatum);
-      this.dropdown.isOpen = true;
+      this.dropdown.isVisible.andReturn(true);
       this.input.hasOverflow.andReturn(false);
       this.input.getInputValue.andReturn(testDatum.value.slice(0, 2));
 
@@ -301,7 +301,7 @@ describe('TypeaheadView', function() {
   describe('when input triggers whitespaceChanged', function() {
     it('should update the hint', function() {
       this.dropdown.getDatumForTopSuggestion.andReturn(testDatum);
-      this.dropdown.isOpen = true;
+      this.dropdown.isVisible.andReturn(true);
       this.input.hasOverflow.andReturn(false);
       this.input.getInputValue.andReturn(testDatum.value.slice(0, 2));
 

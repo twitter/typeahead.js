@@ -76,6 +76,26 @@ describe('DropdownView', function() {
   });
 
   describe('when rendered is triggered on a section', function() {
+    it('should hide the dropdown if empty', function() {
+      this.section.isEmpty.andReturn(true);
+
+      this.view.open();
+      this.view._show();
+      this.section.trigger('rendered');
+
+      expect(this.$menu).not.toBeVisible();
+    });
+
+    it('should show the dropdown if not empty', function() {
+      this.section.isEmpty.andReturn(false);
+
+      this.view.open();
+      this.view._hide();
+      this.section.trigger('rendered');
+
+      expect(this.$menu).toBeVisible();
+    });
+
     it('should trigger sectionRendered', function() {
       var spy;
 
@@ -87,12 +107,24 @@ describe('DropdownView', function() {
   });
 
   describe('#open', function() {
-    it('should display the menu', function() {
+    it('should display the menu if not empty', function() {
       this.view.close();
+
+      this.view.isEmpty = false;
       this.view.open();
 
       expect(this.$menu).toBeVisible();
     });
+
+    it('should not display the menu if empty', function() {
+      this.view.close();
+
+      this.view.isEmpty = true;
+      this.view.open();
+
+      expect(this.$menu).not.toBeVisible();
+    });
+
 
     it('should trigger opened', function() {
       var spy;
@@ -263,24 +295,27 @@ describe('DropdownView', function() {
     });
   });
 
-  describe('#isEmpty', function() {
-    it('should return false if a header or footer is present', function() {
-      this.section.isEmpty.andReturn(true);
-      this.$menu.append('<div class="footer">');
+  describe('#isVisible', function() {
+    it('should return true if open and not empty', function() {
+      this.view.isOpen = true;
+      this.view.isEmpty = false;
 
-      expect(this.view.isEmpty()).toBe(false);
-    });
+      expect(this.view.isVisible()).toBe(true);
 
-    it('should return false if a section is not empty', function() {
-      this.section.isEmpty.andReturn(false);
+      this.view.isOpen = false;
+      this.view.isEmpty = false;
 
-      expect(this.view.isEmpty()).toBe(false);
-    });
+      expect(this.view.isVisible()).toBe(false);
 
-    it('should return true otherwise', function() {
-      this.section.isEmpty.andReturn(true);
+      this.view.isOpen = true;
+      this.view.isEmpty = true;
 
-      expect(this.view.isEmpty()).toBe(true);
+      expect(this.view.isVisible()).toBe(false);
+
+      this.view.isOpen = false;
+      this.view.isEmpty = false;
+
+      expect(this.view.isVisible()).toBe(false);
     });
   });
 });

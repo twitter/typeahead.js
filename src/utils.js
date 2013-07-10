@@ -95,6 +95,12 @@ _ = {
     return function() { return counter++; };
   })(),
 
+  templatify: function templatify(obj) {
+    return $.isFunction(obj) ? obj : template;
+
+    function template() { return String(obj); }
+  },
+
   defer: function(fn) { setTimeout(fn, 0); },
 
   debounce: function(func, wait, immediate) {

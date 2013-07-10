@@ -24,9 +24,9 @@ var SectionView = (function() {
 
     this.dataset = o.dataset;
     this.templates = {
-      empty: o.templates.empty && templatify(o.templates.empty),
-      header: o.templates.header && templatify(o.templates.header),
-      footer: o.templates.footer && templatify(o.templates.footer),
+      empty: o.templates.empty && _.templatify(o.templates.empty),
+      header: o.templates.header && _.templatify(o.templates.header),
+      footer: o.templates.footer && _.templatify(o.templates.footer),
       suggestion: o.templates.suggestion || defaultSuggestionTemplate
     };
 
@@ -145,12 +145,6 @@ var SectionView = (function() {
 
   // helper functions
   // ----------------
-
-  function templatify(obj) {
-    return _.isFunction(obj) ? obj : template;
-
-    function template() { return String(obj); }
-  }
 
   function defaultSuggestionTemplate(context) {
     return '<p>' + context.value + '</p>';

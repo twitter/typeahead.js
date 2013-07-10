@@ -20,6 +20,7 @@ var DropdownView = (function() {
     }
 
     this.isOpen = false;
+    this.isEmpty = true;
     this.isMouseOverDropdown = false;
 
     this.sections = o.sections;
@@ -72,7 +73,23 @@ var DropdownView = (function() {
     },
 
     _onRendered: function onRendered() {
+      this.isEmpty = _.every(this.sections, isSectionEmpty);
+
+      this.isEmpty ? this._hide() : (this.isOpen && this._show());
+
       this.trigger('sectionRendered');
+
+      function isSectionEmpty(section) { return section.isEmpty(); }
+    },
+
+    _hide: function() {
+      this.$menu.hide();
+    },
+
+    _show: function() {
+      // can't use jQuery#show because $menu is a span element we want
+      // display: block; not dislay: inline;
+      this.$menu.css('display', 'block');
     },
 
     _getSuggestions: function getSuggestions() {
@@ -150,7 +167,7 @@ var DropdownView = (function() {
         this.isOpen = this.isMouseOverDropdown = false;
 
         this._removeCursor();
-        this.$menu.hide();
+        this._hide();
 
         this.trigger('closed');
       }
@@ -160,9 +177,7 @@ var DropdownView = (function() {
       if (!this.isOpen) {
         this.isOpen = true;
 
-        // can't use jQuery#show because $menu is a span element we want
-        // display: block; not dislay: inline;
-        this.$menu.css('display', 'block');
+        !this.isEmpty && this._show();
 
         this.trigger('opened');
       }
@@ -204,16 +219,8 @@ var DropdownView = (function() {
       function clearSection(section) { section.clear(); }
     },
 
-    isEmpty: function isEmpty() {
-      var hasHeaderOrFooter, sectionsAreEmpty;
-
-      sectionsAreEmpty = _.every(this.sections, isSectionEmpty);
-      hasHeaderOrFooter =
-        !!this.$menu.children(':not([class^="tt-section-"])').length;
-
-      return !hasHeaderOrFooter && sectionsAreEmpty;
-
-      function isSectionEmpty(section) { return section.isEmpty(); }
+    isVisible: function isVisible() {
+      return this.isOpen && !this.isEmpty;
     }
   });
 
