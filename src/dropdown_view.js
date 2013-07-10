@@ -13,8 +13,16 @@ var DropdownView = (function() {
     var that = this, onMouseEnter, onMouseLeave, onSuggestionClick,
         onSuggestionMouseEnter, onSuggestionMouseLeave;
 
+    o = o || {};
+
+    if (!o.menu || !o.sections) {
+      $.error('menu and/or sections are required');
+    }
+
     this.isOpen = false;
     this.isMouseOverDropdown = false;
+
+    this.sections = o.sections;
 
     // bound functions
     onMouseEnter = utils.bind(this._onMouseEnter, this);
@@ -29,8 +37,6 @@ var DropdownView = (function() {
     .on('click.tt', '.tt-suggestion', onSuggestionClick)
     .on('mouseenter.tt', '.tt-suggestion', onSuggestionMouseEnter)
     .on('mouseleave.tt', '.tt-suggestion', onSuggestionMouseLeave);
-
-    this.sections = utils.map(o.sections, initializeSection);
 
     utils.each(this.sections, function(i, section) {
       that.$menu.append(section.getRoot());
@@ -66,7 +72,7 @@ var DropdownView = (function() {
     },
 
     _onRendered: function onRendered() {
-      this.trigger('suggestionsRendered');
+      this.trigger('sectionRendered');
     },
 
     _getSuggestions: function getSuggestions() {
@@ -74,11 +80,11 @@ var DropdownView = (function() {
     },
 
     _getCursor: function getCursor() {
-      return this.$menu.find('.tt-cursor');
+      return this.$menu.find('.tt-cursor').first();
     },
 
     _setCursor: function setCursor($el) {
-      $el.addClass('tt-cursor');
+      $el.first().addClass('tt-cursor');
     },
 
     _removeCursor: function removeCursor() {
@@ -196,15 +202,21 @@ var DropdownView = (function() {
       utils.each(this.sections, clearSection);
 
       function clearSection(i, section) { section.clear(); }
+    },
+
+    isEmpty: function isEmpty() {
+      var hasHeaderOrFooter, sectionsAreEmpty;
+
+      sectionsAreEmpty = utils.every(this.sections, isSectionEmpty);
+      hasHeaderOrFooter =
+        !!this.$menu.children(':not([class^="tt-section-"])').length;
+
+      return !hasHeaderOrFooter && sectionsAreEmpty;
+
+      function isSectionEmpty(section) { return section.isEmpty(); }
     }
   });
 
   return DropdownView;
 
-  // helper functions
-  // ----------------
-
-  function initializeSection(o) {
-    return new SectionView(o);
-  }
 })();

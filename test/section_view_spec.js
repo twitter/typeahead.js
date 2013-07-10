@@ -3,16 +3,18 @@ describe('SectionView', function() {
   beforeEach(function() {
     jasmine.Dataset.useMock();
 
-    this.dataset = new Dataset({ name: 'test', local: [] });
+    this.dataset = new Dataset();
+    this.dataset.name = 'test';
 
-    this.section = new SectionView({
-      dataset: this.dataset,
-      templates: {
-        suggestion: function(context) { return '<p>' + context.value + '</p>'; }
-      }
-    });
+    this.section = new SectionView({ dataset: this.dataset });
 
     this.$root = this.section.getRoot();
+  });
+
+  it('should throw an error if dataset is missing', function() {
+    expect(noDataset).toThrow();
+
+    function noDataset() { new SectionView(); }
   });
 
   describe('#getRoot', function() {
@@ -48,6 +50,17 @@ describe('SectionView', function() {
         expect(this.$root).not.toContainText('five');
       });
     });
+
+    it('should trigger rendered after suggestions are rendered', function() {
+      var spy;
+
+      this.section.onSync('rendered', spy = jasmine.createSpy());
+
+      this.dataset.get.andCallFake(fakeGetWithSyncResults);
+      this.section.update('woah');
+
+      waitsFor(function() { return spy.callCount; });
+    });
   });
 
   describe('#clear', function() {
@@ -64,17 +77,6 @@ describe('SectionView', function() {
     });
   });
 
-  it('should trigger rendered after suggestions are rendered', function() {
-    var spy;
-
-    this.section.onSync('rendered', spy = jasmine.createSpy());
-
-    this.dataset.get.andCallFake(fakeGetWithSyncResults);
-    this.section.update('woah');
-
-    waitsFor(function() { return spy.callCount; });
-  });
-
   describe('#isEmpty', function() {
     it('should return true when empty', function() {
       expect(this.section.isEmpty()).toBe(true);
@@ -87,6 +89,9 @@ describe('SectionView', function() {
       expect(this.section.isEmpty()).toBe(false);
     });
   });
+
+  // helper functions
+  // ----------------
 
   function fakeGetWithSyncResults(query, cb) {
     cb([

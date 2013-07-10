@@ -15,7 +15,6 @@ describe('InputView', function() {
   beforeEach(function() {
     var $fixture;
 
-    jasmine.SectionView.useMock();
     setFixtures(fixtures.html.input + fixtures.html.hint);
 
     $fixture = $('#jasmine-fixtures');

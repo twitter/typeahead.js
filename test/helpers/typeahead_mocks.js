@@ -5,7 +5,8 @@
     'Dataset',
     'PersistentStorage',
     'Transport',
-    'SearchIndex'
+    'SearchIndex',
+    'SectionView'
     ];
 
   for (var i = 0; i < components.length; i++) {
@@ -31,14 +32,23 @@
   }
 
   function mock(Constructor) {
+    var mockConstructor;
+
     Mock.prototype = Constructor.prototype;
 
-    return jasmine.createSpy('mock constructor').andCallFake(Mock);
+    mockConstructor = jasmine.createSpy('mock constructor').andCallFake(Mock);
+
+    // copy instance methods
+    for (var key in Constructor) {
+      if (typeof Constructor[key] === 'function') {
+        mockConstructor[key] = Constructor[key];
+      }
+    }
+
+    return mockConstructor;
 
     function Mock() {
       var instance = utils.mixin({}, Constructor.prototype);
-
-      Constructor.apply(instance, arguments);
 
       for (var key in instance) {
         if (typeof instance[key] === 'function') {

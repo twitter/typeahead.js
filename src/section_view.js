@@ -5,17 +5,25 @@
  */
 
 var SectionView = (function() {
-  var suggestionKey = 'ttSuggestion';
+  var datumKey = 'ttDatum';
 
   // constructor
   // -----------
 
   function SectionView(o) {
+    o = o || {};
+
+    if (!o.dataset) {
+      $.error('missing dataset');
+    }
+
     // tracks the last query the section was updated for
     this.query = null;
 
     this.dataset = o.dataset;
-    this.templates = o.templates;
+    this.templates = o.templates || {};
+    this.templates.suggestion =
+      this.templates.suggestion || defaultSuggestionTemplate;
 
     this.$el = $(html.section.replace('%CLASS%', this.dataset.name));
   }
@@ -23,8 +31,16 @@ var SectionView = (function() {
   // static methods
   // --------------
 
+  SectionView.many = function many(configs) {
+    configs = utils.isArray(configs) ? configs : [configs];
+
+    return utils.map(configs, initialize);
+
+    function initialize(config) { return new SectionView(config); }
+  };
+
   SectionView.extractDatum = function extractDatum(el) {
-    return $(el).data(suggestionKey);
+    return $(el).data(datumKey);
   };
 
   // instance methods
@@ -52,7 +68,7 @@ var SectionView = (function() {
 
         innerHtml = that.templates.suggestion(suggestion.raw);
         outerHtml = html.suggestion.replace('%BODY%', innerHtml);
-        $el = $(outerHtml).data(suggestionKey, suggestion);
+        $el = $(outerHtml).data(datumKey, suggestion);
 
         $el.children().each(function() { $(this).css(css.suggestionChild); });
 
@@ -88,4 +104,10 @@ var SectionView = (function() {
 
   return SectionView;
 
+  // helper functions
+  // ----------------
+
+  function defaultSuggestionTemplate(context) {
+    return '<p>' + context.value + '</p>';
+  }
 })();

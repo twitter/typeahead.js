@@ -13,6 +13,15 @@ var TypeaheadView = (function() {
   function TypeaheadView(o) {
     var $menu, $input, $hint;
 
+    o = o || {};
+
+    if (!o.input || !o.sections) {
+      $.error('missing input and/or sections');
+    }
+
+    // maps the section configs to SectionView instances
+    o.sections = SectionView.many(o.sections);
+
     this.$node = buildDomStructure(o.input);
 
     $menu = this.$node.find('.tt-dropdown-menu');
@@ -23,7 +32,7 @@ var TypeaheadView = (function() {
     .onSync('suggestionClicked', this._onSuggestionClicked, this)
     .onSync('cursorMoved', this._onCursorMoved, this)
     .onSync('cursorRemoved', this._onCursorRemoved, this)
-    .onSync('suggestionsRendered', this._onSuggestionsRendered, this)
+    .onSync('sectionRendered', this._onSectionRendered, this)
     .onSync('opened', this._onOpened, this)
     .onSync('closed', this._onClosed, this);
 
@@ -71,7 +80,7 @@ var TypeaheadView = (function() {
       this._updateHint();
     },
 
-    _onSuggestionsRendered: function onSuggestionsRendered() {
+    _onSectionRendered: function onSectionRendered() {
       this._updateHint();
     },
 
