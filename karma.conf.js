@@ -15,6 +15,7 @@ files = [
   'src/css.js',
   'src/highlight.js',
   'src/lru_cache.js',
+  'src/event_bus.js',
   'src/event_emitter.js',
   'src/persistent_storage.js',
   'src/transport.js',

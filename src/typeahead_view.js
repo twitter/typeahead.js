@@ -26,6 +26,8 @@ var TypeaheadView = (function() {
     $input = this.$node.find('.tt-input');
     $hint = this.$node.find('.tt-hint');
 
+    this.eventBus = new EventBus({ el: $input });
+
     sections = initializeSections(o.sections);
 
     this.dropdown = new DropdownView({ menu: $menu, sections: sections })
@@ -86,10 +88,14 @@ var TypeaheadView = (function() {
 
     _onOpened: function onOpened() {
       this._updateHint();
+
+      this.eventBus.trigger('opened');
     },
 
     _onClosed: function onClosed() {
       this.input.clearHint();
+
+      this.eventBus.trigger('closed');
     },
 
     _onFocused: function onFocused() {
@@ -197,6 +203,8 @@ var TypeaheadView = (function() {
       if (hint && query !== hint && this.input.isCursorAtEnd()) {
         datum = this.dropdown.getDatumForTopSuggestion();
         datum && this.input.setInputValue(datum.value);
+
+        this.eventBus.trigger('autocompleted', datum.raw);
       }
     },
 
@@ -212,7 +220,7 @@ var TypeaheadView = (function() {
       // defer the closing of the dropdown otherwise it'll stay open
       _.defer(_.bind(this.dropdown.close, this.dropdown));
 
-      // TODO: trigger an event
+      this.eventBus.trigger('selected', datum.raw);
     }
 
     // ### public

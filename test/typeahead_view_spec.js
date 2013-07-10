@@ -11,11 +11,11 @@ describe('TypeaheadView', function() {
     setFixtures(fixtures.html.textInput);
 
     $fixture = $('#jasmine-fixtures');
-    $input = $fixture.find('input');
+    this.$input = $fixture.find('input');
 
     testDatum = fixtures.normalized.simple[0];
 
-    this.view = new TypeaheadView({ input: $input, sections: {} });
+    this.view = new TypeaheadView({ input: this.$input, sections: {} });
     this.input = this.view.input;
     this.dropdown = this.view.dropdown;
   });
@@ -26,8 +26,12 @@ describe('TypeaheadView', function() {
     });
 
     it('should select the datum', function() {
+      var $e, spy;
+
+      this.$input.on('typeahead:selected', spy = jasmine.createSpy());
       this.dropdown.trigger('suggestionClicked');
 
+      expect(spy).toHaveBeenCalled();
       expect(this.input.clearHint).toHaveBeenCalled();
       expect(this.input.setQuery).toHaveBeenCalledWith(testDatum.value)
       expect(this.input.setInputValue)
@@ -105,6 +109,16 @@ describe('TypeaheadView', function() {
 
       expect(this.input.setHintValue).toHaveBeenCalledWith(testDatum.value);
     });
+
+    it('should trigger typeahead:opened', function() {
+      var spy;
+
+      this.$input.on('typeahead:opened', spy = jasmine.createSpy());
+
+      this.dropdown.trigger('opened');
+
+      expect(spy).toHaveBeenCalled();
+    });
   });
 
   describe('when dropdown triggers closed', function() {
@@ -112,6 +126,16 @@ describe('TypeaheadView', function() {
       this.dropdown.trigger('closed');
 
       expect(this.input.clearHint).toHaveBeenCalled();
+    });
+
+    it('should trigger typeahead:closed', function() {
+      var spy;
+
+      this.$input.on('typeahead:closed', spy = jasmine.createSpy());
+
+      this.dropdown.trigger('closed');
+
+      expect(spy).toHaveBeenCalled();
     });
   });
 
@@ -137,11 +161,13 @@ describe('TypeaheadView', function() {
     });
 
     it('should select the datum', function() {
-      var $e;
+      var $e, spy;
 
       $e = jasmine.createSpyObj('event', ['preventDefault']);
+      this.$input.on('typeahead:selected', spy = jasmine.createSpy());
       this.input.trigger('enterKeyed', $e);
 
+      expect(spy).toHaveBeenCalled();
       expect(this.input.clearHint).toHaveBeenCalled();
       expect(this.input.setQuery).toHaveBeenCalledWith(testDatum.value)
       expect(this.input.setInputValue)
@@ -167,11 +193,13 @@ describe('TypeaheadView', function() {
       });
 
       it('should select the datum', function() {
-        var $e;
+        var $e, spy;
 
         $e = jasmine.createSpyObj('event', ['preventDefault']);
+        this.$input.on('typeahead:selected', spy = jasmine.createSpy());
         this.input.trigger('tabKeyed', $e);
 
+        expect(spy).toHaveBeenCalled();
         expect(this.input.clearHint).toHaveBeenCalled();
         expect(this.input.setQuery).toHaveBeenCalledWith(testDatum.value)
         expect(this.input.setInputValue)
@@ -192,14 +220,18 @@ describe('TypeaheadView', function() {
 
     describe('when cursor is not in use', function() {
       it('should autocomplete', function() {
+        var spy;
+
         this.input.getQuery.andReturn('bi');
         this.input.getHintValue.andReturn(testDatum.value);
         this.input.isCursorAtEnd.andReturn(true);
         this.dropdown.getDatumForTopSuggestion.andReturn(testDatum);
+        this.$input.on('typeahead:autocompleted', spy = jasmine.createSpy());
 
         this.input.trigger('tabKeyed');
 
         expect(this.input.setInputValue).toHaveBeenCalledWith(testDatum.value);
+        expect(spy).toHaveBeenCalled();
       });
     });
   });
@@ -248,29 +280,37 @@ describe('TypeaheadView', function() {
 
   describe('when input triggers leftKeyed', function() {
     it('should autocomplete if language is rtl', function() {
+      var spy;
+
       this.view.dir = 'rtl';
       this.input.getQuery.andReturn('bi');
       this.input.getHintValue.andReturn(testDatum.value);
       this.input.isCursorAtEnd.andReturn(true);
       this.dropdown.getDatumForTopSuggestion.andReturn(testDatum);
+      this.$input.on('typeahead:autocompleted', spy = jasmine.createSpy());
 
       this.input.trigger('leftKeyed');
 
       expect(this.input.setInputValue).toHaveBeenCalledWith(testDatum.value);
+      expect(spy).toHaveBeenCalled();
     });
   });
 
   describe('when input triggers rightKeyed', function() {
     it('should autocomplete if language is ltr', function() {
+      var spy;
+
       this.view.dir = 'ltr';
       this.input.getQuery.andReturn('bi');
       this.input.getHintValue.andReturn(testDatum.value);
       this.input.isCursorAtEnd.andReturn(true);
       this.dropdown.getDatumForTopSuggestion.andReturn(testDatum);
+      this.$input.on('typeahead:autocompleted', spy = jasmine.createSpy());
 
       this.input.trigger('rightKeyed');
 
       expect(this.input.setInputValue).toHaveBeenCalledWith(testDatum.value);
+      expect(spy).toHaveBeenCalled();
     });
   });
 
