@@ -18,6 +18,7 @@ var Dataset = (function() {
     this.name = o.name || _.getUniqueId();
     this.limit = o.limit || 5;
     this.valueKey = o.valueKey || 'value';
+    this.dupChecker = getDupChecker(o.dupChecker);
 
     this.local = getLocal(o);
     this.prefetch = getPrefetch(o);
@@ -176,7 +177,7 @@ var Dataset = (function() {
 
           // checks for duplicates
           isDuplicate = _.some(matchesWithBackfill, function(match) {
-            return remoteMatch.value === match.value;
+            return that.dupChecker(remoteMatch, match);
           });
 
           !isDuplicate && matchesWithBackfill.push(remoteMatch);
@@ -195,6 +196,17 @@ var Dataset = (function() {
 
   // helper functions
   // ----------------
+
+  function getDupChecker(dupChecker) {
+    if (!_.isFunction(dupChecker)) {
+      dupChecker = dupChecker === false ? ignoreDups : standardDupChecker;
+    }
+
+    return dupChecker;
+
+    function ignoreDups() { return false; }
+    function standardDupChecker(a, b) { return a.value === b.value; }
+  }
 
   function getLocal(o) {
     return o.local || null;
