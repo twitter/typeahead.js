@@ -24,7 +24,7 @@ var Dataset = (function() {
     this.remote = getRemote(o);
 
     // the backing data structure used for fast pattern matching
-    this.index = new this.SearchIndex();
+    this.index = new (o.SearchIndex || SearchIndex)();
 
     // only initialize storage if there's a name otherwise
     // loading from storage on subsequent page loads is impossible
@@ -35,8 +35,6 @@ var Dataset = (function() {
   // ----------------
 
   _.mixin(Dataset.prototype, {
-
-    SearchIndex: SearchIndex,
 
     // ### private
 
