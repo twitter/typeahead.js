@@ -37,13 +37,13 @@ var SearchIndex = (function() {
 
       data = _.isArray(data) ? data : [data];
 
-      _.each(data, function(i, datum) {
+      _.each(data, function(datum) {
         var id, tokens;
 
         id = that.datums.push(datum) - 1;
         tokens = that._tokenize(datum.value);
 
-        _.each(tokens, function(i, token) {
+        _.each(tokens, function(token) {
           var node, chars, ch, ids;
 
           node = that.trie;
@@ -66,7 +66,7 @@ var SearchIndex = (function() {
 
       tokens = this._tokenize(query);
 
-      _.each(tokens, function(i, token) {
+      _.each(tokens, function(token) {
         var node, chars, ch, ids;
 
         // previous tokens didn't share any matches

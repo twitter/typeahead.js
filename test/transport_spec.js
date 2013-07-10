@@ -129,7 +129,7 @@ describe('Transport', function() {
     this.transport.get('/test' + i, spy);
     expect(ajaxRequests.length).toBe(6);
 
-    _.each(ajaxRequests, function(i, req) {
+    _.each(ajaxRequests, function(req) {
       req.response(fixtures.ajaxResps.ok);
     });
 

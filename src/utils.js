@@ -49,7 +49,12 @@ _ = {
     return -1;
   },
 
-  each: $.each,
+  each: function(collection, cb) {
+    // stupid argument order for jQuery.each
+    $.each(collection, reverseArgs);
+
+    function reverseArgs(index, value) { return cb(value, index); }
+  },
 
   map: $.map,
 

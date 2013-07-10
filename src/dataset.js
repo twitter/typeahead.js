@@ -171,7 +171,7 @@ var Dataset = (function() {
       function returnRemoteMatches(remoteMatches) {
         var matchesWithBackfill = matches.slice(0);
 
-        _.each(remoteMatches, function(i, remoteMatch) {
+        _.each(remoteMatches, function(remoteMatch) {
           var isDuplicate;
 
           // checks for duplicates

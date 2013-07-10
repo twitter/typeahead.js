@@ -38,7 +38,7 @@ var DropdownView = (function() {
     .on('mouseenter.tt', '.tt-suggestion', onSuggestionMouseEnter)
     .on('mouseleave.tt', '.tt-suggestion', onSuggestionMouseLeave);
 
-    _.each(this.sections, function(i, section) {
+    _.each(this.sections, function(section) {
       that.$menu.append(section.getRoot());
       section.onSync('rendered', that._onRendered, that);
     });
@@ -195,13 +195,13 @@ var DropdownView = (function() {
     update: function update(query) {
       _.each(this.sections, updateSection);
 
-      function updateSection(i, section) { section.update(query); }
+      function updateSection(section) { section.update(query); }
     },
 
     empty: function empty() {
       _.each(this.sections, clearSection);
 
-      function clearSection(i, section) { section.clear(); }
+      function clearSection(section) { section.clear(); }
     },
 
     isEmpty: function isEmpty() {

@@ -260,7 +260,7 @@ describe('Dataset', function() {
       this.dataset.get('bigg', spy2);
 
       expect(spy1.callCount).toBe(1);
-      expect(spy2.callCount).toBe(2);
+      expect(spy2.callCount).toBe(1);
 
       expect(spy1).toHaveBeenCalledWith([
         { value: 'big', raw: { value: 'big' } },
@@ -271,13 +271,22 @@ describe('Dataset', function() {
         { value: 'bigger', raw: { value: 'bigger' } },
         { value: 'biggest', raw: { value: 'biggest' } }
       ]);
-      expect(spy2).toHaveBeenCalledWith([
-        { value: 'bigger', raw: { value: 'bigger' } },
-        { value: 'biggest', raw: { value: 'biggest' } },
-        { value: 'dog', raw: { value: 'dog' } }
-      ]);
 
-      function fakeGet(url, o, cb) { cb(fixtures.data.animals); }
+      waitsFor(function() { return spy2.callCount === 2; });
+
+      runs(function() {
+        expect(spy2).toHaveBeenCalledWith([
+          { value: 'bigger', raw: { value: 'bigger' } },
+          { value: 'biggest', raw: { value: 'biggest' } },
+          { value: 'dog', raw: { value: 'dog' } }
+        ]);
+      });
+
+      function fakeGet(url, o, cb) {
+        setTimeout(function() {
+          cb(fixtures.data.animals);
+        }, 0);
+      }
     });
   });
 });
