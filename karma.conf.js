@@ -13,6 +13,7 @@ files = [
   'src/utils.js',
   'src/html.js',
   'src/css.js',
+  'src/highlight.js',
   'src/lru_cache.js',
   'src/event_emitter.js',
   'src/persistent_storage.js',
