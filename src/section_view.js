@@ -19,6 +19,7 @@ var SectionView = (function() {
 
     // tracks the last query the section was updated for
     this.query = null;
+    this.highlight = !!o.highlight;
 
     this.dataset = o.dataset;
     this.templates = o.templates || {};
@@ -51,6 +52,7 @@ var SectionView = (function() {
 
       this.clear();
       this.$el.append($suggestions);
+      this.highlight && highlight({ node: $suggestions[0], pattern: query });
       // TODO: render header and footer
 
       this.trigger('rendered');
