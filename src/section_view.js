@@ -12,6 +12,7 @@ var SectionView = (function() {
 
   function SectionView(o) {
     o = o || {};
+    o.templates = o.templates || {};
 
     if (!o.dataset) {
       $.error('missing dataset');
@@ -22,9 +23,11 @@ var SectionView = (function() {
     this.highlight = !!o.highlight;
 
     this.dataset = o.dataset;
-    this.templates = o.templates || {};
-    this.templates.suggestion =
-      this.templates.suggestion || defaultSuggestionTemplate;
+    this.templates = {
+      header: o.templates.header && templatify(o.templates.header),
+      footer: o.templates.footer && templatify(o.templates.footer),
+      suggestion: o.templates.suggestion || defaultSuggestionTemplate
+    };
 
     this.$el = $(html.section.replace('%CLASS%', this.dataset.name));
   }
@@ -44,16 +47,28 @@ var SectionView = (function() {
     // ### private
 
     _render: function render(query, suggestions) {
-      var that = this, $suggestions;
+      var that = this, $suggestions, headerFooterContext, header, footer;
+
+      this.clear();
 
       $suggestions = $(html.suggestions)
       .css(css.suggestions)
       .append(utils.map(suggestions, getSuggestionNodes));
 
-      this.clear();
       this.$el.append($suggestions);
       this.highlight && highlight({ node: $suggestions[0], pattern: query });
-      // TODO: render header and footer
+
+      headerFooterContext = { query: query, isEmpty: !suggestions.length };
+
+      if (this.templates.header) {
+        header = this.templates.header(headerFooterContext);
+        this.$el.prepend(header);
+      }
+
+      if (this.templates.footer) {
+        footer = this.templates.footer(headerFooterContext);
+        this.$el.append(footer);
+      }
 
       this.trigger('rendered');
 
@@ -100,6 +115,12 @@ var SectionView = (function() {
 
   // helper functions
   // ----------------
+
+  function templatify(obj) {
+    return utils.isFunction(obj) ? obj : template;
+
+    function template() { return String(obj); }
+  }
 
   function defaultSuggestionTemplate(context) {
     return '<p>' + context.value + '</p>';

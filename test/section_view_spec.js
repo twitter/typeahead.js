@@ -6,7 +6,13 @@ describe('SectionView', function() {
     this.dataset = new Dataset();
     this.dataset.name = 'test';
 
-    this.section = new SectionView({ dataset: this.dataset });
+    this.section = new SectionView({
+      dataset: this.dataset,
+      templates: {
+        header: '<h2>header</h2>',
+        footer: function(c) { return '<p>' + c.query + '</p>'; }
+      }
+    });
 
     this.$root = this.section.getRoot();
   });
@@ -31,6 +37,20 @@ describe('SectionView', function() {
       expect(this.$root).toContainText('one');
       expect(this.$root).toContainText('two');
       expect(this.$root).toContainText('three');
+    });
+
+    it('should render header', function() {
+      this.dataset.get.andCallFake(fakeGetWithSyncResults);
+      this.section.update('woah');
+
+      expect(this.$root).toContainText('header');
+    });
+
+    it('should render footer', function() {
+      this.dataset.get.andCallFake(fakeGetWithSyncResults);
+      this.section.update('woah');
+
+      expect(this.$root).toContainText('woah');
     });
 
     it('should not render stale suggestions', function() {
