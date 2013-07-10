@@ -6,15 +6,7 @@ describe('SectionView', function() {
     this.dataset = new Dataset();
     this.dataset.name = 'test';
 
-    this.section = new SectionView({
-      dataset: this.dataset,
-      templates: {
-        header: '<h2>header</h2>',
-        footer: function(c) { return '<p>' + c.query + '</p>'; }
-      }
-    });
-
-    this.$root = this.section.getRoot();
+    this.section = new SectionView({ dataset: this.dataset });
   });
 
   it('should throw an error if dataset is missing', function() {
@@ -34,23 +26,67 @@ describe('SectionView', function() {
       this.dataset.get.andCallFake(fakeGetWithSyncResults);
       this.section.update('woah');
 
-      expect(this.$root).toContainText('one');
-      expect(this.$root).toContainText('two');
-      expect(this.$root).toContainText('three');
+      expect(this.section.getRoot()).toContainText('one');
+      expect(this.section.getRoot()).toContainText('two');
+      expect(this.section.getRoot()).toContainText('three');
+    });
+
+    it('should render empty when no suggestions are available', function() {
+      this.section = new SectionView({
+        dataset: this.dataset,
+        templates: {
+          empty: '<h2>empty</h2>'
+        }
+      });
+
+      this.dataset.get.andCallFake(fakeGetWithSyncEmptyResults);
+      this.section.update('woah');
+
+      expect(this.section.getRoot()).toContainText('empty');
     });
 
     it('should render header', function() {
+      this.section = new SectionView({
+        dataset: this.dataset,
+        templates: {
+          header: '<h2>header</h2>'
+        }
+      });
+
       this.dataset.get.andCallFake(fakeGetWithSyncResults);
       this.section.update('woah');
 
-      expect(this.$root).toContainText('header');
+      expect(this.section.getRoot()).toContainText('header');
     });
 
     it('should render footer', function() {
+      this.section = new SectionView({
+        dataset: this.dataset,
+        templates: {
+          footer: function(c) { return '<p>' + c.query + '</p>'; }
+        }
+      });
+
       this.dataset.get.andCallFake(fakeGetWithSyncResults);
       this.section.update('woah');
 
-      expect(this.$root).toContainText('woah');
+      expect(this.section.getRoot()).toContainText('woah');
+    });
+
+    it('should not render header/footer if there is no content', function() {
+      this.section = new SectionView({
+        dataset: this.dataset,
+        templates: {
+          header: '<h2>header</h2>',
+          footer: '<h2>footer</h2>'
+        }
+      });
+
+      this.dataset.get.andCallFake(fakeGetWithSyncEmptyResults);
+      this.section.update('woah');
+
+      expect(this.section.getRoot()).not.toContainText('header');
+      expect(this.section.getRoot()).not.toContainText('footer');
     });
 
     it('should not render stale suggestions', function() {
@@ -63,11 +99,11 @@ describe('SectionView', function() {
       waits(100);
 
       runs(function() {
-        expect(this.$root).toContainText('one');
-        expect(this.$root).toContainText('two');
-        expect(this.$root).toContainText('three');
-        expect(this.$root).not.toContainText('four');
-        expect(this.$root).not.toContainText('five');
+        expect(this.section.getRoot()).toContainText('one');
+        expect(this.section.getRoot()).toContainText('two');
+        expect(this.section.getRoot()).toContainText('three');
+        expect(this.section.getRoot()).not.toContainText('four');
+        expect(this.section.getRoot()).not.toContainText('five');
       });
     });
 
@@ -84,16 +120,12 @@ describe('SectionView', function() {
   });
 
   describe('#clear', function() {
-    it('should empty the element', function() {
+    it('should clear suggestions', function() {
       this.dataset.get.andCallFake(fakeGetWithSyncResults);
       this.section.update('woah');
 
-      waitsFor(function() { return this.$root.children().length });
-
-      runs(function() {
-        this.section.clear();
-        expect(this.$root).toBeEmpty();
-      });
+      this.section.clear();
+      expect(this.section.getRoot()).toBeEmpty();
     });
   });
 
@@ -119,6 +151,10 @@ describe('SectionView', function() {
       { value: 'two', raw: { value: 'two' } },
       { value: 'three', raw: { value: 'three' } }
     ]);
+  }
+
+  function fakeGetWithSyncEmptyResults(query, cb) {
+    cb();
   }
 
   function fakeGetWithAsyncResults(query, cb) {

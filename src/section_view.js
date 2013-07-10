@@ -24,6 +24,7 @@ var SectionView = (function() {
 
     this.dataset = o.dataset;
     this.templates = {
+      empty: o.templates.empty && templatify(o.templates.empty),
       header: o.templates.header && templatify(o.templates.header),
       footer: o.templates.footer && templatify(o.templates.footer),
       suggestion: o.templates.suggestion || defaultSuggestionTemplate
@@ -47,41 +48,70 @@ var SectionView = (function() {
     // ### private
 
     _render: function render(query, suggestions) {
-      var that = this, $suggestions, headerFooterContext, header, footer;
+      var that = this, hasSuggestions;
 
-      this.clear();
+      this.$el.empty();
+      hasSuggestions = suggestions && suggestions.length;
 
-      $suggestions = $(html.suggestions)
-      .css(css.suggestions)
-      .append(_.map(suggestions, getSuggestionNodes));
-
-      this.$el.append($suggestions);
-      this.highlight && highlight({ node: $suggestions[0], pattern: query });
-
-      headerFooterContext = { query: query, isEmpty: !suggestions.length };
-
-      if (this.templates.header) {
-        header = this.templates.header(headerFooterContext);
-        this.$el.prepend(header);
+      if (!hasSuggestions && this.templates.empty) {
+        this.$el
+        .html(getEmptyHtml())
+        .append(that.templates.header ? getHeaderHtml() : null)
+        .prepend(that.templates.footer ? getFooterHtml() : null);
       }
 
-      if (this.templates.footer) {
-        footer = this.templates.footer(headerFooterContext);
-        this.$el.append(footer);
+      else if(hasSuggestions) {
+        this.$el
+        .html(getSuggestionsHtml())
+        .append(that.templates.header ? getHeaderHtml() : null)
+        .prepend(that.templates.footer ? getFooterHtml() : null);
       }
 
       this.trigger('rendered');
 
-      function getSuggestionNodes(suggestion) {
-        var $el, innerHtml, outerHtml;
+      function getEmptyHtml() {
+        return that.templates.empty({
+          query: query,
+          hasSuggestions: hasSuggestions
+        });
+      }
 
-        innerHtml = that.templates.suggestion(suggestion.raw);
-        outerHtml = html.suggestion.replace('%BODY%', innerHtml);
-        $el = $(outerHtml).data(datumKey, suggestion);
+      function getSuggestionsHtml() {
+        var $suggestions;
 
-        $el.children().each(function() { $(this).css(css.suggestionChild); });
+        $suggestions = $(html.suggestions)
+        .css(css.suggestions)
+        .append(_.map(suggestions, getSuggestionNode));
 
-        return $el;
+        that.highlight && highlight({ node: $suggestions[0], pattern: query });
+
+        return $suggestions;
+
+        function getSuggestionNode(suggestion) {
+          var $el, innerHtml, outerHtml;
+
+          innerHtml = that.templates.suggestion(suggestion.raw);
+          outerHtml = html.suggestion.replace('%BODY%', innerHtml);
+          $el = $(outerHtml).data(datumKey, suggestion);
+
+          $el.children().each(function() { $(this).css(css.suggestionChild); });
+
+          return $el;
+        }
+      }
+
+      function getHeaderHtml() {
+        return that.templates.header({
+          query: query,
+          hasSuggestions: hasSuggestions
+        });
+      }
+
+      function getFooterHtml() {
+        return that.templates.footer({
+          query: query,
+          hasSuggestions: hasSuggestions
+        });
       }
     },
 
@@ -103,7 +133,7 @@ var SectionView = (function() {
     },
 
     clear: function clear() {
-      this.$el.empty();
+      this._render(this.query || '');
     },
 
     isEmpty: function isEmpty() {
