@@ -28,7 +28,11 @@ describe('TypeaheadView', function() {
     it('should select the datum', function() {
       this.dropdown.trigger('suggestionClicked');
 
-      expect(this.input.setInputValue).toHaveBeenCalledWith(testDatum.value);
+      expect(this.input.clearHint).toHaveBeenCalled();
+      expect(this.input.setQuery).toHaveBeenCalledWith(testDatum.value)
+      expect(this.input.setInputValue)
+      .toHaveBeenCalledWith(testDatum.value, true);
+
       waitsFor(function() { return this.dropdown.close.callCount; });
     });
 
@@ -138,7 +142,11 @@ describe('TypeaheadView', function() {
       $e = jasmine.createSpyObj('event', ['preventDefault']);
       this.input.trigger('enterKeyed', $e);
 
-      expect(this.input.setInputValue).toHaveBeenCalledWith(testDatum.value);
+      expect(this.input.clearHint).toHaveBeenCalled();
+      expect(this.input.setQuery).toHaveBeenCalledWith(testDatum.value)
+      expect(this.input.setInputValue)
+      .toHaveBeenCalledWith(testDatum.value, true);
+
       waitsFor(function() { return this.dropdown.close.callCount; });
     });
 
@@ -164,7 +172,11 @@ describe('TypeaheadView', function() {
         $e = jasmine.createSpyObj('event', ['preventDefault']);
         this.input.trigger('tabKeyed', $e);
 
-        expect(this.input.setInputValue).toHaveBeenCalledWith(testDatum.value);
+        expect(this.input.clearHint).toHaveBeenCalled();
+        expect(this.input.setQuery).toHaveBeenCalledWith(testDatum.value)
+        expect(this.input.setInputValue)
+        .toHaveBeenCalledWith(testDatum.value, true);
+
         waitsFor(function() { return this.dropdown.close.callCount; });
       });
 

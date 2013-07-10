@@ -201,7 +201,11 @@ var TypeaheadView = (function() {
     },
 
     _select: function select(datum) {
-      this.input.setInputValue(datum.value);
+      this.input.clearHint();
+      this.input.setQuery(datum.value);
+      this.input.setInputValue(datum.value, true);
+
+      this._setLanguageDirection();
 
       // in ie, focus is not a synchronous event, so when a selection
       // is triggered by a click within the dropdown menu, we need to
