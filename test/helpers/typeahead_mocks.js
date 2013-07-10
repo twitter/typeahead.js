@@ -6,7 +6,9 @@
     'PersistentStorage',
     'Transport',
     'SearchIndex',
-    'SectionView'
+    'InputView',
+    'SectionView',
+    'DropdownView'
     ];
 
   for (var i = 0; i < components.length; i++) {
@@ -32,20 +34,19 @@
   }
 
   function mock(Constructor) {
-    var mockConstructor;
+    var constructorSpy;
 
     Mock.prototype = Constructor.prototype;
-
-    mockConstructor = jasmine.createSpy('mock constructor').andCallFake(Mock);
+    constructorSpy = jasmine.createSpy('mock constructor').andCallFake(Mock);
 
     // copy instance methods
     for (var key in Constructor) {
       if (typeof Constructor[key] === 'function') {
-        mockConstructor[key] = Constructor[key];
+        constructorSpy[key] = Constructor[key];
       }
     }
 
-    return mockConstructor;
+    return constructorSpy;
 
     function Mock() {
       var instance = utils.mixin({}, Constructor.prototype);
@@ -55,6 +56,12 @@
           spyOn(instance, key);
         }
       }
+
+      // have the event emitter methods call through
+      instance.onSync && instance.onSync.andCallThrough();
+      instance.onAsync && instance.onAsync.andCallThrough();
+      instance.off && instance.off.andCallThrough();
+      instance.trigger && instance.trigger.andCallThrough();
 
       instance.constructor = Constructor;
 

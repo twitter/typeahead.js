@@ -31,14 +31,6 @@ var SectionView = (function() {
   // static methods
   // --------------
 
-  SectionView.many = function many(configs) {
-    configs = utils.isArray(configs) ? configs : [configs];
-
-    return utils.map(configs, initialize);
-
-    function initialize(config) { return new SectionView(config); }
-  };
-
   SectionView.extractDatum = function extractDatum(el) {
     return $(el).data(datumKey);
   };

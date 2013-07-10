@@ -11,7 +11,7 @@ var TypeaheadView = (function() {
   // -----------
 
   function TypeaheadView(o) {
-    var $menu, $input, $hint;
+    var $menu, $input, $hint, sections;
 
     o = o || {};
 
@@ -19,16 +19,15 @@ var TypeaheadView = (function() {
       $.error('missing input and/or sections');
     }
 
-    // maps the section configs to SectionView instances
-    o.sections = SectionView.many(o.sections);
-
     this.$node = buildDomStructure(o.input);
 
     $menu = this.$node.find('.tt-dropdown-menu');
     $input = this.$node.find('.tt-input');
     $hint = this.$node.find('.tt-hint');
 
-    this.dropdown = new DropdownView({ menu: $menu, sections: o.sections })
+    sections = initializeSections(o.sections);
+
+    this.dropdown = new DropdownView({ menu: $menu, sections: sections })
     .onSync('suggestionClicked', this._onSuggestionClicked, this)
     .onSync('cursorMoved', this._onCursorMoved, this)
     .onSync('cursorRemoved', this._onCursorRemoved, this)
@@ -159,7 +158,6 @@ var TypeaheadView = (function() {
     _onWhitespaceChanged: function onWhitespaceChanged() {
       this._updateHint();
       this.dropdown.open();
-      this._setLanguageDirection();
     },
 
     _setLanguageDirection: function setLanguageDirection() {
@@ -258,5 +256,13 @@ var TypeaheadView = (function() {
       backgroundRepeat: $el.css('background-repeat'),
       backgroundSize: $el.css('background-size')
     };
+  }
+
+  function initializeSections(opts) {
+    opts = utils.isArray(opts) ? opts : [opts];
+
+    return utils.map(opts, initializeSection);
+
+    function initializeSection(o) { return new SectionView(o); }
   }
 })();

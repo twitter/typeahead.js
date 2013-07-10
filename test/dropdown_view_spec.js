@@ -12,10 +12,6 @@ describe('DropdownView', function() {
     this.$menu.html(fixtures.html.section);
 
     this.section = new SectionView();
-    this.section.onSync.andCallThrough();
-    this.section.onAsync.andCallThrough();
-    this.section.off.andCallThrough();
-    this.section.trigger.andCallThrough();
 
     this.view = new DropdownView({
       menu: this.$menu,

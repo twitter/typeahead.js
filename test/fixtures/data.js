@@ -12,6 +12,22 @@ fixtures.data = {
   animals: ['dog', 'cat', 'moose']
 };
 
+fixtures.normalized = {
+  simple: [
+    { value: 'big', raw: { value: 'big' } },
+    { value: 'bigger', raw: { value: 'bigger' } },
+    { value: 'biggest', raw: { value: 'biggest' } },
+    { value: 'small', raw: { value: 'small' } },
+    { value: 'smaller', raw: { value: 'smaller' } },
+    { value: 'smallest', raw: { value: 'smallest' } }
+  ],
+  animals: [
+    { value: 'dog', raw: { value: 'dog' } },
+    { value: 'cat', raw: { value: 'cat' } },
+    { value: 'moose', raw: { value: 'moose' } }
+  ]
+};
+
 fixtures.serialized = {
   simple: {
     "datums": [{
