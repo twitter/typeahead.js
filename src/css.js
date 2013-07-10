@@ -55,18 +55,18 @@ css = {
 };
 
 // ie specific styling
-if (utils.isMsie()) {
+if (_.isMsie()) {
    // ie6-8 (and 9?) doesn't fire hover and click events for elements with
    // transparent backgrounds, for a workaround, use 1x1 transparent gif
-  utils.mixin(css.query, {
+  _.mixin(css.query, {
     backgroundImage: 'url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7)'
   });
 }
 
 // ie7 and under specific styling
-if (utils.isMsie() && utils.isMsie() <= 7) {
-  utils.mixin(css.wrapper, { display: 'inline', zoom: '1' });
+if (_.isMsie() && _.isMsie() <= 7) {
+  _.mixin(css.wrapper, { display: 'inline', zoom: '1' });
   // if someone can tell me why this is necessary to align
   // the hint with the query in ie7, i'll send you $5 - @JakeHarding
-  utils.mixin(css.query, { marginTop: '-1px' });
+  _.mixin(css.query, { marginTop: '-1px' });
 }

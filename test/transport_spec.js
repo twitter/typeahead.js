@@ -73,7 +73,7 @@ describe('Transport', function() {
     waits(100); // arbitrary amount of time
     runs(function() { expect(ajaxRequests.length).toBe(1); });
 
-    function rateLimiter(fn) { return utils.debounce(fn, 20); }
+    function rateLimiter(fn) { return _.debounce(fn, 20); }
   });
 
   it('should cache most recent requests', function() {
@@ -129,7 +129,7 @@ describe('Transport', function() {
     this.transport.get('/test' + i, spy);
     expect(ajaxRequests.length).toBe(6);
 
-    utils.each(ajaxRequests, function(i, req) {
+    _.each(ajaxRequests, function(i, req) {
       req.response(fixtures.ajaxResps.ok);
     });
 

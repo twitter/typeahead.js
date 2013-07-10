@@ -15,7 +15,7 @@ var LruCache = (function(root, undefined) {
     this.list = new List();
   }
 
-  utils.mixin(LruCache.prototype, {
+  _.mixin(LruCache.prototype, {
     set: function set(key, val) {
       var tailItem = this.list.tail, node;
 
@@ -56,7 +56,7 @@ var LruCache = (function(root, undefined) {
     this.head = this.tail = null;
   }
 
-  utils.mixin(List.prototype, {
+  _.mixin(List.prototype, {
     add: function add(node) {
       if (this.head) {
         node.next = this.head;

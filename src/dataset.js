@@ -15,7 +15,7 @@ var Dataset = (function() {
       $.error('one of local, prefetch, or remote is required');
     }
 
-    this.name = o.name || utils.getUniqueId();
+    this.name = o.name || _.getUniqueId();
     this.limit = o.limit || 5;
     this.valueKey = o.valueKey || 'value';
 
@@ -34,11 +34,11 @@ var Dataset = (function() {
   // instance methods
   // ----------------
 
-  utils.mixin(Dataset.prototype, {
+  _.mixin(Dataset.prototype, {
 
     SearchIndex: SearchIndex,
 
-    // ### private methods
+    // ### private
 
     _loadPrefetch: function loadPrefetch(o) {
       var that = this, serialized, deferred;
@@ -85,15 +85,15 @@ var Dataset = (function() {
     _normalize: function normalize(data) {
       var that = this;
 
-      return utils.map(data, normalizeRawDatum);
+      return _.map(data, normalizeRawDatum);
 
       function normalizeRawDatum(raw) {
         var value, datum;
 
-        value = utils.isString(raw) ? raw : raw[that.valueKey];
+        value = _.isString(raw) ? raw : raw[that.valueKey];
         datum = { value: value };
 
-        utils.isString(raw) ?
+        _.isString(raw) ?
           (datum.raw = {})[that.valueKey] = raw :
           datum.raw = raw;
 
@@ -126,7 +126,7 @@ var Dataset = (function() {
       return stored.data && !isExpired ? stored.data : null;
     },
 
-    // ### public methods
+    // ### public
 
     // the contents of this function are broken out of the constructor
     // to help improve the testability of datasets
@@ -150,7 +150,7 @@ var Dataset = (function() {
     add: function add(data) {
       var normalized;
 
-      data = utils.isArray(data) ? data : [data];
+      data = _.isArray(data) ? data : [data];
 
       normalized = this._normalize(data);
       this.index.add(normalized);
@@ -173,11 +173,11 @@ var Dataset = (function() {
       function returnRemoteMatches(remoteMatches) {
         var matchesWithBackfill = matches.slice(0);
 
-        utils.each(remoteMatches, function(i, remoteMatch) {
+        _.each(remoteMatches, function(i, remoteMatch) {
           var isDuplicate;
 
           // checks for duplicates
-          isDuplicate = utils.some(matchesWithBackfill, function(match) {
+          isDuplicate = _.some(matchesWithBackfill, function(match) {
             return remoteMatch.value === match.value;
           });
 
@@ -215,9 +215,9 @@ var Dataset = (function() {
 
     if (prefetch = o.prefetch || null) {
       // support basic (url) and advanced configuration
-      prefetch = utils.isString(prefetch) ? { url: prefetch } : prefetch;
+      prefetch = _.isString(prefetch) ? { url: prefetch } : prefetch;
 
-      prefetch = utils.mixin(defaults, prefetch);
+      prefetch = _.mixin(defaults, prefetch);
       prefetch.thumbprint = VERSION + prefetch.thumbprint;
 
       prefetch.ajax.method = prefetch.ajax.method || 'get';
@@ -243,9 +243,9 @@ var Dataset = (function() {
 
     if (remote = o.remote || null) {
       // support basic (url) and advanced configuration
-      remote = utils.isString(remote) ? { url: remote } : remote;
+      remote = _.isString(remote) ? { url: remote } : remote;
 
-      remote = utils.mixin(defaults, remote);
+      remote = _.mixin(defaults, remote);
       remote.rateLimiter = /^throttle$/i.test(remote.rateLimitBy) ?
         byThrottle(remote.rateLimitWait) : byDebounce(remote.rateLimitWait);
 
@@ -259,11 +259,11 @@ var Dataset = (function() {
     return remote;
 
     function byDebounce(wait) {
-      return function(fn) { return utils.debounce(fn, wait); };
+      return function(fn) { return _.debounce(fn, wait); };
     }
 
     function byThrottle(wait) {
-      return function(fn) { return utils.throttle(fn, wait); };
+      return function(fn) { return _.throttle(fn, wait); };
     }
   }
 })();

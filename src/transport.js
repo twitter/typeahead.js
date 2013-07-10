@@ -34,9 +34,9 @@ var Transport = (function() {
   // instance methods
   // ----------------
 
-  utils.mixin(Transport.prototype, {
+  _.mixin(Transport.prototype, {
 
-    // ### private methods
+    // ### private
 
     _get: function(url, o, cb) {
       var that = this, jqXhr;
@@ -75,12 +75,12 @@ var Transport = (function() {
       }
     },
 
-    // ### public methods
+    // ### public
 
     get: function(url, o, cb) {
       var that = this, resp;
 
-      if (utils.isFunction(o)) {
+      if (_.isFunction(o)) {
         cb = o;
         o = {};
       }
@@ -88,7 +88,7 @@ var Transport = (function() {
       // in-memory cache hit
       if (resp = requestCache.get(url)) {
         // defer to stay consistent with behavior of ajax call
-        utils.defer(function() { cb && cb(resp); });
+        _.defer(function() { cb && cb(resp); });
       }
 
       else {
@@ -116,13 +116,13 @@ var Transport = (function() {
       function onSuccess(resp) {
         // defer in case fn is synchronous, otherwise done
         // and always handlers will be attached after the resolution
-        utils.defer(function() { deferred.resolve(resp); });
+        _.defer(function() { deferred.resolve(resp); });
       }
 
       function onError(err) {
         // defer in case fn is synchronous, otherwise done
         // and always handlers will be attached after the resolution
-        utils.defer(function() { deferred.reject(err); });
+        _.defer(function() { deferred.reject(err); });
       }
     };
   }

@@ -15,7 +15,7 @@ var EventBus = (function() {
     this.$el = $(o.el);
   }
 
-  utils.mixin(EventBus.prototype, {
+  _.mixin(EventBus.prototype, {
     // public methods
     // --------------
 

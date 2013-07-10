@@ -49,7 +49,7 @@
     return constructorSpy;
 
     function Mock() {
-      var instance = utils.mixin({}, Constructor.prototype);
+      var instance = _.mixin({}, Constructor.prototype);
 
       for (var key in instance) {
         if (typeof instance[key] === 'function') {

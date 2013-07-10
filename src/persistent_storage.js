@@ -54,7 +54,7 @@ var PersistentStorage = (function() {
       },
 
       set: function(key, val, ttl) {
-        if (utils.isNumber(ttl)) {
+        if (_.isNumber(ttl)) {
           ls.setItem(this._ttlKey(key), encode(now() + ttl));
         }
 
@@ -92,22 +92,22 @@ var PersistentStorage = (function() {
       isExpired: function(key) {
         var ttl = decode(ls.getItem(this._ttlKey(key)));
 
-        return utils.isNumber(ttl) && now() > ttl ? true : false;
+        return _.isNumber(ttl) && now() > ttl ? true : false;
       }
     };
   }
 
   else {
     methods = {
-      get: utils.noop,
-      set: utils.noop,
-      remove: utils.noop,
-      clear: utils.noop,
-      isExpired: utils.noop
+      get: _.noop,
+      set: _.noop,
+      remove: _.noop,
+      clear: _.noop,
+      isExpired: _.noop
     };
   }
 
-  utils.mixin(PersistentStorage.prototype, methods);
+  _.mixin(PersistentStorage.prototype, methods);
 
   return PersistentStorage;
 
@@ -120,7 +120,7 @@ var PersistentStorage = (function() {
 
   function encode(val) {
     // convert undefined to null to avoid issues with JSON.parse
-    return JSON.stringify(utils.isUndefined(val) ? null : val);
+    return JSON.stringify(_.isUndefined(val) ? null : val);
   }
 
   function decode(val) {

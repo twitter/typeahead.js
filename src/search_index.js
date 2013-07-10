@@ -17,15 +17,15 @@ var SearchIndex = (function() {
   // instance methods
   // ----------------
 
-  utils.mixin(SearchIndex.prototype, {
+  _.mixin(SearchIndex.prototype, {
 
-    // ### private methods
+    // ### private
 
     _tokenize: function tokenize(str) {
       return $.trim(str).toLowerCase().split(/\s+/);
     },
 
-    // ### public methods
+    // ### public
 
     bootstrap: function bootstrap(o) {
       this.datums = o.datums;
@@ -35,15 +35,15 @@ var SearchIndex = (function() {
     add: function(data) {
       var that = this;
 
-      data = utils.isArray(data) ? data : [data];
+      data = _.isArray(data) ? data : [data];
 
-      utils.each(data, function(i, datum) {
+      _.each(data, function(i, datum) {
         var id, tokens;
 
         id = that.datums.push(datum) - 1;
         tokens = that._tokenize(datum.value);
 
-        utils.each(tokens, function(i, token) {
+        _.each(tokens, function(i, token) {
           var node, chars, ch, ids;
 
           node = that.trie;
@@ -66,7 +66,7 @@ var SearchIndex = (function() {
 
       tokens = this._tokenize(query);
 
-      utils.each(tokens, function(i, token) {
+      _.each(tokens, function(i, token) {
         var node, chars, ch, ids;
 
         // previous tokens didn't share any matches
@@ -93,7 +93,7 @@ var SearchIndex = (function() {
       });
 
       return matches ?
-        utils.map(matches, function(id) { return that.datums[id]; }) : [];
+        _.map(matches, function(id) { return that.datums[id]; }) : [];
     },
 
     serialize: function serialize() {

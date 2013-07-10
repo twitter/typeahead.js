@@ -2,7 +2,7 @@ describe('EventEmitter', function() {
 
   beforeEach(function() {
     this.spy = jasmine.createSpy();
-    this.target = utils.mixin({}, EventEmitter);
+    this.target = _.mixin({}, EventEmitter);
   });
 
   it('methods should be chainable', function() {

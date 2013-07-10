@@ -25,11 +25,11 @@ var DropdownView = (function() {
     this.sections = o.sections;
 
     // bound functions
-    onMouseEnter = utils.bind(this._onMouseEnter, this);
-    onMouseLeave = utils.bind(this._onMouseLeave, this);
-    onSuggestionClick = utils.bind(this._onSuggestionClick, this);
-    onSuggestionMouseEnter = utils.bind(this._onSuggestionMouseEnter, this);
-    onSuggestionMouseLeave = utils.bind(this._onSuggestionMouseLeave, this);
+    onMouseEnter = _.bind(this._onMouseEnter, this);
+    onMouseLeave = _.bind(this._onMouseLeave, this);
+    onSuggestionClick = _.bind(this._onSuggestionClick, this);
+    onSuggestionMouseEnter = _.bind(this._onSuggestionMouseEnter, this);
+    onSuggestionMouseLeave = _.bind(this._onSuggestionMouseLeave, this);
 
     this.$menu = $(o.menu)
     .on('mouseenter.tt', onMouseEnter)
@@ -38,7 +38,7 @@ var DropdownView = (function() {
     .on('mouseenter.tt', '.tt-suggestion', onSuggestionMouseEnter)
     .on('mouseleave.tt', '.tt-suggestion', onSuggestionMouseLeave);
 
-    utils.each(this.sections, function(i, section) {
+    _.each(this.sections, function(i, section) {
       that.$menu.append(section.getRoot());
       section.onSync('rendered', that._onRendered, that);
     });
@@ -47,7 +47,7 @@ var DropdownView = (function() {
   // instance methods
   // ----------------
 
-  utils.mixin(DropdownView.prototype, EventEmitter, {
+  _.mixin(DropdownView.prototype, EventEmitter, {
 
     // ### private
 
@@ -193,13 +193,13 @@ var DropdownView = (function() {
     },
 
     update: function update(query) {
-      utils.each(this.sections, updateSection);
+      _.each(this.sections, updateSection);
 
       function updateSection(i, section) { section.update(query); }
     },
 
     empty: function empty() {
-      utils.each(this.sections, clearSection);
+      _.each(this.sections, clearSection);
 
       function clearSection(i, section) { section.clear(); }
     },
@@ -207,7 +207,7 @@ var DropdownView = (function() {
     isEmpty: function isEmpty() {
       var hasHeaderOrFooter, sectionsAreEmpty;
 
-      sectionsAreEmpty = utils.every(this.sections, isSectionEmpty);
+      sectionsAreEmpty = _.every(this.sections, isSectionEmpty);
       hasHeaderOrFooter =
         !!this.$menu.children(':not([class^="tt-section-"])').length;
 

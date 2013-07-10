@@ -30,10 +30,10 @@ var InputView = (function() {
     }
 
     // bound functions
-    onBlur = utils.bind(this._onBlur, this);
-    onFocus = utils.bind(this._onFocus, this);
-    onKeydown = utils.bind(this._onKeydown, this);
-    onInput = utils.bind(this._onInput, this);
+    onBlur = _.bind(this._onBlur, this);
+    onFocus = _.bind(this._onFocus, this);
+    onKeydown = _.bind(this._onKeydown, this);
+    onInput = _.bind(this._onInput, this);
 
     this.$hint = $(o.hint);
     this.$input = $(o.input)
@@ -43,13 +43,13 @@ var InputView = (function() {
 
     // if no hint, noop all the hint related functions
     if (this.$hint.length === 0) {
-      this.setHintValue = this.getHintValue = this.clearHint = utils.noop;
+      this.setHintValue = this.getHintValue = this.clearHint = _.noop;
     }
 
     // ie7 and ie8 don't support the input event
     // ie9 doesn't fire the input event when characters are removed
     // not sure if ie10 is compatible
-    if (!utils.isMsie()) {
+    if (!_.isMsie()) {
       this.$input.on('input.tt', onInput);
     }
 
@@ -60,7 +60,7 @@ var InputView = (function() {
 
         // give the browser a chance to update the value of the input
         // before checking to see if the query changed
-        utils.defer(utils.bind(that._onInput, that, $e));
+        _.defer(_.bind(that._onInput, that, $e));
       });
     }
 
@@ -83,7 +83,7 @@ var InputView = (function() {
   // instance methods
   // ----------------
 
-  utils.mixin(InputView.prototype, EventEmitter, {
+  _.mixin(InputView.prototype, EventEmitter, {
 
     // ### private
 
@@ -227,7 +227,7 @@ var InputView = (function() {
       valueLength = this.$input.val().length;
       selectionStart = this.$input[0].selectionStart;
 
-      if (utils.isNumber(selectionStart)) {
+      if (_.isNumber(selectionStart)) {
        return selectionStart === valueLength;
       }
 

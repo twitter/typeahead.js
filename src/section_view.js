@@ -42,7 +42,7 @@ var SectionView = (function() {
   // instance methods
   // ----------------
 
-  utils.mixin(SectionView.prototype, EventEmitter, {
+  _.mixin(SectionView.prototype, EventEmitter, {
 
     // ### private
 
@@ -53,7 +53,7 @@ var SectionView = (function() {
 
       $suggestions = $(html.suggestions)
       .css(css.suggestions)
-      .append(utils.map(suggestions, getSuggestionNodes));
+      .append(_.map(suggestions, getSuggestionNodes));
 
       this.$el.append($suggestions);
       this.highlight && highlight({ node: $suggestions[0], pattern: query });
@@ -117,7 +117,7 @@ var SectionView = (function() {
   // ----------------
 
   function templatify(obj) {
-    return utils.isFunction(obj) ? obj : template;
+    return _.isFunction(obj) ? obj : template;
 
     function template() { return String(obj); }
   }

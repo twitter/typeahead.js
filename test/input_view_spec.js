@@ -347,7 +347,7 @@ describe('InputView', function() {
   function simulateInputEvent($node) {
     var $e, type;
 
-    type = utils.isMsie() ? 'keypress' : 'input';
+    type = _.isMsie() ? 'keypress' : 'input';
     $e = $.Event(type);
 
     $node.trigger($e);

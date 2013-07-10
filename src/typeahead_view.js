@@ -14,7 +14,7 @@ var TypeaheadView = (function() {
     var $menu, $input, $hint, sections;
 
     o = o || {};
-    o.hint = utils.isUndefined(o.hint) ? true : o.hint;
+    o.hint = _.isUndefined(o.hint) ? true : o.hint;
 
     if (!o.input || !o.sections) {
       $.error('missing input and/or sections');
@@ -53,7 +53,7 @@ var TypeaheadView = (function() {
   // instance methods
   // ----------------
 
-  utils.mixin(TypeaheadView.prototype, {
+  _.mixin(TypeaheadView.prototype, {
 
     // ### private
 
@@ -179,7 +179,7 @@ var TypeaheadView = (function() {
       if (datum && this.dropdown.isOpen && !this.input.hasOverflow()) {
         inputValue = this.input.getInputValue();
         query = InputView.normalizeQuery(inputValue);
-        escapedQuery = utils.escapeRegExChars(query);
+        escapedQuery = _.escapeRegExChars(query);
 
         frontMatchRegEx = new RegExp('^(?:' + escapedQuery + ')(.*$)', 'i');
         match = frontMatchRegEx.exec(datum.value);
@@ -206,7 +206,7 @@ var TypeaheadView = (function() {
       // in ie, focus is not a synchronous event, so when a selection
       // is triggered by a click within the dropdown menu, we need to
       // defer the closing of the dropdown otherwise it'll stay open
-      utils.defer(utils.bind(this.dropdown.close, this.dropdown));
+      _.defer(_.bind(this.dropdown.close, this.dropdown));
 
       // TODO: trigger an event
     }
@@ -264,9 +264,9 @@ var TypeaheadView = (function() {
   }
 
   function initializeSections(opts) {
-    opts = utils.isArray(opts) ? opts : [opts];
+    opts = _.isArray(opts) ? opts : [opts];
 
-    return utils.map(opts, initializeSection);
+    return _.map(opts, initializeSection);
 
     function initializeSection(o) { return new SectionView(o); }
   }
