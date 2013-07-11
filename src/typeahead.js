@@ -60,6 +60,9 @@
     }
   };
 
+  // expose dataset constructor
+  jQuery.fn.typeahead.Dataset = Dataset;
+
   // helper functions
   // ----------------
 
