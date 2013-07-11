@@ -15,7 +15,12 @@ describe('TypeaheadView', function() {
 
     testDatum = fixtures.normalized.simple[0];
 
-    this.view = new TypeaheadView({ input: this.$input, sections: {} });
+    this.view = new TypeaheadView({
+      input: this.$input,
+      withHint: true,
+      sections: {}
+    });
+
     this.input = this.view.input;
     this.dropdown = this.view.dropdown;
   });

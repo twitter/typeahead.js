@@ -14,13 +14,13 @@ var TypeaheadView = (function() {
     var $menu, $input, $hint, sections;
 
     o = o || {};
-    o.hint = _.isUndefined(o.hint) ? true : o.hint;
 
+    // THOUGHT: what if sections could dynamically be added/removed?
     if (!o.input || !o.sections) {
       $.error('missing input and/or sections');
     }
 
-    this.$node = buildDomStructure(o.input, o.hint);
+    this.$node = buildDomStructure(o.input, o.withHint);
 
     $menu = this.$node.find('.tt-dropdown-menu');
     $input = this.$node.find('.tt-input');
@@ -275,11 +275,9 @@ var TypeaheadView = (function() {
     };
   }
 
-  function initializeSections(opts) {
-    opts = _.isArray(opts) ? opts : [opts];
+  function initializeSections(oSections) {
+    return _.map(oSections, initialize);
 
-    return _.map(opts, initializeSection);
-
-    function initializeSection(o) { return new SectionView(o); }
+    function initialize(oSection) { return new SectionView(oSection); }
   }
 })();
