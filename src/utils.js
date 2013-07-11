@@ -32,21 +32,6 @@ var _ = {
 
   bind: $.proxy,
 
-  bindAll: function(obj) {
-    var val;
-    for (var key in obj) {
-      $.isFunction(val = obj[key]) && (obj[key] = $.proxy(val, obj));
-    }
-  },
-
-  indexOf: function(haystack, needle) {
-    for (var i = 0; i < haystack.length; i++) {
-      if (haystack[i] === needle) { return i; }
-    }
-
-    return -1;
-  },
-
   each: function(collection, cb) {
     // stupid argument order for jQuery.each
     $.each(collection, reverseArgs);
