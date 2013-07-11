@@ -4,9 +4,7 @@
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var _;
-
-_ = {
+var _ = {
   isMsie: function() {
     var match = /(msie) ([\w.]+)/i.exec(navigator.userAgent);
 

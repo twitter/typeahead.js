@@ -19,6 +19,7 @@ var Dataset = (function() {
     this.limit = o.limit || 5;
     this.valueKey = o.valueKey || 'value';
     this.dupChecker = getDupChecker(o.dupChecker);
+    this.sorter = getSorter(o.sorter);
 
     this.local = getLocal(o);
     this.prefetch = getPrefetch(o);
@@ -158,7 +159,7 @@ var Dataset = (function() {
     get: function get(query, cb) {
       var that = this, matches, cacheHit = false;
 
-      matches = this.index.get(query).slice(0, this.limit);
+      matches = this.index.get(query).sort(this.sorter).slice(0, this.limit);
 
       if (matches.length < this.limit && this.transport) {
         cacheHit = this._getFromRemote(query, returnRemoteMatches);
@@ -187,7 +188,7 @@ var Dataset = (function() {
           return matchesWithBackfill.length < that.limit;
         });
 
-        cb && cb(matchesWithBackfill);
+        cb && cb(matchesWithBackfill.sort(this.sorter));
       }
     }
   });
@@ -196,6 +197,12 @@ var Dataset = (function() {
 
   // helper functions
   // ----------------
+
+  function getSorter(sorter) {
+    return sorter || defaultSorter;
+
+    function defaultSorter() { return 0; }
+  }
 
   function getDupChecker(dupChecker) {
     if (!_.isFunction(dupChecker)) {
