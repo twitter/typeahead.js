@@ -85,6 +85,27 @@ module.exports = function(grunt) {
           helpers: 'test/helpers/*',
           vendor: 'test/vendor/*'
         }
+      },
+      coverage: {
+        src: jsFiles,
+        options: {
+          specs: 'test/*_spec.js',
+          template: require('grunt-template-jasmine-istanbul'),
+          templateOptions: {
+            coverage: 'test/coverage/coverage.json',
+            report: [
+                    {
+                      type: 'html',
+                        options: {
+                          dir: 'test/coverage/html'
+                        }
+                    },
+                    {
+                      type: 'text-summary'
+                    }
+            ]
+          }
+        }
       }
     },
 
@@ -217,6 +238,7 @@ module.exports = function(grunt) {
   grunt.registerTask('test', 'jasmine:js');
   grunt.registerTask('test:browser', ['jasmine:js:build', 'exec:open_spec_runner']);
   grunt.registerTask('dev', 'parallel:dev');
+  grunt.registerTask('test:coverage', ['jasmine:coverage']);
 
   // load tasks
   // ----------
