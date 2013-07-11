@@ -5,7 +5,9 @@
  */
 
 var Dataset = (function() {
-  var keys = { data: 'data', protocol: 'protocol', thumbprint: 'thumbprint' };
+  var keys;
+
+  keys = { data: 'data', protocol: 'protocol', thumbprint: 'thumbprint' };
 
   // constructor
   // -----------
@@ -26,7 +28,7 @@ var Dataset = (function() {
     this.remote = getRemote(o);
 
     // the backing data structure used for fast pattern matching
-    this.index = new (o.SearchIndex || SearchIndex)();
+    this.index = new SearchIndex();
 
     // only initialize storage if there's a name otherwise
     // loading from storage on subsequent page loads is impossible
@@ -67,10 +69,12 @@ var Dataset = (function() {
     _getFromRemote: function getFromRemote(query, cb) {
       var that = this, url, uriEncodedQuery;
 
-      uriEncodedQuery = encodeURIComponent(query || '');
+      query = query || '';
+
+      uriEncodedQuery = encodeURIComponent(query);
 
       url = this.remote.replace ?
-        this.remote.replace(this.remote.url, uriEncodedQuery) :
+        this.remote.replace(this.remote.url, query) :
         this.remote.url.replace(this.remote.wildcard, uriEncodedQuery);
 
       return this.transport.get(url, this.remote.ajax, handleRemoteResponse);
@@ -151,8 +155,8 @@ var Dataset = (function() {
       var normalized;
 
       data = _.isArray(data) ? data : [data];
-
       normalized = this._normalize(data);
+
       this.index.add(normalized);
     },
 

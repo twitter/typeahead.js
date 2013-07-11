@@ -60,7 +60,7 @@ var SectionView = (function() {
         .prepend(that.templates.footer ? getFooterHtml() : null);
       }
 
-      else if(hasSuggestions) {
+      else if (hasSuggestions) {
         this.$el
         .html(getSuggestionsHtml())
         .append(that.templates.header ? getHeaderHtml() : null)

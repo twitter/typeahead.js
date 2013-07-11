@@ -4,9 +4,7 @@
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var css;
-
-css = {
+var css = {
   wrapper: {
     position: 'relative',
     display: 'inline-block'

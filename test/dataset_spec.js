@@ -181,7 +181,7 @@ describe('Dataset', function() {
       );
 
       expect(this.dataset2.transport.get).toHaveBeenCalledWith(
-        '/test?q=one%20two',
+        '/test?q=one two',
         { method: 'get', dataType: 'json' },
         jasmine.any(Function)
       );
