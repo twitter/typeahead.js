@@ -69,6 +69,16 @@ describe('TypeaheadView', function() {
       expect(this.input.setInputValue)
       .toHaveBeenCalledWith(testDatum.value, true);
     });
+
+    it('should trigger cursorchanged', function() {
+      var spy;
+
+      this.$input.on('typeahead:cursorchanged', spy = jasmine.createSpy());
+
+      this.dropdown.trigger('cursorMoved');
+
+      expect(spy).toHaveBeenCalled();
+    });
   });
 
   describe('when dropdown triggers cursorRemoved', function() {

@@ -102,6 +102,8 @@ var DropdownView = (function() {
 
     _setCursor: function setCursor($el) {
       $el.first().addClass('tt-cursor');
+
+      this.trigger('cursorMoved');
     },
 
     _removeCursor: function removeCursor() {
@@ -137,8 +139,6 @@ var DropdownView = (function() {
       // in the case of scrollable overflow
       // make sure the cursor is visible in the menu
       this._ensureVisible($newCursor);
-
-      this.trigger('cursorMoved');
     },
 
     _ensureVisible: function ensureVisible($el) {
