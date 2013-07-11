@@ -20,6 +20,7 @@ var TypeaheadView = (function() {
       $.error('missing input and/or sections');
     }
 
+    this.autoselect = o.autoselect;
     this.$node = buildDomStructure(o.input, o.withHint);
 
     $menu = this.$node.find('.tt-dropdown-menu');
@@ -110,10 +111,18 @@ var TypeaheadView = (function() {
     },
 
     _onEnterKeyed: function onEnterKeyed(type, $e) {
-      var datum;
+      var cursorDatum, topSuggestionDatum;
 
-      if (datum = this.dropdown.getDatumForCursor()) {
-        this._select(datum);
+      cursorDatum = this.dropdown.getDatumForCursor();
+      topSuggestionDatum = this.dropdown.getDatumForTopSuggestion();
+
+      if (cursorDatum) {
+        this._select(cursorDatum);
+        $e.preventDefault();
+      }
+
+      else if (this.autoselect && topSuggestionDatum) {
+        this._select(topSuggestionDatum);
         $e.preventDefault();
       }
     },

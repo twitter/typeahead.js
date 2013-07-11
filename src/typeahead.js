@@ -28,6 +28,7 @@
         view = new TypeaheadView({
           input: $input,
           withHint: oTopLevel.hint,
+          autoselect: oTopLevel.autoselect,
           minLength: oTopLevel.minLength,
           sections: oSections
         });
@@ -69,6 +70,7 @@
   function getTopLevel(o) {
     return {
       hint: _.isUndefined(o.hint) ? true : !!o.hint,
+      autoselect: !!o.autoselect,
       minLength: o.minLength || 0
     };
   }
