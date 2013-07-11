@@ -6,7 +6,6 @@
 
 var html = {
   wrapper: '<span class="twitter-typeahead"></span>',
-  hint: '<input class="tt-hint" type="text" autocomplete="off" spellcheck="off" disabled>',
   dropdown: '<span class="tt-dropdown-menu"></span>',
   section: '<div class="tt-section-%CLASS%"></div>',
   suggestions: '<span class="tt-suggestions"></span>',

@@ -235,7 +235,14 @@ var TypeaheadView = (function() {
     $input = $(input);
     $wrapper = $(html.wrapper).css(css.wrapper);
     $dropdown = $(html.dropdown).css(css.dropdown);
-    $hint = $(html.hint).css(css.hint).css(getBackgroundStyles($input));
+    $hint = $input.clone().css(css.hint).css(getBackgroundStyles($input));
+
+    $hint
+    .removeData()
+    .addClass('tt-hint')
+    .removeAttr('id name placeholder')
+    .prop('disabled', true)
+    .attr({ autocomplete: 'off', spellcheck: 'false' });
 
     // store the original values of the attrs that get modified
     // so modifications can be reverted on destroy
@@ -251,8 +258,7 @@ var TypeaheadView = (function() {
     .attr({ autocomplete: 'off', spellcheck: false })
     .css(withHint ? css.input : css.inputWithNoHint);
 
-    // ie7 does not like it when dir is set to auto,
-    // it does not like it one bit
+    // ie7 does not like it when dir is set to auto
     try { !$input.attr('dir') && $input.attr('dir', 'auto'); } catch (e) {}
 
     return $input
