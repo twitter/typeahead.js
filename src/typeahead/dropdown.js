@@ -201,7 +201,8 @@ var Dropdown = (function() {
       if ($el.length) {
         datum = {
           raw: Section.extractDatum($el),
-          value: Section.extractValue($el)
+          value: Section.extractValue($el),
+          sectionName: Section.extractSectionName($el)
         };
       }
 

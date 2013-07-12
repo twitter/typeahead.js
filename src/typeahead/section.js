@@ -5,7 +5,7 @@
  */
 
 var Section = (function() {
-  var valueKey = 'ttValue', datumKey = 'ttDatum';
+  var sectionKey = 'ttSection', valueKey = 'ttValue', datumKey = 'ttDatum';
 
   // constructor
   // -----------
@@ -39,6 +39,10 @@ var Section = (function() {
 
   // static methods
   // --------------
+
+  Section.extractSectionName = function extractSectionName(el) {
+    return $(el).data(sectionKey);
+  };
 
   Section.extractValue = function extractDatum(el) {
     return $(el).data(valueKey);
@@ -101,6 +105,7 @@ var Section = (function() {
           innerHtml = that.templates.suggestion(suggestion.raw);
           outerHtml = html.suggestion.replace('%BODY%', innerHtml);
           $el = $(outerHtml)
+          .data(sectionKey, that.name)
           .data(valueKey, suggestion[that.datasetValueKey || 'value'])
           .data(datumKey, suggestion);
 

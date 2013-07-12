@@ -75,7 +75,7 @@ var Typeahead = (function() {
       this.input.clearHint();
       this.input.setInputValue(datum.value, true);
 
-      this.eventBus.trigger('cursorchanged', datum.raw);
+      this.eventBus.trigger('cursorchanged', datum.raw, datum.sectionName);
     },
 
     _onCursorRemoved: function onCursorRemoved() {
@@ -213,7 +213,7 @@ var Typeahead = (function() {
         datum = this.dropdown.getDatumForTopSuggestion();
         datum && this.input.setInputValue(datum.value);
 
-        this.eventBus.trigger('autocompleted', datum.raw);
+        this.eventBus.trigger('autocompleted', datum.raw, datum.sectionName);
       }
     },
 
@@ -229,7 +229,7 @@ var Typeahead = (function() {
       // defer the closing of the dropdown otherwise it'll stay open
       _.defer(_.bind(this.dropdown.close, this.dropdown));
 
-      this.eventBus.trigger('selected', datum.raw);
+      this.eventBus.trigger('selected', datum.raw, datum.sectionName);
     }
 
     // ### public
