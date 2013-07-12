@@ -1,18 +1,16 @@
 describe('SectionView', function() {
 
   beforeEach(function() {
-    jasmine.Dataset.useMock();
-
-    this.dataset = new Dataset();
-    this.dataset.name = 'test';
-
-    this.section = new SectionView({ dataset: this.dataset });
+    this.section = new SectionView({
+      name: 'test',
+      source: this.source = jasmine.createSpy('source')
+    });
   });
 
-  it('should throw an error if dataset is missing', function() {
-    expect(noDataset).toThrow();
+  it('should throw an error if source is missing', function() {
+    expect(noSource).toThrow();
 
-    function noDataset() { new SectionView(); }
+    function noSource() { new SectionView(); }
   });
 
   describe('#getRoot', function() {
@@ -23,7 +21,7 @@ describe('SectionView', function() {
 
   describe('#update', function() {
     it('should render suggestions', function() {
-      this.dataset.get.andCallFake(fakeGetWithSyncResults);
+      this.source.andCallFake(fakeGetWithSyncResults);
       this.section.update('woah');
 
       expect(this.section.getRoot()).toContainText('one');
@@ -33,13 +31,13 @@ describe('SectionView', function() {
 
     it('should render empty when no suggestions are available', function() {
       this.section = new SectionView({
-        dataset: this.dataset,
+        source: this.source,
         templates: {
           empty: '<h2>empty</h2>'
         }
       });
 
-      this.dataset.get.andCallFake(fakeGetWithSyncEmptyResults);
+      this.source.andCallFake(fakeGetWithSyncEmptyResults);
       this.section.update('woah');
 
       expect(this.section.getRoot()).toContainText('empty');
@@ -47,13 +45,13 @@ describe('SectionView', function() {
 
     it('should render header', function() {
       this.section = new SectionView({
-        dataset: this.dataset,
+        source: this.source,
         templates: {
           header: '<h2>header</h2>'
         }
       });
 
-      this.dataset.get.andCallFake(fakeGetWithSyncResults);
+      this.source.andCallFake(fakeGetWithSyncResults);
       this.section.update('woah');
 
       expect(this.section.getRoot()).toContainText('header');
@@ -61,13 +59,13 @@ describe('SectionView', function() {
 
     it('should render footer', function() {
       this.section = new SectionView({
-        dataset: this.dataset,
+        source: this.source,
         templates: {
           footer: function(c) { return '<p>' + c.query + '</p>'; }
         }
       });
 
-      this.dataset.get.andCallFake(fakeGetWithSyncResults);
+      this.source.andCallFake(fakeGetWithSyncResults);
       this.section.update('woah');
 
       expect(this.section.getRoot()).toContainText('woah');
@@ -75,14 +73,14 @@ describe('SectionView', function() {
 
     it('should not render header/footer if there is no content', function() {
       this.section = new SectionView({
-        dataset: this.dataset,
+        source: this.source,
         templates: {
           header: '<h2>header</h2>',
           footer: '<h2>footer</h2>'
         }
       });
 
-      this.dataset.get.andCallFake(fakeGetWithSyncEmptyResults);
+      this.source.andCallFake(fakeGetWithSyncEmptyResults);
       this.section.update('woah');
 
       expect(this.section.getRoot()).not.toContainText('header');
@@ -90,10 +88,10 @@ describe('SectionView', function() {
     });
 
     it('should not render stale suggestions', function() {
-      this.dataset.get.andCallFake(fakeGetWithAsyncResults);
+      this.source.andCallFake(fakeGetWithAsyncResults);
       this.section.update('woah');
 
-      this.dataset.get.andCallFake(fakeGetWithSyncResults);
+      this.source.andCallFake(fakeGetWithSyncResults);
       this.section.update('nelly');
 
       waits(100);
@@ -112,7 +110,7 @@ describe('SectionView', function() {
 
       this.section.onSync('rendered', spy = jasmine.createSpy());
 
-      this.dataset.get.andCallFake(fakeGetWithSyncResults);
+      this.source.andCallFake(fakeGetWithSyncResults);
       this.section.update('woah');
 
       waitsFor(function() { return spy.callCount; });
@@ -121,7 +119,7 @@ describe('SectionView', function() {
 
   describe('#clear', function() {
     it('should clear suggestions', function() {
-      this.dataset.get.andCallFake(fakeGetWithSyncResults);
+      this.source.andCallFake(fakeGetWithSyncResults);
       this.section.update('woah');
 
       this.section.clear();
@@ -135,7 +133,7 @@ describe('SectionView', function() {
     });
 
     it('should return false when not empty', function() {
-      this.dataset.get.andCallFake(fakeGetWithSyncResults);
+      this.source.andCallFake(fakeGetWithSyncResults);
       this.section.update('woah');
 
       expect(this.section.isEmpty()).toBe(false);

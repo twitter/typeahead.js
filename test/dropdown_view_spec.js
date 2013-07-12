@@ -11,12 +11,8 @@ describe('DropdownView', function() {
     this.$menu = $fixture.find('.tt-dropdown-menu');
     this.$menu.html(fixtures.html.section);
 
-    this.section = new SectionView();
-
-    this.view = new DropdownView({
-      menu: this.$menu,
-      sections: [this.section]
-    });
+    this.view = new DropdownView({ menu: this.$menu, sections: [{}] });
+    this.section = this.view.sections[0];
   });
 
   it('should throw an error if menu and/or sections is missing', function() {

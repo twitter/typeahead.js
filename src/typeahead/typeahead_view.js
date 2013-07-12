@@ -10,14 +10,14 @@ var TypeaheadView = (function() {
   // constructor
   // -----------
 
+  // THOUGHT: what if sections could dynamically be added/removed?
   function TypeaheadView(o) {
     var $menu, $input, $hint, sections;
 
     o = o || {};
 
-    // THOUGHT: what if sections could dynamically be added/removed?
-    if (!o.input || !o.sections) {
-      $.error('missing input and/or sections');
+    if (!o.input) {
+      $.error('missing input');
     }
 
     this.autoselect = o.autoselect;
@@ -29,9 +29,7 @@ var TypeaheadView = (function() {
 
     this.eventBus = new EventBus({ el: $input });
 
-    sections = initializeSections(o.sections);
-
-    this.dropdown = new DropdownView({ menu: $menu, sections: sections })
+    this.dropdown = new DropdownView({ menu: $menu, sections: o.sections })
     .onSync('suggestionClicked', this._onSuggestionClicked, this)
     .onSync('cursorMoved', this._onCursorMoved, this)
     .onSync('cursorRemoved', this._onCursorRemoved, this)
@@ -290,11 +288,5 @@ var TypeaheadView = (function() {
       backgroundRepeat: $el.css('background-repeat'),
       backgroundSize: $el.css('background-size')
     };
-  }
-
-  function initializeSections(oSections) {
-    return _.map(oSections, initialize);
-
-    function initialize(oSection) { return new SectionView(oSection); }
   }
 })();

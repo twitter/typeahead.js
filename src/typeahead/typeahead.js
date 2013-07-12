@@ -5,48 +5,28 @@
  */
 
 (function() {
-  var viewKey, methods;
+  var typeaheadKey, methods;
 
-  viewKey = 'ttView';
+  typeaheadKey = 'ttTypeahead';
 
-  methods = {
+  method = {
     initialize: function initialize(o) {
-      var oTopLevel, oSections;
-
       o = o || {};
 
-      oTopLevel = getTopLevel(o);
-      oSections = getSections(o);
+      return this.each(attach);
 
-      return this.each(attachTypeahead);
+      function attach() {
+        var $input = $(this), typeahead;
 
-      function attachTypeahead() {
-        var $input = $(this), deferreds, view;
-
-        deferreds = _.map(oSections, getInitializationDeferred);
-
-        view = new TypeaheadView({
+        typeahead = new TypeaheadView({
           input: $input,
-          withHint: oTopLevel.hint,
-          autoselect: oTopLevel.autoselect,
-          minLength: oTopLevel.minLength,
-          sections: oSections
+          withHint: _.isUndefined(o.hint) ? true : !!o.hint,
+          autoselect: !!o.autoselect,
+          minLength: o.minLength || 0,
+          sections: _.isArray(o.sections) ? o.sections : [o.sections]
         });
 
-        $input.data(viewKey, view);
-
-        $.when.apply($, deferreds)
-        .always(function() {
-          // deferring to make it possible to attach a listener
-          // for typeahead:initialized after calling jQuery#typeahead
-          _.defer(function() { view.eventBus.trigger('initialized'); });
-        });
-      }
-
-      function getInitializationDeferred(oSection) {
-        return oSection.dataset ?
-          oSection.dataset.initialize() :
-          $.Deferred().resolve();
+        $input.data(typeaheadKey, typeahead);
       }
     }
   };
@@ -60,42 +40,4 @@
       return methods.initialize.apply(this, arguments);
     }
   };
-
-  // expose dataset constructor
-  jQuery.fn.typeahead.Dataset = Dataset;
-
-  // helper functions
-  // ----------------
-
-  function getTopLevel(o) {
-    return {
-      hint: _.isUndefined(o.hint) ? true : !!o.hint,
-      autoselect: !!o.autoselect,
-      minLength: o.minLength || 0
-    };
-  }
-
-  function getSections(o) {
-    var oSections;
-
-    oSections = o.sections || [];
-    oSections = _.isArray(oSections) ? oSections : [oSections];
-
-    return _.map(oSections, getSection);
-
-    function getSection(oSection) {
-      return {
-        highlight: !!oSection.highlight,
-        templates: oSection.templates,
-        dataset: getDataset(oSection)
-      };
-    }
-
-    function getDataset(oSection) {
-      return (oSection instanceof Dataset) ?
-        oSection.dataset :
-        new Dataset(oSection.dataset);
-    }
-  }
-
 })();
