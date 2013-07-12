@@ -316,4 +316,28 @@ describe('Dropdown', function() {
       expect(this.view.isVisible()).toBe(false);
     });
   });
+
+  describe('#destroy', function() {
+    it('should remove event handlers', function() {
+      var $menu = this.view.$menu;
+
+      spyOn($menu, 'off');
+
+      this.view.destroy();
+
+      expect($menu.off).toHaveBeenCalledWith('.tt');
+    });
+
+    it('should destroy its sections', function() {
+      this.view.destroy();
+
+      expect(this.section.destroy).toHaveBeenCalled();
+    });
+
+    it('should null out its reference to the menu element', function() {
+      this.view.destroy();
+
+      expect(this.view.$menu).toBeNull();
+    });
+  });
 });

@@ -383,4 +383,31 @@ describe('Typeahead', function() {
       expect(this.dropdown.open).toHaveBeenCalled();
     });
   });
+
+  describe('#destroy', function() {
+    it('should destroy input', function() {
+      this.view.destroy();
+
+      expect(this.input.destroy).toHaveBeenCalled();
+    });
+
+    it('should destroy dropdown', function() {
+      this.view.destroy();
+
+      expect(this.dropdown.destroy).toHaveBeenCalled();
+    });
+
+    it('should null out its reference to the wrapper element', function() {
+      this.view.destroy();
+
+      expect(this.view.$node).toBeNull();
+    });
+
+    it('should revert DOM changes', function() {
+      this.view.destroy();
+
+      // TODO: bad test
+      expect(this.$input).not.toHaveClass('tt-input');
+    });
+  });
 });

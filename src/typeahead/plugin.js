@@ -27,6 +27,19 @@
 
         $input.data(typeaheadKey, typeahead);
       }
+    },
+
+    destroy: function destroy() {
+      return this.each(unattach);
+
+      function unattach() {
+        var $input = $(this), typeahead;
+
+        if (typeahead = $input.data(typeaheadKey)) {
+          typeahead.destroy();
+          $input.removeData(typeaheadKey);
+        }
+      }
     }
   };
 

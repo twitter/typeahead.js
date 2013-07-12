@@ -231,6 +231,16 @@ var Dropdown = (function() {
 
     isVisible: function isVisible() {
       return this.isOpen && !this.isEmpty;
+    },
+
+    destroy: function destroy() {
+      this.$menu.off('.tt');
+
+      this.$menu = null;
+
+      _.each(this.sections, destroySection);
+
+      function destroySection(section) { section.destroy(); }
     }
   });
 

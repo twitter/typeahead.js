@@ -153,6 +153,10 @@ var Section = (function() {
 
     isEmpty: function isEmpty() {
       return this.$el.is(':empty');
+    },
+
+    destroy: function destroy() {
+      this.$el = null;
     }
   });
 

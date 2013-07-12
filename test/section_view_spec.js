@@ -140,6 +140,14 @@ describe('Section', function() {
     });
   });
 
+  describe('#destroy', function() {
+    it('should null out the reference to the section element', function() {
+      this.section.destroy();
+
+      expect(this.section.$el).toBeNull();
+    });
+  });
+
   // helper functions
   // ----------------
 

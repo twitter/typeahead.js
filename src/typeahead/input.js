@@ -241,6 +241,13 @@ var Input = (function() {
       }
 
       return true;
+    },
+
+    destroy: function destroy() {
+      this.$hint.off('.tt');
+      this.$input.off('.tt');
+
+      this.$hint = this.$input = this.$overflowHelper = null;
     }
   });
 

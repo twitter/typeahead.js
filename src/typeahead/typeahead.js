@@ -230,10 +230,18 @@ var Typeahead = (function() {
       _.defer(_.bind(this.dropdown.close, this.dropdown));
 
       this.eventBus.trigger('selected', datum.raw, datum.sectionName);
-    }
+    },
 
     // ### public
 
+    destroy: function destroy() {
+      this.input.destroy();
+      this.dropdown.destroy();
+
+      destroyDomStructure(this.$node);
+
+      this.$node = null;
+    }
   });
 
   return Typeahead;
@@ -288,5 +296,23 @@ var Typeahead = (function() {
       backgroundRepeat: $el.css('background-repeat'),
       backgroundSize: $el.css('background-size')
     };
+  }
+
+  function destroyDomStructure($node) {
+    var $input = $node.find('.tt-input');
+
+    // need to remove attrs that weren't previously defined and
+    // revert attrs that originally had a value
+    _.each($input.data(attrsKey), function(val, key) {
+      _.isUndefined(val) ? $input.removeAttr(key) : $input.attr(key, val);
+    });
+
+    $input
+    .detach()
+    .removeData(attrsKey)
+    .removeClass('tt-input')
+    .insertAfter($node);
+
+    $node.remove();
   }
 })();

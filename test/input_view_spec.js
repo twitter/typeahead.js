@@ -341,6 +341,31 @@ describe('Input', function() {
     });
   });
 
+  describe('#destroy', function() {
+    it('should remove event handlers', function() {
+      var $input, $hint;
+
+      $hint = this.view.$hint;
+      $input = this.view.$input;
+
+      spyOn($hint, 'off');
+      spyOn($input, 'off');
+
+      this.view.destroy();
+
+      expect($hint.off).toHaveBeenCalledWith('.tt');
+      expect($input.off).toHaveBeenCalledWith('.tt');
+    });
+
+    it('should null out its reference to DOM elements', function() {
+      this.view.destroy();
+
+      expect(this.view.$hint).toBeNull();
+      expect(this.view.$input).toBeNull();
+      expect(this.view.$overflowHelper).toBeNull();
+    });
+  });
+
   // helper functions
   // ----------------
 
