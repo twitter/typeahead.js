@@ -5,7 +5,7 @@
  */
 
 var Section = (function() {
-  var datumKey = 'ttDatum';
+  var valueKey = 'ttValue', datumKey = 'ttDatum';
 
   // constructor
   // -----------
@@ -25,6 +25,8 @@ var Section = (function() {
     this.name = o.name || _.getUniqueId();
 
     this.source = setupSource(o.source);
+    this.datasetValueKey = getDatasetValueKey(o.source);
+
     this.templates = {
       empty: o.templates.empty && _.templatify(o.templates.empty),
       header: o.templates.header && _.templatify(o.templates.header),
@@ -37,6 +39,10 @@ var Section = (function() {
 
   // static methods
   // --------------
+
+  Section.extractValue = function extractDatum(el) {
+    return $(el).data(valueKey);
+  };
 
   Section.extractDatum = function extractDatum(el) {
     return $(el).data(datumKey);
@@ -94,7 +100,9 @@ var Section = (function() {
 
           innerHtml = that.templates.suggestion(suggestion.raw);
           outerHtml = html.suggestion.replace('%BODY%', innerHtml);
-          $el = $(outerHtml).data(datumKey, suggestion);
+          $el = $(outerHtml)
+          .data(valueKey, suggestion[that.datasetValueKey || 'value'])
+          .data(datumKey, suggestion);
 
           $el.children().each(function() { $(this).css(css.suggestionChild); });
 
@@ -155,6 +163,10 @@ var Section = (function() {
     // when it's a dataset, grab its get method and bind it to itself
     return (Dataset && source instanceof Dataset) ?
       _.bind(source.get, source) : source;
+  }
+
+  function getDatasetValueKey(source) {
+    return (Dataset && source instanceof Dataset) ? source.valueKey : null;
   }
 
   function defaultSuggestionTemplate(context) {

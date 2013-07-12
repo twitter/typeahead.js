@@ -196,7 +196,16 @@ var Dropdown = (function() {
     },
 
     getDatumForSuggestion: function getDatumForSuggestion($el) {
-      return $el.length ? Section.extractDatum($el) : null;
+      var datum = null;
+
+      if ($el.length) {
+        datum = {
+          raw: Section.extractDatum($el),
+          value: Section.extractValue($el)
+        };
+      }
+
+      return datum;
     },
 
     getDatumForCursor: function getDatumForCursor() {

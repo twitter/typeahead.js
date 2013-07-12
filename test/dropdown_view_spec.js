@@ -243,10 +243,10 @@ describe('Dropdown', function() {
     it('should extract the datum from the suggestion element', function() {
       var $suggestion, datum;
 
-      $suggestion = $('<div>').data('ttDatum', { value: 'one' });
+      $suggestion = $('<div>').data({ ttValue: 'one', ttDatum: 'two' });
       datum = this.view.getDatumForSuggestion($suggestion);
 
-      expect(datum).toEqual({ value: 'one' });
+      expect(datum).toEqual({ value: 'one', raw: 'two' });
     });
 
     it('should return null if no element is given', function() {
@@ -259,10 +259,11 @@ describe('Dropdown', function() {
       var $first;
 
       $first = this.view._getSuggestions().eq(0);
-      $first.data('ttDatum', { value: 'one' });
+      $first.data({ ttValue: 'one', ttDatum: 'two' });
 
       this.view._setCursor($first);
-      expect(this.view.getDatumForCursor()).toEqual({ value: 'one' });
+      expect(this.view.getDatumForCursor())
+      .toEqual({ value: 'one', raw: 'two' });
     });
   });
 
@@ -271,9 +272,10 @@ describe('Dropdown', function() {
       var $first;
 
       $first = this.view._getSuggestions().eq(0);
-      $first.data('ttDatum', { value: 'one' });
+      $first.data({ ttValue: 'one', ttDatum: 'two' });
 
-      expect(this.view.getDatumForTopSuggestion()).toEqual({ value: 'one' });
+      expect(this.view.getDatumForTopSuggestion())
+      .toEqual({ value: 'one', raw: 'two' });
     });
   });
 
