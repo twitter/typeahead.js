@@ -4,18 +4,18 @@
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var DropdownView = (function() {
+var Dropdown = (function() {
 
   // constructor
   // -----------
 
-  function DropdownView(o) {
+  function Dropdown(o) {
     var that = this, onMouseEnter, onMouseLeave, onSuggestionClick,
         onSuggestionMouseEnter, onSuggestionMouseLeave;
 
     o = o || {};
 
-    if (!o.menu || !o.sections) {
+    if (!o.menu) {
       $.error('menu and/or sections are required');
     }
 
@@ -23,7 +23,7 @@ var DropdownView = (function() {
     this.isEmpty = true;
     this.isMouseOverDropdown = false;
 
-    this.sections = o.sections;
+    this.sections = _.map(o.sections, initializeSection);
 
     // bound functions
     onMouseEnter = _.bind(this._onMouseEnter, this);
@@ -48,7 +48,7 @@ var DropdownView = (function() {
   // instance methods
   // ----------------
 
-  _.mixin(DropdownView.prototype, EventEmitter, {
+  _.mixin(Dropdown.prototype, EventEmitter, {
 
     // ### private
 
@@ -196,7 +196,16 @@ var DropdownView = (function() {
     },
 
     getDatumForSuggestion: function getDatumForSuggestion($el) {
-      return $el.length ? SectionView.extractDatum($el) : null;
+      var datum = null;
+
+      if ($el.length) {
+        datum = {
+          raw: Section.extractDatum($el),
+          value: Section.extractValue($el)
+        };
+      }
+
+      return datum;
     },
 
     getDatumForCursor: function getDatumForCursor() {
@@ -224,6 +233,12 @@ var DropdownView = (function() {
     }
   });
 
-  return DropdownView;
+  return Dropdown;
 
+  // helper functions
+  // ----------------
+
+  function initializeSection(oSection) {
+    return new Section(oSection);
+  }
 })();

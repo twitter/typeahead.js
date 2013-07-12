@@ -1,9 +1,9 @@
-describe('DropdownView', function() {
+describe('Dropdown', function() {
 
   beforeEach(function() {
     var $fixture;
 
-    jasmine.SectionView.useMock();
+    jasmine.Section.useMock();
 
     setFixtures(fixtures.html.menu);
 
@@ -11,20 +11,16 @@ describe('DropdownView', function() {
     this.$menu = $fixture.find('.tt-dropdown-menu');
     this.$menu.html(fixtures.html.section);
 
-    this.section = new SectionView();
-
-    this.view = new DropdownView({
-      menu: this.$menu,
-      sections: [this.section]
-    });
+    this.view = new Dropdown({ menu: this.$menu, sections: [{}] });
+    this.section = this.view.sections[0];
   });
 
   it('should throw an error if menu and/or sections is missing', function() {
     expect(noMenu).toThrow();
     expect(noSections).toThrow();
 
-    function noMenu() { new DropdownView({ menu: '.menu' }); }
-    function noSections() { new DropdownView({ sections: true }); }
+    function noMenu() { new Dropdown({ menu: '.menu' }); }
+    function noSections() { new Dropdown({ sections: true }); }
   });
 
   describe('when mouseenter is triggered', function() {
@@ -247,10 +243,10 @@ describe('DropdownView', function() {
     it('should extract the datum from the suggestion element', function() {
       var $suggestion, datum;
 
-      $suggestion = $('<div>').data('ttDatum', { value: 'one' });
+      $suggestion = $('<div>').data({ ttValue: 'one', ttDatum: 'two' });
       datum = this.view.getDatumForSuggestion($suggestion);
 
-      expect(datum).toEqual({ value: 'one' });
+      expect(datum).toEqual({ value: 'one', raw: 'two' });
     });
 
     it('should return null if no element is given', function() {
@@ -263,10 +259,11 @@ describe('DropdownView', function() {
       var $first;
 
       $first = this.view._getSuggestions().eq(0);
-      $first.data('ttDatum', { value: 'one' });
+      $first.data({ ttValue: 'one', ttDatum: 'two' });
 
       this.view._setCursor($first);
-      expect(this.view.getDatumForCursor()).toEqual({ value: 'one' });
+      expect(this.view.getDatumForCursor())
+      .toEqual({ value: 'one', raw: 'two' });
     });
   });
 
@@ -275,9 +272,10 @@ describe('DropdownView', function() {
       var $first;
 
       $first = this.view._getSuggestions().eq(0);
-      $first.data('ttDatum', { value: 'one' });
+      $first.data({ ttValue: 'one', ttDatum: 'two' });
 
-      expect(this.view.getDatumForTopSuggestion()).toEqual({ value: 'one' });
+      expect(this.view.getDatumForTopSuggestion())
+      .toEqual({ value: 'one', raw: 'two' });
     });
   });
 

@@ -1,12 +1,12 @@
-describe('TypeaheadView', function() {
+describe('Typeahead', function() {
   var testDatum;
 
   beforeEach(function() {
     var $fixture, $input;
 
-    jasmine.InputView.useMock();
-    jasmine.SectionView.useMock();
-    jasmine.DropdownView.useMock();
+    jasmine.Input.useMock();
+    jasmine.Section.useMock();
+    jasmine.Dropdown.useMock();
 
     setFixtures(fixtures.html.textInput);
 
@@ -15,7 +15,7 @@ describe('TypeaheadView', function() {
 
     testDatum = fixtures.normalized.simple[0];
 
-    this.view = new TypeaheadView({
+    this.view = new Typeahead({
       input: this.$input,
       withHint: true,
       sections: {}

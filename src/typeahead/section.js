@@ -4,25 +4,29 @@
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var SectionView = (function() {
-  var datumKey = 'ttDatum';
+var Section = (function() {
+  var valueKey = 'ttValue', datumKey = 'ttDatum';
 
   // constructor
   // -----------
 
-  function SectionView(o) {
+  function Section(o) {
     o = o || {};
     o.templates = o.templates || {};
 
-    if (!o.dataset) {
-      $.error('missing dataset');
+    if (!o.source) {
+      $.error('missing source');
     }
 
     // tracks the last query the section was updated for
     this.query = null;
-    this.highlight = !!o.highlight;
 
-    this.dataset = o.dataset;
+    this.highlight = !!o.highlight;
+    this.name = o.name || _.getUniqueId();
+
+    this.source = setupSource(o.source);
+    this.datasetValueKey = getDatasetValueKey(o.source);
+
     this.templates = {
       empty: o.templates.empty && _.templatify(o.templates.empty),
       header: o.templates.header && _.templatify(o.templates.header),
@@ -30,20 +34,24 @@ var SectionView = (function() {
       suggestion: o.templates.suggestion || defaultSuggestionTemplate
     };
 
-    this.$el = $(html.section.replace('%CLASS%', this.dataset.name));
+    this.$el = $(html.section.replace('%CLASS%', this.name));
   }
 
   // static methods
   // --------------
 
-  SectionView.extractDatum = function extractDatum(el) {
+  Section.extractValue = function extractDatum(el) {
+    return $(el).data(valueKey);
+  };
+
+  Section.extractDatum = function extractDatum(el) {
     return $(el).data(datumKey);
   };
 
   // instance methods
   // ----------------
 
-  _.mixin(SectionView.prototype, EventEmitter, {
+  _.mixin(Section.prototype, EventEmitter, {
 
     // ### private
 
@@ -92,7 +100,9 @@ var SectionView = (function() {
 
           innerHtml = that.templates.suggestion(suggestion.raw);
           outerHtml = html.suggestion.replace('%BODY%', innerHtml);
-          $el = $(outerHtml).data(datumKey, suggestion);
+          $el = $(outerHtml)
+          .data(valueKey, suggestion[that.datasetValueKey || 'value'])
+          .data(datumKey, suggestion);
 
           $el.children().each(function() { $(this).css(css.suggestionChild); });
 
@@ -125,7 +135,7 @@ var SectionView = (function() {
       var that = this;
 
       this.query = query;
-      this.dataset.get(query, renderIfQueryIsSame);
+      this.source(query, renderIfQueryIsSame);
 
       function renderIfQueryIsSame(suggestions) {
         query === that.query && that._render(query, suggestions);
@@ -141,10 +151,23 @@ var SectionView = (function() {
     }
   });
 
-  return SectionView;
+  return Section;
 
   // helper functions
   // ----------------
+
+  function setupSource(source) {
+    var Dataset = window.Dataset;
+
+    // a valid source is either a function or a dataset instance
+    // when it's a dataset, grab its get method and bind it to itself
+    return (Dataset && source instanceof Dataset) ?
+      _.bind(source.get, source) : source;
+  }
+
+  function getDatasetValueKey(source) {
+    return (Dataset && source instanceof Dataset) ? source.valueKey : null;
+  }
 
   function defaultSuggestionTemplate(context) {
     return '<p>' + context.value + '</p>';
