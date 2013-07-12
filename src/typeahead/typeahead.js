@@ -4,20 +4,20 @@
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var TypeaheadView = (function() {
+var Typeahead = (function() {
   var attrsKey = 'ttAttrs';
 
   // constructor
   // -----------
 
-  function TypeaheadView(o) {
+  // THOUGHT: what if sections could dynamically be added/removed?
+  function Typeahead(o) {
     var $menu, $input, $hint, sections;
 
     o = o || {};
 
-    // THOUGHT: what if sections could dynamically be added/removed?
-    if (!o.input || !o.sections) {
-      $.error('missing input and/or sections');
+    if (!o.input) {
+      $.error('missing input');
     }
 
     this.autoselect = o.autoselect;
@@ -29,9 +29,7 @@ var TypeaheadView = (function() {
 
     this.eventBus = new EventBus({ el: $input });
 
-    sections = initializeSections(o.sections);
-
-    this.dropdown = new DropdownView({ menu: $menu, sections: sections })
+    this.dropdown = new Dropdown({ menu: $menu, sections: o.sections })
     .onSync('suggestionClicked', this._onSuggestionClicked, this)
     .onSync('cursorMoved', this._onCursorMoved, this)
     .onSync('cursorRemoved', this._onCursorRemoved, this)
@@ -39,7 +37,7 @@ var TypeaheadView = (function() {
     .onSync('opened', this._onOpened, this)
     .onSync('closed', this._onClosed, this);
 
-    this.input = new InputView({ input: $input, hint: $hint })
+    this.input = new Input({ input: $input, hint: $hint })
     .onSync('focused', this._onFocused, this)
     .onSync('blurred', this._onBlurred, this)
     .onSync('enterKeyed', this._onEnterKeyed, this)
@@ -56,7 +54,7 @@ var TypeaheadView = (function() {
   // instance methods
   // ----------------
 
-  _.mixin(TypeaheadView.prototype, {
+  _.mixin(Typeahead.prototype, {
 
     // ### private
 
@@ -195,7 +193,7 @@ var TypeaheadView = (function() {
 
       if (datum && this.dropdown.isVisible() && !this.input.hasOverflow()) {
         inputValue = this.input.getInputValue();
-        query = InputView.normalizeQuery(inputValue);
+        query = Input.normalizeQuery(inputValue);
         escapedQuery = _.escapeRegExChars(query);
 
         frontMatchRegEx = new RegExp('^(?:' + escapedQuery + ')(.*$)', 'i');
@@ -238,7 +236,7 @@ var TypeaheadView = (function() {
 
   });
 
-  return TypeaheadView;
+  return Typeahead;
 
   function buildDomStructure(input, withHint) {
     var $input, $wrapper, $dropdown, $hint;
@@ -290,11 +288,5 @@ var TypeaheadView = (function() {
       backgroundRepeat: $el.css('background-repeat'),
       backgroundSize: $el.css('background-size')
     };
-  }
-
-  function initializeSections(oSections) {
-    return _.map(oSections, initialize);
-
-    function initialize(oSection) { return new SectionView(oSection); }
   }
 })();
