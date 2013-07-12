@@ -75,6 +75,8 @@ var TypeaheadView = (function() {
 
       this.input.clearHint();
       this.input.setInputValue(datum.value, true);
+
+      this.eventBus.trigger('cursorchanged', datum.raw);
     },
 
     _onCursorRemoved: function onCursorRemoved() {
