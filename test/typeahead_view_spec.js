@@ -400,6 +400,23 @@ describe('Typeahead', function() {
     });
   });
 
+  describe('#getQuery', function() {
+    it('should return the current query', function() {
+      this.input.getQuery.andReturn('woah');
+      this.view.close();
+
+      expect(this.view.getQuery()).toBe('woah');
+    });
+  });
+
+  describe('#getQuery', function() {
+    it('should update the input value', function() {
+      this.view.setQuery('woah');
+
+      expect(this.input.setInputValue).toHaveBeenCalledWith('woah');
+    });
+  });
+
   describe('#destroy', function() {
     it('should destroy input', function() {
       this.view.destroy();

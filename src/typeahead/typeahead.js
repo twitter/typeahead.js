@@ -242,6 +242,14 @@ var Typeahead = (function() {
       this.dropdown.close();
     },
 
+    getQuery: function getQuery() {
+      return this.input.getQuery();
+    },
+
+    setQuery: function setQuery(val) {
+      this.input.setInputValue(val);
+    },
+
     destroy: function destroy() {
       this.input.destroy();
       this.dropdown.destroy();

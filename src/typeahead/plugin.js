@@ -53,6 +53,28 @@
       }
     },
 
+    val: function val(newVal) {
+      return newVal ? this.each(setQuery) : this.map(getQuery).get();
+
+      function setQuery() {
+        var $input = $(this), typeahead;
+
+        if (typeahead = $input.data(typeaheadKey)) {
+          typeahead.setQuery(newVal);
+        }
+      }
+
+      function getQuery() {
+        var $input = $(this), typeahead, query;
+
+        if (typeahead = $input.data(typeaheadKey)) {
+          query = typeahead.getQuery();
+        }
+
+        return query;
+      }
+    },
+
     destroy: function destroy() {
       return this.each(unattach);
 
