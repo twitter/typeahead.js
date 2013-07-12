@@ -4,7 +4,7 @@
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var Dataset = (function() {
+var Dataset = window.Dataset = (function() {
   var keys;
 
   keys = { data: 'data', protocol: 'protocol', thumbprint: 'thumbprint' };
