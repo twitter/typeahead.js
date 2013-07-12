@@ -1,13 +1,18 @@
 var semver = require('semver'),
     f = require('util').format,
-    jsFiles = [
-      'src/common/utils.js',
+    files = {
+      common: [
+      'src/common/utils.js'
+      ],
+      dataset: [
       'src/dataset/version.js',
       'src/dataset/lru_cache.js',
       'src/dataset/persistent_storage.js',
       'src/dataset/transport.js',
       'src/dataset/search_index.js',
-      'src/dataset/dataset.js',
+      'src/dataset/dataset.js'
+      ],
+      typeahead: [
       'src/typeahead/html.js',
       'src/typeahead/css.js',
       'src/typeahead/event_bus.js',
@@ -18,7 +23,8 @@ var semver = require('semver'),
       'src/typeahead/dropdown.js',
       'src/typeahead/typeahead.js',
       'src/typeahead/plugin.js'
-    ];
+      ]
+    };
 
 module.exports = function(grunt) {
   grunt.initConfig({
@@ -39,22 +45,42 @@ module.exports = function(grunt) {
         banner: '<%= banner %>',
         enclose: { 'window.jQuery': '$' }
       },
-      js: {
+      dataset: {
         options: {
           mangle: false,
           beautify: true,
           compress: false
         },
-        src: jsFiles,
-        dest: '<%= buildDir %>/typeahead.js'
+        src: files.common.concat(files.dataset),
+        dest: '<%= buildDir %>/dataset.js'
       },
-      jsmin: {
+      typeahead: {
+        options: {
+          mangle: false,
+          beautify: true,
+          compress: false
+        },
+        src: files.common.concat(files.typeahead),
+        dest: '<%= buildDir %>/typeahead.js'
+
+      },
+      bundle: {
+        options: {
+          mangle: false,
+          beautify: true,
+          compress: false
+        },
+        src: files.common.concat(files.dataset, files.typeahead),
+        dest: '<%= buildDir %>/typeahead.bundle.js'
+
+      },
+      bundlemin: {
         options: {
           mangle: true,
           compress: true
         },
-        src: jsFiles,
-        dest: '<%= buildDir %>/typeahead.min.js'
+        src: files.common.concat(files.dataset, files.typeahead),
+        dest: '<%= buildDir %>/typeahead.bundle.min.js'
       }
     },
 
@@ -62,7 +88,8 @@ module.exports = function(grunt) {
       version: {
         pattern: '%VERSION%',
         replacement: '<%= version %>',
-        path: ['<%= uglify.js.dest %>', '<%= uglify.jsmin.dest %>']
+        recursive: true,
+        path: '<%= buildDir %>'
       }
     },
 
@@ -70,22 +97,19 @@ module.exports = function(grunt) {
       options: {
         jshintrc: '.jshintrc'
       },
-      src: jsFiles,
-      tests: ['test/*.js'],
+      src: 'src/**/*',
+      test: ['test/*_spec.js'],
       gruntfile: ['Gruntfile.js']
     },
 
     watch: {
       js: {
-        files: jsFiles,
-        tasks: 'build:js'
+        files: 'src/**/*',
+        tasks: 'build'
       }
     },
 
     exec: {
-      open_spec_runner: {
-        cmd: 'open _SpecRunner.html'
-      },
       git_is_clean: {
         cmd: 'test -z "$(git status --porcelain)"'
       },
