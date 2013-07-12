@@ -3,7 +3,21 @@
 [typeahead.js][gh-page]
 =======================
 
-Inspired by [twitter.com][twitter]'s autocomplete search functionality, typeahead.js is a fast and [fully-featured][features] autocomplete library.
+Inspired by [twitter.com]'s autocomplete search functionality, typeahead.js is 
+a flexible JavaScript library that provides a strong foundation for building 
+robust typeaheads.
+
+The typeahead.js library is built on top of 2 components: the data component,
+[dataset](#dataset), and the UI component, [typeahead](#typeahead). Datasets are 
+responsible for providing suggestions for a given query. Typeaheads are 
+responsible for rendering suggestions and handling DOM interactions. Both
+components can be used separately, but when used together, they provided a rich
+typeahead experience.
+
+<!-- section links -->
+
+[gh-page]: http://twitter.github.io/typeahead.js/
+[twitter.com]: https://twitter.com
 
 Getting Started
 ---------------
@@ -11,240 +25,467 @@ Getting Started
 How you acquire typeahead.js is up to you.
 
 Preferred method:
-* Install with [Bower][bower]: `$ bower install typeahead.js`
+* Install with [Bower]: `$ bower install typeahead.js`
 
 Other methods:
 * [Download zipball of latest release][zipball].
-* Download latest *[typeahead.js][typeahead.js]* or *[typeahead.min.js][typeahead.min.js]*.
+* Download the latest dist files individually:
+  * *[dataset.js]*
+  * *[typeahead.js]*
+  * *[typeahead.bundle.js]* (dataset + typeahead)
+  * *[typeahead.bundle.min.js]*
 
-**Note:** typeahead.js has a dependency on [jQuery][jquery] 1.9+, which must be loaded before *typeahead.js*.
+**Note:** both dataset.js and typeahead.js have a dependency on [jQuery] 1.9+.
 
-Examples
---------
+<!-- section links -->
 
-For some working examples of typeahead.js, visit our [examples page][examples].
+[Bower]: http://bower.io/
+[zipball]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.js.zip
+[dataset.js]: http://twitter.github.com/typeahead.js/releases/latest/dataset.js
+[typeahead.js]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.js
+[typeahead.bundle.js]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.bundle.js
+[typeahead.bundle.min.js]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.bundle.min.js
+[jQuery]: http://jquery.com/
+
+Table of Contents
+-----------------
+
+* [Features](#features)
+* [Examples](#examples)
+* [Typeahead](#typeahead)
+  * [API](#typeahead-api)
+  * [Options](#typeahead-options)
+  * [Sections](#sections)
+  * [Custom Events](#custom-events)
+  * [Look and Feel](#look-and-feel)
+* [Dataset](#dataset)
+  * [API](#dataset-api)
+  * [Options](#dataset-options)
+  * [Prefetch](#prefetch)
+  * [Remote](#remote)
+  * [Tokens](#tokens)
+* [Datum](#datum)
+* [Browser Support](#broswer-support)
+* [Customer Support](#customer-support)
+* [Issues](#issues)
+* [Versioning](#versioning)
+* [Testing](#testing)
+* [Developers](#developers)
+* [Authors](#authors)
+* [License](#license)
 
 Features
 --------
 
+**Typeahead**
+
 * Displays suggestions to end-users as they type
 * Shows top suggestion as a hint (i.e. background text)
-* Works with hardcoded data as well as remote data
-* Rate-limits network requests to lighten the load
-* Allows for suggestions to be drawn from multiple datasets
-* Supports customized templates for suggestions
-* Plays nice with RTL languages and input method editors
+* Supports custom templates to allow for UI flexibility
+* Works well with RTL languages and input method editors
+* Highlights query matches within the suggestion
+* Triggers custom events
 
-Why not use X?
---------------
+**Dataset**
 
-At the time Twitter was looking to implement a typeahead, there wasn't a solution that allowed for prefetching data, searching that data on the client, and then falling back to the server. It's optimized for quickly indexing and searching large datasets on the client. That allows for sites without datacenters on every continent to provide a consistent level of performance for all their users. It plays nicely with Right-To-Left (RTL) languages and Input Method Editors (IMEs). We also needed something instrumented for comprehensive analytics in order to optimize relevance through A/B testing. Although logging and analytics are not currently included, it's something we may add in the future.
+* Works with hardcoded data
+* Prefetches data on initialization to reduce suggestion latency
+* Uses local storage intelligently to cut down on network requests
+* Backfills suggestions from a remote source
+* Rate-limits and caches network requests to remote sources to lighten the load
 
-Usage
------
+Examples
+--------
 
-### API
+For some working examples of typeahead.js, visit our [examples page].
 
-#### jQuery#typeahead(datasets)
+<!-- section links -->
 
-Turns any `input[type="text"]` element into a typeahead. `datasets` is expected to be a single [dataset][dataset] or an array of datasets.
+[examples page]: http://twitter.github.io/typeahead.js/examples
+
+Typeahead
+---------
+
+The typeahead component is a jQuery plugin for adding typeahead functionality
+to `input` elements. It deals with rendering suggestions and handling DOM
+interactions. 
+
+### Typeahead API
+
+#### jQuery#typeahead(options)
+
+Turns any `input[type="text"]` element into a typeahead. `options` is an 
+options hash that's used to configure the typeahead to your liking. For more
+info about what options are available, check out the 
+[Options](#typeahead-options) section.
 
 ```javascript
-// single dataset
-$('input.typeahead-devs').typeahead({
-  name: 'accounts',
-  local: ['timtrueman', 'JakeHarding', 'vskarich']
-});
-
-// multiple datasets
-$('input.twitter-search').typeahead([
-  {
-    name: 'accounts',
-    prefetch: 'https://twitter.com/network.json',
-    remote: 'https://twitter.com/accounts?q=%QUERY'
-  },
-  {
-    name: 'trends',
-    prefetch: 'https://twitter.com/trends.json'
+$('.typeahead').typeahead({
+  minLength: 3,
+  sections: {
+    hightlight: true,
+    source: myDataset
   }
-]);
+});
 ```
 
 #### jQuery#typeahead('destroy')
 
-Destroys previously initialized typeaheads. This entails reverting DOM modifications and removing event handlers.
+Removes typeahead.js functionality and reverts the `input` element back to how 
+it was before it was turned into a typeahead.
 
 ```javascript
-$('input.typeahead-devs').typeahead({
-  name: 'accounts',
-  local: ['timtrueman', 'JakeHarding', 'vskarich']
-});
-
-$('input.typeahead-devs').typeahead('destroy');
+$('.typeahead').typeahead('destroy');
 ```
 
-#### jQuery#typeahead('setQuery', query)
+#### jQuery#typeahead('open')
 
-Sets the current query of the typeahead. This is always preferable to using `$("input.typeahead").val(query)`, which will result in unexpected behavior. To clear the query, simply set it to an empty string.
-
-### Dataset
-
-A dataset is an object that defines a set of data that hydrates suggestions. Typeaheads can be backed by multiple datasets. Given a query, a typeahead instance will inspect its backing datasets and display relevant suggestions to the end-user. 
-
-When defining a dataset, the following options are available:
-
-* `name` – The string used to identify the dataset. Used by typeahead.js to cache intelligently.
-
-* `valueKey` – The key used to access the value of the datum in the datum object. Defaults to `value`.
-
-* `limit` – The max number of suggestions from the dataset to display for a given query. Defaults to `5`.
-
-* `template` – The template used to render suggestions. Can be a string or a precompiled template. If not provided, suggestions will render as their value contained in a `<p>` element (i.e. `<p>value</p>`).
-
-* `engine` – The template engine used to compile/render `template` if it is a string. Any engine can use used as long as it adheres to the [expected API][template-engine-compatibility]. **Required** if `template` is a string.
-
-* `header` – The header rendered before suggestions in the dropdown menu. Can be either a DOM element or HTML.
-
-* `footer` – The footer rendered after suggestions in the dropdown menu. Can be either a DOM element or HTML.
-
-* `local` – An array of [datums][datum].
-
-* `prefetch` – Can be a URL to a JSON file containing an array of datums or, if more configurability is needed, a [prefetch options object][prefetch].
-
-* `remote` – Can be a URL to fetch suggestions from when the data provided by `local` and `prefetch` is insufficient or, if more configurability is needed, a [remote options object][remote].
-
-### Datum
-
-The individual units that compose datasets are called datums. The canonical form of a datum is an object with a `value` property and a `tokens` property. `value` is the string that represents the underlying value of the datum and `tokens` is a collection of strings that aid typeahead.js in matching datums with a given query.
+Opens the dropdown menu of typeahead. Note that being open does not mean that
+the menu is visible. The menu is only visible when it is open and not empty.
 
 ```javascript
-{
-  value: '@JakeHarding',
-  tokens: ['Jake', 'Harding']
-}
+$('.typeahead').typeahead('open');
 ```
 
-For ease of use, datums can also be represented as a string. Strings found in place of datum objects are implicitly converted to a datum object.
+#### jQuery#typeahead('close')
 
-When datums are rendered as suggestions, the datum object is the context passed to the template engine. This means if you include any arbitrary properties in datum objects, those properties will be available to the template used to render suggestions.
-
-```html
-<img src="{{profileImageUrl}}">
-<p><strong>{{name}}</strong>&nbsp;{{value}}</p>
-```
+Closes the dropdown menu of typeahead.
 
 ```javascript
-{
-  value: '@JakeHarding',
-  tokens: ['Jake', 'Harding'],
-  name: 'Jake Harding',
-  profileImageUrl: 'https://twitter.com/JakeHaridng/profile_img'
-}
+$('.typeahead').typeahead('close');
 ```
 
-### Prefetch
+#### jQuery#typeahead('val')
 
-Prefetched data is fetched and processed on initialization. If the browser supports localStorage, the processed data will be cached there to prevent additional network requests on subsequent page loads.
+Returns the current value of the typeahead. The value is the text the user has 
+entered into the `input` element.
 
-When configuring `prefetch`, the following options are available:
+```javascript
+var myVal = $('.typeahead').typeahead('val');
+```
 
-* `url` – A URL to a JSON file containing an array of datums. **Required.**
+#### jQuery#typeahead('val', val)
 
-* `ttl` – The time (in milliseconds) the prefetched data should be cached in localStorage. Defaults to `86400000` (1 day).
+Sets the value of the typeahead. This should be used in place of `jQuery#val`.
 
-* `filter` – A function with the signature `filter(parsedResponse)` that transforms the response body into an array of datums. Expected to return an array of datums.
+```javascript
+$('.typeahead').typeahead('val', myVal);
+```
 
+### Typeahead Options
 
-### Remote
+When initializing a typeahead, there are a number of options you can configure.
 
-Remote data is only used when the data provided by `local` and `prefetch` is insufficient. In order to prevent an obscene number of requests being made to remote endpoint, typeahead.js rate-limits remote requests.
+* `minLength` – The minimum character length needed before suggestions start 
+  getting renderd. Defaults to `0`.
 
-When configuring `remote`, the following options are available:
+* `hint` – If `false`, the typeahead will not show a hint. Defaults to `true`.
 
-* `url` – A URL to make requests to when when the data provided by `local` and `prefetch` is insufficient. **Required.**
+* `autoselect` – If `true`, when the dropdown menu is open and the user hits 
+  enter, the top suggestion will be selected. Defaults to `false`.
 
-* `dataType` – The type of data you're expecting from the server. See the [jQuery.ajax docs][jquery-ajax] for more info. Defaults to `json`.
+* `sections` – Can be either one or many sections. Refer to
+  [Sections](#sections) for more info.
 
-* `cache` – Determines whether or not the browser will cache responses. See the [jQuery.ajax docs][jquery-ajax] for more info.
+### Sections
 
-* `timeout` – Sets a timeout for requests. See the [jQuery.ajax docs][jquery-ajax] for more info.
+A typeahead is composed of one or more sections. For simple use cases, one 
+section will usually suffice. If however you wanted to build something like
+the search typeahead on twitter.com, you'd need multiple sections.
 
-* `wildcard` – The pattern in `url` that will be replaced with the user's query when a request is made. Defaults to `%QUERY`.
+Sections can be configured using the following options.
 
-* `replace` – A function with the signature `replace(url, uriEncodedQuery)` that can be used to override the request URL. Expected to return a valid URL. If set, no wildcard substitution will be performed on `url`.
+* `name` – The name of the section. Defaults to a random number.
 
-* `rateLimitFn` – The function used for rate-limiting network requests. Can be either `debounce` or `throttle`. Defaults to `debounce`.
+* `source` – The backing data source for the section. Can be either a 
+  [dataset](#dataset) or a function with the signature `(query, cb)`. 
+  If the latter, `cb` is expected to be invoked with an array of 
+  [datums](#datum) that are a match for `query`. **Required**.
 
-* `rateLimitWait` – The time interval in milliseconds that will be used by `rateLimitFn`. Defaults to `300`.
+* `highlight` – If `true`, when suggestions are rendered, pattern matches
+  for the current query in text nodes will be wrapped in a `strong` element. 
+  Defaults to `false`.
 
-* `maxParallelRequests` – The max number of parallel requests typeahead.js can have pending. Defaults to `6`.
+* `templates` – A hash of templates to be used when rendering the section.
 
-* `beforeSend` – A pre-request callback with the signature `beforeSend(jqXhr, settings)`. Can be used to set custom headers. See the [jQuery.ajax docs][jquery-ajax] for more info.
+  * `empty` – Rendered when `0` suggestions are available for the given query. 
+  Can be either a HTML string or a precompiled template. If it's a precompiled
+  template, the passed in context will contain `query`.
 
-* `filter` – A function with the signature `filter(parsedResponse)` that transforms the response body into an array of datums. Expected to return an array of datums.
+  * `header` – Rendered at the top of the section.  Can be either a HTML string 
+  or a precompiled template. If it's a precompiled template, the passed in 
+  context will contain `query` and `isEmpty`.
+
+  * `footer`– Rendered at the bottom of the section.  Can be either a HTML 
+  string or a precompiled template. If it's a precompiled template, the passed 
+  in context will contain `query` and `isEmpty`.
+
+  * `suggestion` – Used to render a single suggestion. If set, this has to be a 
+  precompiled tempate. The associated datum object will serves as the context. 
+  Defaults to the value of the datum wrapped in a `p` tag.
 
 ### Custom Events
 
-typeahead.js triggers the following custom events:
+The typeahead component triggers the following custom events.
 
-* `typeahead:initialized` – Triggered after initialization. If data needs to be prefetched, this event will not be triggered until after the prefetched data is processed.
+* `typeahead:opened` – Triggered when the dropdown menu of a typeahead is 
+  opened.
 
-* `typeahead:opened` – Triggered when the dropdown menu of a typeahead is opened.
+* `typeahead:closed` – Triggered when the dropdown menu of a typeahead is 
+  closed.
 
-* `typeahead:closed` – Triggered when the dropdown menu of a typeahead is closed.
+* `typeahead:cursorchanged` – Triggered when the dropdown menu cursor is moved
+  to a different suggestion. The datum for the suggestion that the cursor was
+  moved to is passed to the event handler as an argument in addition to the name 
+  of the section it belongs to.
 
-* `typeahead:selected` – Triggered when a suggestion from the dropdown menu is explicitly selected. The datum for the selected suggestion is passed to the event handler as an argument in addition to the name of the dataset it originated from.
+* `typeahead:selected` – Triggered when a suggestion from the dropdown menu is 
+  selected. The datum for the selected suggestion is passed to the event handler 
+  as an argument in addition to the name of the section it belongs to.
 
-* `typeahead:autocompleted` – Triggered when the query is autocompleted. The datum used for autocompletion is passed to the event handler as an argument in addition to the name of the dataset it originated from.
+* `typeahead:autocompleted` – Triggered when the query is autocompleted. 
+  Autocompleted means the query was changed to the hint. The datum used for 
+  autocompletion is passed to the event handler as an argument in addition to 
+  the name of the section it belongs to.
 
 All custom events are triggered on the element initialized as a typeahead.
 
-### Template Engine Compatibility
-
-Any template engine will work with typeahead.js as long as it adheres to the following API:
-
-```javascript
-// engine has a compile function that returns a compiled template
-var compiledTemplate = ENGINE.compile(template);
-
-// compiled template has a render function that returns the rendered template
-// render function expects the context to be first argument passed to it
-var html = compiledTemplate.render(context);
-```
-
-Check out [Hogan.js][hogan.js] if you're looking for a compatible mustache templating engine.
-
 ### Look and Feel
 
-The styles applied by typeahead.js are for positioning the hint and the dropdown menu, no other styles should be affected. In most cases the styles applied by typeahead.js will work like a charm, but there are edge cases where some custom styles will be necessary. If you're having CSS issues, create an [issue][issues] or tweet [@typeahead][@typeahead] for support.
-
-By default, the dropdown menu created by typeahead.js is going to look ugly and you'll want to style it to ensure it fits into the theme of your web page. Below is a Mustache template describing the DOM structure of a typeahead.js dropdown menu. Note that the `{{{html}}}` tag is the HTML generated by the custom template you provide when defining datasets.
+Below is a faux mustache template describing the DOM structure of a typeahead 
+dropdown menu. Keep in mind that `header`, `footer`, `suggestion`, and `empty` 
+come from the templates mentioned [here](#sections). 
 
 ```html
 <span class="tt-dropdown-menu">
-  {{#dataset}}
-    <div class="tt-dataset-{{name}}">
+  {{#sections}}
+    <div class="tt-section-{{name}}">
       {{{header}}}
       <span class="tt-suggestions">
         {{#suggestions}}
-          <div class="tt-suggestion">{{{html}}}</div>
+          <div class="tt-suggestion">{{{suggestion}}}</div>
+        {{/suggestions}}
+        {{^suggestions}}
+          {{{empty}}}
         {{/suggestions}}
       </span>
       {{{footer}}}
     </div>
-  {{/dataset}}
+  {{/sections}}
 </span>
 ```
 
-When an end-user mouses or keys over a `.tt-suggestion`, the class `tt-is-under-cursor` will be added to it. You can use this class as a hook for styling the "under cursor" state of suggestions.
+When an end-user mouses or keys over a `.tt-suggestion`, the class `tt-cursor` 
+will be added to it. You can use this class as a hook for styling the "under 
+cursor" state of suggestions.
 
-Bootstrap Integration
----------------------
+Dataset
+-------
 
-For simple autocomplete use cases, the typeahead component [Bootstrap][bootstrap] provides should suffice. However, if you'd prefer to take advantage of some of the advance features typeahead.js provides, here's what you'll need to do to integrate typeahead.js with Bootstrap:
+Datasets can be used as a `source` for sections. They're robust, flexible, and 
+offer advanced functionality such as prefetching, intelligent caching,
+fast lookups, and backfilling with remote data.
 
-* If you're customizing Bootstrap, exclude the typeahead component. If you're depending on the standard *bootstrap.js*, ensure *typeahead.js* is loaded after it.
-* The DOM structure of the dropdown menu used by typeahead.js differs from the DOM structure of the Bootstrap dropdown menu. You'll need to load some [additional CSS][typeahead.js-bootstrap.css] in order to get the typeahead.js dropdown menu to fit the default Bootstrap theme.
+### Dataset API
+
+#### Constructor
+
+The constructor function. It takes an [options hash](#dataset-options).
+
+```javascript
+var dataset = new Dataset({
+  name: myDatasetName,
+  local: ['dog', 'pig', 'moose'],
+  remote: 'http://example.com/animals?q=%QUERY'
+});
+```
+
+#### Dataset#initialize()
+
+Kicks off the initialization of the dataset. This includes processing the data
+provided through `local` and fetching and processing the data provided by 
+`prefetch`. `Dataset#get` and `Dataset#add` will be useless until this method
+is called.
+
+```javascript
+dataset.initialize();
+```
+
+#### Dataset#get(query, cb)
+
+Retrieves datums from the dataset matching  `query` and invokes `cb` with 
+them. `cb` will always be called at least once with the mixed results from
+`local` and `prefetch`. If those results are insufficent, `cb` will be called 
+again later with the mixed results from `local`, `prefetch`, **and** `remote`.
+
+```javascript
+dataset.get(myQuery, function(suggestions) {
+  suggestions.each(function(suggestion) {
+    console.log(suggestion.value);
+  });
+});
+```
+
+### Dataset Options
+
+When initializing a dataset, there are a number of options you can configure.
+
+* `name` – The string used to identify the dataset. If set, typeahead.js
+  will cache prefetched data in local storage, if possible.
+
+* `valueKey` – The key used to access the value of the datum in the datum 
+  object. Defaults to `value`.
+
+* `limit` – The max number of suggestions to return from `Dataset#get`. If not
+  reached, the dataset will attempt to backfill the suggestions from `remote`.
+
+* `tokenizer` – A function with the signature `(str)` that returns an array of
+  tokens. The default implementation of `tokenizer` splits `str` on whitespace.
+
+* `dupChecker` – A function with the signature `(datum1, datum2)` that returns
+  `true` if the datums are duplicates or `false` otherwise. If `dupChecker` is
+  `true`, a function that compares value properties will be used. This is used 
+  for making sure no duplicate suggestions are introduced from `remote`.
+
+* `sorter` – A [compare function] used to sort matched datums for a given query.
+
+* `local` – An array of [datums](#datum).
+
+* `prefetch` – Can be a URL to a JSON file containing an array of datums or, if 
+  more configurability is needed, a [prefetch options hash](#prefetch).
+
+* `remote` – Can be a URL to fetch suggestions from when the data provided by 
+  `local` and `prefetch` is insufficient or, if more configurability is needed, 
+  a [remote options hash](#remote).
+
+<!-- section links -->
+
+[compare function]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+
+### Prefetch
+
+Prefetched data is fetched and processed on initialization. If the browser 
+supports local storage, the processed data will be cached there to 
+prevent additional network requests on subsequent page loads.
+
+When configuring `prefetch`, the following options are available.
+
+* `url` – A URL to a JSON file containing an array of datums. **Required.**
+
+* `ttl` – The time (in milliseconds) the prefetched data should be cached in 
+  local storage. Defaults to `86400000` (1 day).
+
+* `thumbprint` – A string used for thumbprinting prefetched data. If this
+  doesn't match what's stored in local storage, the data will be refetched.
+
+* `filter` – A function with the signature `filter(parsedResponse)` that 
+  transforms the response body into an array of datums. Expected to return an 
+  array of datums.
+
+* `ajax` – The [ajax settings object] passed to `jQuery.ajax`.
+
+<!-- section links -->
+
+[ajax settings object]:http://api.jquery.com/jQuery.ajax/#jQuery-ajax-settings
+
+### Remote
+
+Remote data is only used when the data provided by `local` and `prefetch` is 
+insufficient. In order to prevent an obscene number of requests being made to
+the remote endpoint, typeahead.js rate-limits remote requests.
+
+When configuring `remote`, the following options are available.
+
+* `url` – A URL to make requests to when when the data provided by `local` and 
+  `prefetch` is insufficient. **Required.**
+
+* `wildcard` – The pattern in `url` that will be replaced with the user's query 
+  when a request is made. Defaults to `%QUERY`.
+
+* `replace` – A function with the signature `replace(url, query)` that can be 
+  used to override the request URL. Expected to return a valid URL. If set, no 
+  wildcard substitution will be performed on `url`.
+
+* `rateLimitBy` – The method used to rate-limit network requests. Can be either 
+  `debounce` or `throttle`. Defaults to `debounce`.
+
+* `rateLimitWait` – The time interval in milliseconds that will be used by 
+  `rateLimitBy`. Defaults to `300`.
+
+* `filter` – A function with the signature `filter(parsedResponse)` that 
+  transforms the response body into an array of datums. Expected to return an 
+  array of datums.
+
+* `ajax` – The [ajax settings object] passed to `jQuery.ajax`.
+
+<!-- section links -->
+
+[ajax settings object]:http://api.jquery.com/jQuery.ajax/#jQuery-ajax-settings
+
+### Tokens
+
+The algorithm used by datasets for providing suggestions for a given query is
+token-based. When `Dataset#get` is called, it tokenizes `query` using 
+`tokenizer` and then invokes `cb` with all of the datums that contain those 
+tokens.
+
+By default, a dataset will generate tokens for a datum by tokenizing its value.
+However, it is possible to explicitly set the tokens for a datum by including a
+`tokens` property.
+
+```javascript
+{
+  value: 'typeahead.js'
+  tokens: ['typeahead.js', 'typeahead', 'autocomlete', 'javascript'];
+}
+```
+
+The above datum would be a valid suggestion for queries such as:
+
+* `typehead`
+* `typehead.js`
+* `autoco`
+* `javascript type`
+
+
+Datum
+-----
+
+The data representation of a suggestion is referred to as a datum. A datum is
+an object that can contain arbitrary properties. When a suggestion is 
+rendered, its datum will be the context passed the suggestion template.
+
+Datums are expected to contain a value property – when a suggestion is 
+selected, this will be what the value of the `input` is set to. By default,
+it's expected the name of this property will be `value`, but it's configurable.
+See [Dataset](#dataset) for more details.
+
+For ease of use, datums can also be represented as a string. Strings found in 
+place of datum objects are implicitly converted to an object with its value
+property set to the string.
+
+Here's a datum in its simplest form.
+
+```javascript
+{
+  value: "monkey"
+}
+```
+
+Here's a more complex datum that would be used for a Twitter account 
+typeahead. The value property here is `handle` and the datum contains additional
+properties to make it possible to render richer suggestions. This datum also
+explicitly sets its [tokens](#tokens).
+
+
+```javascript
+{
+  name: 'Jake Harding',
+  handle: '@JakeHarding',
+  tokens: ['jake', 'harding', 'jakeharding', '@jakeharding'],
+  profileImageUrl: 'https://twitter.com/JakeHaridng/path/to/img'
+}
+```
 
 Browser Support
 ---------------
@@ -254,6 +495,20 @@ Browser Support
 * Safari 4+
 * Internet Explorer 7+
 * Opera 11+
+
+Customer Support
+----------------
+
+For general questions about typeahead.js, tweet at [@typeahead].
+
+For technical questions, you should post a question on [Stack Overflow] and tag 
+it with [typeahead.js][so tag].
+
+<!-- section links -->
+
+[Stack Overflow]: http://stackoverflow.com/
+[@typeahead]: https://twitter.com/typeahead
+[so tag]: http://stackoverflow.com/questions/tagged/typeahead.js
 
 Issues
 ------
@@ -280,41 +535,51 @@ For more information on semantic versioning, please visit http://semver.org/.
 Testing
 -------
 
-Tests are written using [Jasmine][jasmine]. To run the test suite with PhantomJS, run `$ grunt test`. To run the test suite in your default browser, run `$ grunt test:browser`.
+Tests are written using [Jasmine] and ran with [Karma]. To run
+the test suite with PhantomJS, run `$ npm test`.
+
+<!-- section links -->
+
+[Jasmine]: http://pivotal.github.com/jasmine/
+[Karma]: http://karma-runner.github.io/
 
 Developers
 ----------
 
-If you plan on contributing to typeahead.js, be sure to read the [contributing guidelines][contributing-guidelines].
+If you plan on contributing to typeahead.js, be sure to read the 
+[contributing guidelines].
 
-In order to build and test typeahead.js, you'll need to install its dev dependencies (`$ npm install`) and have [grunt-cli][grunt-cli] installed (`$ npm install -g grunt-cli`). Below is an overview of the available Grunt tasks that'll be useful in development.
+In order to build and test typeahead.js, you'll need to install its dev 
+dependencies (`$ npm install`) and have [grunt-cli] 
+installed (`$ npm install -g grunt-cli`). Below is an overview of the available 
+Grunt tasks that'll be useful in development.
 
 * `grunt build` – Builds *typeahead.js* from source.
 * `grunt lint` – Runs source and test files through JSHint.
-* `grunt test` – Runs the test suite with PhantomJS.
-* `grunt test:browser` – Runs the test suite in your default browser.
 * `grunt watch` – Rebuilds *typeahead.js* whenever a source file is modified.
-* `grunt server` – Serves files from the root of typeahead.js on localhost:8888. Useful for using *test/playground.html* for debugging/testing.
+* `grunt server` – Serves files from the root of typeahead.js on localhost:8888. 
+  Useful for using *test/playground.html* for debugging/testing.
 * `grunt dev` – Runs `grunt watch` and `grunt server` in parallel.
+
+<!-- section links -->
+
+[contributing guidelines]: https://github.com/twitter/typeahead.js/blob/master/CONTRIBUTING.md
+[grunt-cli]: https://github.com/gruntjs/grunt-cli
 
 Authors
 -------
 
-* **Tim Trueman** ([Twitter](https://twitter.com/timtrueman) / [GitHub](https://github.com/timtrueman))
-* **Veljko Skarich** ([Twitter](https://twitter.com/vskarich) / [GitHub](https://github.com/velsgithub))
-* **Jake Harding** ([Twitter](https://twitter.com/JakeHarding) / [GitHub](https://github.com/jharding))
+* **Jake Harding** 
+  * [@JakeHarding](https://twitter.com/JakeHarding) 
+  * [GitHub](https://github.com/jharding)
 
-Shoutouts!
-----------
+* **Veljko Skarich**
+  * [@vskarich](https://twitter.com/vskarich) 
+  * [GitHub](https://github.com/velsgithub)
 
-Thanks for assistance and contributions:
-
-* [@fat](https://github.com/fat)
-* [@garann](https://github.com/garann)
-* [@paulirish](https://github.com/paulirish)
-* [@sindresorhus](https://github.com/sindresorhus)
-* [@thisguy](https://twitter.com/thisguy)
-* [And many others!][contributors]
+* **Tim Trueman**
+  * [@timtrueman](https://twitter.com/timtrueman) 
+  * [GitHub](https://github.com/timtrueman)
 
 License
 -------
@@ -322,38 +587,3 @@ License
 Copyright 2013 Twitter, Inc.
 
 Licensed under the MIT License
-
-[twitter]: https://twitter.com
-[gh-page]: http://twitter.github.com/typeahead.js
-[examples]: http://twitter.github.com/typeahead.js/examples
-[@typeahead]: https://twitter.com/typeahead
-
-<!-- assets -->
-[zipball]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.js.zip
-[typeahead.js]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.js
-[typeahead.min.js]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.min.js
-
-<!-- github links -->
-[contributing-guidelines]: https://github.com/twitter/typeahead.js/blob/master/CONTRIBUTING.md
-[compatible-template-engines]: https://github.com/twitter/typeahead/wiki/Compatible-Template-Engines
-[contributors]: https://github.com/twitter/typeahead.js/contributors
-[issues]: https://github.com/twitter/typeahead.js/issues
-
-<!-- deep links -->
-[features]: #features
-[transport]: #transport
-[dataset]: #dataset
-[prefetch]: #prefetch
-[remote]: #remote
-[datum]: #datum
-[template-engine-compatibility]: #template-engine-compatibility
-
-<!-- links to third party projects -->
-[jasmine]: http://pivotal.github.com/jasmine/
-[grunt-cli]: https://github.com/gruntjs/grunt-cli
-[bower]: http://bower.io/
-[jQuery]: http://jquery.com/
-[jquery-ajax]: http://api.jquery.com/jQuery.ajax/
-[hogan.js]: http://twitter.github.com/hogan.js/
-[bootstrap]: http://twitter.github.com/bootstrap/
-[typeahead.js-bootstrap.css]: https://github.com/jharding/typeahead.js-bootstrap.css
