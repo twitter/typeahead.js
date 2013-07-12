@@ -1,4 +1,4 @@
-describe('InputView', function() {
+describe('Input', function() {
   var KEYS;
 
    KEYS = {
@@ -21,13 +21,13 @@ describe('InputView', function() {
     this.$input = $fixture.find('.tt-input');
     this.$hint = $fixture.find('.tt-hint');
 
-    this.view = new InputView({ input: this.$input, hint: this.$hint });
+    this.view = new Input({ input: this.$input, hint: this.$hint });
   });
 
   it('should throw an error if no hint and/or input is provided', function() {
     expect(noInput).toThrow();
 
-    function noInput() { new InputView({ hint: '.hint' }); }
+    function noInput() { new Input({ hint: '.hint' }); }
   });
 
   describe('when the blur DOM event is triggered', function() {

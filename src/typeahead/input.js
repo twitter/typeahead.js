@@ -4,7 +4,7 @@
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var InputView = (function() {
+var Input = (function() {
   var specialKeyCodeMap;
 
   specialKeyCodeMap = {
@@ -20,7 +20,7 @@ var InputView = (function() {
   // constructor
   // -----------
 
-  function InputView(o) {
+  function Input(o) {
     var that = this, onBlur, onFocus, onKeydown, onInput;
 
     o = o || {};
@@ -75,7 +75,7 @@ var InputView = (function() {
   // static methods
   // --------------
 
-  InputView.normalizeQuery = function(str) {
+  Input.normalizeQuery = function(str) {
     // strips leading whitespace and condenses all whitespace
     return (str || '').replace(/^\s*/g, '').replace(/\s{2,}/g, ' ');
   };
@@ -83,7 +83,7 @@ var InputView = (function() {
   // instance methods
   // ----------------
 
-  _.mixin(InputView.prototype, EventEmitter, {
+  _.mixin(Input.prototype, EventEmitter, {
 
     // ### private
 
@@ -244,7 +244,7 @@ var InputView = (function() {
     }
   });
 
-  return InputView;
+  return Input;
 
   // helper functions
   // ----------------
@@ -274,7 +274,7 @@ var InputView = (function() {
   }
 
   function areQueriesEquivalent(a, b) {
-    return InputView.normalizeQuery(a) === InputView.normalizeQuery(b);
+    return Input.normalizeQuery(a) === Input.normalizeQuery(b);
   }
 
   function withModifier($e) {

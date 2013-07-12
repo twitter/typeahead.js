@@ -13,11 +13,11 @@ var semver = require('semver'),
       'src/typeahead/event_bus.js',
       'src/typeahead/event_emitter.js',
       'src/typeahead/highlight.js',
-      'src/typeahead/input_view.js',
-      'src/typeahead/section_view.js',
-      'src/typeahead/dropdown_view.js',
-      'src/typeahead/typeahead_view.js',
-      'src/typeahead/typeahead.js'
+      'src/typeahead/input.js',
+      'src/typeahead/section.js',
+      'src/typeahead/dropdown.js',
+      'src/typeahead/typeahead.js',
+      'src/typeahead/plugin.js'
     ];
 
 module.exports = function(grunt) {

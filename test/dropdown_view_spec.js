@@ -1,9 +1,9 @@
-describe('DropdownView', function() {
+describe('Dropdown', function() {
 
   beforeEach(function() {
     var $fixture;
 
-    jasmine.SectionView.useMock();
+    jasmine.Section.useMock();
 
     setFixtures(fixtures.html.menu);
 
@@ -11,7 +11,7 @@ describe('DropdownView', function() {
     this.$menu = $fixture.find('.tt-dropdown-menu');
     this.$menu.html(fixtures.html.section);
 
-    this.view = new DropdownView({ menu: this.$menu, sections: [{}] });
+    this.view = new Dropdown({ menu: this.$menu, sections: [{}] });
     this.section = this.view.sections[0];
   });
 
@@ -19,8 +19,8 @@ describe('DropdownView', function() {
     expect(noMenu).toThrow();
     expect(noSections).toThrow();
 
-    function noMenu() { new DropdownView({ menu: '.menu' }); }
-    function noSections() { new DropdownView({ sections: true }); }
+    function noMenu() { new Dropdown({ menu: '.menu' }); }
+    function noSections() { new Dropdown({ sections: true }); }
   });
 
   describe('when mouseenter is triggered', function() {

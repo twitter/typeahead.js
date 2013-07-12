@@ -4,12 +4,12 @@
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var DropdownView = (function() {
+var Dropdown = (function() {
 
   // constructor
   // -----------
 
-  function DropdownView(o) {
+  function Dropdown(o) {
     var that = this, onMouseEnter, onMouseLeave, onSuggestionClick,
         onSuggestionMouseEnter, onSuggestionMouseLeave;
 
@@ -48,7 +48,7 @@ var DropdownView = (function() {
   // instance methods
   // ----------------
 
-  _.mixin(DropdownView.prototype, EventEmitter, {
+  _.mixin(Dropdown.prototype, EventEmitter, {
 
     // ### private
 
@@ -196,7 +196,7 @@ var DropdownView = (function() {
     },
 
     getDatumForSuggestion: function getDatumForSuggestion($el) {
-      return $el.length ? SectionView.extractDatum($el) : null;
+      return $el.length ? Section.extractDatum($el) : null;
     },
 
     getDatumForCursor: function getDatumForCursor() {
@@ -224,12 +224,12 @@ var DropdownView = (function() {
     }
   });
 
-  return DropdownView;
+  return Dropdown;
 
   // helper functions
   // ----------------
 
   function initializeSection(oSection) {
-    return new SectionView(oSection);
+    return new Section(oSection);
   }
 })();

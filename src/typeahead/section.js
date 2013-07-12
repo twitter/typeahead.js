@@ -4,13 +4,13 @@
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var SectionView = (function() {
+var Section = (function() {
   var datumKey = 'ttDatum';
 
   // constructor
   // -----------
 
-  function SectionView(o) {
+  function Section(o) {
     o = o || {};
     o.templates = o.templates || {};
 
@@ -38,14 +38,14 @@ var SectionView = (function() {
   // static methods
   // --------------
 
-  SectionView.extractDatum = function extractDatum(el) {
+  Section.extractDatum = function extractDatum(el) {
     return $(el).data(datumKey);
   };
 
   // instance methods
   // ----------------
 
-  _.mixin(SectionView.prototype, EventEmitter, {
+  _.mixin(Section.prototype, EventEmitter, {
 
     // ### private
 
@@ -143,7 +143,7 @@ var SectionView = (function() {
     }
   });
 
-  return SectionView;
+  return Section;
 
   // helper functions
   // ----------------

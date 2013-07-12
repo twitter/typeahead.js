@@ -6,9 +6,9 @@
     'PersistentStorage',
     'Transport',
     'SearchIndex',
-    'InputView',
-    'SectionView',
-    'DropdownView'
+    'Input',
+    'Section',
+    'Dropdown'
     ];
 
   for (var i = 0; i < components.length; i++) {

@@ -1,7 +1,7 @@
-describe('SectionView', function() {
+describe('Section', function() {
 
   beforeEach(function() {
-    this.section = new SectionView({
+    this.section = new Section({
       name: 'test',
       source: this.source = jasmine.createSpy('source')
     });
@@ -10,7 +10,7 @@ describe('SectionView', function() {
   it('should throw an error if source is missing', function() {
     expect(noSource).toThrow();
 
-    function noSource() { new SectionView(); }
+    function noSource() { new Section(); }
   });
 
   describe('#getRoot', function() {
@@ -30,7 +30,7 @@ describe('SectionView', function() {
     });
 
     it('should render empty when no suggestions are available', function() {
-      this.section = new SectionView({
+      this.section = new Section({
         source: this.source,
         templates: {
           empty: '<h2>empty</h2>'
@@ -44,7 +44,7 @@ describe('SectionView', function() {
     });
 
     it('should render header', function() {
-      this.section = new SectionView({
+      this.section = new Section({
         source: this.source,
         templates: {
           header: '<h2>header</h2>'
@@ -58,7 +58,7 @@ describe('SectionView', function() {
     });
 
     it('should render footer', function() {
-      this.section = new SectionView({
+      this.section = new Section({
         source: this.source,
         templates: {
           footer: function(c) { return '<p>' + c.query + '</p>'; }
@@ -72,7 +72,7 @@ describe('SectionView', function() {
     });
 
     it('should not render header/footer if there is no content', function() {
-      this.section = new SectionView({
+      this.section = new Section({
         source: this.source,
         templates: {
           header: '<h2>header</h2>',
