@@ -21,6 +21,7 @@ var Typeahead = (function() {
     }
 
     this.autoselect = o.autoselect;
+    this.minLength = o.minLength || 0;
     this.$node = buildDomStructure(o.input, o.withHint);
 
     $menu = this.$node.find('.tt-dropdown-menu');
@@ -166,7 +167,7 @@ var Typeahead = (function() {
     _onQueryChanged: function onQueryChanged(e, query) {
       this.input.clearHint();
       this.dropdown.empty();
-      this.dropdown.update(query);
+      query.length >= this.minLength && this.dropdown.update(query);
       this.dropdown.open();
       this._setLanguageDirection();
     },
