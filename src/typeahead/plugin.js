@@ -29,6 +29,30 @@
       }
     },
 
+    open: function open() {
+      return this.each(openTypeahead);
+
+      function openTypeahead() {
+        var $input = $(this), typeahead;
+
+        if (typeahead = $input.data(typeaheadKey)) {
+          typeahead.open();
+        }
+      }
+    },
+
+    close: function close() {
+      return this.each(closeTypeahead);
+
+      function closeTypeahead() {
+        var $input = $(this), typeahead;
+
+        if (typeahead = $input.data(typeaheadKey)) {
+          typeahead.close();
+        }
+      }
+    },
+
     destroy: function destroy() {
       return this.each(unattach);
 

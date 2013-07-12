@@ -234,6 +234,14 @@ var Typeahead = (function() {
 
     // ### public
 
+    open: function open() {
+      this.dropdown.open();
+    },
+
+    close: function close() {
+      this.dropdown.close();
+    },
+
     destroy: function destroy() {
       this.input.destroy();
       this.dropdown.destroy();

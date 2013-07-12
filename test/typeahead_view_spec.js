@@ -384,6 +384,22 @@ describe('Typeahead', function() {
     });
   });
 
+  describe('#open', function() {
+    it('should open the dropdown', function() {
+      this.view.open();
+
+      expect(this.dropdown.open).toHaveBeenCalled();
+    });
+  });
+
+  describe('#close', function() {
+    it('should close the dropdown', function() {
+      this.view.close();
+
+      expect(this.dropdown.close).toHaveBeenCalled();
+    });
+  });
+
   describe('#destroy', function() {
     it('should destroy input', function() {
       this.view.destroy();
