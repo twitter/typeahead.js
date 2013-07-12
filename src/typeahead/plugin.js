@@ -9,7 +9,7 @@
 
   typeaheadKey = 'ttTypeahead';
 
-  method = {
+  methods = {
     initialize: function initialize(o) {
       o = o || {};
 

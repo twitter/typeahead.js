@@ -102,7 +102,7 @@ var Section = (function() {
         function getSuggestionNode(suggestion) {
           var $el, innerHtml, outerHtml;
 
-          innerHtml = that.templates.suggestion(suggestion.raw);
+          innerHtml = that.templates.suggestion(suggestion);
           outerHtml = html.suggestion.replace('%BODY%', innerHtml);
           $el = $(outerHtml)
           .data(sectionKey, that.name)
