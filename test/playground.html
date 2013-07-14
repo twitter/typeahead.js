@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="vendor/jquery-1.9.1.js"></script>
-    <script src="../dist/typeahead.js"></script>
+    <script src="vendor/jquery-1.10.2.js"></script>
+    <script src="../dist/typeahead.bundle.js"></script>
 
     <style>
       .container {
@@ -20,7 +20,7 @@
         border: 1px solid #000;
       }
 
-      .tt-suggestion.tt-is-under-cursor {
+      .tt-suggestion.tt-cursor {
         background-color: #ccc;
       }
 
@@ -50,9 +50,8 @@
     </div>
 
     <script>
-      $('.states').typeahead({
+      var states = new Dataset({
         valueKey: 'state',
-        minLength: 3,
         local: [
           "Alabama",
           "Alaska",
@@ -105,9 +104,18 @@
           "Wisconsin",
           "Wyoming"
         ]
+      }).initialize();
+
+      $('.states').typeahead({
+        sections: { 
+          name: 'states',
+          highlight: true,
+          source: states
+        }
       });
 
-      $('.bad-tokens').typeahead({
+
+      var badTokens = new Dataset({
         local: [
           {
             value: 'all bad',
@@ -130,9 +138,16 @@
             tokens: [false, 'false']
           }
         ]
+      }).initialize();
+
+      $('.bad-tokens').typeahead({
+        sections: { 
+          name: 'bad tokens',
+          source: badTokens
+        }
       });
 
-      $('.regex-symbols').typeahead({
+      var regexes = new Dataset({
         local: [
           '*.js',
           '[Tt]ypeahead.js',
@@ -141,25 +156,46 @@
           'typeahead.js(@\\d.\\d.\\d)',
           'typeahead.js@0.8.2'
         ]
-      });
-      
-      $('.header-footer').typeahead([
-        {
-          header: '<h3>Header</h3>',
-          footer: '<h3>Footer</h3>',
-          local: ['a', 'ab', 'abc', 'abcd', 'abcde']
-        },
-        {
-          header: '<h3>Start</h3>',
-          footer: '<h3>End</h3>',
-          local: ['abc', 'bcd', 'cde', 'def', 'efg']
+      }).initialize();
+
+      $('.regex-symbols').typeahead({
+        sections: { 
+          name: 'regexes',
+          source: regexes
         }
-      ]);
+      });
+
+      var letters = new Dataset({
+        local: ['a', 'ab', 'abc', 'abcd', 'abcde']
+      }).initialize();
+
+      $('.header-footer').typeahead({
+        sections: [
+          {
+            name: 'top',
+            source: letters,
+            templates: {
+              header: '<h3>Header</h3>',
+              footer: '<h3>Footer</h3>'
+            }
+          },
+          {
+            name: 'bottom',
+            source: letters,
+            templates: {
+              header: '<h3>start</h3>',
+              footer: '<h3>end</h3>',
+              empty: '<h3>empty</h3>'
+            }
+          }
+        ]
+      });
 
       $('input').on([
         'typeahead:initialized',
         'typeahead:selected',
         'typeahead:autocompleted',
+        'typeahead:cursorchanged',
         'typeahead:opened',
         'typeahead:closed'
       ].join(' '), logToTextarea);
