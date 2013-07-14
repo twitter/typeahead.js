@@ -25,9 +25,9 @@ var Section = (function() {
     this.name = o.name || _.getUniqueId();
 
     this.source = setupSource(o.source);
-    this.datasetValueKey = getDatasetValueKey(o.source);
+    this.valueKey = getValueKeyFromDataset(o.source) || o.valueKey || 'value';
 
-    this.templates = getTemplates(o.templates, this.datasetValueKey);
+    this.templates = getTemplates(o.templates, this.valueKey);
 
     this.$el = $(html.section.replace('%CLASS%', this.name));
   }
@@ -101,7 +101,7 @@ var Section = (function() {
           outerHtml = html.suggestion.replace('%BODY%', innerHtml);
           $el = $(outerHtml)
           .data(sectionKey, that.name)
-          .data(valueKey, suggestion[that.datasetValueKey || 'value'])
+          .data(valueKey, suggestion[that.valueKey])
           .data(datumKey, suggestion);
 
           $el.children().each(function() { $(this).css(css.suggestionChild); });
@@ -169,7 +169,7 @@ var Section = (function() {
       _.bind(source.get, source) : source;
   }
 
-  function getDatasetValueKey(source) {
+  function getValueKeyFromDataset(source) {
     return (Dataset && source instanceof Dataset) ? source.valueKey : null;
   }
 
