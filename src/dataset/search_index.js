@@ -39,7 +39,7 @@ var SearchIndex = (function() {
         var id, tokens;
 
         id = that.datums.push(datum) - 1;
-        tokens = datum.tokens || that.tokenize(datum.value);
+        tokens = normalizeTokens(datum.tokens || that.tokenize(datum.value));
 
         // delete the tokens from the datum object to save storage space
         delete datum.tokens;
@@ -109,6 +109,16 @@ var SearchIndex = (function() {
 
   function tokenize(str) {
     return $.trim(str).toLowerCase().split(/\s+/);
+  }
+
+  function normalizeTokens(tokens) {
+   // filter out falsy tokens
+    tokens = _.filter(tokens, function(token) { return !!token; });
+
+    // normalize tokens
+    tokens = _.map(tokens, function(token) { return token.toLowerCase(); });
+
+    return tokens;
   }
 
   function newNode() {
