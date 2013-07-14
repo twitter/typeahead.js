@@ -163,7 +163,9 @@ var Dataset = window.Dataset = (function() {
     get: function get(query, cb) {
       var that = this, matches, cacheHit = false;
 
-      matches = this.index.get(query).sort(this.sorter).slice(0, this.limit);
+      matches = _.map(this.index.get(query), pickRaw)
+      .sort(this.sorter)
+      .slice(0, this.limit);
 
       if (matches.length < this.limit && this.transport) {
         cacheHit = this._getFromRemote(query, returnRemoteMatches);
@@ -176,6 +178,8 @@ var Dataset = window.Dataset = (function() {
 
       function returnRemoteMatches(remoteMatches) {
         var matchesWithBackfill = matches.slice(0);
+
+        remoteMatches = _.map(remoteMatches, pickRaw);
 
         _.each(remoteMatches, function(remoteMatch) {
           var isDuplicate;
@@ -194,6 +198,8 @@ var Dataset = window.Dataset = (function() {
 
         cb && cb(matchesWithBackfill.sort(this.sorter));
       }
+
+      function pickRaw(obj) { return obj.raw; }
     }
   });
 
