@@ -77,10 +77,7 @@ var Section = (function() {
       this.trigger('rendered');
 
       function getEmptyHtml() {
-        return that.templates.empty({
-          query: query,
-          hasSuggestions: hasSuggestions
-        });
+        return that.templates.empty({ query: query });
       }
 
       function getSuggestionsHtml() {
@@ -113,14 +110,14 @@ var Section = (function() {
       function getHeaderHtml() {
         return that.templates.header({
           query: query,
-          hasSuggestions: hasSuggestions
+          isEmpty: !hasSuggestions
         });
       }
 
       function getFooterHtml() {
         return that.templates.footer({
           query: query,
-          hasSuggestions: hasSuggestions
+          isEmpty: !hasSuggestions
         });
       }
     },
