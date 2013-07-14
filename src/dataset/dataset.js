@@ -144,9 +144,9 @@ var Dataset = window.Dataset = (function() {
       this.local && deferred.done(addLocalToIndex);
 
       this.transport = this.remote ? new Transport(this.remote) : null;
-      this.initialize = function initialize() { return deferred; };
+      this.initialize = function initialize() { return that; };
 
-      return deferred;
+      return this;
 
       function addLocalToIndex() { that.add(that.local); }
     },

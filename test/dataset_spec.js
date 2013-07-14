@@ -12,13 +12,8 @@ describe('Dataset', function() {
 
   describe('local', function() {
     beforeEach(function() {
-      var deferred;
-
       this.dataset = new Dataset({ local: fixtures.data.simple });
-      deferred = this.dataset.initialize();
-
-      // don't continue with test suite until dataset is initialized
-      waitsFor(function() { return deferred.state() === 'resolved'; });
+      this.dataset.initialize();
     });
 
     it('should hydrate the dataset', function() {
