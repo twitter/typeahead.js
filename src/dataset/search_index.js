@@ -9,7 +9,11 @@ var SearchIndex = (function() {
   // constructor
   // -----------
 
-  function SearchIndex() {
+  function SearchIndex(o) {
+    o = o || {};
+
+    this.tokenize = o.tokenizer || tokenize;
+
     this.datums = [];
     this.trie = newNode();
   }
@@ -18,12 +22,6 @@ var SearchIndex = (function() {
   // ----------------
 
   _.mixin(SearchIndex.prototype, {
-
-    // ### private
-
-    _tokenize: function tokenize(str) {
-      return $.trim(str).toLowerCase().split(/\s+/);
-    },
 
     // ### public
 
@@ -41,7 +39,10 @@ var SearchIndex = (function() {
         var id, tokens;
 
         id = that.datums.push(datum) - 1;
-        tokens = that._tokenize(datum.value);
+        tokens = datum.tokens || that.tokenize(datum.value);
+
+        // delete the tokens from the datum object to save storage space
+        delete datum.tokens;
 
         _.each(tokens, function(token) {
           var node, chars, ch, ids;
@@ -64,7 +65,7 @@ var SearchIndex = (function() {
     get: function get(query) {
       var that = this, tokens, matches;
 
-      tokens = this._tokenize(query);
+      tokens = this.tokenize(query);
 
       _.each(tokens, function(token) {
         var node, chars, ch, ids;
@@ -105,6 +106,10 @@ var SearchIndex = (function() {
 
   // helper functions
   // ----------------
+
+  function tokenize(str) {
+    return $.trim(str).toLowerCase().split(/\s+/);
+  }
 
   function newNode() {
     return { ids: [], children: {} };

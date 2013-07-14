@@ -20,6 +20,12 @@ describe('SearchIndex', function() {
     expect(this.searchIndex.get('new')).toEqual([{ value: 'new' }]);
   });
 
+  it('should allow tokens to be set manually', function() {
+    this.searchIndex.add({ value: 'old', tokens: ['new'] });
+
+    expect(this.searchIndex.get('new')).toEqual([{ value: 'old' }]);
+  });
+
   it('#get should return datums that match the given query', function() {
     expect(this.searchIndex.get('big')).toEqual([
       { value: 'big' },

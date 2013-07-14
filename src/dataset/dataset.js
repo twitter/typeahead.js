@@ -28,7 +28,7 @@ var Dataset = window.Dataset = (function() {
     this.remote = getRemote(o);
 
     // the backing data structure used for fast pattern matching
-    this.index = new SearchIndex();
+    this.index = new SearchIndex({ tokenizer: o.tokenizer });
 
     // only initialize storage if there's a name otherwise
     // loading from storage on subsequent page loads is impossible
@@ -95,7 +95,7 @@ var Dataset = window.Dataset = (function() {
         var value, datum;
 
         value = _.isString(raw) ? raw : raw[that.valueKey];
-        datum = { value: value };
+        datum = { value: value, tokens: raw.tokens };
 
         _.isString(raw) ?
           (datum.raw = {})[that.valueKey] = raw :
