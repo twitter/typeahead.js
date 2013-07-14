@@ -27,12 +27,7 @@ var Section = (function() {
     this.source = setupSource(o.source);
     this.datasetValueKey = getDatasetValueKey(o.source);
 
-    this.templates = {
-      empty: o.templates.empty && _.templatify(o.templates.empty),
-      header: o.templates.header && _.templatify(o.templates.header),
-      footer: o.templates.footer && _.templatify(o.templates.footer),
-      suggestion: o.templates.suggestion || defaultSuggestionTemplate
-    };
+    this.templates = getTemplates(o.templates, this.datasetValueKey);
 
     this.$el = $(html.section.replace('%CLASS%', this.name));
   }
@@ -178,7 +173,18 @@ var Section = (function() {
     return (Dataset && source instanceof Dataset) ? source.valueKey : null;
   }
 
-  function defaultSuggestionTemplate(context) {
-    return '<p>' + context.value + '</p>';
+  function getTemplates(templates, valueKey) {
+    valueKey = valueKey || 'value';
+
+    return {
+      empty: templates.empty && _.templatify(templates.empty),
+      header: templates.header && _.templatify(templates.header),
+      footer: templates.footer && _.templatify(templates.footer),
+      suggestion: templates.suggestion || suggestionTemplate
+    };
+
+    function suggestionTemplate(context) {
+      return '<p>' + context[valueKey] + '</p>';
+    }
   }
 })();
