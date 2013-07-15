@@ -94,7 +94,7 @@ var SearchIndex = (function() {
       });
 
       return matches ?
-        _.map(matches, function(id) { return that.datums[id]; }) : [];
+        _.map(unique(matches), function(id) { return that.datums[id]; }) : [];
     },
 
     serialize: function serialize() {
@@ -123,6 +123,19 @@ var SearchIndex = (function() {
 
   function newNode() {
     return { ids: [], children: {} };
+  }
+
+  function unique(array) {
+    var seen = {}, uniques = [];
+
+    for (var i = 0; i < array.length; i++) {
+      if (!seen[array[i]]) {
+        seen[array[i]] = true;
+        uniques.push(array[i]);
+      }
+    }
+
+    return uniques;
   }
 
   function getIntersection(arrayA, arrayB) {
