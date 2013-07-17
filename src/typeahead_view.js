@@ -48,7 +48,6 @@ var TypeaheadView = (function() {
 
   // ie7 and under specific styling
   if (utils.isMsie() && utils.isMsie() <= 7) {
-    utils.mixin(css.wrapper, { display: 'inline', zoom: '1' });
     // if someone can tell me why this is necessary to align
     // the hint with the query in ie7, i'll send you $5 - @JakeHarding
     utils.mixin(css.query, { marginTop: '-1px' });
