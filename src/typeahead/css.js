@@ -63,7 +63,6 @@ if (_.isMsie()) {
 
 // ie7 and under specific styling
 if (_.isMsie() && _.isMsie() <= 7) {
-  _.mixin(css.wrapper, { display: 'inline', zoom: '1' });
   // if someone can tell me why this is necessary to align
   // the hint with the query in ie7, i'll send you $5 - @JakeHarding
   _.mixin(css.query, { marginTop: '-1px' });
