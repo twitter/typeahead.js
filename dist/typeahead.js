@@ -890,10 +890,6 @@
             });
         }
         if (utils.isMsie() && utils.isMsie() <= 7) {
-            utils.mixin(css.wrapper, {
-                display: "inline",
-                zoom: "1"
-            });
             utils.mixin(css.query, {
                 marginTop: "-1px"
             });
