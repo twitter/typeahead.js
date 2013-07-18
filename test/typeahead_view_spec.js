@@ -50,7 +50,7 @@ describe('TypeaheadView', function() {
       .toHaveBeenCalledWith('i am selected');
     });
 
-    it('should focus input', function() {
+    xit('should focus input', function() {
       expect(this.inputView.focus).toHaveBeenCalled();
     });
 

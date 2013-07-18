@@ -100,6 +100,18 @@ var TypeaheadView = (function() {
     .on('upKeyed downKeyed', this._moveDropdownCursor)
     .on('upKeyed downKeyed', this._openDropdown)
     .on('tabKeyed leftKeyed rightKeyed', this._autocomplete);
+
+    // prevent input blur
+    $menu
+    .on('mousedown.tt', function($e) {
+      if (utils.isMsie() < 9) {
+        $input[0].onbeforedeactivate = function() {
+          window.event.returnValue = false;
+          $input[0].onbeforedeactivate = null;
+        };
+      }
+      $e.preventDefault();
+    });
   }
 
   utils.mixin(TypeaheadView.prototype, EventTarget, {
@@ -207,11 +219,10 @@ var TypeaheadView = (function() {
       if (suggestion) {
         this.inputView.setInputValue(suggestion.value);
 
-        // if triggered by click, ensure the query input still has focus
         // if triggered by keypress, prevent default browser behavior
         // which is most likely the submission of a form
         // note: e.data is the jquery event
-        byClick ? this.inputView.focus() : e.data.preventDefault();
+        byClick || e.data.preventDefault();
 
         // focus is not a synchronous event in ie, so we deal with it
         byClick && utils.isMsie() ?
