@@ -157,13 +157,15 @@ var Section = (function() {
   // helper functions
   // ----------------
 
+  // a valid source is either a function or a dataset instance
+  // when it's a dataset, grab its get method and bind it to itself
   function setupSource(source) {
-    var Dataset = window.Dataset;
+    if (window.Dataset && source instanceof window.Dataset) {
+      source.initialize();
+      source = _.bind(source.get, source);
+    }
 
-    // a valid source is either a function or a dataset instance
-    // when it's a dataset, grab its get method and bind it to itself
-    return (Dataset && source instanceof Dataset) ?
-      _.bind(source.get, source) : source;
+    return source;
   }
 
   function getValueKeyFromDataset(source) {
