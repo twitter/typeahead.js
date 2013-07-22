@@ -47,6 +47,9 @@
       <div class="typeahead-wrapper">
         <input class="header-footer" type="text" placeholder="header footer">
       </div>
+      <div class="typeahead-wrapper">
+        <input class="override" type="text" placeholder="override">
+      </div>
     </div>
 
     <script>
@@ -155,6 +158,17 @@
           local: ['abc', 'bcd', 'cde', 'def', 'efg']
         }
       ]);
+
+      $('.override').typeahead({
+        remote : {
+          url : '%QUERY',
+          override : function(url, callback){
+            setTimeout(function() {
+              callback(['one', 'two', 'three']);
+            }, 500);
+          }
+        }
+      });
 
       $('input').on([
         'typeahead:initialized',

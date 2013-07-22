@@ -299,6 +299,7 @@
             requestCache = requestCache || new RequestCache();
             maxPendingRequests = utils.isNumber(o.maxParallelRequests) ? o.maxParallelRequests : maxPendingRequests || 6;
             this.url = o.url;
+            this.override = o.override;
             this.wildcard = o.wildcard || "%QUERY";
             this.filter = o.filter;
             this.replace = o.replace;
@@ -329,7 +330,19 @@
                 var that = this, jqXhr = pendingRequests[url];
                 if (!jqXhr) {
                     incrementPendingRequests();
-                    jqXhr = pendingRequests[url] = $.ajax(url, this.ajaxSettings).always(always);
+                    if (utils.isFunction(this.override)) {
+                        jqXhr = pendingRequests[url] = {
+                            override_callback: this.override,
+                            done: function(done_callback) {
+                                this.override_callback(url, function(data) {
+                                    done_callback(data);
+                                    always();
+                                });
+                            }
+                        };
+                    } else {
+                        jqXhr = pendingRequests[url] = $.ajax(url, this.ajaxSettings).always(always);
+                    }
                 }
                 return jqXhr;
                 function always() {

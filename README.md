@@ -183,6 +183,8 @@ When configuring `remote`, the following options are available:
 
 * `filter` – A function with the signature `filter(parsedResponse)` that transforms the response body into an array of datums. Expected to return an array of datums.
 
+* `override` – A function with the signature `override(url, done_callback)` that can be used to override ajax request with custom method. This function will have to call `done_callback` with response data as argument (before filtering). Options `dataType`, `cache`, `timeout` and `beforeSend` will be ignored.
+
 ### Custom Events
 
 typeahead.js triggers the following custom events:

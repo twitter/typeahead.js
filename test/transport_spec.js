@@ -194,5 +194,41 @@ describe('Transport', function() {
         expect(mostRecentAjaxRequest().url).toBe('http://example.com?q=bad');
       });
     });
+
+    var spy_override = jasmine.createSpy('spy_override');
+    describe('when override is set', function() {
+      beforeEach(function() {
+        this.spy = jasmine.createSpy();
+
+        this.transport.override = function(url, callback){
+          // dummy async operation
+          runs(function(){
+            setTimeout($.proxy(function() {
+              spy_override();
+              callback(successData);
+            }, this), 100);
+          });
+        };
+
+        this.transport.filter = jasmine.createSpy().andReturn({ prop: 'val' });
+
+        this.transport.get('has space', this.spy);
+      });
+
+      it('should call override', function() {
+        waitsFor(function() { return spy_override.callCount === 1; }, 'spy_override never called', 200);
+      });
+
+      it('should call filter', function() {
+        waitsFor(function() { return this.transport.filter.callCount === 1; }, 'filter never called', 200);
+        runs(function() {
+          expect(this.transport.filter).toHaveBeenCalledWith(successData);
+        });
+      });
+
+      afterEach(function() {
+        delete this.transport.override;
+      });
+    });
   });
 });
