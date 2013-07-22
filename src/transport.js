@@ -22,6 +22,7 @@ var Transport = (function() {
       o.maxParallelRequests : maxPendingRequests || 6;
 
     this.url = o.url;
+    this.override = o.override;
     this.wildcard = o.wildcard || '%QUERY';
     this.filter = o.filter;
     this.replace = o.replace;
@@ -55,7 +56,6 @@ var Transport = (function() {
       else {
         this.onDeckRequestArgs = [].slice.call(arguments, 0);
       }
-
       // success callback
       function done(resp) {
         var data = that.filter ? that.filter(resp) : resp;
@@ -74,8 +74,23 @@ var Transport = (function() {
 
       if (!jqXhr) {
         incrementPendingRequests();
-        jqXhr = pendingRequests[url] =
-          $.ajax(url, this.ajaxSettings).always(always);
+        // ajax override
+        if (utils.isFunction(this.override)){
+          jqXhr = pendingRequests[url] = {
+            override_callback : this.override,
+            done : function(done_callback){
+              // override callback function
+              this.override_callback(url, function(data){
+                done_callback(data);
+                always();
+              });
+            }
+          };
+        }
+        else {
+          jqXhr = pendingRequests[url] =
+            $.ajax(url, this.ajaxSettings).always(always);
+        }
       }
 
       return jqXhr;
