@@ -32,7 +32,7 @@ var Dataset = (function() {
     this.template = compileTemplate(o.template, o.engine, this.valueKey);
 
     // used then deleted in #initialize
-    this.local = o.local;
+    this.local = typeof o.local == 'function' ? o.local.call() : o.local;
     this.prefetch = o.prefetch;
     this.remote = o.remote;
 
