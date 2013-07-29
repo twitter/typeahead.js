@@ -116,7 +116,7 @@ var TypeaheadView = (function() {
         case 'tabKeyed':
           hint = this.inputView.getHintValue();
           inputValue = this.inputView.getInputValue();
-          preventDefault = hint && hint !== inputValue;
+          preventDefault = hint && hint !== inputValue && inputValue !== "";
           break;
 
         case 'upKeyed':
