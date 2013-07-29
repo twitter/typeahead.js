@@ -383,7 +383,7 @@
             }
             this.name = o.name || utils.getUniqueId();
             this.limit = o.limit || 5;
-            this.minLength = o.minLength || 1;
+            this.minLength = o.minLength === 0 ? 0 : o.minLength || 1;
             this.header = o.header;
             this.footer = o.footer;
             this.valueKey = o.valueKey || "value";
@@ -641,6 +641,17 @@
             setHintValue: function(value) {
                 this.$hint.val(value);
             },
+            hidePlaceholder: function() {
+                if (!this.placeholderText) {
+                    this.placeholderText = this.$input.attr("placeholder");
+                }
+                this.$input.attr("placeholder", "");
+            },
+            showPlaceholder: function() {
+                if (this.placeholderText) {
+                    this.$input.attr("placeholder", this.placeholderText);
+                }
+            },
             getLanguageDirection: function() {
                 return (this.$input.css("direction") || "ltr").toLowerCase();
             },
@@ -656,6 +667,17 @@
                     range = document.selection.createRange();
                     range.moveStart("character", -valueLength);
                     return valueLength === range.text.length;
+                }
+                return true;
+            },
+            isCursorAtBeginning: function() {
+                var valueLength = this.$input.val().length, selectionStart = this.$input[0].selectionStart, range;
+                if (utils.isNumber(selectionStart)) {
+                    return selectionStart === 0;
+                } else if (document.selection) {
+                    range = document.selection.createRange();
+                    range.moveStart("character", -valueLength);
+                    return range.text.length === 0;
                 }
                 return true;
             }
@@ -923,7 +945,7 @@
                   case "tabKeyed":
                     hint = this.inputView.getHintValue();
                     inputValue = this.inputView.getInputValue();
-                    preventDefault = hint && hint !== inputValue;
+                    preventDefault = hint && hint !== inputValue && inputValue !== "";
                     break;
 
                   case "upKeyed":
@@ -949,10 +971,14 @@
                     escapedQuery = utils.escapeRegExChars(query);
                     beginsWithQuery = new RegExp("^(?:" + escapedQuery + ")(.*$)", "i");
                     match = beginsWithQuery.exec(hint);
+                    if (inputValue === "") {
+                        this.inputView.hidePlaceholder();
+                    }
                     this.inputView.setHintValue(inputValue + (match ? match[1] : ""));
                 }
             },
             _clearHint: function() {
+                this.inputView.showPlaceholder();
                 this.inputView.setHintValue("");
             },
             _clearSuggestions: function() {
@@ -966,6 +992,9 @@
                 this.inputView.setInputValue(suggestion.value, true);
             },
             _openDropdown: function() {
+                if (!this.dropdownView.isOpen) {
+                    this._getSuggestions();
+                }
                 this.dropdownView.open();
             },
             _closeDropdown: function(e) {
@@ -987,24 +1016,40 @@
                 }
             },
             _getSuggestions: function() {
-                var that = this, query = this.inputView.getQuery();
-                if (utils.isBlankString(query)) {
-                    return;
-                }
+                var that = this, query = this.inputView.getQuery(), blank = utils.isBlankString(query);
                 utils.each(this.datasets, function(i, dataset) {
-                    dataset.getSuggestions(query, function(suggestions) {
-                        if (query === that.inputView.getQuery()) {
-                            that.dropdownView.renderSuggestions(dataset, suggestions);
+                    if (!blank) {
+                        dataset.getSuggestions(query, function(suggestions) {
+                            if (query === that.inputView.getQuery()) {
+                                that.dropdownView.renderSuggestions(dataset, suggestions);
+                            }
+                        });
+                    } else if (dataset.minLength === 0) {
+                        var suggestions = [];
+                        var i = 0;
+                        for (var item in dataset.itemHash) {
+                            if (dataset.limit && i >= dataset.limit) {
+                                break;
+                            }
+                            suggestions.push(dataset.itemHash[item]);
+                            i++;
                         }
-                    });
+                        that.dropdownView.renderSuggestions(dataset, suggestions);
+                    }
                 });
             },
             _autocomplete: function(e) {
-                var isCursorAtEnd, ignoreEvent, query, hint, suggestion;
+                var isCursorAtEnd, isCursorAtBeginning, languageDirection, ignoreEvent, query, hint, suggestion;
                 if (e.type === "rightKeyed" || e.type === "leftKeyed") {
                     isCursorAtEnd = this.inputView.isCursorAtEnd();
                     ignoreEvent = this.inputView.getLanguageDirection() === "ltr" ? e.type === "leftKeyed" : e.type === "rightKeyed";
                     if (!isCursorAtEnd || ignoreEvent) {
+                        return;
+                    }
+                }
+                if (e.type === "tabKeyed") {
+                    languageDirection = this.inputView.getLanguageDirection();
+                    if (languageDirection === "ltr" && this.inputView.isCursorAtBeginning() || languageDirection !== "ltr" && this.inputView.isCursorAtEnd()) {
                         return;
                     }
                 }
