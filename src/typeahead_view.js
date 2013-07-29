@@ -168,6 +168,7 @@ var TypeaheadView = (function() {
     },
 
     _clearHint: function() {
+      this.inputView.showPlaceholder();
       this.inputView.setHintValue('');
     },
 
