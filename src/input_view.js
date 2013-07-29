@@ -135,6 +135,19 @@ var InputView = (function() {
       this.$hint.val(value);
     },
 
+    hidePlaceholder: function () {
+      if (!this.placeholderText) {
+        this.placeholderText = this.$input.attr("placeholder");
+      }
+      this.$input.attr("placeholder", "");
+    },
+
+    showPlaceholder: function () {
+      if (this.placeholderText) {
+        this.$input.attr("placeholder", this.placeholderText);
+      }
+    },
+
     getLanguageDirection: function() {
       return (this.$input.css('direction') || 'ltr').toLowerCase();
     },
@@ -151,7 +164,7 @@ var InputView = (function() {
           range;
 
       if (utils.isNumber(selectionStart)) {
-       return selectionStart === valueLength;
+        return selectionStart === valueLength;
       }
 
       else if (document.selection) {
@@ -164,6 +177,24 @@ var InputView = (function() {
       }
 
       return true;
+    },
+    
+    isCursorAtBeginning: function () {
+        var valueLength = this.$input.val().length,
+            selectionStart = this.$input[0].selectionStart,
+            range;
+            
+        if (utils.isNumber(selectionStart)) {
+          return selectionStart === 0;
+        }
+        
+        else if (document.selection) {
+          range = document.selection.createRange();
+          range.moveStart("character", -valueLength);
+          return range.text.length === 0;
+        }
+        
+        return true;
     }
   });
 
