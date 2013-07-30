@@ -241,10 +241,16 @@ When an end-user mouses or keys over a `.tt-suggestion`, the class `tt-is-under-
 Bootstrap Integration
 ---------------------
 
-For simple autocomplete use cases, the typeahead component [Bootstrap][bootstrap] provides should suffice. However, if you'd prefer to take advantage of some of the advance features typeahead.js provides, here's what you'll need to do to integrate typeahead.js with Bootstrap:
+#### Bootstrap `v2.x` and below
+
+For simple autocomplete use cases, the typeahead component [Bootstrap](http://getbootstrap.com/2.3.2/javascript.html#typeahead) provides should suffice. However, if you'd prefer to take advantage of some of the advance features typeahead.js provides, here's what you'll need to do to integrate typeahead.js with Bootstrap:
 
 * If you're customizing Bootstrap, exclude the typeahead component. If you're depending on the standard *bootstrap.js*, ensure *typeahead.js* is loaded after it.
 * The DOM structure of the dropdown menu used by typeahead.js differs from the DOM structure of the Bootstrap dropdown menu. You'll need to load some [additional CSS][typeahead.js-bootstrap.css] in order to get the typeahead.js dropdown menu to fit the default Bootstrap theme.
+
+#### Bootstrap `v3.x` and above
+
+Bootstrap's own typeahead implementation [has been dropped](https://github.com/twbs/bootstrap/issues/7805) from version 3 in favour of this library.
 
 Browser Support
 ---------------
