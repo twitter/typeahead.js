@@ -250,7 +250,7 @@ var TypeaheadView = (function() {
       query = this.inputView.getQuery();
       hint = this.inputView.getHintValue();
 
-      if (hint !== '' && query !== hint) {
+      if (hint !== '') {
         suggestion = this.dropdownView.getFirstSuggestion();
         this.inputView.setInputValue(suggestion.value);
 
