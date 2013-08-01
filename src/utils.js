@@ -156,5 +156,34 @@ var utils = {
     return location.protocol;
   },
 
-  noop: function() {}
+  noop: function() {},
+  
+  intersectSortedArrays : function(lists){
+    var indexes = [0],e,i,j,list,result=[];
+
+	if (lists.length == 1) {
+      return lists[0];
+    }
+    
+    outer : while (indexes[0] < lists[0].length) {
+      e = lists[0][indexes[0]++];
+      for(i = 1; i < lists.length; i++){
+        list = lists[i];
+        j = indexes[i] || 0;
+
+        while(list[j] < e && j < list.length){
+          j++;
+        }
+
+        indexes[i] = j;
+        if (j == list.length) {
+          return result;
+        } else if (list[j] != e) {
+          continue outer;
+        }
+      }
+      result.push(e);
+    }
+    return result;
+  }
 };

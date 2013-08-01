@@ -197,25 +197,19 @@ var Dataset = (function() {
 
         lists.push(list);
 
-        if (!shortestList || list.length < shortestList.length) {
-          shortestList = list;
-        }
       });
 
       // no suggestions :(
       if (lists.length < firstChars.length) {
         return [];
       }
+      shortestList = utils.intersectSortedArrays(lists);
 
       // populate suggestions
       utils.each(shortestList, function(i, id) {
-        var item = that.itemHash[id], isCandidate, isMatch;
+        var item = that.itemHash[id], isMatch;
 
-        isCandidate = utils.every(lists, function(list) {
-          return ~utils.indexOf(list, id);
-        });
-
-        isMatch = isCandidate && utils.every(terms, function(term) {
+        isMatch = utils.every(terms, function(term) {
           return utils.some(item.tokens, function(token) {
             return token.indexOf(term) === 0;
           });
