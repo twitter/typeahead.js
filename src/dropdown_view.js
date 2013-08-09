@@ -23,6 +23,7 @@ var DropdownView = (function() {
     this.isOpen = false;
     this.isEmpty = true;
     this.isMouseOverDropdown = false;
+    this.showDefaultSuggestions = o.showDefaultSuggestions;
 
     this.$menu = $(o.menu)
     .on('mouseenter.tt', this._handleMouseenter)
@@ -163,7 +164,9 @@ var DropdownView = (function() {
     open: function() {
       if (!this.isOpen) {
         this.isOpen = true;
-        !this.isEmpty && this._show();
+        if ( this.showDefaultSuggestions || !this.isEmpty ){
+          this._show();
+        }
 
         this.trigger('opened');
       }
