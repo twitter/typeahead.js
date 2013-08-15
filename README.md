@@ -89,7 +89,7 @@ Sets the current query of the typeahead. This is always preferable to using `$("
 
 ### Dataset
 
-A dataset is an object that defines a set of data that hydrates suggestions. Typeaheads can be backed by multiple datasets. Given a query, a typeahead instance will inspect its backing datasets and display relevant suggestions to the end-user. 
+A dataset is an object that defines a set of data that hydrates suggestions. Typeaheads can be backed by multiple datasets. Given a query, a typeahead instance will inspect its backing datasets and display relevant suggestions to the end-user.
 
 When defining a dataset, the following options are available:
 
@@ -335,7 +335,7 @@ Licensed under the MIT License
 
 <!-- github links -->
 [contributing-guidelines]: https://github.com/twitter/typeahead.js/blob/master/CONTRIBUTING.md
-[compatible-template-engines]: https://github.com/twitter/typeahead/wiki/Compatible-Template-Engines
+[compatible-template-engines]: https://github.com/twitter/typeahead.js/wiki/Compatible-Template-Engines
 [contributors]: https://github.com/twitter/typeahead.js/contributors
 [issues]: https://github.com/twitter/typeahead.js/issues
 
