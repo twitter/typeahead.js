@@ -335,7 +335,6 @@ Licensed under the MIT License
 
 <!-- github links -->
 [contributing-guidelines]: https://github.com/twitter/typeahead.js/blob/master/CONTRIBUTING.md
-[compatible-template-engines]: https://github.com/twitter/typeahead.js/wiki/Compatible-Template-Engines
 [contributors]: https://github.com/twitter/typeahead.js/contributors
 [issues]: https://github.com/twitter/typeahead.js/issues
 
