@@ -199,6 +199,27 @@ typeahead.js triggers the following custom events:
 
 All custom events are triggered on the element initialized as a typeahead.
 
+```javascript
+$('input.typeahead-devs').typeahead({
+    name: 'accounts',
+    local: [{
+        value: '@JakeHarding',
+        tokens: ['Jake', 'Harding'],
+        name: 'Jake Harding',
+        profileImageUrl: 'https://twitter.com/JakeHaridng/profile_img'
+    }]
+});
+
+$('input.typeahead-devs').on('typeahead:selected', function (object, datum) {
+    // Example: {type: "typeahead:selected", timeStamp: 1377890016108, jQuery203017338529066182673: true, isTrigger: 3, namespace: ""...}
+    console.log(object);
+
+    // Datum containg value, tokens, and custom properties
+    // Example: {value: "@JakeHarding", tokens: ['Jake', 'Harding'], name: "Jake Harding", profileImageUrl: "https://twitter.com/JakeHaridng/profile_img"}
+    console.log(datum);
+});
+```
+
 ### Template Engine Compatibility
 
 Any template engine will work with typeahead.js as long as it adheres to the following API:
