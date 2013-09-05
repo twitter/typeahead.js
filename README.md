@@ -197,6 +197,8 @@ typeahead.js triggers the following custom events:
 
 * `typeahead:autocompleted` – Triggered when the query is autocompleted. The datum used for autocompletion is passed to the event handler as an argument in addition to the name of the dataset it originated from.
 
+* `typeahead:hintUpdated` - Triggered when the hint is updated and the dropdown menu is populated. The first suggestion datum is passed as argument
+
 All custom events are triggered on the element initialized as a typeahead.
 
 ### Template Engine Compatibility
