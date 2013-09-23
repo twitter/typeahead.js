@@ -91,6 +91,13 @@ describe('Transport', function() {
 
         expect(this.request.url).toEqual('http://example.com?q=$$has%20space');
       });
+      
+      it('should not send request when replace returns null', function() {
+        this.transport.replace = function(url, query) { return null; };
+        this.transport.get('has space');
+        this.request = mostRecentAjaxRequest();
+        expect(this.request).toBeNull();
+      });
 
       it('should piggyback off of pending requests', function() {
         this.spy1 = jasmine.createSpy();
