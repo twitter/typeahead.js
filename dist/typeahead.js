@@ -980,7 +980,7 @@
             _handleSelection: function(e) {
                 var byClick = e.type === "suggestionSelected", suggestion = byClick ? e.data : this.dropdownView.getSuggestionUnderCursor();
                 if (suggestion) {
-                    this.inputView.setInputValue(suggestion.value);
+                    this.inputView.setInputValue(suggestion.value, true);
                     byClick ? this.inputView.focus() : e.data.preventDefault();
                     byClick && utils.isMsie() ? utils.defer(this.dropdownView.close) : this.dropdownView.close();
                     this.eventBus.trigger("selected", suggestion.datum, suggestion.dataset);

@@ -47,7 +47,7 @@ describe('TypeaheadView', function() {
 
     it('should update input value', function() {
       expect(this.inputView.setInputValue)
-      .toHaveBeenCalledWith('i am selected');
+      .toHaveBeenCalledWith('i am selected', true);
     });
 
     it('should focus input', function() {
@@ -154,7 +154,7 @@ describe('TypeaheadView', function() {
 
     it('should update input value', function() {
       expect(this.inputView.setInputValue)
-      .toHaveBeenCalledWith('i am selected');
+      .toHaveBeenCalledWith('i am selected', true);
     });
 
     it('should prevent form submissions', function() {
@@ -423,7 +423,7 @@ describe('TypeaheadView', function() {
 
       it('should update input value', function() {
         expect(this.inputView.setInputValue)
-        .toHaveBeenCalledWith('i am selected');
+        .toHaveBeenCalledWith('i am selected', true);
       });
 
       it('should prevent blur', function() {

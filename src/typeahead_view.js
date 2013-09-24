@@ -205,7 +205,7 @@ var TypeaheadView = (function() {
             e.data : this.dropdownView.getSuggestionUnderCursor();
 
       if (suggestion) {
-        this.inputView.setInputValue(suggestion.value);
+        this.inputView.setInputValue(suggestion.value, true);
 
         // if triggered by click, ensure the query input still has focus
         // if triggered by keypress, prevent default browser behavior
