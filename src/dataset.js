@@ -194,7 +194,7 @@ var Dataset = (function() {
 
     _getDefaultList: function(){
       var defaultList = [];
-      for (var i=0; i<this.limit; i++){
+      for (var i=0; i<Math.min(this.limit, this.defaultOrder.length); i++){
         defaultList.push(this.itemHash[this.defaultOrder[i]])
       }
       return defaultList;
