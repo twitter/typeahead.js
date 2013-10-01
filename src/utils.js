@@ -22,8 +22,6 @@ var utils = {
 
   isNumber: function(obj) { return typeof obj === 'number'; },
 
-  isFunction: function(obj) { return typeof obj === 'function'; },
-
   isArray: $.isArray,
 
   isFunction: $.isFunction,
