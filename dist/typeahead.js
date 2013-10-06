@@ -511,7 +511,13 @@
             initialize: function() {
                 var deferred;
                 this.local && this._processLocalData(this.local);
-                this.transport = this.remote ? new Transport(this.remote) : null;
+                if (typeof this.remote === "undefined") {
+                    this.transport = null;
+                } else if (typeof this.remote === "string") {
+                    this.transport = new Transport(this.remote);
+                } else {
+                    this.transport = this.remote;
+                }
                 deferred = this.prefetch ? this._loadPrefetchData(this.prefetch) : $.Deferred().resolve();
                 this.local = this.prefetch = this.remote = null;
                 this.initialize = function() {
@@ -527,7 +533,7 @@
                 terms = utils.tokenizeQuery(query);
                 suggestions = this._getLocalSuggestions(terms).slice(0, this.limit);
                 if (suggestions.length < this.limit && this.transport) {
-                    cacheHit = this.transport.get(query, processRemoteData);
+                    cacheHit = this.transport.get(query, processRemoteData, that, cb, suggestions);
                 }
                 !cacheHit && cb && cb(suggestions);
                 function processRemoteData(data) {

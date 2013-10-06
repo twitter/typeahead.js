@@ -235,8 +235,16 @@ var Dataset = (function() {
     initialize: function() {
       var deferred;
 
-      this.local && this._processLocalData(this.local);
-      this.transport = this.remote ? new Transport(this.remote) : null;
+      this.local && this._processLocalData(this.local);    
+      if (typeof this.remote === 'undefined') {
+        this.transport = null;
+      } else if (typeof this.remote === 'string') {
+        this.transport = new Transport(this.remote);
+      } else {
+        // custom transport, must implement:
+        //   - boolean function get(query, processRemoteData, that, cb, suggestions)
+        this.transport = this.remote;
+      }
 
       deferred = this.prefetch ?
         this._loadPrefetchData(this.prefetch) :
@@ -260,7 +268,9 @@ var Dataset = (function() {
       suggestions = this._getLocalSuggestions(terms).slice(0, this.limit);
 
       if (suggestions.length < this.limit && this.transport) {
-        cacheHit = this.transport.get(query, processRemoteData);
+        cacheHit = this.transport.get(query, processRemoteData,
+          // the following arguments will only be used by custom transports 
+          that, cb, suggestions);
       }
 
       // if a cache hit occurred, skip rendering local suggestions
