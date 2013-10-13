@@ -31,6 +31,9 @@ var Dataset = (function() {
     this.valueKey = o.valueKey || 'value';
     this.template = compileTemplate(o.template, o.engine, this.valueKey);
 
+    // flag to specify whether or not to display duplicates
+    this.duplicates = o.duplicates || false;
+
     // used then deleted in #initialize
     this.local = o.local;
     this.prefetch = o.prefetch;
@@ -276,10 +279,11 @@ var Dataset = (function() {
         utils.each(data, function(i, datum) {
           var item = that._transformDatum(datum), isDuplicate;
 
-          // checks for duplicates
-          isDuplicate = utils.some(suggestions, function(suggestion) {
-            return item.value === suggestion.value;
-          });
+          // checks for duplicates if necessary
+          if (!that.duplicates)
+            isDuplicate = utils.some(suggestions, function(suggestion) {
+              return item.value === suggestion.value;
+            });
 
           !isDuplicate && suggestions.push(item);
 
