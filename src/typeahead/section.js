@@ -63,15 +63,15 @@ var Section = (function() {
       if (!hasSuggestions && this.templates.empty) {
         this.$el
         .html(getEmptyHtml())
-        .append(that.templates.header ? getHeaderHtml() : null)
-        .prepend(that.templates.footer ? getFooterHtml() : null);
+        .prepend(that.templates.header ? getHeaderHtml() : null)
+        .append(that.templates.footer ? getFooterHtml() : null);
       }
 
       else if (hasSuggestions) {
         this.$el
         .html(getSuggestionsHtml())
-        .append(that.templates.header ? getHeaderHtml() : null)
-        .prepend(that.templates.footer ? getFooterHtml() : null);
+        .prepend(that.templates.header ? getHeaderHtml() : null)
+        .append(that.templates.footer ? getFooterHtml() : null);
       }
 
       this.trigger('rendered');
