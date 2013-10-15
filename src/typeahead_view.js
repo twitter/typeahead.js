@@ -205,7 +205,14 @@ var TypeaheadView = (function() {
             e.data : this.dropdownView.getSuggestionUnderCursor();
 
       if (suggestion) {
-        this.inputView.setInputValue(suggestion.value);
+
+        // set silent to true to disable fetching new suggestions 
+        // after accepting a selected suggestion
+        this.inputView.setInputValue(suggestion.value, true);
+        
+        // since new suggestions aren't fetched, old suggestions
+        // need to be cleared
+        this._clearSuggestions();
 
         // if triggered by click, ensure the query input still has focus
         // if triggered by keypress, prevent default browser behavior
