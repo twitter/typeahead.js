@@ -74,6 +74,18 @@
 
         view && view.setQuery(query);
       }
+	},
+
+    close: function() {
+      return this.each(close);
+
+      function close() {
+        var $this = $(this), view = $this.data(viewKey);
+
+        if (view) {
+          view.close();
+        }
+      }
     }
   };
 
