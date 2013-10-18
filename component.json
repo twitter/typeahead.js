@@ -5,6 +5,6 @@
     "dist/typeahead.js"
   ],
   "dependencies": {
-    "jquery": "~1.9"
+    "jquery": ">=1.9"
   }
 }
