@@ -161,6 +161,10 @@ var TypeaheadView = (function() {
 
         this.inputView.setHintValue(inputValue + (match ? match[1] : ''));
       }
+      var numSuggestions = this.dropdownView._getSuggestions().length;
+      if(numSuggestions == 1){
+        this.eventBus.trigger("oneSuggestionEvent", suggestion.datum, suggestion.dataset);
+      }
     },
 
     _clearHint: function() {
