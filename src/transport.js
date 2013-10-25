@@ -7,48 +7,49 @@
 var Transport = (function() {
   var pendingRequestsCount = 0,
       pendingRequests = {},
-      maxPendingRequests,
-      requestCache;
+      maxPendingRequests = 6,
+      requestCache = new LruCache(10);
+
+  // constructor
+  // -----------
 
   function Transport(o) {
-    utils.bindAll(this);
+    o = o || {};
 
-    o = utils.isString(o) ? { url: o } : o;
-
-    requestCache = requestCache || new RequestCache();
-
-    // shared between all instances, last instance to set it wins
-    maxPendingRequests = utils.isNumber(o.maxParallelRequests) ?
-      o.maxParallelRequests : maxPendingRequests || 6;
-
-    this.url = o.url;
-    this.wildcard = o.wildcard || '%QUERY';
-    this.filter = o.filter;
-    this.replace = o.replace;
-
-    this.ajaxSettings = {
-      type: 'get',
-      cache: o.cache,
-      timeout: o.timeout,
-      dataType: o.dataType || 'json',
-      beforeSend: o.beforeSend
-    };
-
-    this._get = (/^throttle$/i.test(o.rateLimitFn) ?
-      utils.throttle : utils.debounce)(this._get, o.rateLimitWait || 300);
+    this._send = o.send ? callbackToDeferred(o.send) : $.ajax;
+    this._get = o.rateLimiter ? o.rateLimiter(this._get) : this._get;
   }
 
-  utils.mixin(Transport.prototype, {
+  // static methods
+  // --------------
 
-    // private methods
-    // ---------------
+  Transport.setMaxPendingRequests = function setMaxPendingRequests(num) {
+    maxPendingRequests = num;
+  };
 
-    _get: function(url, cb) {
-      var that = this;
+  Transport.resetCache = function clearCache() {
+    requestCache = new LruCache(10);
+  };
+
+  // instance methods
+  // ----------------
+
+  _.mixin(Transport.prototype, {
+
+    // ### private
+
+    _get: function(url, o, cb) {
+      var that = this, jqXhr;
+
+      // a request is already in progress, piggyback off of it
+      if (jqXhr = pendingRequests[url]) {
+        jqXhr.done(done);
+      }
 
       // under the pending request threshold, so fire off a request
-      if (belowPendingRequestsThreshold()) {
-        this._sendRequest(url).done(done);
+      else if (pendingRequestsCount < maxPendingRequests) {
+        pendingRequestsCount++;
+        pendingRequests[url] = this._send(url, o).done(done).always(always);
       }
 
       // at the pending request threshold, so hang out in the on deck circle
@@ -58,31 +59,13 @@ var Transport = (function() {
 
       // success callback
       function done(resp) {
-        var data = that.filter ? that.filter(resp) : resp;
-
-        cb && cb(data);
-
-        // cache the resp and not the results of applying filter
-        // in case multiple datasets use the same url and
-        // have different filters
+        cb && cb(resp);
         requestCache.set(url, resp);
       }
-    },
-
-    _sendRequest: function(url) {
-      var that = this, jqXhr = pendingRequests[url];
-
-      if (!jqXhr) {
-        incrementPendingRequests();
-        jqXhr = pendingRequests[url] =
-          $.ajax(url, this.ajaxSettings).always(always);
-      }
-
-      return jqXhr;
 
       function always() {
-        decrementPendingRequests();
-        pendingRequests[url] = null;
+        pendingRequestsCount--;
+        delete pendingRequests[url];
 
         // ensures request is always made for the last query
         if (that.onDeckRequestArgs) {
@@ -92,29 +75,24 @@ var Transport = (function() {
       }
     },
 
-    // public methods
-    // --------------
+    // ### public
 
-    get: function(query, cb) {
-      var that = this,
-          encodedQuery = encodeURIComponent(query || ''),
-          url,
-          resp;
+    get: function(url, o, cb) {
+      var that = this, resp;
 
-      cb = cb || utils.noop;
-
-      url = this.replace ?
-        this.replace(this.url, encodedQuery) :
-        this.url.replace(this.wildcard, encodedQuery);
+      if (_.isFunction(o)) {
+        cb = o;
+        o = {};
+      }
 
       // in-memory cache hit
       if (resp = requestCache.get(url)) {
         // defer to stay consistent with behavior of ajax call
-        utils.defer(function() { cb(that.filter ? that.filter(resp) : resp); });
+        _.defer(function() { cb && cb(resp); });
       }
 
       else {
-        this._get(url, cb);
+        this._get(url, o, cb);
       }
 
       // return bool indicating whether or not a cache hit occurred
@@ -124,18 +102,28 @@ var Transport = (function() {
 
   return Transport;
 
-  // static methods
-  // --------------
+  // helper functions
+  // ----------------
 
-  function incrementPendingRequests() {
-    pendingRequestsCount++;
-  }
+  function callbackToDeferred(fn) {
+    return function customSendWrapper(url, o) {
+      var deferred = $.Deferred();
 
-  function decrementPendingRequests() {
-    pendingRequestsCount--;
-  }
+      fn(url, o, onSuccess, onError);
 
-  function belowPendingRequestsThreshold() {
-    return pendingRequestsCount < maxPendingRequests;
+      return deferred;
+
+      function onSuccess(resp) {
+        // defer in case fn is synchronous, otherwise done
+        // and always handlers will be attached after the resolution
+        _.defer(function() { deferred.resolve(resp); });
+      }
+
+      function onError(err) {
+        // defer in case fn is synchronous, otherwise done
+        // and always handlers will be attached after the resolution
+        _.defer(function() { deferred.reject(err); });
+      }
+    };
   }
 })();

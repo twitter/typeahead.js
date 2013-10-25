@@ -3,13 +3,18 @@ var semver = require('semver'),
     jsFiles = [
       'src/version.js',
       'src/utils.js',
-      'src/event_target.js',
+      'src/html.js',
+      'src/css.js',
+      'src/highlight.js',
+      'src/event_emitter.js',
       'src/event_bus.js',
       'src/persistent_storage.js',
-      'src/request_cache.js',
+      'src/lru_cache.js',
       'src/transport.js',
+      'src/search_index.js',
       'src/dataset.js',
       'src/input_view.js',
+      'src/section_view.js',
       'src/dropdown_view.js',
       'src/typeahead_view.js',
       'src/typeahead.js'
@@ -74,17 +79,6 @@ module.exports = function(grunt) {
       js: {
         files: jsFiles,
         tasks: 'build:js'
-      }
-    },
-
-    jasmine: {
-      js: {
-        src: jsFiles,
-        options: {
-          specs: 'test/*_spec.js',
-          helpers: 'test/helpers/*',
-          vendor: 'test/vendor/*'
-        }
       }
     },
 
@@ -163,8 +157,6 @@ module.exports = function(grunt) {
     grunt.task.run([
       'exec:git_on_master',
       'exec:git_is_clean',
-      'lint',
-      'test',
       'manifests:' + version,
       'build',
       'exec:git_add',
@@ -214,8 +206,6 @@ module.exports = function(grunt) {
   grunt.registerTask('build', ['uglify', 'sed:version']);
   grunt.registerTask('server', 'connect:server');
   grunt.registerTask('lint', 'jshint');
-  grunt.registerTask('test', 'jasmine:js');
-  grunt.registerTask('test:browser', ['jasmine:js:build', 'exec:open_spec_runner']);
   grunt.registerTask('dev', 'parallel:dev');
 
   // load tasks
@@ -230,5 +220,4 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-connect');
-  grunt.loadNpmTasks('grunt-contrib-jasmine');
 };

@@ -5,74 +5,48 @@
  */
 
 (function() {
-  var cache = {}, viewKey = 'ttView', methods;
+  var viewKey, methods;
+
+  viewKey = 'ttView';
 
   methods = {
-    initialize: function(datasetDefs) {
-      var datasets;
+    initialize: function initialize(o) {
+      var oTopLevel, oSections;
 
-      datasetDefs = utils.isArray(datasetDefs) ? datasetDefs : [datasetDefs];
+      o = o || {};
 
-      if (datasetDefs.length === 0) {
-        $.error('no datasets provided');
-      }
+      oTopLevel = getTopLevel(o);
+      oSections = getSections(o);
 
-      datasets = utils.map(datasetDefs, function(o) {
-        var dataset = cache[o.name] ? cache[o.name] :  new Dataset(o);
+      return this.each(attachTypeahead);
 
-        if (o.name) {
-          cache[o.name] = dataset;
-        }
+      function attachTypeahead() {
+        var $input = $(this), deferreds, view;
 
-        return dataset;
-      });
+        deferreds = _.map(oSections, getInitializationDeferred);
 
-      return this.each(initialize);
-
-      function initialize() {
-        var $input = $(this),
-            deferreds,
-            eventBus = new EventBus({ el: $input });
-
-        deferreds = utils.map(datasets, function(dataset) {
-          return dataset.initialize();
+        view = new TypeaheadView({
+          input: $input,
+          withHint: oTopLevel.hint,
+          autoselect: oTopLevel.autoselect,
+          minLength: oTopLevel.minLength,
+          sections: oSections
         });
 
-        $input.data(viewKey, new TypeaheadView({
-          input: $input,
-          eventBus: eventBus = new EventBus({ el: $input }),
-          datasets: datasets
-        }));
+        $input.data(viewKey, view);
 
         $.when.apply($, deferreds)
         .always(function() {
           // deferring to make it possible to attach a listener
           // for typeahead:initialized after calling jQuery#typeahead
-          utils.defer(function() { eventBus.trigger('initialized'); });
+          _.defer(function() { view.eventBus.trigger('initialized'); });
         });
       }
-    },
 
-    destroy: function() {
-      return this.each(destroy);
-
-      function destroy() {
-        var $this = $(this), view = $this.data(viewKey);
-
-        if (view) {
-          view.destroy();
-          $this.removeData(viewKey);
-        }
-      }
-    },
-
-    setQuery: function(query) {
-      return this.each(setQuery);
-
-      function setQuery() {
-        var view = $(this).data(viewKey);
-
-        view && view.setQuery(query);
+      function getInitializationDeferred(oSection) {
+        return oSection.dataset ?
+          oSection.dataset.initialize() :
+          $.Deferred().resolve();
       }
     }
   };
@@ -86,4 +60,42 @@
       return methods.initialize.apply(this, arguments);
     }
   };
+
+  // expose dataset constructor
+  jQuery.fn.typeahead.Dataset = Dataset;
+
+  // helper functions
+  // ----------------
+
+  function getTopLevel(o) {
+    return {
+      hint: _.isUndefined(o.hint) ? true : !!o.hint,
+      autoselect: !!o.autoselect,
+      minLength: o.minLength || 0
+    };
+  }
+
+  function getSections(o) {
+    var oSections;
+
+    oSections = o.sections || [];
+    oSections = _.isArray(oSections) ? oSections : [oSections];
+
+    return _.map(oSections, getSection);
+
+    function getSection(oSection) {
+      return {
+        highlight: !!oSection.highlight,
+        templates: oSection.templates,
+        dataset: getDataset(oSection)
+      };
+    }
+
+    function getDataset(oSection) {
+      return (oSection instanceof Dataset) ?
+        oSection.dataset :
+        new Dataset(oSection.dataset);
+    }
+  }
+
 })();

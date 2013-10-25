@@ -7,6 +7,9 @@
 var EventBus = (function() {
   var namespace = 'typeahead:';
 
+  // constructor
+  // -----------
+
   function EventBus(o) {
     if (!o || !o.el) {
       $.error('EventBus initialized without el');
@@ -15,9 +18,12 @@ var EventBus = (function() {
     this.$el = $(o.el);
   }
 
-  utils.mixin(EventBus.prototype, {
-    // public methods
-    // --------------
+  // instance methods
+  // ----------------
+
+  _.mixin(EventBus.prototype, {
+
+    // ### public
 
     trigger: function(type) {
       var args = [].slice.call(arguments, 1);

@@ -4,7 +4,7 @@
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var utils = {
+var _ = {
   isMsie: function() {
     var match = /(msie) ([\w.]+)/i.exec(navigator.userAgent);
 
@@ -32,22 +32,12 @@ var utils = {
 
   bind: $.proxy,
 
-  bindAll: function(obj) {
-    var val;
-    for (var key in obj) {
-      $.isFunction(val = obj[key]) && (obj[key] = $.proxy(val, obj));
-    }
+  each: function(collection, cb) {
+    // stupid argument order for jQuery.each
+    $.each(collection, reverseArgs);
+
+    function reverseArgs(index, value) { return cb(value, index); }
   },
-
-  indexOf: function(haystack, needle) {
-    for (var i = 0; i < haystack.length; i++) {
-      if (haystack[i] === needle) { return i; }
-    }
-
-    return -1;
-  },
-
-  each: $.each,
 
   map: $.map,
 
@@ -87,6 +77,12 @@ var utils = {
     var counter = 0;
     return function() { return counter++; };
   })(),
+
+  templatify: function templatify(obj) {
+    return $.isFunction(obj) ? obj : template;
+
+    function template() { return String(obj); }
+  },
 
   defer: function(fn) { setTimeout(fn, 0); },
 
@@ -142,18 +138,6 @@ var utils = {
 
       return result;
     };
-  },
-
-  tokenizeQuery: function(str) {
-    return $.trim(str).toLowerCase().split(/[\s]+/);
-  },
-
-  tokenizeText: function(str) {
-    return $.trim(str).toLowerCase().split(/[\s\-_]+/);
-  },
-
-  getProtocol: function() {
-    return location.protocol;
   },
 
   noop: function() {}

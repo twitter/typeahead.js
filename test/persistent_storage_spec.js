@@ -19,7 +19,6 @@ describe('PersistentStorage', function() {
   // --------------
 
   describe('#get', function() {
-
     it('should access localStorage with prefixed key', function() {
       engine.get('key');
       expect(ls.getItem).toHaveBeenCalledWith('__ns__key');
@@ -52,7 +51,6 @@ describe('PersistentStorage', function() {
   });
 
   describe('#set', function() {
-
     it('should access localStorage with prefixed key', function() {
       engine.set('key', 'val');
       expect(ls.setItem.mostRecentCall.args[0]).toEqual('__ns__key');
@@ -83,7 +81,6 @@ describe('PersistentStorage', function() {
   });
 
   describe('#clear', function() {
-
     it('should remove all keys that exist in namespace of engine', function() {
       engine.set('key1', 'val1');
       engine.set('key2', 'val2');
@@ -106,7 +103,6 @@ describe('PersistentStorage', function() {
   });
 
   describe('#isExpired', function() {
-
     it('should be false for keys without ttl', function() {
       engine.set('key', 'value');
       expect(engine.isExpired('key')).toBe(false);
