@@ -199,6 +199,37 @@ typeahead.js triggers the following custom events:
 
 All custom events are triggered on the element initialized as a typeahead.
 
+Assuming this was your markup:
+
+```html
+<input class="typeahead" type="text">
+```
+
+This is how you would listen for those custom events:
+
+```javascript
+$('.typeahead')
+.typeahead(/* pass in your datasets and initialize the typeahead */)
+.on('typeahead:opened', onOpened)
+.on('typeahead:selected', onAutocompleted)
+.on('typeahead:autocompleted', onSelected);
+
+function onOpened($e) {
+  console.log('opened');
+}
+
+function onAutocompleted($e, datum) {
+  console.log('autocompleted');
+  console.log(datum);
+}
+
+function onSelected($e, datum) {
+  console.log('selected');
+  console.log(datum);
+}
+```
+
+
 ### Template Engine Compatibility
 
 Any template engine will work with typeahead.js as long as it adheres to the following API:
