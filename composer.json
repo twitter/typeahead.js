@@ -13,5 +13,10 @@
         "issues": "https://github.com/twitter/typeahead.js/issues"
     },
     "author": "Twitter Inc.",
-    "license": "MIT"
+    "license": "MIT",
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.9.x-dev"
+        }
+    }
 }
