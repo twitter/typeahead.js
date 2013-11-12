@@ -73,6 +73,7 @@
             		});
                		}
             	});
+
                	$(this).typeahead('initialize',Cached_DatasetDefs);
             }, 	
 
