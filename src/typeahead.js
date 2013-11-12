@@ -5,11 +5,13 @@
  */
 
 (function() {
-  var cache = {}, viewKey = 'ttView', methods;
+  var cache = {}, viewKey = 'ttView', methods; 
+  var Cached_DatasetDefs = [];	
 
   methods = {
     initialize: function(datasetDefs) {
       var datasets;
+      Cached_DatasetDefs = datasetDefs;
 
       datasetDefs = utils.isArray(datasetDefs) ? datasetDefs : [datasetDefs];
 
@@ -52,8 +54,32 @@
         });
       }
     },
+    refreshCache:function(passed_DatasetDefs){
+            	$(this).typeahead('destroy');
+               	$.each(passed_DatasetDefs,function(passed_DatasetDefs_Index, passed_DatasetDefs_Object){
+               		if(typeof(passed_DatasetDefs_Object.AddDataset) != 'undefined'){
+               			Cached_DatasetDefs.push(passed_DatasetDefs_Object);
+               			cache[passed_DatasetDefs_Object.name] = new Dataset(passed_DatasetDefs_Object); 
+               		}else{
+               		$.each(Cached_DatasetDefs,function(Cached_DatasetDefs_Index,Cached_DatasetDefs_Object){
+               			if(Cached_DatasetDefs_Object.name == passed_DatasetDefs_Object.name){
+            				for(var attrName in passed_DatasetDefs_Object){
+            					if(passed_DatasetDefs_Object[attrName] != Cached_DatasetDefs_Object[attrName] ){
+            						Cached_DatasetDefs[Cached_DatasetDefs_Index][attrName] = passed_DatasetDefs_Object[attrName];
+            					}
+            				}
+            				cache[Cached_DatasetDefs_Object.name] = new Dataset(Cached_DatasetDefs[Cached_DatasetDefs_Index]);
+            			}
+            		});
+               		}
+            	});
+               	$(this).typeahead('initialize',Cached_DatasetDefs);
+            }, 	
 
-    destroy: function() {
+    destroy: function(NoCached) {
+      if(typeof(NoCached) != 'undefined'){
+            		cache = new Array(); 	
+            	}	
       return this.each(destroy);
 
       function destroy() {

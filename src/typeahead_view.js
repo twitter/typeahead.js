@@ -183,6 +183,7 @@ var TypeaheadView = (function() {
 
     _openDropdown: function() {
       this.dropdownView.open();
+      this.eventBus.trigger("dropdownOpened");	
     },
 
     _closeDropdown: function(e) {
