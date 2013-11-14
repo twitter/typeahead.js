@@ -66,6 +66,20 @@
       }
     },
 
+    clearRemoteCache: function() {
+      return this.each(clearRemoteCache);
+
+      function clearRemoteCache() {
+        var $this = $(this), view = $this.data(viewKey);
+
+        if (view) {
+          utils.each(view.datasets, function (i, dataset) {
+            dataset.transport.flushCache();
+          });
+        }
+      }
+    },
+
     setQuery: function(query) {
       return this.each(setQuery);
 

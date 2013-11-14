@@ -195,4 +195,18 @@ describe('Transport', function() {
       });
     });
   });
+
+  describe('#flushCache', function() {
+    describe('when called', function() {
+      beforeEach(function() {
+        this.requestCache.cache = {'http://example.com?q=test': 'response'};
+        this.transport.flushCache();
+      });
+
+      it('should empty cache', function() {
+        expect(this.requestCache.cache)
+        .toEqual({});
+      });
+    });
+  });
 });

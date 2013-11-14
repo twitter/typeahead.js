@@ -119,6 +119,10 @@ var Transport = (function() {
 
       // return bool indicating whether or not a cache hit occurred
       return !!resp;
+    },
+
+    flushCache: function() {
+      requestCache.cache = {};
     }
   });
 
