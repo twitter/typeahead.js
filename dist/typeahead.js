@@ -353,6 +353,9 @@
                     this._get(url, cb);
                 }
                 return !!resp;
+            },
+            flushCache: function() {
+                requestCache.cache = {};
             }
         });
         return Transport;
@@ -1117,6 +1120,17 @@
                     if (view) {
                         view.destroy();
                         $this.removeData(viewKey);
+                    }
+                }
+            },
+            clearRemoteCache: function() {
+                return this.each(clearRemoteCache);
+                function clearRemoteCache() {
+                    var $this = $(this), view = $this.data(viewKey);
+                    if (view) {
+                        utils.each(view.datasets, function(i, dataset) {
+                            dataset.transport.flushCache();
+                        });
                     }
                 }
             },
