@@ -21,6 +21,9 @@ var Typeahead = (function() {
     }
 
     this.autoselect = o.autoselect;
+    // Created option to specify which datum key to display upon 
+    // selection ( Defaults to value )
+    this.displayKey = o.displayKey || 'value';
     this.minLength = o.minLength || 0;
     this.$node = buildDomStructure(o.input, o.withHint);
 
@@ -74,8 +77,8 @@ var Typeahead = (function() {
       var datum = this.dropdown.getDatumForCursor();
 
       this.input.clearHint();
-      this.input.setInputValue(datum.value, true);
-
+      this.input.setInputValue(datum.raw[this.displayKey], true);
+      
       this.eventBus.trigger('cursorchanged', datum.raw, datum.sectionName);
     },
 
@@ -212,17 +215,18 @@ var Typeahead = (function() {
 
       if (hint && query !== hint && this.input.isCursorAtEnd()) {
         datum = this.dropdown.getDatumForTopSuggestion();
-        datum && this.input.setInputValue(datum.value);
-
+        datum && this.input.setInputValue(datum.raw[this.displayKey]);
+        
         this.eventBus.trigger('autocompleted', datum.raw, datum.sectionName);
       }
     },
 
     _select: function select(datum) {
       this.input.clearHint();
-      this.input.setQuery(datum.value);
-      this.input.setInputValue(datum.value, true);
-
+      // Set Input value to the displayKey value (will default to 
+      // value if not set)
+      this.input.setQuery(datum.raw[this.displayKey]);
+      this.input.setInputValue(datum.raw[this.displayKey], true);
       this._setLanguageDirection();
 
       // in ie, focus is not a synchronous event, so when a selection

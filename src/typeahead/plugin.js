@@ -23,6 +23,9 @@
           withHint: _.isUndefined(o.hint) ? true : !!o.hint,
           minLength: o.minLength || 0,
           autoselect: !!o.autoselect,
+          // Created option to specify which datum key to display upon 
+          // selection ( Defaults to value )
+          displayKey: o.displayKey || 'value',
           sections: _.isArray(o.sections) ? o.sections : [o.sections]
         });
 
