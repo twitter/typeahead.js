@@ -75,7 +75,7 @@ var Transport = (function() {
       if (!jqXhr) {
         incrementPendingRequests();
         jqXhr = pendingRequests[url] =
-          $.ajax(url, this.ajaxSettings).always(always);
+          $.ajax($.extend(this.ajaxSettings,{url:url})).always(always);
       }
 
       return jqXhr;
