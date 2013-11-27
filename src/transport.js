@@ -46,6 +46,12 @@ var Transport = (function() {
     _get: function(url, cb) {
       var that = this;
 
+      // Verify if have an handler in 'o'bject structure and call function with wildcard, cb
+       if(typeof o.handler == 'function'){ 
+        o.handler(wildcard,cb); 
+        return; 
+      }
+
       // under the pending request threshold, so fire off a request
       if (belowPendingRequestsThreshold()) {
         this._sendRequest(url).done(done);
