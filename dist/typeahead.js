@@ -987,11 +987,12 @@
                 }
             },
             _checkMismatch: function() {
-                var that = this, query = this.inputView.getQuery();
+                var that = this, query = this.inputView.getQuery(), hint = this.inputView.getHintValue();
                 if (utils.isBlankString(query)) {
                     this.eventBus.trigger("mismatched");
                     return;
                 }
+                if (hint !== "") return;
                 utils.each(this.datasets, function(i, dataset) {
                     dataset.getSuggestions(query, function(suggestions) {
                         var matches = suggestions.length;

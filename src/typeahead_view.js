@@ -223,12 +223,14 @@ var TypeaheadView = (function() {
     },
 
 	_checkMismatch: function() {
-      var that = this, query = this.inputView.getQuery();
+      var that = this, query = this.inputView.getQuery(), hint = this.inputView.getHintValue();
 
       if (utils.isBlankString(query)) {
 		this.eventBus.trigger('mismatched');
 		return;
 	  }
+
+	  if (hint !== "") return;
 
 	  // TODO check cache only, otherwise only works with single datasets
 	  utils.each(this.datasets, function(i, dataset) {
