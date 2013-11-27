@@ -995,7 +995,7 @@
                 utils.each(this.datasets, function(i, dataset) {
                     dataset.getSuggestions(query, function(suggestions) {
                         var matches = suggestions.length;
-                        if (matches == 1) {
+                        if (matches >= 1) {
                             suggestion = suggestions[0];
                             that.eventBus.trigger("matched", suggestion.datum, suggestion.dataset);
                         } else {
