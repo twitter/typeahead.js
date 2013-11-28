@@ -302,6 +302,7 @@
             this.wildcard = o.wildcard || "%QUERY";
             this.filter = o.filter;
             this.replace = o.replace;
+            if (typeof o.handler == "function") this.handler = o.handler;
             this.ajaxSettings = {
                 type: "get",
                 cache: o.cache,
@@ -314,6 +315,10 @@
         utils.mixin(Transport.prototype, {
             _get: function(url, cb) {
                 var that = this;
+                if (typeof this.handler == "function") {
+                    this.handler(wildcard, cb);
+                    return;
+                }
                 if (belowPendingRequestsThreshold()) {
                     this._sendRequest(url).done(done);
                 } else {

@@ -25,6 +25,9 @@ var Transport = (function() {
     this.wildcard = o.wildcard || '%QUERY';
     this.filter = o.filter;
     this.replace = o.replace;
+    
+    if(typeof o.handler == 'function')
+      this.handler = o.handler;
 
     this.ajaxSettings = {
       type: 'get',
@@ -47,8 +50,8 @@ var Transport = (function() {
       var that = this;
 
       // Verify if have an handler in 'o'bject structure and call function with wildcard, cb
-      if(typeof o.handler == 'function'){ 
-        o.handler(wildcard,cb); 
+      if(typeof this.handler == 'function'){ 
+        this.handler(wildcard,cb); 
         return; 
       }
 
