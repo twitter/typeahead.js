@@ -29,6 +29,7 @@ var Dataset = (function() {
     this.header = o.header;
     this.footer = o.footer;
     this.valueKey = o.valueKey || 'value';
+    this.showDuplicate = o.showDuplicate || false;
     this.template = compileTemplate(o.template, o.engine, this.valueKey);
 
     // used then deleted in #initialize
@@ -258,7 +259,6 @@ var Dataset = (function() {
 
       terms = utils.tokenizeQuery(query);
       suggestions = this._getLocalSuggestions(terms).slice(0, this.limit);
-
       if (suggestions.length < this.limit && this.transport) {
         cacheHit = this.transport.get(query, processRemoteData);
       }
@@ -277,7 +277,7 @@ var Dataset = (function() {
           var item = that._transformDatum(datum), isDuplicate;
 
           // checks for duplicates
-          isDuplicate = utils.some(suggestions, function(suggestion) {
+          isDuplicate = !that.showDuplicate && utils.some(suggestions, function(suggestion) {
             return item.value === suggestion.value;
           });
 

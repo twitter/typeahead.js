@@ -461,6 +461,32 @@ describe('Dataset', function() {
     });
   });
 
+  describe('dataset can show duplicate with remote dataset', function() {
+    var spy = jasmine.createSpy(),
+        remote = ['grape', 'grape', 'grape'];
+
+    beforeEach(function() {
+      this.dataset = new Dataset({ remote: '/remote', showDuplicate: true });
+      this.dataset.initialize();
+    });
+
+    it('show duplicate suggestions if showDuplicate set to true in dataset', function() {
+      this.dataset.transport.get.andCallFake(function(q, cb) {
+        utils.defer(function() { cb(remote); });
+      });
+      this.dataset.getSuggestions('g', spy);
+      waitsFor(function() { return spy.callCount === 2; });
+      runs(function() {
+        //remote suggestions
+        expect(spy.argsForCall[1][0]).toEqual([
+          expectedItemHash.grape,
+          expectedItemHash.grape,
+          expectedItemHash.grape
+        ]);
+      });
+    });
+  });
+
   // helper functions
   // ----------------
 
