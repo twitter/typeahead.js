@@ -1048,6 +1048,7 @@
                 backgroundRepeat: $input.css("background-repeat"),
                 backgroundSize: $input.css("background-size")
             });
+            $hint.addClass($input.get(0).className);
             $input.data("ttAttrs", {
                 dir: $input.attr("dir"),
                 autocomplete: $input.attr("autocomplete"),
