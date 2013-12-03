@@ -312,6 +312,7 @@ var TypeaheadView = (function() {
       backgroundRepeat: $input.css('background-repeat'),
       backgroundSize: $input.css('background-size')
     });
+    $hint.addClass($input.get(0).className);
 
     // store the original values of the attrs that get modified
     // so modifications can be reverted on destroy
