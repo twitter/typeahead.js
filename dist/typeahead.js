@@ -383,6 +383,7 @@
             }
             this.name = o.name || utils.getUniqueId();
             this.limit = o.limit || 5;
+            this.filter = o.filter;
             this.minLength = o.minLength || 1;
             this.header = o.header;
             this.footer = o.footer;
@@ -412,6 +413,7 @@
                     url: o
                 } : o;
                 o.ttl = utils.isNumber(o.ttl) ? o.ttl : 24 * 60 * 60 * 1e3;
+                o.filter = this.filter;
                 if (storedItemHash && storedAdjacencyList && !isExpired) {
                     this._mergeProcessedData({
                         itemHash: storedItemHash,
