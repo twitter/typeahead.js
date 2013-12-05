@@ -320,7 +320,7 @@
             _get: function(url, cb) {
                 var that = this;
                 if (belowPendingRequestsThreshold()) {
-                    this._sendRequest(url).done(done);
+                    this._sendRequest(this.is_post ? this.url : url).done(done);
                 } else {
                     this.onDeckRequestArgs = [].slice.call(arguments, 0);
                 }
@@ -357,8 +357,10 @@
                         }
                         jsonQuery = (query || "").replace(/[\\"']/g, "\\$&").replace(/\u0000/g, "\\0");
                         this.ajaxSettings.data = this.replace ? this.replace(d, jsonQuery) : d.replace(this.wildcard, jsonQuery);
+                        url = this.url + "?" + encodeURIComponent(this.ajaxSettings.data);
+                    } else {
+                        url = this.url + "?" + encodeURIComponent(query);
                     }
-                    url = this.url + "?" + encodeURIComponent(query);
                 } else {
                     encodedQuery = encodeURIComponent(query || "");
                     url = this.replace ? this.replace(this.url, encodedQuery) : this.url.replace(this.wildcard, encodedQuery);

@@ -55,7 +55,7 @@ var Transport = (function() {
 
       // under the pending request threshold, so fire off a request
       if (belowPendingRequestsThreshold()) {
-        this._sendRequest(url).done(done);
+		this._sendRequest(this.is_post ? this.url : url).done(done);
       }
 
       // at the pending request threshold, so hang out in the on deck circle
@@ -118,9 +118,11 @@ var Transport = (function() {
           }
           jsonQuery = (query || '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
           this.ajaxSettings.data = this.replace ? this.replace(d, jsonQuery) : d.replace(this.wildcard, jsonQuery);
+		  url = this.url + '?' + encodeURIComponent(this.ajaxSettings.data);
+		} else {
+          // Create a "fake" query string like URL so caching still works
+		  url = this.url + '?' + encodeURIComponent(query);
 		}
-        // Create a "fake" query string like URL so caching still works
-		url = this.url + '?' + encodeURIComponent(query);
       } else {
         encodedQuery = encodeURIComponent(query || '');
         url = this.replace ?
