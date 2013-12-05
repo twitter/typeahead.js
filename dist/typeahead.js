@@ -303,19 +303,24 @@
             this.filter = o.filter;
             this.replace = o.replace;
             this.ajaxSettings = {
-                type: "get",
+                type: o.type || "get",
                 cache: o.cache,
                 timeout: o.timeout,
                 dataType: o.dataType || "json",
                 beforeSend: o.beforeSend
             };
+            this.is_post = o.type == "post";
+            if (this.is_post) {
+                this.ajaxSettings.contentType = o.contentType || "application/json";
+                this.data = o.data;
+            }
             this._get = (/^throttle$/i.test(o.rateLimitFn) ? utils.throttle : utils.debounce)(this._get, o.rateLimitWait || 300);
         }
         utils.mixin(Transport.prototype, {
             _get: function(url, cb) {
                 var that = this;
                 if (belowPendingRequestsThreshold()) {
-                    this._sendRequest(url).done(done);
+                    this._sendRequest(this.is_post ? this.url : url).done(done);
                 } else {
                     this.onDeckRequestArgs = [].slice.call(arguments, 0);
                 }
@@ -342,9 +347,24 @@
                 }
             },
             get: function(query, cb) {
-                var that = this, encodedQuery = encodeURIComponent(query || ""), url, resp;
+                var that = this, url, resp;
                 cb = cb || utils.noop;
-                url = this.replace ? this.replace(this.url, encodedQuery) : this.url.replace(this.wildcard, encodedQuery);
+                if (this.is_post) {
+                    if (this.data) {
+                        var d = this.data;
+                        if ($.type(d) !== "string") {
+                            d = JSON.stringify(d);
+                        }
+                        jsonQuery = (query || "").replace(/[\\"']/g, "\\$&").replace(/\u0000/g, "\\0");
+                        this.ajaxSettings.data = this.replace ? this.replace(d, jsonQuery) : d.replace(this.wildcard, jsonQuery);
+                        url = this.url + "?" + encodeURIComponent(this.ajaxSettings.data);
+                    } else {
+                        url = this.url + "?" + encodeURIComponent(query);
+                    }
+                } else {
+                    encodedQuery = encodeURIComponent(query || "");
+                    url = this.replace ? this.replace(this.url, encodedQuery) : this.url.replace(this.wildcard, encodedQuery);
+                }
                 if (resp = requestCache.get(url)) {
                     utils.defer(function() {
                         cb(that.filter ? that.filter(resp) : resp);
@@ -353,6 +373,9 @@
                     this._get(url, cb);
                 }
                 return !!resp;
+            },
+            flushCache: function() {
+                requestCache.cache = {};
             }
         });
         return Transport;
