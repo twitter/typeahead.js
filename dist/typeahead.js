@@ -315,10 +315,6 @@
         utils.mixin(Transport.prototype, {
             _get: function(url, cb) {
                 var that = this;
-                if (typeof this.handler == "function") {
-                    this.handler(wildcard, cb);
-                    return;
-                }
                 if (belowPendingRequestsThreshold()) {
                     this._sendRequest(url).done(done);
                 } else {
@@ -349,6 +345,10 @@
             get: function(query, cb) {
                 var that = this, encodedQuery = encodeURIComponent(query || ""), url, resp;
                 cb = cb || utils.noop;
+                if (typeof this.handler == "function") {
+                    this.handler(query, cb);
+                    return false;
+                }
                 url = this.replace ? this.replace(this.url, encodedQuery) : this.url.replace(this.wildcard, encodedQuery);
                 if (resp = requestCache.get(url)) {
                     utils.defer(function() {
