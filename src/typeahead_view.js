@@ -178,7 +178,7 @@ var TypeaheadView = (function() {
     _setInputValueToSuggestionUnderCursor: function(e) {
       var suggestion = e.data;
 
-      this.inputView.setInputValue(suggestion.value, true);
+      this.inputView.setInputValue(suggestion.name, true);
     },
 
     _openDropdown: function() {

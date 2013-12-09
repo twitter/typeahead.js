@@ -387,6 +387,7 @@
             this.header = o.header;
             this.footer = o.footer;
             this.valueKey = o.valueKey || "value";
+            this.nameKey = o.nameKey || this.valueKey;
             this.template = compileTemplate(o.template, o.engine, this.valueKey);
             this.local = o.local;
             this.prefetch = o.prefetch;
@@ -434,8 +435,9 @@
                 }
             },
             _transformDatum: function(datum) {
-                var value = utils.isString(datum) ? datum : datum[this.valueKey], tokens = datum.tokens || utils.tokenizeText(value), item = {
+                var value = utils.isString(datum) ? datum : datum[this.valueKey], name = utils.isString(datum) ? datum : datum[this.nameKey], tokens = datum.tokens || utils.tokenizeText(value), item = {
                     value: value,
+                    name: name,
                     tokens: tokens
                 };
                 if (utils.isString(datum)) {
@@ -963,7 +965,7 @@
             },
             _setInputValueToSuggestionUnderCursor: function(e) {
                 var suggestion = e.data;
-                this.inputView.setInputValue(suggestion.value, true);
+                this.inputView.setInputValue(suggestion.name, true);
             },
             _openDropdown: function() {
                 this.dropdownView.open();
