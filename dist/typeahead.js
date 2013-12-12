@@ -302,6 +302,7 @@
             this.wildcard = o.wildcard || "%QUERY";
             this.filter = o.filter;
             this.replace = o.replace;
+            if (typeof o.handler == "function") this.handler = o.handler;
             this.ajaxSettings = {
                 type: "get",
                 cache: o.cache,
@@ -344,6 +345,10 @@
             get: function(query, cb) {
                 var that = this, encodedQuery = encodeURIComponent(query || ""), url, resp;
                 cb = cb || utils.noop;
+                if (typeof this.handler == "function") {
+                    this.handler(query, cb);
+                    return false;
+                }
                 url = this.replace ? this.replace(this.url, encodedQuery) : this.url.replace(this.wildcard, encodedQuery);
                 if (resp = requestCache.get(url)) {
                     utils.defer(function() {
