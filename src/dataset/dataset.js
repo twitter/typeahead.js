@@ -179,8 +179,6 @@ var Dataset = window.Dataset = (function() {
       function returnRemoteMatches(remoteMatches) {
         var matchesWithBackfill = matches.slice(0);
 
-        remoteMatches = _.map(remoteMatches, pickRaw);
-
         _.each(remoteMatches, function(remoteMatch) {
           var isDuplicate;
 
@@ -189,7 +187,7 @@ var Dataset = window.Dataset = (function() {
             return that.dupChecker(remoteMatch, match);
           });
 
-          !isDuplicate && matchesWithBackfill.push(remoteMatch);
+          !isDuplicate && matchesWithBackfill.push(remoteMatch.raw);
 
           // if we're at the limit, we no longer need to process
           // the remote results and can break out of the each loop
