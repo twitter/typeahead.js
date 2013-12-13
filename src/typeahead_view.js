@@ -68,6 +68,8 @@ var TypeaheadView = (function() {
 
     this.eventBus = o.eventBus;
 
+    this.hasTriggerCharacter = o.hasTriggerCharacter;
+
     $menu = this.$node.find('.tt-dropdown-menu');
     $input = this.$node.find('.tt-query');
     $hint = this.$node.find('.tt-hint');
@@ -154,6 +156,11 @@ var TypeaheadView = (function() {
         query = inputValue
         .replace(/\s{2,}/g, ' ') // condense whitespace
         .replace(/^\s+/g, ''); // strip leading whitespace
+
+        if (this.hasTriggerCharacter) {
+          query = this.datasets[0].parseForTrigger(query, this.inputView.$input.selectionStart);
+        }
+
         escapedQuery = utils.escapeRegExChars(query);
 
         beginsWithQuery = new RegExp('^(?:' + escapedQuery + ')(.*$)', 'i');
@@ -222,12 +229,14 @@ var TypeaheadView = (function() {
     },
 
     _getSuggestions: function() {
-      var that = this, query = this.inputView.getQuery();
+      var that = this,
+          query = this.inputView.getQuery(),
+          cursorPosition = this.inputView.$input.selectionStart;
 
       if (utils.isBlankString(query)) { return; }
 
       utils.each(this.datasets, function(i, dataset) {
-        dataset.getSuggestions(query, function(suggestions) {
+        dataset.getSuggestions(query, cursorPosition, function(suggestions) {
           // only render the suggestions if the query hasn't changed
           if (query === that.inputView.getQuery()) {
             that.dropdownView.renderSuggestions(dataset, suggestions);

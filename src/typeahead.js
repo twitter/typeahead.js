@@ -9,9 +9,13 @@
 
   methods = {
     initialize: function(datasetDefs) {
-      var datasets;
+      var datasets, hasTriggerCharacter;
 
       datasetDefs = utils.isArray(datasetDefs) ? datasetDefs : [datasetDefs];
+
+      hasTriggerCharacter = utils.some(datasetDefs, function (dataset) {
+        return !!dataset.triggerCharacter;
+      });
 
       if (datasetDefs.length === 0) {
         $.error('no datasets provided');
@@ -41,7 +45,8 @@
         $input.data(viewKey, new TypeaheadView({
           input: $input,
           eventBus: eventBus = new EventBus({ el: $input }),
-          datasets: datasets
+          datasets: datasets,
+          hasTriggerCharacter: hasTriggerCharacter
         }));
 
         $.when.apply($, deferreds)

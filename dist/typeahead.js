@@ -393,6 +393,8 @@
             this.remote = o.remote;
             this.itemHash = {};
             this.adjacencyList = {};
+            this.triggerCharacter = o.triggerCharacter;
+            this.triggerRegex = o.triggerRegex;
             this.storage = o.name ? new PersistentStorage(o.name) : null;
         }
         utils.mixin(Dataset.prototype, {
@@ -508,6 +510,25 @@
                 });
                 return suggestions;
             },
+            _findTriggerPosition: function(str, position) {
+                var index = str.lastIndexOf(this.triggerCharacter, position);
+                var charBeforeTrigger;
+                if (index === -1) {
+                    return -1;
+                }
+                charBeforeTrigger = str[index - 1];
+                if (charBeforeTrigger && charBeforeTrigger !== " ") {
+                    return -1;
+                }
+                if (!str.substring(index, position).match(this.triggerRegex)) {
+                    return -1;
+                }
+                return index;
+            },
+            parseForTrigger: function(query, cursorPosition) {
+                var triggerIndex = this._findTriggerPosition(query, cursorPosition);
+                return triggerIndex === -1 ? null : query.substring(triggerIndex + 1, cursorPosition);
+            },
             initialize: function() {
                 var deferred;
                 this.local && this._processLocalData(this.local);
@@ -519,8 +540,16 @@
                 };
                 return deferred;
             },
-            getSuggestions: function(query, cb) {
-                var that = this, terms, suggestions, cacheHit = false;
+            getSuggestions: function(query, cursorPosition, cb) {
+                var that = this, terms, suggestions, parsedForTrigger, cacheHit = false;
+                if (this.triggerCharacter && this.triggerRegex) {
+                    parsedForTrigger = this.parseForTrigger(query, cursorPosition);
+                    if (!parsedForTrigger) {
+                        return;
+                    } else {
+                        query = parsedForTrigger;
+                    }
+                }
                 if (query.length < this.minLength) {
                     return;
                 }
@@ -905,6 +934,7 @@
             this.datasets = o.datasets;
             this.dir = null;
             this.eventBus = o.eventBus;
+            this.hasTriggerCharacter = o.hasTriggerCharacter;
             $menu = this.$node.find(".tt-dropdown-menu");
             $input = this.$node.find(".tt-query");
             $hint = this.$node.find(".tt-hint");
@@ -946,6 +976,9 @@
                 if (hint && dropdownIsVisible && !inputHasOverflow) {
                     inputValue = this.inputView.getInputValue();
                     query = inputValue.replace(/\s{2,}/g, " ").replace(/^\s+/g, "");
+                    if (this.hasTriggerCharacter) {
+                        query = this.datasets[0].parseForTrigger(query, this.inputView.$input.selectionStart);
+                    }
                     escapedQuery = utils.escapeRegExChars(query);
                     beginsWithQuery = new RegExp("^(?:" + escapedQuery + ")(.*$)", "i");
                     match = beginsWithQuery.exec(hint);
@@ -987,12 +1020,12 @@
                 }
             },
             _getSuggestions: function() {
-                var that = this, query = this.inputView.getQuery();
+                var that = this, query = this.inputView.getQuery(), cursorPosition = this.inputView.$input.selectionStart;
                 if (utils.isBlankString(query)) {
                     return;
                 }
                 utils.each(this.datasets, function(i, dataset) {
-                    dataset.getSuggestions(query, function(suggestions) {
+                    dataset.getSuggestions(query, cursorPosition, function(suggestions) {
                         if (query === that.inputView.getQuery()) {
                             that.dropdownView.renderSuggestions(dataset, suggestions);
                         }
@@ -1076,8 +1109,11 @@
         var cache = {}, viewKey = "ttView", methods;
         methods = {
             initialize: function(datasetDefs) {
-                var datasets;
+                var datasets, hasTriggerCharacter;
                 datasetDefs = utils.isArray(datasetDefs) ? datasetDefs : [ datasetDefs ];
+                hasTriggerCharacter = utils.some(datasetDefs, function(dataset) {
+                    return !!dataset.triggerCharacter;
+                });
                 if (datasetDefs.length === 0) {
                     $.error("no datasets provided");
                 }
@@ -1101,7 +1137,8 @@
                         eventBus: eventBus = new EventBus({
                             el: $input
                         }),
-                        datasets: datasets
+                        datasets: datasets,
+                        hasTriggerCharacter: hasTriggerCharacter
                     }));
                     $.when.apply($, deferreds).always(function() {
                         utils.defer(function() {

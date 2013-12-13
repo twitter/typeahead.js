@@ -39,6 +39,9 @@ var Dataset = (function() {
     this.itemHash = {};
     this.adjacencyList = {};
 
+    this.triggerCharacter = o.triggerCharacter;
+    this.triggerRegex = o.triggerRegex;
+
     // only initialize storage if there's a name otherwise
     // loading from storage on subsequent page loads is impossible
     this.storage = o.name ? new PersistentStorage(o.name) : null;
@@ -227,6 +230,32 @@ var Dataset = (function() {
       return suggestions;
     },
 
+    _findTriggerPosition: function(str, position) {
+      var index = str.lastIndexOf(this.triggerCharacter, position);
+      var charBeforeTrigger;
+
+      if (index === -1) {
+        return -1;
+      }
+
+      //Should precede with a space
+      charBeforeTrigger = str[index - 1];
+      if (charBeforeTrigger && charBeforeTrigger !== ' ') {
+        return -1;
+      }
+
+      if (!str.substring(index, position).match(this.triggerRegex)) {
+        return -1;
+      }
+
+      return index;
+    },
+
+    parseForTrigger: function (query, cursorPosition) {
+      var triggerIndex = this._findTriggerPosition(query, cursorPosition);
+      return triggerIndex === -1 ? null : query.substring(triggerIndex + 1, cursorPosition);
+    },
+
     // public methods
     // ---------------
 
@@ -248,8 +277,19 @@ var Dataset = (function() {
       return deferred;
     },
 
-    getSuggestions: function(query, cb) {
-      var that = this, terms, suggestions, cacheHit = false;
+    getSuggestions: function(query, cursorPosition, cb) {
+      var that = this, terms, suggestions, parsedForTrigger, cacheHit = false;
+
+      // First parse the query for our trigger
+      if (this.triggerCharacter && this.triggerRegex) {
+        parsedForTrigger = this.parseForTrigger(query, cursorPosition);
+
+        if (!parsedForTrigger) {
+          return;
+        } else {
+          query = parsedForTrigger;
+        }
+      }
 
       // don't do anything until the minLength constraint is met
       if (query.length < this.minLength) {
