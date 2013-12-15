@@ -148,6 +148,7 @@ var DropdownView = (function() {
 
     close: function() {
       if (this.isOpen) {
+        (this._getSuggestions().length == 1) && this.trigger('closingWithSuggestion');
         this.isOpen = false;
         this.isMouseOverDropdown = false;
         this._hide();
@@ -182,6 +183,12 @@ var DropdownView = (function() {
 
     moveCursorDown: function() {
       this._moveCursor(+1);
+    },
+
+    getOnlySuggestionWhileClosing: function() {
+      var $suggestion = this._getSuggestions().first();
+
+      return $suggestion.length > 0 ? extractSuggestion($suggestion) : null;
     },
 
     getSuggestionUnderCursor: function() {

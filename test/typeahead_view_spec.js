@@ -121,6 +121,13 @@ describe('TypeaheadView', function() {
     });
   });
 
+  describe('when dropdownView triggers closingWithSuggestion', function() {
+    beforeEach(function() {
+      this.spy = spyOnEvent(this.$input, 'typeahead:closingwithsuggestion');
+      this.dropdownView.trigger('closingwithsuggestion');
+    });
+  });
+
   // handlers triggered by inputView events
   // --------------------------------------
 
