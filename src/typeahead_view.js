@@ -8,6 +8,7 @@ var TypeaheadView = (function() {
   var html = {
         wrapper: '<span class="twitter-typeahead"></span>',
         hint: '<input class="tt-hint" type="text" autocomplete="off" spellcheck="off" disabled>',
+        textareaHint: '<textarea class="tt-hint" autocomplete="off" spellcheck="off" disabled></textarea>',
         dropdown: '<span class="tt-dropdown-menu"></span>'
       },
       css = {
@@ -315,7 +316,7 @@ var TypeaheadView = (function() {
     var $wrapper = $(html.wrapper),
         $dropdown = $(html.dropdown),
         $input = $(input),
-        $hint = $(html.hint);
+        $hint = $(input.is('textarea') ? html.textareaHint : html.hint);
 
     $wrapper = $wrapper.css(css.wrapper);
     $dropdown = $dropdown.css(css.dropdown);
