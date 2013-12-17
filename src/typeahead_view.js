@@ -158,7 +158,7 @@ var TypeaheadView = (function() {
         .replace(/^\s+/g, ''); // strip leading whitespace
 
         if (this.hasTriggerCharacter) {
-          query = this.datasets[0].parseForTrigger(query, this.inputView.$input.selectionStart);
+          query = this._parseForTrigger(query).completion;
         }
 
         escapedQuery = utils.escapeRegExChars(query);
@@ -185,7 +185,7 @@ var TypeaheadView = (function() {
     _setInputValueToSuggestionUnderCursor: function(e) {
       var suggestion = e.data;
 
-      this.inputView.setInputValue(suggestion.value, true);
+      this.inputView.setInputValue(this._getSuggestion(suggestion.value), true);
     },
 
     _openDropdown: function() {
@@ -212,7 +212,7 @@ var TypeaheadView = (function() {
             e.data : this.dropdownView.getSuggestionUnderCursor();
 
       if (suggestion) {
-        this.inputView.setInputValue(suggestion.value);
+        this.inputView.setInputValue(this._getSuggestion(suggestion.value));
 
         // if triggered by click, ensure the query input still has focus
         // if triggered by keypress, prevent default browser behavior
@@ -245,6 +245,14 @@ var TypeaheadView = (function() {
       });
     },
 
+    _getSuggestion: function (value) {
+      if (this.hasTriggerCharacter) {
+        var parsed = this._parseForTrigger(this.inputView.getQuery());
+        value = parsed.pre + parsed.trigger + value;
+      }
+      return value;
+    },
+
     _autocomplete: function(e) {
       var isCursorAtEnd, ignoreEvent, query, hint, suggestion;
 
@@ -261,7 +269,7 @@ var TypeaheadView = (function() {
 
       if (hint !== '' && query !== hint) {
         suggestion = this.dropdownView.getFirstSuggestion();
-        this.inputView.setInputValue(suggestion.value);
+        this.inputView.setInputValue(this._getSuggestion(suggestion.value));
 
         this.eventBus.trigger(
           'autocompleted',
@@ -273,6 +281,10 @@ var TypeaheadView = (function() {
 
     _propagateEvent: function(e) {
       this.eventBus.trigger(e.type);
+    },
+
+    _parseForTrigger: function (query) {
+      return this.datasets[0].parseForTrigger(query, this.inputView.$input.selectionStart);
     },
 
     // public methods

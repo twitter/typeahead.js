@@ -13,13 +13,15 @@
 
       datasetDefs = utils.isArray(datasetDefs) ? datasetDefs : [datasetDefs];
 
-      hasTriggerCharacter = utils.some(datasetDefs, function (dataset) {
-        return !!dataset.triggerCharacter;
-      });
-
       if (datasetDefs.length === 0) {
         $.error('no datasets provided');
       }
+
+      // If any of the datasets have a trigger, then we will need to pass
+      // that flag to typeahead
+      hasTriggerCharacter = utils.some(datasetDefs, function (dataset) {
+        return !!dataset.triggerCharacter;
+      });
 
       datasets = utils.map(datasetDefs, function(o) {
         var dataset = cache[o.name] ? cache[o.name] :  new Dataset(o);

@@ -527,7 +527,16 @@
             },
             parseForTrigger: function(query, cursorPosition) {
                 var triggerIndex = this._findTriggerPosition(query, cursorPosition);
-                return triggerIndex === -1 ? null : query.substring(triggerIndex + 1, cursorPosition);
+                if (triggerIndex === -1) {
+                    return null;
+                } else {
+                    return {
+                        pre: query.substring(0, triggerIndex),
+                        trigger: this.triggerCharacter,
+                        completion: query.substring(triggerIndex + 1, cursorPosition),
+                        post: query.substring(cursorPosition)
+                    };
+                }
             },
             initialize: function() {
                 var deferred;
@@ -547,7 +556,7 @@
                     if (!parsedForTrigger) {
                         return;
                     } else {
-                        query = parsedForTrigger;
+                        query = parsedForTrigger.completion;
                     }
                 }
                 if (query.length < this.minLength) {
@@ -977,7 +986,7 @@
                     inputValue = this.inputView.getInputValue();
                     query = inputValue.replace(/\s{2,}/g, " ").replace(/^\s+/g, "");
                     if (this.hasTriggerCharacter) {
-                        query = this.datasets[0].parseForTrigger(query, this.inputView.$input.selectionStart);
+                        query = this._parseForTrigger(query).completion;
                     }
                     escapedQuery = utils.escapeRegExChars(query);
                     beginsWithQuery = new RegExp("^(?:" + escapedQuery + ")(.*$)", "i");
@@ -996,7 +1005,7 @@
             },
             _setInputValueToSuggestionUnderCursor: function(e) {
                 var suggestion = e.data;
-                this.inputView.setInputValue(suggestion.value, true);
+                this.inputView.setInputValue(this._getSuggestion(suggestion.value), true);
             },
             _openDropdown: function() {
                 this.dropdownView.open();
@@ -1013,7 +1022,7 @@
             _handleSelection: function(e) {
                 var byClick = e.type === "suggestionSelected", suggestion = byClick ? e.data : this.dropdownView.getSuggestionUnderCursor();
                 if (suggestion) {
-                    this.inputView.setInputValue(suggestion.value);
+                    this.inputView.setInputValue(this._getSuggestion(suggestion.value));
                     byClick ? this.inputView.focus() : e.data.preventDefault();
                     byClick && utils.isMsie() ? utils.defer(this.dropdownView.close) : this.dropdownView.close();
                     this.eventBus.trigger("selected", suggestion.datum, suggestion.dataset);
@@ -1032,6 +1041,13 @@
                     });
                 });
             },
+            _getSuggestion: function(value) {
+                if (this.hasTriggerCharacter) {
+                    var parsed = this._parseForTrigger(this.inputView.getQuery());
+                    value = parsed.pre + parsed.trigger + value;
+                }
+                return value;
+            },
             _autocomplete: function(e) {
                 var isCursorAtEnd, ignoreEvent, query, hint, suggestion;
                 if (e.type === "rightKeyed" || e.type === "leftKeyed") {
@@ -1045,12 +1061,15 @@
                 hint = this.inputView.getHintValue();
                 if (hint !== "" && query !== hint) {
                     suggestion = this.dropdownView.getFirstSuggestion();
-                    this.inputView.setInputValue(suggestion.value);
+                    this.inputView.setInputValue(this._getSuggestion(suggestion.value));
                     this.eventBus.trigger("autocompleted", suggestion.datum, suggestion.dataset);
                 }
             },
             _propagateEvent: function(e) {
                 this.eventBus.trigger(e.type);
+            },
+            _parseForTrigger: function(query) {
+                return this.datasets[0].parseForTrigger(query, this.inputView.$input.selectionStart);
             },
             destroy: function() {
                 this.inputView.destroy();
@@ -1111,12 +1130,12 @@
             initialize: function(datasetDefs) {
                 var datasets, hasTriggerCharacter;
                 datasetDefs = utils.isArray(datasetDefs) ? datasetDefs : [ datasetDefs ];
-                hasTriggerCharacter = utils.some(datasetDefs, function(dataset) {
-                    return !!dataset.triggerCharacter;
-                });
                 if (datasetDefs.length === 0) {
                     $.error("no datasets provided");
                 }
+                hasTriggerCharacter = utils.some(datasetDefs, function(dataset) {
+                    return !!dataset.triggerCharacter;
+                });
                 datasets = utils.map(datasetDefs, function(o) {
                     var dataset = cache[o.name] ? cache[o.name] : new Dataset(o);
                     if (o.name) {

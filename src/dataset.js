@@ -253,7 +253,17 @@ var Dataset = (function() {
 
     parseForTrigger: function (query, cursorPosition) {
       var triggerIndex = this._findTriggerPosition(query, cursorPosition);
-      return triggerIndex === -1 ? null : query.substring(triggerIndex + 1, cursorPosition);
+
+      if (triggerIndex === -1) {
+        return null;
+      } else {
+        return {
+              pre: query.substring(0, triggerIndex),
+              trigger: this.triggerCharacter,
+              completion: query.substring(triggerIndex + 1, cursorPosition),
+              post: query.substring(cursorPosition)
+          };
+      }
     },
 
     // public methods
@@ -287,7 +297,7 @@ var Dataset = (function() {
         if (!parsedForTrigger) {
           return;
         } else {
-          query = parsedForTrigger;
+          query = parsedForTrigger.completion;
         }
       }
 
