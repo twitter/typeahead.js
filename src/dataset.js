@@ -231,6 +231,10 @@ var Dataset = (function() {
     },
 
     _findTriggerPosition: function(str, position) {
+      if (!this.triggerCharacter || !this.triggerRegex) {
+        return -1;
+      }
+
       var index = str.lastIndexOf(this.triggerCharacter, position);
       var charBeforeTrigger;
 
