@@ -39,6 +39,9 @@
         <textarea class="mentions"></textarea>
       </div>
       <div class="typeahead-wrapper">
+        <textarea class="names"></textarea>
+      </div>
+      <div class="typeahead-wrapper">
         <textarea class="normal"></textarea>
       </div>
     </div>
@@ -101,6 +104,19 @@
         triggerCharacter: '@',
         triggerRegex: /^@\w*$/,
         local: states
+      });
+
+      var names = [
+        "Luke Karrys",
+        "Bob Test",
+        "Test Bob",
+        "Michael Scott"
+      ];
+
+      $('.names').typeahead({
+        triggerCharacter: '@',
+        triggerRegex: /^@[\w\s]*$/,
+        local: names
       });
 
       $('.normal').typeahead({
