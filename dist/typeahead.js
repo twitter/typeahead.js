@@ -655,7 +655,7 @@
                     utils.each(data, function (i, datum) {
                         var item = that._transformDatum(datum), isDuplicate;
                         isDuplicate = utils.some(suggestions, function (suggestion) {
-                            return item.value === suggestion.name;
+                            return item.value === suggestion.value;
                         });
                         !isDuplicate && suggestions.push(item);
                         return suggestions.length < that.limit;
