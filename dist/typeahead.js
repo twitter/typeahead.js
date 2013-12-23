@@ -8,6 +8,7 @@
  * Introducing the concept of selected datum, updated on autocomplete or selection
  * New typeahead interface methods: getDatum, getQuery, setDatum, clearCache, openDropdown and closeDropdown
  * New event noSelect: when user leaves field without selecting valid datum.
+ * Option to set minLength as 0 to get all suggestion (to the limit) for empty text in input
  * Accompanying this update is a Knockout binding handler that greatly simplifies the work of initialization, auto-Datum creation and two-way databinding to selected Datum
  * See updated Readme.md and the new Handler.md and Knockout.md for details.
  * Credits for this update:  nathankoop and bowser project for the IE11 detection, zhigang1992 for the restrictInputToDatum option, cusspvz for the handler name, adanaltamira for minLength documentation, and last but not least
@@ -425,7 +426,10 @@
             }
             this.name = o.name || utils.getUniqueId();
             this.limit = o.limit || 5;
-            this.minLength = o.minLength || 1;
+            if (o.minLength === 0)  //Allow for minlength = 0, in that case we should get all available options (for local) and what the remote function will to with empty query
+                this.minLength = 0;
+            else
+                this.minLength = o.minLength || 1;
             this.header = o.header;
             this.footer = o.footer;
             this.valueKey = o.valueKey || "value";
@@ -487,7 +491,8 @@
                 var value = utils.isString(datum) ? datum : datum[this.valueKey], name = utils.isString(datum) ? datum : datum[this.nameKey], tokens = datum.tokens || utils.tokenizeText(value), item = {
                     value: value,
                     name: name,
-                    tokens: tokens
+                    tokens: tokens,
+                    dsname: this.name  //Dataset name/key
                 };
                 if (utils.isString(datum)) {
                     item.datum = {};
@@ -499,7 +504,7 @@
                 //item.tokens = utils.filter(item.tokens, function (token) {
                 //    return !utils.isBlankString(token);
                 //});
-                //in-case insensitve search using regEx should be quicker than indexof so we can skip this processing
+                //in-case insensitve search using regEx should be quicker than indexof so we can skip this processing - this also has bug if token is not string
                 //item.tokens = utils.map(item.tokens, function (token) {
                 //    return token.toLowerCase();
                 //});
@@ -574,50 +579,64 @@
             */
             //Here there is only one search term: the query entered
             //This search prefers names first and then tokens. This is helpful since we are using hint system and want the hint to match the name
+            //This will also handle empty query as to return all options (up to the limit of cours)
             _getLocalSuggestions: function (query) {
                 var suggestions = [], src = query.toLowerCase(), itLen, noFound = 0, regSrc = new RegExp('^' + src, 'i');
-                //First round, name-search
-                //Use the new nameAdjacencyList for indexing on the first char:
-                var nlist = this.nameAdjacencyList[src.charAt(0)];
-                if (nlist) {
-                    itLen = nlist.length;
-                    for (var i = 0; i < itLen; i++) {
-                        var item = this.itemHash[nlist[i]];
-                        if (item.name.search(regSrc) === 0) {
-                            suggestions.push(item);
-                            noFound++;
-                        };
-                        if (noFound == this.limit)
-                            break;
-                    };
+                if (query === null || query === '') {
+                    //User asks for all suggestions if no query
+                    var lim = this.limit;
+                    utils.each(this.itemHash, function (i, item) {
+                        suggestions.push(item);
+                        noFound++;
+                        if (noFound == lim)
+                            return false;
+                    });
                 }
-                if (noFound < this.limit) {
-                    //second round tuple search
-                    var list = this.adjacencyList[src.charAt(0)];
-                    if (!list)
-                        return suggestions;
-                    itLen = list.length;
-                    for (var i = 0; i < itLen; i++) {
-                        var item = this.itemHash[list[i]];
-                        var isMatch =  utils.some(item.tokens, function (token) {
-                            return token.search(regSrc) === 0;
-                        });
-                        if (isMatch) {
-                            //Check if suggestion allready found
-                            var isInSuggest = false;
-                            utils.each(suggestions, function (i, sugg) {
-                                if (sugg.value == item.value) {
-                                    isInSuggest = true;
-                                    return false; //break
-                                }
-                            });
-                            if (!isInSuggest) {
+                else {
+                    //First round, name-search
+                    //Use the new nameAdjacencyList for indexing on the first char:
+                    var nlist = this.nameAdjacencyList[src.charAt(0)];
+                    if (nlist) {
+                        itLen = nlist.length;
+                        for (var i = 0; i < itLen; i++) {
+                            var item = this.itemHash[nlist[i]];
+                            if (item.name.search(regSrc) === 0) {
                                 suggestions.push(item);
                                 noFound++;
-                                if (noFound == this.limit)
-                                    break;
-                            }
+                            };
+                            if (noFound == this.limit)
+                                break;
+                        };
+                    }
 
+                    if (noFound < this.limit) {
+                        //second round tuple search
+                        var list = this.adjacencyList[src.charAt(0)];
+                        if (!list)
+                            return suggestions;
+                        itLen = list.length;
+                        for (var i = 0; i < itLen; i++) {
+                            var item = this.itemHash[list[i]];
+                            var isMatch = utils.some(item.tokens, function (token) {
+                                return token.search(regSrc) === 0;
+                            });
+                            if (isMatch) {
+                                //Check if suggestion allready found
+                                var isInSuggest = false;
+                                utils.each(suggestions, function (i, sugg) {
+                                    if (sugg.value == item.value) {
+                                        isInSuggest = true;
+                                        return false; //break
+                                    }
+                                });
+                                if (!isInSuggest) {
+                                    suggestions.push(item);
+                                    noFound++;
+                                    if (noFound == this.limit)
+                                        break;
+                                }
+
+                            }
                         }
                     }
                 }
@@ -655,7 +674,11 @@
                     utils.each(data, function (i, datum) {
                         var item = that._transformDatum(datum), isDuplicate;
                         isDuplicate = utils.some(suggestions, function (suggestion) {
+<<<<<<< HEAD
                             return item.value === suggestion.value;
+=======
+                            return item.value === suggestion.value; 
+>>>>>>> More docs
                         });
                         !isDuplicate && suggestions.push(item);
                         return suggestions.length < that.limit;
@@ -1034,27 +1057,34 @@
             utils.bindAll(this);
             this.$node = buildDomStructure(o.input);
             this.selectedDatum = null;
+            this.selectedDatumDsName = null; 
             this.datasets = o.datasets;
             this.dir = null;
             this.eventBus = o.eventBus;
             this.hasRemote = false;
-            this.nameKey = null;
-            this.valueKey = null;
+            this.dsnameAny = null; //Failsafe dsname for setDatum
             this.restrictInputToDatum = null;
             this.tracer = null; //Debug tool for logs since console.log is unusable in IE since it receives focus
+            this.dsIdx = []; //NameIndex on datasets
+            this.minMinLength = null; //The least minLength of the datasets - to check if any of them allow for empty query (get all)
             //Pickup required options from the datasets
+            //Note: we are assuming that each dataset has the same name and valueKeys, restrictInputToDatum is picked up from any of those
+            //Perhaps a better way would be to have some global settings seporate from the datasets
             if (this.datasets && this.datasets.length > 0) {
                 for (var i = 0; i < this.datasets.length; i++) {
-                    if (this.datasets[i].isRemote)
+                    this.dsIdx[this.datasets[i].name] = this.datasets[i];
+                    if (!this.dsnameAny)
+                        this.dsnameAny = this.datasets[i].name;
+                    if (this.datasets[i].isRemote) {
                         this.hasRemote = true;
-                    if (!this.nameKey && this.datasets[i]['nameKey'])
-                        this.nameKey = this.datasets[i]['nameKey'];
-                    if (!this.valueKey && this.datasets[i]['valueKey'])
-                        this.valueKey = this.datasets[i]['valueKey'];
+                        this.dsnameAny = this.datasets[i].name; //prefer remote dataset as failsafe for setDatum
+                    }
                     if (!this.restrictInputToDatum && this.datasets[i]['restrictInputToDatum'])
                         this.restrictInputToDatum = this.datasets[i]['restrictInputToDatum'];
                     if (!this.tracer)
                         this.tracer = this.datasets[i]['tracer'];
+                    if (this.minMinLength === null || this.minMinLength > this.datasets[i].minLength) 
+                        this.minMinLength = this.datasets[i].minLength;
                 }
             }
             if (!this.tracer) this.tracer = [];
@@ -1094,14 +1124,14 @@
                 var restrict = (typeof this.restrictInputToDatum == 'function' ? this.restrictInputToDatum() : this.restrictInputToDatum);
                 //To allow user to select nothing we nullify the datum if the input string is empty and the datum name is not empty
                 if (inputValue === null || inputValue.length == 0) {
-                    if (!this.selectedDatum || this.selectedDatum[this.nameKey]) {
+                    if (!this.selectedDatum || this.selectedDatum[this.dsIdx[this.selectedDatumDsName].nameKey]) {
                         this.selectedDatum = null; //Clear the selected datum and notify
                         this.eventBus.trigger("noSelect", ''); //TTrigger event for databinding since user is deliberatly selecting empty value
                     }
                 }
-                else if (this.selectedDatum && inputValue != this.selectedDatum[this.nameKey]) {
+                else if (this.selectedDatum && inputValue != this.selectedDatum[this.dsIdx[this.selectedDatumDsName].nameKey]) {
                     if (restrict) {
-                        this.inputView.setInputValue(this.selectedDatum[this.nameKey], true); //Reset input value as current datum
+                        this.inputView.setInputValue(this.selectedDatum[this.dsIdx[this.selectedDatumDsName].nameKey], true); //Reset input value as current datum
                     }
                     else {
                         this.selectedDatum = null; //Clear the selected datum and notify (without removing the input text)
@@ -1173,6 +1203,7 @@
                     //this.tracer.push('Suggestion foud: ' + suggestion.name);
                     this.inputView.setQuery(suggestion.name);
                     this.inputView.setInputValue(suggestion.name, true);
+                    this.selectedDatumDsName = suggestion.dsname;
                     this.selectedDatum = suggestion.datum;
                     this._clearSuggestions();
                     this._getSuggestions();
@@ -1191,7 +1222,7 @@
             _getSuggestions: function () {
                 var that = this, query = this.inputView.getQuery();
                 //this.tracer.push('Typeaheadview getSuggestins: '+query);
-                if (utils.isBlankString(query)) {
+                if (this.minMinLength !== 0 && utils.isBlankString(query)) {
                     return;
                 }
                 utils.each(this.datasets, function (i, dataset) {
@@ -1217,6 +1248,7 @@
                     suggestion = this.dropdownView.getFirstSuggestion();
                     //this.tracer.push('autocomplete: ' + suggestion.name);
                     this.selectedDatum = suggestion.datum;
+                    this.selectedDatumDsName = suggestion.dsname;
                     this.inputView.setInputValue(suggestion.name);
                     this.eventBus.trigger("autocompleted", suggestion.datum, suggestion.dataset);
                 }
@@ -1238,10 +1270,15 @@
                 this._clearSuggestions();
                 this._getSuggestions();
             },
-            setDatum: function (datum) {
-                this.selectedDatum = datum;
-                if (this.nameKey) {
-                    var query = datum ? datum[this.nameKey] : '';
+            setDatum: function (datum, dsname) {
+                //Since we are using namekeys and valuekeys we can not assume how to pickup datum values unless we have the name and value keys
+                //Those keys are stored in the dataset, this is why we need the dsname property.
+                //We are still prepared for it to be emty, because it should be ok if we have only one dataset,only one remote dataset the datum belongs to, or all the datasets use the same keys. (probably 95% of all cases)
+                dsname = dsname ? dsname : this.dsnameAny;
+                if (dsname && this.dsIdx[dsname].nameKey) {
+                    this.selectedDatumDsName = dsname;
+                    this.selectedDatum = datum;
+                    query = datum ? datum[this.dsIdx[dsname].nameKey] : '';
                     this.inputView.setQuery(query);
                     this.inputView.setInputValue(query);
                     this._clearHint();
@@ -1341,9 +1378,9 @@
                 var view = $(this).data(viewKey);
                 view && view.setQuery(query);
             },
-            setDatum: function (datum) {
+            setDatum: function (datum,dsname) {
                 var view = $(this).data(viewKey);
-                view && view.setDatum(datum);
+                view && view.setDatum(datum,dsname);
             },
             getDatum: function () {
                 var view = $(this).data(viewKey);
@@ -1362,11 +1399,11 @@
             },
             openDropdown: function () { //Note: will onl work if current selecton has suggestons populated
                 var view = $(this).data(viewKey);
-                view && view._openDropdown();
+                view && view.dropdownView.open();
             },
             closeDropdown: function () {
                 var view = $(this).data(viewKey);
-                view && view._closeDropdown();
+                view && view.dropdownView.close();
             }
         };
         jQuery.fn.typeahead = function (method) {

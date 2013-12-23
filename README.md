@@ -150,7 +150,8 @@ When defining a dataset, the following options are available:
 
 * `limit` – The max number of suggestions from the dataset to display for a given query. Defaults to `5`.
 
-* `minLength` – The minimum number characters entered in the input box before the typeahead fires up. Defaults to `1`.
+* `minLength` – The minimum number characters entered in the input box before the typeahead fires up. Defaults to `1`.  
+**>New<**: Setting this value to 0 fires up typahead on empty input box with all suggestions up to the `limit` value.
 
 * `template` – The template used to render suggestions. Can be a string or a precompiled template. If not provided, suggestions will render as their value contained in a `<p>` element (i.e. `<p>value</p>`).
 
@@ -227,7 +228,7 @@ When configuring `remote`, the following options are available:
 * `handler` **>New<** - Custom function with the signature `function(query, data)` to take control of the typeahead data retrieval.  This can be both used to handle local synchronous data or to fetch asynchronous data from remote source using the **promise pattern**.    
 In case this function is used for asynchronous data fetch it must return `promise`, but it should return `true` for synchronous operations.  Both [JQuery promises](http://api.jquery.com/promise/ "JQuery promises") and [Q promises](http://documentup.com/kriskowal/q/#introduction) are supported.  
 When `handler` option is used for data retrieval the options `beforeSend`, `replace`, `wildcard`, `dataType` and  `cache` do not apply.  However the throttling options are used and the cache control is also in play.
-See [this page](Computed.md) for details on the handler usage.
+See [this page](New.md) for details on the handler usage.
 
 * `dataType` – The type of data you're expecting from the server. See the [jQuery.ajax docs][jquery-ajax] for more info. Defaults to `Json`.  This applies only in conjunction with the `url` option.
 

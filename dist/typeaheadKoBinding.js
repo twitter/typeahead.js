@@ -157,7 +157,7 @@ ko.bindingHandlers.typeahead = {
                 options.cacheKey = cacheKey;
             if (limit)
                 options.limit = limit;
-            if (minLength)
+            if (minLength || minLength === 0)
                 options.minLength = minLength;
 
             if (templateElement)
@@ -328,4 +328,3 @@ ko.bindingHandlers.typeahead = {
         }
     }
 };
-

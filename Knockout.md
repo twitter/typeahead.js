@@ -133,7 +133,7 @@ See example2 in action on [Plunker](http://plnkr.co/edit/QaRp2m?p=preview)
 
 ## Compatibility to the official typeahead.js
 
-<b>Note that at his moment, the binder [typeaheadKoBinding.js](dist/typeaheadKoBinding.js>) will not work with the official typeahead.js version, you have to use the accompanying version: [typeahead.js](dist/typeahead.jstypeahead.js)</b>.  The main reason is that the official does not include many of the features provided here.  Also at this moment the official also contains critical bugs. See the [typeahead issue list](https://github.com/twitter/typeahead.js/issues?state=open) for details on that. 
+<b>Note that at his moment, the binder [typeaheadKoBinding.js](dist/typeaheadKoBinding.js>) will not work with the official typeahead.js version, you have to use the accompanying version: [typeahead.js](dist/typeahead.js)</b>.  The main reason is that the official does not include many of the features provided here.  Also at this moment the official also contains critical bugs. See the [typeahead issue list](https://github.com/twitter/typeahead.js/issues?state=open) for details on that. 
 
 ## Knockout binder reference
 
