@@ -50,7 +50,7 @@
     </div>
 
     <script>
-      var states = new Dataset({
+      var states = ttDataset.create({
         valueKey: 'state',
         local: [
           "Alabama",
@@ -110,12 +110,13 @@
         sections: { 
           name: 'states',
           highlight: true,
-          source: states
+          source: states,
+          valueKey: 'state'
         }
       });
 
 
-      var badTokens = new Dataset({
+      var badTokens = ttDataset.create({
         local: [
           {
             value: 'all bad',
@@ -147,7 +148,7 @@
         }
       });
 
-      var regexes = new Dataset({
+      var regexes = ttDataset.create({
         local: [
           '*.js',
           '[Tt]ypeahead.js',
@@ -165,7 +166,7 @@
         }
       });
 
-      var letters = new Dataset({
+      var letters = ttDataset.create({
         local: ['a', 'ab', 'abc', 'abcd', 'abcde']
       }).initialize();
 

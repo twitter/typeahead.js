@@ -4,7 +4,7 @@
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var Dataset = window.Dataset = (function() {
+var Dataset = (function() {
   var keys;
 
   keys = { data: 'data', protocol: 'protocol', thumbprint: 'thumbprint' };
@@ -158,6 +158,8 @@ var Dataset = window.Dataset = (function() {
       normalized = this._normalize(data);
 
       this.index.add(normalized);
+
+      return this;
     },
 
     get: function get(query, cb) {

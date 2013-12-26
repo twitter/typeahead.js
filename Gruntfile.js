@@ -10,7 +10,8 @@ var semver = require('semver'),
       'src/dataset/persistent_storage.js',
       'src/dataset/transport.js',
       'src/dataset/search_index.js',
-      'src/dataset/dataset.js'
+      'src/dataset/dataset.js',
+      'src/dataset/tt_factory.js'
       ],
       typeahead: [
       'src/typeahead/html.js',
