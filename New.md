@@ -30,7 +30,8 @@ You could also argue that instead of using large amount of data locally would be
 The ability to control the data-retrieval better than just controlling Ajax lookup is vital for many applications (like my own).  For example users using view models and own implementations of data-lookups require this sourly.  This regards both the issue of reusing internal functions and controlling the display while the data retrieval takes place, i.e. managing progress indicators and other custom stuff. 
 I have seen at least two pull requests that address this issue but they both lack the ability to use the caching and throttling options the remote url offers.  Also proper asynchronous support was missing: handling of promises.
 My implementation addresses this.  It supports but does not require handling of JQuery and Q promises.   
-The new **handler** option is used for this (name suggested by @cusspvz).
+The new **handler** option is used for this for remote datasets (name suggested by @cusspvz).   
+For prefetch datasets the **prefetchHandler** option is used.
 #5) Keys & display names
 I would think that at least quarter of use cases for auto completion involves data with unique keys -> where display names may not be unique.  So it is a basic requirement for this control.  Ryan Pitts recently issued an excellent pull request (546) to address this and i have included it in this fork.  I have also introduced the implementation of selected datum that is updated on selection or auto completion.  New interface methods: **`getDatum`** and **`setDatum`** allow for JQuery interface to this value.  This is also related to the selection validation issue below.
 #6) Caching control
@@ -39,7 +40,8 @@ I have implemented 4 new ways of interfering with the cache.
 **a)** typeahead interface method of clearing cache **`clearCache`**.  
 **b)** **`skipCache`** option to not use caching for remote data.  
 **c)** **`cacheKey`** option for the dataset for users to control the cache name for each dataset.  
-**d)** **`cacheKey`** as a function returning cache key.  This is particularly useful when you are using the **`handler`** option to retrieve data using internal implementation.  For example if you have two typeahead controls and the other one controlling the context of the second one.
+**d)** **`cacheKey`** as a function returning cache key.  This is particularly useful when you are using the **`handler`** option to retrieve data using internal implementation.  For example if you have two typeahead controls and the other one controlling the context of the second one.  
+Note that caching control applies both for `remote` and `prefetch` datasets.
 #7) Selection validation
 Many users require validation on if the typeahead control produced valid option/`datum` or not.  Some have implemented their own events to address this (like  zhigang1992 , #560 @snjoetw and #530 @ambahk).  I implemented custom event (`typeahead:noSelect`) that fires when user leaves the control without valid selection or the input value is empty (thanks for the tip zhigang1992).  I also added a dataset option `restrictInputToDatum` that insures that user only leaves the control with valid option or empty input value *(this is not strictly a dataset option since it applies to the control but the typeahead control currently only allows for dataset options)*.
 #8) Get suggestions before typing starts

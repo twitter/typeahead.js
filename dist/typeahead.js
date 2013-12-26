@@ -16,7 +16,6 @@
  * https://github.com/twitter/typeahead
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
-
 (function ($) {
     var VERSION = "0.9.4";
     var utils = {
@@ -316,7 +315,7 @@
             requestCache = requestCache || new RequestCache();
             maxPendingRequests = utils.isNumber(o.maxParallelRequests) ? o.maxParallelRequests : maxPendingRequests || 6;
             this.url = o.url;
-            this.handler = o.handler = (typeof o.handler == 'function' ? o.handler : null);
+            this.handler = o.handler = (typeof o.handler === 'function' ? o.handler : null);
             this.wildcard = o.wildcard || "%QUERY";
             this.filter = o.filter;
             this.replace = o.replace;
@@ -339,7 +338,8 @@
                 var that = this, computedData = [];
                 if (belowPendingRequestsThreshold()) {
                     if (this.handler)
-                        if (Q)
+                        //Support Q promises as well as JQuery promises, remember that Q can consume JQuery promise but not vice versa
+                        if (typeof Q !== 'undefined')
                             return Q.when(this._sendRequest(query, computedData)).then(function () { done(computedData); return Q.resolve(true); });
                         else
                             return $.when(this._sendRequest(query, computedData)).then(function () { done(computedData); return $.Deferred().resolve(); });
@@ -380,7 +380,7 @@
                 var that = this, encodedQuery = encodeURIComponent(query || ""), url, resp, cacheKey;
                 cb = cb || utils.noop;
                 url = this.url ? (this.replace ? this.replace(this.url, encodedQuery) : this.url.replace(this.wildcard, encodedQuery)) : '';
-                if (typeof this.cacheKey == 'function')
+                if (typeof this.cacheKey === 'function')
                     cacheKey = this.cacheKey(query);
                 else
                     cacheKey = this.cacheKey ? this.cacheKey + '%_' + query : url;
@@ -430,11 +430,17 @@
                 this.minLength = 0;
             else
                 this.minLength = o.minLength || 1;
+            this.cacheKeyFn = null;
+            if (typeof o.cacheKey === 'function') {
+                this.cacheKey = o.cacheKey();
+                this.cacheKeyFn = o.cacheKey;
+            }
+            else
+                this.cacheKey = o.cacheKey ? o.cacheKey : o.name;
             this.header = o.header;
             this.footer = o.footer;
             this.valueKey = o.valueKey || "value";
             this.nameKey = o.nameKey || this.valueKey;
-            this.cacheKey = o.cacheKey;
             this.restrictInputToDatum = o.restrictInputToDatum; //The behavior to clear input value on leaving the box if it does not contain selected datum and if it dos reset the value to last selected datum name
             this.template = compileTemplate(o.template, o.engine, this.nameKey);
             this.local = o.local;
@@ -444,27 +450,29 @@
             this.itemHash = {};
             this.adjacencyList = {};
             this.nameAdjacencyList = {};
-            this.storage = o.name ? new PersistentStorage(o.name) : null;
+            this.storage = this.cacheKey ? new PersistentStorage(this.cacheKey) : null;
         }
         utils.mixin(Dataset.prototype, {
             _processLocalData: function (data) {
                 this._mergeProcessedData(this._processData(data));
             },
             _loadPrefetchData: function (o) {
-                var that = this, thumbprint = VERSION + (o.thumbprint || ""), storedThumbprint, storedProtocol, storedItemHash, storedAdjacencyList, storedNameAdjacencyList, isExpired, deferred;
-                if (this.storage) {
-                    storedThumbprint = this.storage.get(keys.thumbprint);
-                    storedProtocol = this.storage.get(keys.protocol);
-                    storedItemHash = this.storage.get(keys.itemHash);
-                    storedAdjacencyList = this.storage.get(keys.adjacencyList);
-                    storedNameAdjacencyList = this.storage.get(keys.nameAdjacencyList);
-                }
-                isExpired = storedThumbprint !== thumbprint || storedProtocol !== utils.getProtocol();
+                var that = this, thumbprint = VERSION + (o.thumbprint || ""), storedThumbprint, storedProtocol, storedItemHash, storedAdjacencyList, storedNameAdjacencyList, isExpired = true, deferred;
                 o = utils.isString(o) ? {
                     url: o
                 } : o;
                 o.ttl = utils.isNumber(o.ttl) ? o.ttl : 24 * 60 * 60 * 1e3;
-                if (storedItemHash && storedAdjacencyList && storedNameAdjacencyList && !isExpired) {
+                if (!o.skipCache && o.ttl > 0) {
+                    if (this.storage) {
+                        storedThumbprint = this.storage.get(keys.thumbprint);
+                        storedProtocol = this.storage.get(keys.protocol);
+                        storedItemHash = this.storage.get(keys.itemHash);
+                        storedAdjacencyList = this.storage.get(keys.adjacencyList);
+                        storedNameAdjacencyList = this.storage.get(keys.nameAdjacencyList);
+                    }
+                    isExpired = storedThumbprint !== thumbprint || storedProtocol !== utils.getProtocol();
+                }
+                if (!o.skipCache && o.ttl > 0 && storedItemHash && storedAdjacencyList && storedNameAdjacencyList && !isExpired) {
                     this._mergeProcessedData({
                         itemHash: storedItemHash,
                         adjacencyList: storedAdjacencyList,
@@ -472,9 +480,28 @@
                     });
                     deferred = $.Deferred().resolve();
                 } else {
-                    deferred = $.getJSON(o.url).done(processPrefetchData);
+                    if (o.prefetchHandler && typeof o.prefetchHandler === 'function') {
+                        //Support Q promises as well as JQuery promises, remember that Q can consume JQuery promise but not vice versa
+                        if (typeof Q !== 'undefined') {
+                            deferred = $.Deferred();
+                            Q.when(o.prefetchHandler()).then(QDone).fail(function (error) { deferred.resolve(); });
+                        }
+                        else {
+                            deferred = $.when(o.prefetchHandler()).done(processPrefetchData);
+                        }
+                        function QDone(data) {
+                            processPrefetchData(data);
+                            deferred.resolve();
+                            return Q.resolve(true);
+                        }
+                    }
+                    else if (o.url)
+                        deferred = $.getJSON(o.url).done(processPrefetchData).fail(errorPrefetchdata);
                 }
                 return deferred;
+                function errorPrefetchdata(jqxhr, textStatus, error) {
+                    console.log('Prefetch error: '+error.message);
+                }
                 function processPrefetchData(data) {
                     var filteredData = o.filter ? o.filter(data) : data, processedData = that._processData(filteredData), itemHash = processedData.itemHash, adjacencyList = processedData.adjacencyList, nameAdjacencyList = processedData.nameAdjacencyList;
                     if (that.storage) {
@@ -515,12 +542,13 @@
                 utils.each(data, function (i, datum) {
                     var item = that._transformDatum(datum), id = utils.getUniqueId(item.value);
                     itemHash[id] = item;
+                    var nChar = item.name.charAt(0).toLowerCase();
+                    nameAdjacency = nameAdjacencyList[nChar] || (nameAdjacencyList[nChar] = [id]);
+                    !~utils.indexOf(nameAdjacency, id) && nameAdjacency.push(id);
                     utils.each(item.tokens, function (i, token) {
                         var character = token.charAt(0).toLowerCase();
                         adjacency = adjacencyList[character] || (adjacencyList[character] = [id]);
-                        nameAdjacency = nameAdjacencyList[character] || (nameAdjacencyList[character] = [id]);
                         !~utils.indexOf(adjacency, id) && adjacency.push(id);
-                        !~utils.indexOf(nameAdjacency, id) && nameAdjacency.push(id);
                     });
                 });
                 return {
@@ -603,10 +631,10 @@
                             if (item.name.search(regSrc) === 0) {
                                 suggestions.push(item);
                                 noFound++;
-                            };
+                            }
                             if (noFound == this.limit)
                                 break;
-                        };
+                        }
                     }
 
                     if (noFound < this.limit) {
@@ -645,11 +673,13 @@
             initialize: function () {
                 var deferred;
                 this.local && this._processLocalData(this.local);
+                if (this.remote && typeof this.remote === 'function') this.remote = { handler: this.remote }; //Allow for remote to be handler function
+                if (this.prefetch && typeof this.prefetch === 'function') this.prefetch = { prefetchHandler: this.prefetch }; //Allow for prefetch to be handler function
                 if (this.remote && !this.remote.url && !this.remote.cacheKey && !this.remote.name) this.remote.cacheKey = this.cacheKey || this.remote.name || this.name; //Fallback for caching name for handler if cacheKey is not specified in the remote section, another approach would be to raise error if missing
                 this.transport = this.remote ? new Transport(this.remote) : null;
                 this.isRemote = this.remote ? true : false;
                 deferred = this.prefetch ? this._loadPrefetchData(this.prefetch) : $.Deferred().resolve();
-                this.local = this.prefetch = this.remote = null;
+                //this.local = this.prefetch = this.remote = null; we need the original objects for the reload function
                 this.initialize = function () {
                     return deferred;
                 };
@@ -662,7 +692,7 @@
                 }
                 //terms = utils.tokenizeQuery(query);
                 //suggestions = this._getLocalSuggestions(terms).slice(0, this.limit);
-                if (this.localSearcher && typeof this.localSearcher == 'function')
+                if (this.localSearcher && typeof this.localSearcher === 'function')
                     suggestons = this.localSearcher(query,this);
                 else
                     suggestions = this._getLocalSuggestions(query);
@@ -674,17 +704,31 @@
                     utils.each(data, function (i, datum) {
                         var item = that._transformDatum(datum), isDuplicate;
                         isDuplicate = utils.some(suggestions, function (suggestion) {
-<<<<<<< HEAD
-                            return item.value === suggestion.value;
-=======
                             return item.value === suggestion.value; 
->>>>>>> More docs
                         });
                         !isDuplicate && suggestions.push(item);
                         return suggestions.length < that.limit;
                     });
                     cb && cb(suggestions);
                 }
+            },
+            //Returns deferred object that resolves when local abnd prefetched data has been loaded
+            reload: function () {
+                var deferred;
+                if (this.cacheKeyFn) {
+                    var oldKey = this.cacheKey;
+                    this.cacheKey = this.cacheKeyFn(); //Reevaluate the cache key
+                    if (this.cacheKey != oldKey)
+                        this.clearCache();
+                }
+                this.local && this._processLocalData(this.local);
+                return this.prefetch ? this._loadPrefetchData(this.prefetch) : $.Deferred().resolve();
+            },
+            clearCache: function () {
+                if (this.storage)
+                    this.storage.clear();
+                if (this.transport)
+                    this.transport.clearCache();
             }
         });
         return Dataset;
@@ -1079,10 +1123,10 @@
                         this.hasRemote = true;
                         this.dsnameAny = this.datasets[i].name; //prefer remote dataset as failsafe for setDatum
                     }
-                    if (!this.restrictInputToDatum && this.datasets[i]['restrictInputToDatum'])
-                        this.restrictInputToDatum = this.datasets[i]['restrictInputToDatum'];
+                    if (!this.restrictInputToDatum && this.datasets[i].restrictInputToDatum)
+                        this.restrictInputToDatum = this.datasets[i].restrictInputToDatum;
                     if (!this.tracer)
-                        this.tracer = this.datasets[i]['tracer'];
+                        this.tracer = this.datasets[i].tracer;
                     if (this.minMinLength === null || this.minMinLength > this.datasets[i].minLength) 
                         this.minMinLength = this.datasets[i].minLength;
                 }
@@ -1121,9 +1165,9 @@
             _manageLeaving: function (e) {
                 //this.tracer.push('Leaving');
                 var inputValue = this.inputView.getInputValue();
-                var restrict = (typeof this.restrictInputToDatum == 'function' ? this.restrictInputToDatum() : this.restrictInputToDatum);
+                var restrict = (typeof this.restrictInputToDatum === 'function' ? this.restrictInputToDatum() : this.restrictInputToDatum);
                 //To allow user to select nothing we nullify the datum if the input string is empty and the datum name is not empty
-                if (inputValue === null || inputValue.length == 0) {
+                if (inputValue === null || inputValue.length === 0) {
                     if (!this.selectedDatum || this.selectedDatum[this.dsIdx[this.selectedDatumDsName].nameKey]) {
                         this.selectedDatum = null; //Clear the selected datum and notify
                         this.eventBus.trigger("noSelect", ''); //TTrigger event for databinding since user is deliberatly selecting empty value
@@ -1215,7 +1259,7 @@
                     //Another thing we want to do here is to clear 
                     this.dropdownView.close();
                     this.eventBus.trigger("selected", suggestion.datum, suggestion.dataset);
-                };
+                }
                 //else
                 //    this.tracer.push('Typeaheadview handleselection found no suggestion');
             },
@@ -1284,7 +1328,7 @@
                     this._clearHint();
                     this._clearSuggestions();
                     this._getSuggestions();
-                };
+                }
             }
         });
         return TypeaheadView;
@@ -1327,7 +1371,7 @@
         }
     }();
     (function () {
-        var cache = {}, viewKey = "ttView", methods;
+        var cache = {}, viewKey = "ttView", methods, eventbus;
         methods = {
             initialize: function (datasetDefs) {
                 var datasets;
@@ -1344,7 +1388,8 @@
                 });
                 return this.each(initialize);
                 function initialize() {
-                    var $input = $(this), deferreds, eventBus = new EventBus({
+                    var $input = $(this), deferreds;
+                    eventBus = new EventBus({
                         el: $input
                     });
                     deferreds = utils.map(datasets, function (dataset) {
@@ -1362,6 +1407,22 @@
                             eventBus.trigger("initialized");
                         });
                     });
+                }
+            },
+            reload: function () {
+                var $input = $(this), view = $(this).data(viewKey), deferreds;
+                return this.each(reload);
+                function reload() {
+                    var datasets = view && view.datasets ? view.datasets : null;
+                    deferreds = utils.map(datasets, function (dataset) {
+                        return dataset.reload();
+                    });
+                    $.when.apply($, deferreds).always(function () {
+                        utils.defer(function () {
+                            eventBus.trigger("reloaded");
+                        });
+                    });
+                    return deferreds;
                 }
             },
             destroy: function () {
@@ -1393,9 +1454,10 @@
             clearCache: function () {
                 var view = $(this).data(viewKey);
                 var datasets = view && view.datasets ? view.datasets : null;
-                if (datasets)
-                    for (var i = 0; i < datasets.length; i++)
-                        datasets[i].transport && datasets[i].transport.clearCache();
+                utils.each(datasets, clearCache);
+                function clearCache(i, ds) {
+                    ds.clearCache();
+                }
             },
             openDropdown: function () { //Note: will onl work if current selecton has suggestons populated
                 var view = $(this).data(viewKey);
