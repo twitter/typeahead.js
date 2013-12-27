@@ -101,7 +101,7 @@ describe('Typeahead', function() {
   });
 
   describe('when dropdown triggers sectionRendered', function() {
-    it('should update the hint', function() {
+    it('should update the hint asynchronously', function() {
       this.dropdown.getDatumForTopSuggestion.andReturn(testDatum);
       this.dropdown.isVisible.andReturn(true);
       this.input.hasOverflow.andReturn(false);
@@ -109,7 +109,13 @@ describe('Typeahead', function() {
 
       this.dropdown.trigger('sectionRendered');
 
-      expect(this.input.setHintValue).toHaveBeenCalledWith(testDatum.value);
+      waitsFor(function() {
+        return !!this.input.setHintValue.callCount;
+      });
+
+      runs(function() {
+        expect(this.input.setHintValue).toHaveBeenCalledWith(testDatum.value);
+      });
     });
   });
 

@@ -34,9 +34,9 @@ var Typeahead = (function() {
     .onSync('suggestionClicked', this._onSuggestionClicked, this)
     .onSync('cursorMoved', this._onCursorMoved, this)
     .onSync('cursorRemoved', this._onCursorRemoved, this)
-    .onSync('sectionRendered', this._onSectionRendered, this)
     .onSync('opened', this._onOpened, this)
-    .onSync('closed', this._onClosed, this);
+    .onSync('closed', this._onClosed, this)
+    .onAsync('sectionRendered', this._onSectionRendered, this);
 
     this.input = new Input({ input: $input, hint: $hint })
     .onSync('focused', this._onFocused, this)
