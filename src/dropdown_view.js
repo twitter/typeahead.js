@@ -11,7 +11,7 @@ var DropdownView = (function() {
       css = {
         suggestionsList: { display: 'block' },
         suggestion: { whiteSpace: 'nowrap', cursor: 'pointer' },
-        suggestionChild: { whiteSpace: 'normal' }
+        suggestionChild: { /*whiteSpace: 'normal'*/ }
       };
 
   // constructor

@@ -65,7 +65,17 @@
         }
       }
     },
-
+    clearCache: function(url)
+    {
+        if(url)
+        {
+            delete cache[url];
+        }
+        else
+        {
+            cache = {};
+        }
+    },
     setQuery: function(query) {
       return this.each(setQuery);
 
