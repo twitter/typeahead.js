@@ -161,7 +161,7 @@ Remote data is only used when the data provided by `local` and `prefetch` is ins
 
 When configuring `remote`, the following options are available:
 
-* `url` – A URL to make requests to when when the data provided by `local` and `prefetch` is insufficient. **Required.**
+* `url` – A URL to make requests to when the data provided by `local` and `prefetch` is insufficient. **Required.**
 
 * `dataType` – The type of data you're expecting from the server. See the [jQuery.ajax docs][jquery-ajax] for more info. Defaults to `json`.
 
