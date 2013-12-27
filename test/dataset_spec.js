@@ -1,475 +1,287 @@
 describe('Dataset', function() {
-  var fixtureStrings = ['grape', 'coconut', 'cake', 'tea', 'coffee'],
-      fixtureDatums = [
-      { value: 'grape' },
-      { value: 'coconut' },
-      { value: 'cake' },
-      { value: 'tea' },
-      { value: 'coffee' }
-      ],
-      expectedAdjacencyList = {
-        g: ['grape'],
-        c: ['coconut', 'cake', 'coffee'],
-        t: ['tea']
-      },
-      expectedItemHash = {
-        grape: createItem('grape'),
-        coconut: createItem('coconut'),
-        cake: createItem('cake'),
-        tea: createItem('tea'),
-        coffee: createItem('coffee')
-      },
-      prefetchResp = {
-        status: 200,
-        responseText: JSON.stringify(fixtureStrings)
-      },
-      mockStorageFns = {
-        getMiss: function() {
-          return null;
-        },
-        getHit: function(key) {
-          if (/itemHash/.test(key)) {
-            return expectedItemHash;
-          }
-
-          else if (/adjacencyList/.test(key)) {
-            return expectedAdjacencyList;
-          }
-
-          else if (/thumbprint/.test(key)) {
-            return VERSION;
-          }
-
-          else if (/protocol/.test(key)) {
-            return utils.getProtocol();
-          }
-        }
-      };
 
   beforeEach(function() {
     jasmine.Ajax.useMock();
-    jasmine.PersistentStorage.useMock();
     jasmine.Transport.useMock();
-
-    spyOn(utils, 'getUniqueId').andCallFake(function(name) { return name; });
+    jasmine.PersistentStorage.useMock();
   });
 
   afterEach(function() {
     clearAjaxRequests();
   });
 
-  // public methods
-  // --------------
-
-  describe('#constructor', function() {
-    describe('when called with a name', function() {
+  describe('local', function() {
     beforeEach(function() {
-      this.dataset = new Dataset({
-        name: '#constructor',
-        local: fixtureStrings
-      });
-    });
-
-      it('should initialize persistent storage', function() {
-        expect(this.dataset.storage).toBeDefined();
-        expect(PersistentStorage).toHaveBeenCalled();
-      });
-    });
-
-    describe('when called with no name', function() {
-      beforeEach(function() {
-        this.dataset = new Dataset({ local: fixtureStrings });
-      });
-
-      it('should not use persistent storage', function() {
-        expect(this.dataset.storage).toBeNull();
-        expect(PersistentStorage).not.toHaveBeenCalled();
-      });
-    });
-
-    describe('when called with a template but no engine', function() {
-      beforeEach(function() {
-        this.fn = function() { var d = new Dataset({ template: 't' }); };
-      });
-
-      it('should throw an error', function() {
-        expect(this.fn).toThrow();
-      });
-    });
-
-    describe('when called without local, prefetch, or remote', function() {
-      beforeEach(function() {
-        this.fn = function() { this.dataset = new Dataset(); };
-      });
-
-      it('should throw an error', function() {
-        expect(this.fn).toThrow();
-      });
-    });
-
-    describe('when called with no template', function() {
-      beforeEach(function() {
-        this.dataset = new Dataset({ local: fixtureStrings });
-      });
-
-      it('should compile default template', function() {
-        expect(this.dataset.template({ value: 'boo' }))
-        .toBe('<p>boo</p>');
-      });
-    });
-
-    describe('when called with a template and engine', function() {
-      beforeEach(function() {
-        this.spy = jasmine.createSpy().andReturn({
-          render: function() { return 'boo!'; }
-        });
-
-        this.dataset = new Dataset({
-          local: fixtureStrings,
-          template: 't',
-          engine: { compile: this.spy }
-        });
-      });
-
-      it('should compile the template', function() {
-        expect(this.spy)
-        .toHaveBeenCalledWith('t');
-
-        expect(this.dataset.template()).toBe('boo!');
-      });
-    });
-
-    describe('when called with a compiled template', function() {
-      beforeEach(function() {
-        this.dataset = new Dataset({ local: fixtureStrings, template: $.noop });
-      });
-
-      it('should use it', function() {
-        expect(this.dataset.template).toBe($.noop);
-      });
-    });
-  });
-
-  describe('#initialize', function() {
-    it('should return Deferred instance', function() {
-      var returnVal;
-
-      this.dataset = new Dataset({ local: fixtureStrings });
-      returnVal = this.dataset.initialize();
-
-      // eh, have to rely on duck typing unfortunately
-      expect(returnVal.fail).toBeDefined();
-      expect(returnVal.done).toBeDefined();
-      expect(returnVal.always).toBeDefined();
-    });
-
-    describe('when called with local', function() {
-      beforeEach(function() {
-        this.dataset1 = new Dataset({ local: fixtureStrings });
-        this.dataset2 = new Dataset({ local: fixtureDatums });
-
-        this.dataset1.initialize();
-        this.dataset2.initialize();
-      });
-
-      it('should process and merge the data', function() {
-        expect(this.dataset1.itemHash).toEqual(expectedItemHash);
-        expect(this.dataset1.adjacencyList).toEqual(expectedAdjacencyList);
-        expect(this.dataset2.itemHash).toEqual(expectedItemHash);
-        expect(this.dataset2.adjacencyList).toEqual(expectedAdjacencyList);
-      });
-    });
-
-    describe('when called with prefetch', function() {
-      describe('if data is available in storage', function() {
-        beforeEach(function() {
-          this.dataset = new Dataset({
-            name: 'prefetch',
-            prefetch: '/prefetch.json'
-          });
-
-          this.dataset.storage.get.andCallFake(mockStorageFns.getHit);
-          this.dataset.initialize();
-        });
-
-        it('should not make ajax request', function() {
-          expect(mostRecentAjaxRequest()).toBeNull();
-        });
-
-        it('should use data from storage', function() {
-          expect(this.dataset.itemHash).toEqual(expectedItemHash);
-          expect(this.dataset.adjacencyList).toEqual(expectedAdjacencyList);
-        });
-      });
-
-      describe('if data is not available in storage', function() {
-        // default ttl
-        var ttl = 24 * 60 * 60 * 1000;
-
-        describe('if filter was passed in', function() {
-          var filteredAdjacencyList = { f: ['filter'] },
-              filteredItemHash = { filter: createItem('filter') };
-
-          beforeEach(function() {
-            this.dataset = new Dataset({
-              name: 'prefetch',
-              prefetch: {
-                url: '/prefetch.json',
-                filter: function(data) { return ['filter']; }
-              }
-            });
-
-            this.dataset.storage.get.andCallFake(mockStorageFns.getMiss);
-            this.dataset.initialize();
-
-            this.request = mostRecentAjaxRequest();
-            this.request.response(prefetchResp);
-          });
-
-          it('should make ajax request', function() {
-            expect(this.request).not.toBeNull();
-          });
-
-          it('should process and merge fileered data', function() {
-            expect(this.dataset.adjacencyList).toEqual(filteredAdjacencyList);
-            expect(this.dataset.itemHash).toEqual(filteredItemHash);
-          });
-
-          it('should store processed data in storage', function() {
-            expect(this.dataset.storage.set)
-            .toHaveBeenCalledWith('itemHash', filteredItemHash, ttl);
-            expect(this.dataset.storage.set)
-            .toHaveBeenCalledWith('adjacencyList', filteredAdjacencyList, ttl);
-          });
-
-          it('should store metadata in storage', function() {
-            expect(this.dataset.storage.set)
-            .toHaveBeenCalledWith('protocol', utils.getProtocol(), ttl);
-            expect(this.dataset.storage.set)
-            .toHaveBeenCalledWith('thumbprint', VERSION, ttl);
-          });
-        });
-
-        describe('if filter was not passed in', function() {
-          beforeEach(function() {
-            this.dataset = new Dataset({
-              name: 'prefetch',
-              prefetch: '/prefetch.json'
-            });
-
-            this.dataset.storage.get.andCallFake(mockStorageFns.getMiss);
-            this.dataset.initialize();
-
-            this.request = mostRecentAjaxRequest();
-            this.request.response(prefetchResp);
-          });
-
-          it('should make ajax request', function() {
-            expect(this.request).not.toBeNull();
-          });
-
-          it('should process and merge fetched data', function() {
-            expect(this.dataset.itemHash).toEqual(expectedItemHash);
-            expect(this.dataset.adjacencyList).toEqual(expectedAdjacencyList);
-          });
-
-          it('should store processed data in storage', function() {
-            expect(this.dataset.storage.set)
-            .toHaveBeenCalledWith('itemHash', expectedItemHash, ttl);
-            expect(this.dataset.storage.set)
-            .toHaveBeenCalledWith('adjacencyList', expectedAdjacencyList, ttl);
-          });
-
-          it('should store metadata in storage', function() {
-            expect(this.dataset.storage.set)
-            .toHaveBeenCalledWith('protocol', utils.getProtocol(), ttl);
-            expect(this.dataset.storage.set)
-            .toHaveBeenCalledWith('thumbprint', VERSION, ttl);
-          });
-        });
-      });
-    });
-
-    describe('when called with remote', function() {
-      beforeEach(function() {
-        this.dataset = new Dataset({ remote: '/remote' });
-        this.dataset.initialize();
-      });
-
-      it('should initialize the transport', function() {
-        expect(Transport).toHaveBeenCalledWith('/remote');
-      });
-    });
-  });
-
-  describe('#getSuggestions', function() {
-    describe('when length of query is less than minLength', function() {
-      beforeEach(function() {
-        this.spy = jasmine.createSpy();
-
-        this.dataset = new Dataset({ local: fixtureStrings, minLength: 3 });
-        this.dataset.initialize();
-      });
-
-      it('should be a noop', function() {
-        this.dataset.getSuggestions('co', this.spy);
-        expect(this.spy).not.toHaveBeenCalled();
-      });
-    });
-  });
-
-  describe('Matching, combining, returning results', function() {
-    beforeEach(function() {
-      this.dataset = new Dataset({ local: fixtureStrings, remote: '/remote' });
+      this.dataset = new Dataset({ local: fixtures.data.simple });
       this.dataset.initialize();
     });
 
-    it('network requests are not triggered with enough local results', function() {
-      this.dataset.limit = 3;
-      this.dataset.getSuggestions('c', function(items) {
-        expect(items).toEqual([
-          createItem('coconut'),
-          createItem('cake'),
-          createItem('coffee')
-        ]);
+    it('should hydrate the dataset', function() {
+      var spy = jasmine.createSpy();
+
+      this.dataset.get('big', spy);
+
+      expect(spy).toHaveBeenCalledWith([
+        { value: 'big' },
+        { value: 'bigger' },
+        { value: 'biggest' }
+      ]);
+    });
+  });
+
+  describe('prefetch', function() {
+    it('should only cache data locally if name is set', function() {
+      var ttl = 100;
+
+      this.dataset1 = new Dataset({ prefetch: 'test2' });
+      expect(PersistentStorage).not.toHaveBeenCalled();
+
+      this.dataset2 = new Dataset({
+        name: 'name',
+        prefetch: { url: '/test1', ttl: ttl, thumbprint: '!' }
       });
+      expect(PersistentStorage).toHaveBeenCalledWith('name');
 
-      expect(this.dataset.transport.get).not.toHaveBeenCalled();
+      this.dataset2.initialize();
+      ajaxRequests[0].response(fixtures.ajaxResps.ok);
 
-      this.dataset.limit = 100;
-      this.dataset.getSuggestions('c', function(items) {
-        expect(items).toEqual([
-          createItem('coconut'),
-          createItem('cake'),
-          createItem('coffee')
-        ]);
-      });
-
-      expect(this.dataset.transport.get).toHaveBeenCalled();
+      expect(this.dataset2.storage.set)
+        .toHaveBeenCalledWith('data', fixtures.serialized.simple, ttl);
+      expect(this.dataset2.storage.set)
+        .toHaveBeenCalledWith('protocol', 'http:', ttl);
+      expect(this.dataset2.storage.set)
+        .toHaveBeenCalledWith('thumbprint', '%VERSION%!', ttl);
     });
 
-    it('matches', function() {
-      this.dataset.getSuggestions('c', function(items) {
-        expect(items).toEqual([
-          createItem('coconut'),
-          createItem('cake'),
-          createItem('coffee')
-        ]);
-      });
+    it('should load data from provided url', function() {
+      var spy1, spy2;
+
+      spy1 = jasmine.createSpy();
+      spy2 = jasmine.createSpy();
+
+      this.dataset1 = new Dataset({ prefetch: '/test1' });
+      this.dataset2 = new Dataset({ prefetch: { url: '/test2' } });
+      this.dataset1.initialize();
+      this.dataset2.initialize();
+
+      ajaxRequests[0].response(fixtures.ajaxResps.ok);
+      ajaxRequests[1].response(fixtures.ajaxResps.ok);
+
+      expect(ajaxRequests[0].url).toBe('/test1');
+      expect(ajaxRequests[1].url).toBe('/test2');
+
+      this.dataset1.get('big', spy1);
+      this.dataset2.get('big', spy2);
+
+      expect(spy1).toHaveBeenCalledWith([
+        { value: 'big' },
+        { value: 'bigger' },
+        { value: 'biggest' }
+      ]);
+
+      expect(spy2).toHaveBeenCalledWith([
+        { value: 'big' },
+        { value: 'bigger' },
+        { value: 'biggest' }
+      ]);
     });
 
-    it('does not match', function() {
-      this.dataset.getSuggestions('q', function(items) {
-         expect(items).toEqual([]);
+    it('should filter data if filter is provided', function() {
+      var filterSpy, spy;
+
+      filterSpy = jasmine.createSpy().andCallFake(fakeFilter);
+      spy = jasmine.createSpy();
+
+      this.dataset = new Dataset({
+        prefetch: { url: '/test', filter: filterSpy }
       });
+      this.dataset.initialize();
+
+      mostRecentAjaxRequest().response(fixtures.ajaxResps.ok);
+
+      expect(filterSpy).toHaveBeenCalled();
+
+      this.dataset.get('big', spy);
+
+      expect(spy).toHaveBeenCalledWith([
+        { value: 'BIG' },
+        { value: 'BIGGER' },
+        { value: 'BIGGEST' }
+      ]);
+
+      function fakeFilter(resp) {
+        return ['BIG', 'BIGGER', 'BIGGEST'];
+      }
     });
 
-    it('does not match multiterm queries', function() {
-      this.dataset.getSuggestions('coff ca', function(items) {
-         expect(items).toEqual([]);
+    it('should not make a request if data is available in storage', function() {
+      var that = this, spy = jasmine.createSpy();
+
+      this.dataset = new Dataset({ name: 'name', prefetch: '/test' });
+      this.dataset.storage.get.andCallFake(fakeGet);
+      this.dataset.initialize();
+
+      expect(mostRecentAjaxRequest()).toBeNull();
+
+      this.dataset.get('big', spy);
+
+      expect(spy).toHaveBeenCalledWith([
+        { value: 'big' },
+        { value: 'bigger' },
+        { value: 'biggest' }
+      ]);
+
+      function fakeGet(key) {
+        var val;
+
+        switch (key) {
+          case 'data':
+            val = fixtures.serialized.simple;
+            break;
+          case 'protocol':
+            val = 'http:';
+            break;
+          case 'thumbprint':
+            val = that.dataset.prefetch.thumbprint;
+            break;
+        }
+
+        return val;
+      }
+    });
+  });
+
+  describe('remote', function() {
+    it('should perform query substitution on the provided url', function() {
+      this.dataset1 = new Dataset({
+        remote: { url: '/test?q=$$', wildcard: '$$' }
       });
+      this.dataset2 = new Dataset({
+        remote: {
+          url: '/test?q=%QUERY',
+          replace: function(str, query) {return str.replace('%QUERY', query);  }
+        }
+      });
+
+      this.dataset1.initialize();
+      this.dataset2.initialize();
+
+      this.dataset1.get('one two', $.noop);
+      this.dataset2.get('one two', $.noop);
+
+      expect(this.dataset1.transport.get).toHaveBeenCalledWith(
+        '/test?q=one%20two',
+        { method: 'get', dataType: 'json' },
+        jasmine.any(Function)
+      );
+
+      expect(this.dataset2.transport.get).toHaveBeenCalledWith(
+        '/test?q=one two',
+        { method: 'get', dataType: 'json' },
+        jasmine.any(Function)
+      );
     });
 
-    it('concatenates local and remote results and dedups them', function() {
-      var spy = jasmine.createSpy(),
-          remote = [fixtureDatums[0], fixtureStrings[2]];
+    it('should filter the response if a filter is provided', function() {
+      var filterSpy, spy;
 
-      this.dataset.transport.get.andCallFake(function(q, cb) {
-        utils.defer(function() { cb(remote); });
+      spy = jasmine.createSpy();
+      filterSpy = jasmine.createSpy().andCallFake(fakeFilter);
+
+      this.dataset = new Dataset({
+        remote: { url: '/test', filter: filterSpy }
       });
+      this.dataset.initialize();
 
-      this.dataset.getSuggestions('c', spy);
+      this.dataset.transport.get.andCallFake(fakeGet);
+      this.dataset.get('big', spy);
 
-      waitsFor(function() { return spy.callCount === 2; });
+      waitsFor(function() { return spy.callCount; });
 
       runs(function() {
-        // local suggestions
-        expect(spy.argsForCall[0][0]).toEqual([
-          expectedItemHash.coconut,
-          expectedItemHash.cake,
-          expectedItemHash.coffee
-        ]);
+        expect(filterSpy).toHaveBeenCalled();
 
-        // local + remote suggestions
-        expect(spy.argsForCall[1][0]).toEqual([
-          expectedItemHash.coconut,
-          expectedItemHash.cake,
-          expectedItemHash.coffee,
-          expectedItemHash.grape
+        expect(spy).toHaveBeenCalledWith([
+          { value: 'BIG' },
+          { value: 'BIGGER' },
+          { value: 'BIGGEST' }
         ]);
       });
+
+      function fakeFilter(resp) {
+        return ['BIG', 'BIGGER', 'BIGGEST'];
+      }
+
+      function fakeGet(url, o, cb) {
+        cb(fixtures.data.simple);
+      }
     });
-  });
 
-  describe('tokenization', function() {
-    describe('with datum strings', function() {
-      var fixtureData = ['course-106', 'user_name', 'One-Two', 'two three'];
+    it('should call #get callback once if cache hit', function() {
+      var spy = jasmine.createSpy();
 
-      beforeEach(function() {
-        this.dataset = new Dataset({ local: fixtureData });
-        this.dataset.initialize();
-      });
-
-      it('normalizes capitalization to match items', function() {
-        this.dataset.getSuggestions('Cours', function(items) {
-          expect(items).toEqual([createItem('course-106')]);
-        });
-        this.dataset.getSuggestions('cOuRsE 106', function(items) {
-          expect(items).toEqual([createItem('course-106')]);
-        });
-        this.dataset.getSuggestions('one two', function(items) {
-          expect(items).toEqual([createItem('One-Two')]);
-        });
-        this.dataset.getSuggestions('THREE TWO', function(items) {
-          expect(items).toEqual([createItem('two three')]);
-        });
-      });
-
-      it('matches items with dashes', function() {
-        this.dataset.getSuggestions('106 course', function(items) {
-          expect(items).toEqual([createItem('course-106')]);
-        });
-        this.dataset.getSuggestions('course-106', function(items) {
-          expect(items).toEqual([]);
-        });
-      });
-
-      it('matches items with underscores', function() {
-        this.dataset.getSuggestions('user name', function(items) {
-          expect(items).toEqual([createItem('user_name')]);
-        });
-      });
-    });
-  });
-
-  describe('with datum objects', function() {
-    var fixtureData = [{ value: 'course-106' }];
-
-    beforeEach(function() {
-      this.dataset = new Dataset({ local: fixtureData });
+      this.dataset = new Dataset({ remote: '/test?q=%QUERY' });
       this.dataset.initialize();
-    });
+      this.dataset.transport.get.andCallFake(fakeGet);
 
-    it('matches items with dashes', function() {
-      this.dataset.getSuggestions('106 course', function(items) {
-        expect(items).toEqual([createItem('course-106')]);
-      });
+      this.dataset.get('dog', spy);
 
-      this.dataset.getSuggestions('course-106', function(items) {
-        expect(items).toEqual([]);
-      });
+      expect(spy.callCount).toBe(1);
+
+      function fakeGet(url, o, cb) {
+        cb(fixtures.data.animals);
+        return true;
+      }
     });
   });
 
-  // helper functions
-  // ----------------
+  describe('local/prefetch/remote integration', function() {
+    it('remote should backfill local/prefetch', function() {
+      var spy1, spy2;
 
-  function createItem(val) {
-    return {
-      value: val,
-      tokens: utils.tokenizeText(val),
-      datum: { value: val }
-    };
-  }
+      spy1 = jasmine.createSpy();
+      spy2 = jasmine.createSpy();
+
+      this.dataset = new Dataset({
+        limit: 3,
+        local: fixtures.data.simple,
+        remote: { url: '/test?q=%QUERY' }
+      });
+      this.dataset.initialize();
+
+      this.dataset.transport.get.andCallFake(fakeGet);
+
+      this.dataset.get('big', spy1);
+      this.dataset.get('bigg', spy2);
+
+      expect(spy1.callCount).toBe(1);
+      expect(spy2.callCount).toBe(1);
+
+      expect(spy1).toHaveBeenCalledWith([
+        { value: 'big' },
+        { value: 'bigger' },
+        { value: 'biggest' }
+      ]);
+      expect(spy2).toHaveBeenCalledWith([
+        { value: 'bigger' },
+        { value: 'biggest' }
+      ]);
+
+      waitsFor(function() { return spy2.callCount === 2; });
+
+      runs(function() {
+        expect(spy2).toHaveBeenCalledWith([
+          { value: 'bigger' },
+          { value: 'biggest' },
+          { value: 'dog' }
+        ]);
+      });
+
+      function fakeGet(url, o, cb) {
+        setTimeout(function() {
+          cb(fixtures.data.animals);
+        }, 0);
+      }
+    });
+  });
 });
-

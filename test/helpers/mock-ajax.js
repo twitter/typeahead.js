@@ -2,7 +2,7 @@
  Jasmine-Ajax : a set of helpers for testing AJAX requests under the Jasmine
  BDD framework for JavaScript.
 
- Supports both Prototype.js and jQuery.
+ Supports jQuery.
 
  http://github.com/pivotal/jasmine-ajax
 
@@ -48,13 +48,15 @@ function clearAjaxRequests() {
 
 // Fake XHR for mocking Ajax Requests & Responses
 function FakeXMLHttpRequest() {
-  var extend = Object.extend || $.extend;
+  var extend = Object.extend || jQuery.extend;
   extend(this, {
     requestHeaders: {},
 
     open: function() {
       this.method = arguments[0];
       this.url = arguments[1];
+      this.username = arguments[3];
+      this.password = arguments[4];
       this.readyState = 1;
     },
 
@@ -68,6 +70,9 @@ function FakeXMLHttpRequest() {
 
     readyState: 0,
 
+    onload: function() {
+    },
+
     onreadystatechange: function(isTimeout) {
     },
 
@@ -76,6 +81,21 @@ function FakeXMLHttpRequest() {
     send: function(data) {
       this.params = data;
       this.readyState = 2;
+    },
+
+    data: function() {
+      var data = {};
+      if (typeof this.params !== 'string') return data;
+      var params = this.params.split('&');
+
+      for (var i = 0; i < params.length; ++i) {
+        var kv = params[i].replace(/\+/g, ' ').split('=');
+        var key = decodeURIComponent(kv[0]);
+        data[key] = data[key] || [];
+        data[key].push(decodeURIComponent(kv[1]));
+        data[key].sort();
+      }
+      return data;
     },
 
     getResponseHeader: function(name) {
@@ -103,6 +123,7 @@ function FakeXMLHttpRequest() {
       // uncomment for jquery 1.3.x support
       // jasmine.Clock.tick(20);
 
+      this.onload();
       this.onreadystatechange();
     },
     responseTimeout: function() {
@@ -119,12 +140,12 @@ function FakeXMLHttpRequest() {
 jasmine.Ajax = {
 
   isInstalled: function() {
-    return jasmine.Ajax.installed == true;
+    return jasmine.Ajax.installed === true;
   },
 
   assertInstalled: function() {
     if (!jasmine.Ajax.isInstalled()) {
-      throw new Error("Mock ajax is not installed, use jasmine.Ajax.useMock()")
+      throw new Error("Mock ajax is not installed, use jasmine.Ajax.useMock()");
     }
   },
 
@@ -140,10 +161,8 @@ jasmine.Ajax = {
   installMock: function() {
     if (typeof jQuery != 'undefined') {
       jasmine.Ajax.installJquery();
-    } else if (typeof Prototype != 'undefined') {
-      jasmine.Ajax.installPrototype();
     } else {
-      throw new Error("jasmine.Ajax currently only supports jQuery and Prototype");
+      throw new Error("jasmine.Ajax currently only supports jQuery");
     }
     jasmine.Ajax.installed = true;
   },
@@ -155,19 +174,10 @@ jasmine.Ajax = {
 
   },
 
-  installPrototype: function() {
-    jasmine.Ajax.mode = 'Prototype';
-    jasmine.Ajax.real = Ajax.getTransport;
-
-    Ajax.getTransport = jasmine.Ajax.prototypeMock;
-  },
-
   uninstallMock: function() {
     jasmine.Ajax.assertInstalled();
     if (jasmine.Ajax.mode == 'jQuery') {
       jQuery.ajaxSettings.xhr = jasmine.Ajax.real;
-    } else if (jasmine.Ajax.mode == 'Prototype') {
-      Ajax.getTransport = jasmine.Ajax.real;
     }
     jasmine.Ajax.reset();
   },
@@ -184,24 +194,6 @@ jasmine.Ajax = {
     return newXhr;
   },
 
-  prototypeMock: function() {
-    return new FakeXMLHttpRequest();
-  },
-
   installed: false,
   mode: null
-}
-
-
-// Jasmine-Ajax Glue code for Prototype.js
-if (typeof Prototype != 'undefined' && Ajax && Ajax.Request) {
-  Ajax.Request.prototype.originalRequest = Ajax.Request.prototype.request;
-  Ajax.Request.prototype.request = function(url) {
-    this.originalRequest(url);
-    ajaxRequests.push(this);
-  };
-
-  Ajax.Request.prototype.response = function(responseOptions) {
-    return this.transport.response(responseOptions);
-  };
-}
+};

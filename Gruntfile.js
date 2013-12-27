@@ -1,19 +1,31 @@
 var semver = require('semver'),
     f = require('util').format,
-    jsFiles = [
-      'src/version.js',
-      'src/utils.js',
-      'src/event_target.js',
-      'src/event_bus.js',
-      'src/persistent_storage.js',
-      'src/request_cache.js',
-      'src/transport.js',
-      'src/dataset.js',
-      'src/input_view.js',
-      'src/dropdown_view.js',
-      'src/typeahead_view.js',
-      'src/typeahead.js'
-    ];
+    files = {
+      common: [
+      'src/common/utils.js'
+      ],
+      dataset: [
+      'src/dataset/version.js',
+      'src/dataset/lru_cache.js',
+      'src/dataset/persistent_storage.js',
+      'src/dataset/transport.js',
+      'src/dataset/search_index.js',
+      'src/dataset/dataset.js',
+      'src/dataset/tt_factory.js'
+      ],
+      typeahead: [
+      'src/typeahead/html.js',
+      'src/typeahead/css.js',
+      'src/typeahead/event_bus.js',
+      'src/typeahead/event_emitter.js',
+      'src/typeahead/highlight.js',
+      'src/typeahead/input.js',
+      'src/typeahead/section.js',
+      'src/typeahead/dropdown.js',
+      'src/typeahead/typeahead.js',
+      'src/typeahead/plugin.js'
+      ]
+    };
 
 module.exports = function(grunt) {
   grunt.initConfig({
@@ -24,7 +36,7 @@ module.exports = function(grunt) {
     banner: [
       '/*!',
       ' * typeahead.js <%= version %>',
-      ' * https://github.com/twitter/typeahead',
+      ' * https://github.com/twitter/typeahead.js',
       ' * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT',
       ' */\n\n'
     ].join('\n'),
@@ -34,22 +46,42 @@ module.exports = function(grunt) {
         banner: '<%= banner %>',
         enclose: { 'window.jQuery': '$' }
       },
-      js: {
+      dataset: {
         options: {
           mangle: false,
           beautify: true,
           compress: false
         },
-        src: jsFiles,
-        dest: '<%= buildDir %>/typeahead.js'
+        src: files.common.concat(files.dataset),
+        dest: '<%= buildDir %>/dataset.js'
       },
-      jsmin: {
+      typeahead: {
+        options: {
+          mangle: false,
+          beautify: true,
+          compress: false
+        },
+        src: files.common.concat(files.typeahead),
+        dest: '<%= buildDir %>/typeahead.js'
+
+      },
+      bundle: {
+        options: {
+          mangle: false,
+          beautify: true,
+          compress: false
+        },
+        src: files.common.concat(files.dataset, files.typeahead),
+        dest: '<%= buildDir %>/typeahead.bundle.js'
+
+      },
+      bundlemin: {
         options: {
           mangle: true,
           compress: true
         },
-        src: jsFiles,
-        dest: '<%= buildDir %>/typeahead.min.js'
+        src: files.common.concat(files.dataset, files.typeahead),
+        dest: '<%= buildDir %>/typeahead.bundle.min.js'
       }
     },
 
@@ -57,7 +89,8 @@ module.exports = function(grunt) {
       version: {
         pattern: '%VERSION%',
         replacement: '<%= version %>',
-        path: ['<%= uglify.js.dest %>', '<%= uglify.jsmin.dest %>']
+        recursive: true,
+        path: '<%= buildDir %>'
       }
     },
 
@@ -65,33 +98,19 @@ module.exports = function(grunt) {
       options: {
         jshintrc: '.jshintrc'
       },
-      src: jsFiles,
-      tests: ['test/*.js'],
+      src: 'src/**/*',
+      test: ['test/*_spec.js'],
       gruntfile: ['Gruntfile.js']
     },
 
     watch: {
       js: {
-        files: jsFiles,
-        tasks: 'build:js'
-      }
-    },
-
-    jasmine: {
-      js: {
-        src: jsFiles,
-        options: {
-          specs: 'test/*_spec.js',
-          helpers: 'test/helpers/*',
-          vendor: 'test/vendor/*'
-        }
+        files: 'src/**/*',
+        tasks: 'build'
       }
     },
 
     exec: {
-      open_spec_runner: {
-        cmd: 'open _SpecRunner.html'
-      },
       git_is_clean: {
         cmd: 'test -z "$(git status --porcelain)"'
       },
@@ -163,8 +182,6 @@ module.exports = function(grunt) {
     grunt.task.run([
       'exec:git_on_master',
       'exec:git_is_clean',
-      'lint',
-      'test',
       'manifests:' + version,
       'build',
       'exec:git_add',
@@ -214,8 +231,6 @@ module.exports = function(grunt) {
   grunt.registerTask('build', ['uglify', 'sed:version']);
   grunt.registerTask('server', 'connect:server');
   grunt.registerTask('lint', 'jshint');
-  grunt.registerTask('test', 'jasmine:js');
-  grunt.registerTask('test:browser', ['jasmine:js:build', 'exec:open_spec_runner']);
   grunt.registerTask('dev', 'parallel:dev');
 
   // load tasks
@@ -230,5 +245,4 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-connect');
-  grunt.loadNpmTasks('grunt-contrib-jasmine');
 };
