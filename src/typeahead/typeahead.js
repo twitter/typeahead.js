@@ -20,8 +20,8 @@ var Typeahead = (function() {
       $.error('missing input');
     }
 
-    this.autoselect = o.autoselect;
-    this.minLength = o.minLength || 0;
+    this.autoselect = !!o.autoselect;
+    this.minLength = _.isNumber(o.minLength) ? o.minLength : 1;
     this.$node = buildDomStructure(o.input, o.withHint);
 
     $menu = this.$node.find('.tt-dropdown-menu');

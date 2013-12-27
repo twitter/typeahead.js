@@ -26,8 +26,8 @@
         typeahead = new Typeahead({
           input: $input,
           withHint: _.isUndefined(o.hint) ? true : !!o.hint,
-          minLength: o.minLength || 0,
-          autoselect: !!o.autoselect,
+          minLength: o.minLength,
+          autoselect: o.autoselect,
           sections: sections
         });
 
