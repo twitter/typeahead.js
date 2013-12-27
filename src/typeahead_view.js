@@ -25,7 +25,7 @@ var TypeaheadView = (function() {
         query: {
           position: 'relative',
           verticalAlign: 'top',
-          backgroundColor: 'transparent'
+          backgroundColor: '#fff'
         },
         dropdown: {
           position: 'absolute',
