@@ -65,6 +65,12 @@
         }
       }
     },
+    
+    clearCache: function() {
+      cache = {};
+      return this;
+    },
+
 
     setQuery: function(query) {
       return this.each(setQuery);
