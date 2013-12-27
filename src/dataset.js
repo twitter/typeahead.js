@@ -25,6 +25,7 @@ var Dataset = (function() {
 
     this.name = o.name || utils.getUniqueId();
     this.limit = o.limit || 5;
+    this.filter = o.filter;
     this.minLength = o.minLength || 1;
     this.header = o.header;
     this.footer = o.footer;
@@ -75,7 +76,8 @@ var Dataset = (function() {
 
       o = utils.isString(o) ? { url: o } : o;
       o.ttl = utils.isNumber(o.ttl) ? o.ttl : 24 * 60 * 60 * 1000;
-
+      o.filter = this.filter;
+      
       // data was available in local storage, use it
       if (storedItemHash && storedAdjacencyList && !isExpired) {
         this._mergeProcessedData({
