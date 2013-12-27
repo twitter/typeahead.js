@@ -160,6 +160,7 @@ var TypeaheadView = (function() {
         match = beginsWithQuery.exec(hint);
 
         this.inputView.setHintValue(inputValue + (match ? match[1] : ''));
+        this.eventBus.trigger("hintUpdated", suggestion);
       }
     },
 
