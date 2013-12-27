@@ -99,7 +99,7 @@ When defining a dataset, the following options are available:
 
 * `limit` – The max number of suggestions from the dataset to display for a given query. Defaults to `5`.
 
-* `template` – The template used to render suggestions. Can be a string or a precompiled template. If not provided, suggestions will render as their value contained in a `<p>` element (i.e. `<p>value</p>`).
+* `template` – The template used to render suggestions. Can be a string or a precompiled template (i.e. a function that takes a [datum][datum] as input and returns html as output). If not provided, suggestions will render as their value contained in a `<p>` element (i.e. `<p>value</p>`).
 
 * `engine` – The template engine used to compile/render `template` if it is a string. Any engine can be used as long as it adheres to the [expected API][template-engine-compatibility]. **Required** if `template` is a string.
 
