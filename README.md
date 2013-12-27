@@ -259,14 +259,6 @@ By default, the dropdown menu created by typeahead.js is going to look ugly and 
 
 When an end-user mouses or keys over a `.tt-suggestion`, the class `tt-is-under-cursor` will be added to it. You can use this class as a hook for styling the "under cursor" state of suggestions.
 
-Bootstrap Integration
----------------------
-
-For simple autocomplete use cases, the typeahead component [Bootstrap][bootstrap] provides should suffice. However, if you'd prefer to take advantage of some of the advance features typeahead.js provides, here's what you'll need to do to integrate typeahead.js with Bootstrap:
-
-* If you're customizing Bootstrap, exclude the typeahead component. If you're depending on the standard *bootstrap.js*, ensure *typeahead.js* is loaded after it.
-* The DOM structure of the dropdown menu used by typeahead.js differs from the DOM structure of the Bootstrap dropdown menu. You'll need to load some [additional CSS][typeahead.js-bootstrap.css] in order to get the typeahead.js dropdown menu to fit the default Bootstrap theme.
-
 Browser Support
 ---------------
 
@@ -376,5 +368,3 @@ Licensed under the MIT License
 [jQuery]: http://jquery.com/
 [jquery-ajax]: http://api.jquery.com/jQuery.ajax/
 [hogan.js]: http://twitter.github.com/hogan.js/
-[bootstrap]: http://twitter.github.com/bootstrap/
-[typeahead.js-bootstrap.css]: https://github.com/jharding/typeahead.js-bootstrap.css
