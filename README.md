@@ -101,7 +101,7 @@ When defining a dataset, the following options are available:
 
 * `template` – The template used to render suggestions. Can be a string or a precompiled template. If not provided, suggestions will render as their value contained in a `<p>` element (i.e. `<p>value</p>`).
 
-* `engine` – The template engine used to compile/render `template` if it is a string. Any engine can use used as long as it adheres to the [expected API][template-engine-compatibility]. **Required** if `template` is a string.
+* `engine` – The template engine used to compile/render `template` if it is a string. Any engine can be used as long as it adheres to the [expected API][template-engine-compatibility]. **Required** if `template` is a string.
 
 * `header` – The header rendered before suggestions in the dropdown menu. Can be either a DOM element or HTML.
 
