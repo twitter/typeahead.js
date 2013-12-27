@@ -31,7 +31,8 @@ var Transport = (function() {
       cache: o.cache,
       timeout: o.timeout,
       dataType: o.dataType || 'json',
-      beforeSend: o.beforeSend
+      beforeSend: o.beforeSend,
+      complete: o.complete
     };
 
     this._get = (/^throttle$/i.test(o.rateLimitFn) ?
