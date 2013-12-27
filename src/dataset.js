@@ -306,7 +306,12 @@ var Dataset = (function() {
     // string template that needs to be compiled
     else if (utils.isString(template)) {
       compiledTemplate = engine.compile(template);
-      renderFn = utils.bind(compiledTemplate.render, compiledTemplate);
+       if (compiledTemplate['render']) {
+        renderFn = utils.bind(compiledTemplate.render, compiledTemplate);
+      } else {
+        // if compiledTemplate has not render method ( like Handlebars.js ) set compiledTemplate to renderFn
+        renderFn = compiledTemplate;
+      }
     }
 
     // if no template is provided, render suggestion
