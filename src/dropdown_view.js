@@ -254,7 +254,7 @@ var DropdownView = (function() {
         this.clearSuggestions(dataset.name);
       }
 
-      this.trigger('suggestionsRendered');
+      this.trigger('suggestionsRendered', dataset);
     },
 
     clearSuggestions: function(datasetName) {
