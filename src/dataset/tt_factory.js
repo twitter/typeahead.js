@@ -13,7 +13,7 @@ var ttDataset = window.ttDataset = (function() {
     source = _.bind(dataset.get, dataset);
 
     source.initialize = function() {
-      dataset.initialize;
+      dataset.initialize();
       return source;
     };
 

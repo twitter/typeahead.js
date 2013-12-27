@@ -107,9 +107,9 @@
       }).initialize();
 
       $('.states').typeahead({
+        highlight: true,
         sections: { 
           name: 'states',
-          highlight: true,
           source: states,
           valueKey: 'state'
         }
