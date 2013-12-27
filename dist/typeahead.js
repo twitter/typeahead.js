@@ -914,7 +914,7 @@
             this.inputView = new InputView({
                 input: $input,
                 hint: $hint
-            }).on("focused", this._openDropdown).on("blured", this._closeDropdown).on("blured", this._setInputValueToQuery).on("enterKeyed tabKeyed", this._handleSelection).on("queryChanged", this._clearHint).on("queryChanged", this._clearSuggestions).on("queryChanged", this._getSuggestions).on("whitespaceChanged", this._updateHint).on("queryChanged whitespaceChanged", this._openDropdown).on("queryChanged whitespaceChanged", this._setLanguageDirection).on("escKeyed", this._closeDropdown).on("escKeyed", this._setInputValueToQuery).on("tabKeyed upKeyed downKeyed", this._managePreventDefault).on("upKeyed downKeyed", this._moveDropdownCursor).on("upKeyed downKeyed", this._openDropdown).on("tabKeyed leftKeyed rightKeyed", this._autocomplete);
+            }).on("focused", this._openDropdown).on("blured", this._closeDropdown).on("blured", this._setInputValueToQuery).on("blured", this._checkMismatch).on("enterKeyed tabKeyed", this._handleSelection).on("queryChanged", this._clearHint).on("queryChanged", this._clearSuggestions).on("queryChanged", this._getSuggestions).on("whitespaceChanged", this._updateHint).on("queryChanged whitespaceChanged", this._openDropdown).on("queryChanged whitespaceChanged", this._setLanguageDirection).on("escKeyed", this._closeDropdown).on("escKeyed", this._setInputValueToQuery).on("tabKeyed upKeyed downKeyed", this._managePreventDefault).on("upKeyed downKeyed", this._moveDropdownCursor).on("upKeyed downKeyed", this._openDropdown).on("tabKeyed leftKeyed rightKeyed", this._autocomplete);
         }
         utils.mixin(TypeaheadView.prototype, EventTarget, {
             _managePreventDefault: function(e) {
@@ -985,6 +985,25 @@
                     byClick && utils.isMsie() ? utils.defer(this.dropdownView.close) : this.dropdownView.close();
                     this.eventBus.trigger("selected", suggestion.datum, suggestion.dataset);
                 }
+            },
+            _checkMismatch: function() {
+                var that = this, query = this.inputView.getQuery(), hint = this.inputView.getHintValue();
+                if (utils.isBlankString(query)) {
+                    this.eventBus.trigger("mismatched");
+                    return;
+                }
+                if (hint !== "") return;
+                utils.each(this.datasets, function(i, dataset) {
+                    dataset.getSuggestions(query, function(suggestions) {
+                        var matches = suggestions.length;
+                        if (matches >= 1) {
+                            suggestion = suggestions[0];
+                            that.eventBus.trigger("matched", suggestion.datum, suggestion.dataset);
+                        } else {
+                            that.eventBus.trigger("mismatched");
+                        }
+                    });
+                });
             },
             _getSuggestions: function() {
                 var that = this, query = this.inputView.getQuery();

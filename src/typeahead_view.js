@@ -87,6 +87,7 @@ var TypeaheadView = (function() {
     .on('focused', this._openDropdown)
     .on('blured', this._closeDropdown)
     .on('blured', this._setInputValueToQuery)
+    .on('blured', this._checkMismatch)
     .on('enterKeyed tabKeyed', this._handleSelection)
     .on('queryChanged', this._clearHint)
     .on('queryChanged', this._clearSuggestions)
@@ -219,6 +220,37 @@ var TypeaheadView = (function() {
 
         this.eventBus.trigger('selected', suggestion.datum, suggestion.dataset);
       }
+    },
+
+	_checkMismatch: function() {
+      var that = this, query = this.inputView.getQuery(), hint = this.inputView.getHintValue();
+
+      if (utils.isBlankString(query)) {
+		this.eventBus.trigger('mismatched');
+		return;
+	  }
+
+	  if (hint !== "") return;
+
+	  // TODO check cache only, otherwise only works with single datasets
+	  utils.each(this.datasets, function(i, dataset) {
+        dataset.getSuggestions(query, function(suggestions) {
+
+	  	  var matches = suggestions.length;
+      	  if (matches >= 1) {
+            suggestion = suggestions[0];
+
+			// let event handler decide whether to auto complete
+            that.eventBus.trigger(
+              'matched',
+              suggestion.datum,
+              suggestion.dataset
+            );
+	  	  } else {
+		    that.eventBus.trigger('mismatched');
+		  }
+        });
+	  });
     },
 
     _getSuggestions: function() {

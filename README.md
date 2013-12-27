@@ -197,6 +197,10 @@ typeahead.js triggers the following custom events:
 
 * `typeahead:autocompleted` – Triggered when the query is autocompleted. The datum used for autocompletion is passed to the event handler as an argument in addition to the name of the dataset it originated from.
 
+* `typeahead:matched` - Triggered when the input loses focus and there is exactly one suggestion.  The matching datum is passed to the event handler as an argument in addition to the name of the dataset it originated from.  Autocomplete will not occur in this case.
+
+* `typeahead:mismatched` - Triggered when the input loses focus and either there are no suggestions or more than one suggestion.
+
 All custom events are triggered on the element initialized as a typeahead.
 
 ```javascript
