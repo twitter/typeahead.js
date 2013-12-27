@@ -23,7 +23,8 @@ var highlight = (function(doc) {
     o = _.mixin({}, defaults, o);
 
     if (!o.node || !o.pattern) {
-      throw new Error('both node and pattern must be set');
+      // fail silently
+      return;
     }
 
     // support wrapping multiple patterns
