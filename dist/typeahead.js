@@ -774,6 +774,7 @@
             },
             close: function() {
                 if (this.isOpen) {
+                    this._getSuggestions().length == 1 && this.trigger("closingWithSuggestion");
                     this.isOpen = false;
                     this.isMouseOverDropdown = false;
                     this._hide();
@@ -803,6 +804,10 @@
             },
             moveCursorDown: function() {
                 this._moveCursor(+1);
+            },
+            getOnlySuggestionWhileClosing: function() {
+                var $suggestion = this._getSuggestions().first();
+                return $suggestion.length > 0 ? extractSuggestion($suggestion) : null;
             },
             getSuggestionUnderCursor: function() {
                 var $suggestion = this._getSuggestions().filter(".tt-is-under-cursor").first();
@@ -910,7 +915,7 @@
             $hint = this.$node.find(".tt-hint");
             this.dropdownView = new DropdownView({
                 menu: $menu
-            }).on("suggestionSelected", this._handleSelection).on("cursorMoved", this._clearHint).on("cursorMoved", this._setInputValueToSuggestionUnderCursor).on("cursorRemoved", this._setInputValueToQuery).on("cursorRemoved", this._updateHint).on("suggestionsRendered", this._updateHint).on("opened", this._updateHint).on("closed", this._clearHint).on("opened closed", this._propagateEvent);
+            }).on("suggestionSelected", this._handleSelection).on("closingWithSuggestion", this._handleClosingWithSuggestion).on("cursorMoved", this._clearHint).on("cursorMoved", this._setInputValueToSuggestionUnderCursor).on("cursorRemoved", this._setInputValueToQuery).on("cursorRemoved", this._updateHint).on("suggestionsRendered", this._updateHint).on("opened", this._updateHint).on("closed", this._clearHint).on("opened closed", this._propagateEvent);
             this.inputView = new InputView({
                 input: $input,
                 hint: $hint
@@ -984,6 +989,12 @@
                     byClick ? this.inputView.focus() : e.data.preventDefault();
                     byClick && utils.isMsie() ? utils.defer(this.dropdownView.close) : this.dropdownView.close();
                     this.eventBus.trigger("selected", suggestion.datum, suggestion.dataset);
+                }
+            },
+            _handleClosingWithSuggestion: function(e) {
+                var suggestion = this.dropdownView.getOnlySuggestionWhileClosing();
+                if (suggestion) {
+                    this.eventBus.trigger("closingwithsuggestion", suggestion.datum, suggestion.dataset);
                 }
             },
             _getSuggestions: function() {

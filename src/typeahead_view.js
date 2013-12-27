@@ -74,6 +74,7 @@ var TypeaheadView = (function() {
 
     this.dropdownView = new DropdownView({ menu: $menu })
     .on('suggestionSelected', this._handleSelection)
+    .on('closingWithSuggestion', this._handleClosingWithSuggestion)
     .on('cursorMoved', this._clearHint)
     .on('cursorMoved', this._setInputValueToSuggestionUnderCursor)
     .on('cursorRemoved', this._setInputValueToQuery)
@@ -218,6 +219,13 @@ var TypeaheadView = (function() {
           utils.defer(this.dropdownView.close) : this.dropdownView.close();
 
         this.eventBus.trigger('selected', suggestion.datum, suggestion.dataset);
+      }
+    },
+
+    _handleClosingWithSuggestion: function(e) {
+      var suggestion = this.dropdownView.getOnlySuggestionWhileClosing();
+      if (suggestion) {
+        this.eventBus.trigger('closingwithsuggestion', suggestion.datum, suggestion.dataset);
       }
     },
 
