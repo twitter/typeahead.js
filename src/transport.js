@@ -13,7 +13,12 @@ var Transport = (function() {
   function Transport(o) {
     utils.bindAll(this);
 
-    o = utils.isString(o) ? { url: o } : o;
+        // If o is string, create an object with o as 'url'
+    o = typeof o == 'string' && { url: o } ||
+        // If o is function, create an object with o as handler, and add an empty url
+        typeof o == 'function' && { url: '', handler: o } ||
+        // Otherwise, o is just o
+        o;
 
     requestCache = requestCache || new RequestCache();
 
@@ -25,6 +30,9 @@ var Transport = (function() {
     this.wildcard = o.wildcard || '%QUERY';
     this.filter = o.filter;
     this.replace = o.replace;
+
+    if(typeof o.handler == 'function')
+    	this.handler = o.handler;
 
     this.ajaxSettings = {
       type: 'get',
@@ -102,6 +110,12 @@ var Transport = (function() {
           resp;
 
       cb = cb || utils.noop;
+
+      // If we have a function on handler options, use it to transport data
+      if(typeof this.handler == 'function'){ 
+        this.handler(query, cb); 
+        return false; 
+      }
 
       url = this.replace ?
         this.replace(this.url, encodedQuery) :
