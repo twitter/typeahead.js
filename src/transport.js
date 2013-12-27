@@ -106,6 +106,9 @@ var Transport = (function() {
       url = this.replace ?
         this.replace(this.url, encodedQuery) :
         this.url.replace(this.wildcard, encodedQuery);
+        
+      if (url == null)
+        return false;
 
       // in-memory cache hit
       if (resp = requestCache.get(url)) {
