@@ -50,7 +50,7 @@
     </div>
 
     <script>
-      var states = ttDataset.create({
+      var states = ttDatasetAdapter.create({
         valueKey: 'state',
         local: [
           "Alabama",
@@ -106,6 +106,9 @@
         ]
       }).initialize();
 
+      $('body').on('click', alert);
+      $('body').on('click', '.tt-suggestion', alert);
+
       $('.states').typeahead({
         highlight: true,
         sections: { 
@@ -116,7 +119,7 @@
       });
 
 
-      var badTokens = ttDataset.create({
+      var badTokens = ttDatasetAdapter.create({
         local: [
           {
             value: 'all bad',
@@ -148,7 +151,7 @@
         }
       });
 
-      var regexes = ttDataset.create({
+      var regexes = ttDatasetAdapter.create({
         local: [
           '*.js',
           '[Tt]ypeahead.js',
@@ -166,7 +169,7 @@
         }
       });
 
-      var letters = ttDataset.create({
+      var letters = ttDatasetAdapter.create({
         local: ['a', 'ab', 'abc', 'abcd', 'abcde']
       }).initialize();
 

@@ -122,8 +122,8 @@ info about what options are available, check out the
 ```javascript
 $('.typeahead').typeahead({
   minLength: 3,
+  hightlight: true,
   sections: {
-    hightlight: true,
     source: myDataset
   }
 });
@@ -177,12 +177,16 @@ $('.typeahead').typeahead('val', myVal);
 When initializing a typeahead, there are a number of options you can configure.
 
 * `minLength` – The minimum character length needed before suggestions start 
-  getting renderd. Defaults to `0`.
+  getting renderd. Defaults to `1`.
 
 * `hint` – If `false`, the typeahead will not show a hint. Defaults to `true`.
 
 * `autoselect` – If `true`, when the dropdown menu is open and the user hits 
   enter, the top suggestion will be selected. Defaults to `false`.
+
+* `highlight` – If `true`, when suggestions are rendered, pattern matches
+  for the current query in text nodes will be wrapped in a `strong` element. 
+  Defaults to `false`.
 
 * `sections` – Can be either one or many sections. Refer to
   [Sections](#sections) for more info.
@@ -197,14 +201,9 @@ Sections can be configured using the following options.
 
 * `name` – The name of the section. Defaults to a random number.
 
-* `source` – The backing data source for the section. Can be either a 
-  [dataset](#dataset) or a function with the signature `(query, cb)`. 
-  If the latter, `cb` is expected to be invoked with an array of 
-  [datums](#datum) that are a match for `query`. **Required**.
-
-* `highlight` – If `true`, when suggestions are rendered, pattern matches
-  for the current query in text nodes will be wrapped in a `strong` element. 
-  Defaults to `false`.
+* `source` – The backing data source for the section. Expected to be a function
+  with the signature `(query, cb)`. The callback `cb` is expected to be invoked
+  with an array of [datums](#datum) that are a match for `query`. **Required**.
 
 * `templates` – A hash of templates to be used when rendering the section.
 
@@ -282,9 +281,40 @@ cursor" state of suggestions.
 Dataset
 -------
 
-Datasets can be used as a `source` for sections. They're robust, flexible, and 
-offer advanced functionality such as prefetching, intelligent caching,
-fast lookups, and backfilling with remote data.
+Datasets are the data component that is responsible for computing a suggestion
+set for a given query. They're robust, flexible, and offer advanced 
+functionality such as prefetching, intelligent caching, fast lookups, and 
+backfilling with remote data.
+
+### How to Use with as the Source of a Typeahead Section
+
+If you want to use a dataset as the `source` of a [section](#sections), you'll
+need to create your dataset using `ttDatasetAdapter`. This adapter constructs
+a dataset, initializes it, and then wraps the dataset in a compatible 
+interface.
+
+To use `ttDatasetAdapter`, you invoke its `create` method with an 
+[options hash](#dataset-options) and it will return a `source` compatible
+dataset.
+
+```javascript
+var myDataset = ttDatasetAdapter.create({
+  name: myDatasetName,
+  local: ['dog', 'pig', 'moose'],
+  remote: 'http://example.com/animals?q=%QUERY'
+});
+
+$('.typeahead').typeahead({
+  minLength: 3,
+  hightlight: true,
+  sections: {
+    source: myDataset
+  }
+});
+```
+
+This adapter is available in typeahead-dataset bundle (*typeahead.bundle.js*), 
+but in *dataset.js*.
 
 ### Dataset API
 

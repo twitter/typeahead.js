@@ -4,7 +4,7 @@
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var ttDataset = window.ttDataset = (function() {
+var ttDatasetAdapter = window.ttDatasetAdapter = (function() {
 
   function create(o) {
     var dataset, source;
