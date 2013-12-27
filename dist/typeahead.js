@@ -329,7 +329,9 @@
                 var that = this, jqXhr = pendingRequests[url];
                 if (!jqXhr) {
                     incrementPendingRequests();
-                    jqXhr = pendingRequests[url] = $.ajax(url, this.ajaxSettings).always(always);
+                    jqXhr = pendingRequests[url] = $.ajax($.extend(this.ajaxSettings, {
+                        url: url
+                    })).always(always);
                 }
                 return jqXhr;
                 function always() {
