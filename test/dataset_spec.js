@@ -107,6 +107,16 @@ describe('Dataset', function() {
       });
     });
 
+    describe('when called with remote only and default suggestions enabled (minLength=0)', function() {
+      beforeEach(function() {
+        this.fn = function() { this.dataset = new Dataset({ remote: '/remote', minLength: 0 }); };
+      });
+
+      it('should throw an error', function() {
+        expect(this.fn).toThrow();
+      });
+    });
+
     describe('when called with no template', function() {
       beforeEach(function() {
         this.dataset = new Dataset({ local: fixtureStrings });
@@ -230,7 +240,7 @@ describe('Dataset', function() {
             expect(this.request).not.toBeNull();
           });
 
-          it('should process and merge fileered data', function() {
+          it('should process and merge filtered data', function() {
             expect(this.dataset.adjacencyList).toEqual(filteredAdjacencyList);
             expect(this.dataset.itemHash).toEqual(filteredItemHash);
           });
@@ -314,6 +324,51 @@ describe('Dataset', function() {
       it('should be a noop', function() {
         this.dataset.getSuggestions('co', this.spy);
         expect(this.spy).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('Default suggestions', function() {
+    describe('when minLength is 0', function() {
+      beforeEach(function() {
+        this.spy = jasmine.createSpy();
+
+        this.dataset = new Dataset({ local: fixtureStrings, minLength: 0, limit: 3 });
+        this.dataset.initialize();
+      });
+
+      it('matches', function() {
+        this.dataset.getSuggestions('', function(items) {
+          expect(items).toEqual([
+            createItem('grape'),
+            createItem('coconut'),
+            createItem('cake')
+          ]);
+        });
+      });
+
+      describe('when user defines custom sort', function() {
+
+        var alphabeticalSort = function(a, b){
+          return a.value < b.value ? -1 : 1;
+        }
+
+        beforeEach(function() {
+          this.spy = jasmine.createSpy();
+
+          this.dataset = new Dataset({ local: fixtureStrings, minLength: 0, limit: 3, defaultSort: alphabeticalSort });
+          this.dataset.initialize();
+        });
+
+        it('matches', function() {
+          this.dataset.getSuggestions('', function(items) {
+            expect(items).toEqual([
+              createItem('cake'),
+              createItem('coconut'),
+              createItem('coffee')
+            ]);
+          });
+        });
       });
     });
   });
