@@ -44,12 +44,6 @@ describe('Typeahead', function() {
 
       waitsFor(function() { return this.dropdown.close.callCount; });
     });
-
-    it('should bring focus to the input', function() {
-      this.dropdown.trigger('suggestionClicked');
-
-      expect(this.input.focus).toHaveBeenCalled();
-    });
   });
 
   describe('when dropdown triggers cursorMoved', function() {

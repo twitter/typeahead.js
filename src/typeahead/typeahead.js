@@ -50,6 +50,19 @@ var Typeahead = (function() {
     .onSync('rightKeyed', this._onRightKeyed, this)
     .onSync('queryChanged', this._onQueryChanged, this)
     .onSync('whitespaceChanged', this._onWhitespaceChanged, this);
+
+    // HACK: prevents input blur on menu click
+    // https://github.com/twitter/typeahead.js/pull/351
+    $menu.on('mousedown.tt', function($e) {
+      if (_.isMsie() && _.isMsie() < 9) {
+        $input[0].onbeforedeactivate = function() {
+          window.event.returnValue = false;
+          $input[0].onbeforedeactivate = null;
+        };
+      }
+
+      $e.preventDefault();
+    });
   }
 
   // instance methods
@@ -64,9 +77,6 @@ var Typeahead = (function() {
 
       if (datum = this.dropdown.getDatumForSuggestion($el)) {
         this._select(datum);
-
-        // the click event will cause the input to lose focus, so refocus
-        this.input.focus();
       }
     },
 
