@@ -157,11 +157,23 @@ var Typeahead = (function() {
     },
 
     _onUpKeyed: function onUpKeyed() {
+      var query = this.input.getQuery();
+
+      if(!this.dropdown.isOpen && query.length >= this.minLength) {
+        this.dropdown.update(query);
+      }
+
       this.dropdown.open();
       this.dropdown.moveCursorUp();
     },
 
     _onDownKeyed: function onDownKeyed() {
+      var query = this.input.getQuery();
+
+      if( !this.dropdown.isOpen && query.length >= this.minLength) {
+        this.dropdown.update(query);
+      }
+
       this.dropdown.open();
       this.dropdown.moveCursorDown();
     },
@@ -232,6 +244,7 @@ var Typeahead = (function() {
       this.input.clearHint();
       this.input.setQuery(datum.value);
       this.input.setInputValue(datum.value, true);
+      this.dropdown.empty();
 
       this._setLanguageDirection();
 

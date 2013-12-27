@@ -266,6 +266,23 @@ describe('Typeahead', function() {
   });
 
   describe('when input triggers upKeyed', function() {
+    beforeEach(function() {
+      this.input.getQuery.andReturn('ghost');
+    });
+
+    describe('when dropdown is closed and minLength is satisfied', function() {
+      beforeEach(function() {
+        this.dropdown.isOpen = false;
+        this.view.minLength = 2;
+      });
+
+      it('should update dropdown', function() {
+        this.input.trigger('upKeyed');
+
+        expect(this.dropdown.update).toHaveBeenCalledWith('ghost');
+      });
+    });
+
     it('should open the dropdown', function() {
       this.input.trigger('upKeyed');
 
@@ -280,6 +297,23 @@ describe('Typeahead', function() {
   });
 
   describe('when input triggers downKeyed', function() {
+    beforeEach(function() {
+      this.input.getQuery.andReturn('ghost');
+    });
+
+    describe('when dropdown is closed and minLength is satisfied', function() {
+      beforeEach(function() {
+        this.dropdown.isOpen = false;
+        this.view.minLength = 2;
+      });
+
+      it('should update dropdown', function() {
+        this.input.trigger('downKeyed');
+
+        expect(this.dropdown.update).toHaveBeenCalledWith('ghost');
+      });
+    });
+
     it('should open the dropdown', function() {
       this.input.trigger('downKeyed');
 
