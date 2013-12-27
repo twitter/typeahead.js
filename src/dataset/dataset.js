@@ -198,7 +198,7 @@ var Dataset = (function() {
           return matchesWithBackfill.length < that.limit;
         });
 
-        cb && cb(matchesWithBackfill.sort(this.sorter));
+        cb && cb(matchesWithBackfill.sort(that.sorter));
       }
 
       function pickRaw(obj) { return obj.raw; }
