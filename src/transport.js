@@ -25,6 +25,7 @@ var Transport = (function() {
     this.wildcard = o.wildcard || '%QUERY';
     this.filter = o.filter;
     this.replace = o.replace;
+    this.ajaxHandler = o.ajaxHandler || $.ajax;
 
     this.ajaxSettings = {
       type: 'get',
@@ -75,7 +76,7 @@ var Transport = (function() {
       if (!jqXhr) {
         incrementPendingRequests();
         jqXhr = pendingRequests[url] =
-          $.ajax(url, this.ajaxSettings).always(always);
+          this.ajaxHandler(url, this.ajaxSettings).always(always);
       }
 
       return jqXhr;
