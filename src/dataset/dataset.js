@@ -17,7 +17,6 @@ var Dataset = (function() {
       $.error('one of local, prefetch, or remote is required');
     }
 
-    this.name = o.name || _.getUniqueId();
     this.limit = o.limit || 5;
     this.valueKey = o.valueKey || 'value';
     this.sorter = getSorter(o.sorter);
@@ -27,12 +26,15 @@ var Dataset = (function() {
     this.prefetch = getPrefetch(o);
     this.remote = getRemote(o);
 
+    this.cacheKey = this.prefetch ?
+      (this.prefetch.cacheKey || this.prefetch.url) : null;
+
     // the backing data structure used for fast pattern matching
     this.index = new SearchIndex({ tokenizer: o.tokenizer });
 
-    // only initialize storage if there's a name otherwise
+    // only initialize storage if there's a cacheKey otherwise
     // loading from storage on subsequent page loads is impossible
-    this.storage = o.name ? new PersistentStorage(o.name) : null;
+    this.storage = this.cacheKey ? new PersistentStorage(this.cacheKey) : null;
   }
 
   // instance methods
@@ -253,6 +255,8 @@ var Dataset = (function() {
 
       prefetch.ajax.method = prefetch.ajax.method || 'get';
       prefetch.ajax.dataType = prefetch.ajax.dataType || 'json';
+
+      !prefetch.url && $.error('prefetch requires url to be set');
     }
 
     return prefetch;
@@ -285,6 +289,8 @@ var Dataset = (function() {
 
       delete remote.rateLimitBy;
       delete remote.rateLimitWait;
+
+      !remote.url && $.error('remote requires url to be set');
     }
 
     return remote;
