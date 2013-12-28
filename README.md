@@ -206,11 +206,11 @@ Sections can be configured using the following options.
   number.
 
 * `source` – The backing data source for the section. Can be either a function
-  with the signature `(query, cb)` or a [dataset](#datasets) option hash. If 
-  the former, it is expected `cb` will be invoked with an array of 
-  [datums](#datums) that are a match for `query`. If the latter, a dataset will
-  be constructed and initialized and that will be used as the backing data 
-  source. **Required**.
+  with the signature `(query, cb)` or a 
+  [dataset options hash](#dataset-options). If the former, it is expected `cb` 
+  will be invoked with an array of [datums](#datums) that are a match for 
+  `query`. If the latter, a dataset will be constructed and initialized and 
+  that will be used as the backing data source. **Required**.
 
 * `templates` – A hash of templates to be used when rendering the section.
 
