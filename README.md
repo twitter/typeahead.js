@@ -112,19 +112,24 @@ interactions.
 
 ### Typeahead API
 
-#### jQuery#typeahead(options)
+#### jQuery#typeahead(options, [\*sections])
 
 Turns any `input[type="text"]` element into a typeahead. `options` is an 
-options hash that's used to configure the typeahead to your liking. For more
+options hash that's used to configure the typeahead to your liking.  For more
 info about what options are available, check out the 
-[Options](#typeahead-options) section.
+[Options](#typeahead-options) section. Subsequent arguments (`\*sections`), are
+individual option hashes for sections. Refer to [Sections](#sections) for more 
+info.
 
 ```javascript
 $('.typeahead').typeahead({
   minLength: 3,
   hightlight: true,
-  sections: {
-    source: myDataset
+},
+{
+  name: 'hanson-brothers',
+  source: {
+    local: ['Jeff', 'Steve', 'Jack']
   }
 });
 ```
@@ -176,11 +181,6 @@ $('.typeahead').typeahead('val', myVal);
 
 When initializing a typeahead, there are a number of options you can configure.
 
-* `minLength` – The minimum character length needed before suggestions start 
-  getting renderd. Defaults to `1`.
-
-* `hint` – If `false`, the typeahead will not show a hint. Defaults to `true`.
-
 * `autoselect` – If `true`, when the dropdown menu is open and the user hits 
   enter, the top suggestion will be selected. Defaults to `false`.
 
@@ -188,8 +188,10 @@ When initializing a typeahead, there are a number of options you can configure.
   for the current query in text nodes will be wrapped in a `strong` element. 
   Defaults to `false`.
 
-* `sections` – Can be either one or many sections. Refer to
-  [Sections](#sections) for more info.
+* `hint` – If `false`, the typeahead will not show a hint. Defaults to `true`.
+
+* `minLength` – The minimum character length needed before suggestions start 
+  getting renderd. Defaults to `1`.
 
 ### Sections
 
@@ -199,11 +201,16 @@ the search typeahead on twitter.com, you'd need multiple sections.
 
 Sections can be configured using the following options.
 
-* `name` – The name of the section. Defaults to a random number.
+* `name` – The name of the section. This will be prepened to `tt-section-` to 
+  form the class name of the containging DOM element. Defaults to a random 
+  number.
 
-* `source` – The backing data source for the section. Expected to be a function
-  with the signature `(query, cb)`. The callback `cb` is expected to be invoked
-  with an array of [datums](#datum) that are a match for `query`. **Required**.
+* `source` – The backing data source for the section. Can be either a function
+  with the signature `(query, cb)` or a [dataset](#datasets) option hash. If 
+  the former, it is expected `cb` will be invoked with an array of 
+  [datums](#datums) that are a match for `query`. If the latter, a dataset will
+  be constructed and initialized and that will be used as the backing data 
+  source. **Required**.
 
 * `templates` – A hash of templates to be used when rendering the section.
 
@@ -211,13 +218,13 @@ Sections can be configured using the following options.
   Can be either a HTML string or a precompiled template. If it's a precompiled
   template, the passed in context will contain `query`.
 
-  * `header` – Rendered at the top of the section.  Can be either a HTML string 
-  or a precompiled template. If it's a precompiled template, the passed in 
-  context will contain `query` and `isEmpty`.
-
-  * `footer`– Rendered at the bottom of the section.  Can be either a HTML 
+  * `footer`– Rendered at the bottom of the section. Can be either a HTML 
   string or a precompiled template. If it's a precompiled template, the passed 
   in context will contain `query` and `isEmpty`.
+
+  * `header` – Rendered at the top of the section. Can be either a HTML string 
+  or a precompiled template. If it's a precompiled template, the passed in 
+  context will contain `query` and `isEmpty`.
 
   * `suggestion` – Used to render a single suggestion. If set, this has to be a 
   precompiled tempate. The associated datum object will serves as the context. 
@@ -286,36 +293,6 @@ set for a given query. They're robust, flexible, and offer advanced
 functionality such as prefetching, intelligent caching, fast lookups, and 
 backfilling with remote data.
 
-### How to Use with as the Source of a Typeahead Section
-
-If you want to use a dataset as the `source` of a [section](#sections), you'll
-need to create your dataset using `ttDatasetAdapter`. This adapter constructs
-a dataset, initializes it, and then wraps the dataset in a compatible 
-interface.
-
-To use `ttDatasetAdapter`, you invoke its `create` method with an 
-[options hash](#dataset-options) and it will return a `source` compatible
-dataset.
-
-```javascript
-var myDataset = ttDatasetAdapter.create({
-  name: myDatasetName,
-  local: ['dog', 'pig', 'moose'],
-  remote: 'http://example.com/animals?q=%QUERY'
-});
-
-$('.typeahead').typeahead({
-  minLength: 3,
-  hightlight: true,
-  sections: {
-    source: myDataset
-  }
-});
-```
-
-This adapter is available in typeahead-dataset bundle (*typeahead.bundle.js*), 
-but in *dataset.js*.
-
 ### Dataset API
 
 #### Constructor
@@ -360,9 +337,6 @@ dataset.get(myQuery, function(suggestions) {
 
 When initializing a dataset, there are a number of options you can configure.
 
-* `name` – The string used to identify the dataset. If set, typeahead.js
-  will cache prefetched data in local storage, if possible.
-
 * `valueKey` – The key used to access the value of the datum in the datum 
   object. Defaults to `value`.
 
@@ -401,6 +375,9 @@ prevent additional network requests on subsequent page loads.
 When configuring `prefetch`, the following options are available.
 
 * `url` – A URL to a JSON file containing an array of datums. **Required.**
+
+* `cacheKey` – The key data will be stored in local storage under. Defaults to 
+  `url`.
 
 * `ttl` – The time (in milliseconds) the prefetched data should be cached in 
   local storage. Defaults to `86400000` (1 day).
@@ -476,7 +453,6 @@ The above datum would be a valid suggestion for queries such as:
 * `typehead.js`
 * `autoco`
 * `javascript type`
-
 
 Datum
 -----

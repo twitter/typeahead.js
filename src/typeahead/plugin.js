@@ -10,18 +10,24 @@
   typeaheadKey = 'ttTypeahead';
 
   methods = {
-    initialize: function initialize(o) {
+    initialize: function initialize(o /*, splot of sections */) {
+      var sections = [].slice.call(arguments, 1);
+
       o = o || {};
 
       return this.each(attach);
 
       function attach() {
-        var $input = $(this), sections, typeahead;
+        var $input = $(this), typeahead;
 
-        sections =  _.isArray(o.sections) ? o.sections : [o.sections];
+        _.each(sections, function(section) {
+          // HACK: force highlight as a top-level config
+          section.highlight = !!o.highlight;
 
-        // HACK: force highlight as a top-level config
-        _.each(sections, function(s) { s.highlight = !!o.highlight; });
+          // if source is an object, convert it to a dataset
+          section.source = _.isObject(section.source) ?
+            datasetAdapter(section.source).initialize() : section.source;
+        });
 
         typeahead = new Typeahead({
           input: $input,
@@ -104,5 +110,26 @@
     else {
       return methods.initialize.apply(this, arguments);
     }
+  };
+
+  jQuery.fn.typeahead.datasetAdapter = datasetAdapter;
+
+  function datasetAdapter(dataset) {
+    var source;
+
+    dataset = _.isObject(dataset) ? new Dataset(dataset) : dataset;
+    source = _.bind(dataset.get, dataset);
+
+    source.initialize = function() {
+      dataset.initialize();
+      return source;
+    };
+
+    source.add = function(data) {
+      dataset.add();
+      return source;
+    };
+
+    return source;
   };
 })();
