@@ -204,6 +204,10 @@ var TypeaheadView = (function() {
           suggestion = byClick ?
             e.data : this.dropdownView.getSuggestionUnderCursor();
 
+      if (!byClick && !suggestion) {
+        suggestion = this.dropdownView.getFirstSuggestion();
+      }
+
       if (suggestion) {
         this.inputView.setInputValue(suggestion.value);
 
