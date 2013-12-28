@@ -50,6 +50,19 @@ describe('Dropdown', function() {
   });
 
   describe('when mouseenter is triggered on a suggestion', function() {
+    it('should remove pre-existing cursor', function() {
+      var $first, $last;
+
+      $first = this.$menu.find('.tt-suggestion').first();
+      $last = this.$menu.find('.tt-suggestion').last();
+
+      $first.addClass('tt-cursor');
+      $last.mouseenter();
+
+      expect($first).not.toHaveClass('tt-cursor');
+      expect($last).toHaveClass('tt-cursor');
+    });
+
     it('should set the cursor', function() {
       var $suggestion;
 
@@ -57,6 +70,17 @@ describe('Dropdown', function() {
       $suggestion.mouseenter();
 
       expect($suggestion).toHaveClass('tt-cursor');
+    });
+
+    it('should not trigger cursorMoved', function() {
+      var spy, $suggestion;
+
+      this.view.onSync('cursorMoved', spy = jasmine.createSpy());
+
+      $suggestion = this.$menu.find('.tt-suggestion').first();
+      $suggestion.mouseenter();
+
+      expect(spy).not.toHaveBeenCalled();
     });
   });
 

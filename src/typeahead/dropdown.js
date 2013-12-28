@@ -65,7 +65,8 @@ var Dropdown = (function() {
     },
 
     _onSuggestionMouseEnter: function onSuggestionMouseEnter($e) {
-      this._setCursor($($e.currentTarget));
+      this._removeCursor();
+      this._setCursor($($e.currentTarget), true);
     },
 
     _onSuggestionMouseLeave: function onSuggestionMouseLeave($e) {
@@ -100,10 +101,10 @@ var Dropdown = (function() {
       return this.$menu.find('.tt-cursor').first();
     },
 
-    _setCursor: function setCursor($el) {
+    _setCursor: function setCursor($el, silent) {
       $el.first().addClass('tt-cursor');
 
-      this.trigger('cursorMoved');
+      !silent && this.trigger('cursorMoved');
     },
 
     _removeCursor: function removeCursor() {
