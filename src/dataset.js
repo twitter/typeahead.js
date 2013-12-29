@@ -23,13 +23,18 @@ var Dataset = (function() {
       $.error('one of local, prefetch, or remote is required');
     }
 
+    if (o.minLength === 0 && !(o.local || o.prefetch)){
+      $.error('local or prefetch required to use default suggestions');
+    }
+
     this.name = o.name || utils.getUniqueId();
     this.limit = o.limit || 5;
-    this.minLength = o.minLength || 1;
+    this.minLength = o.minLength == null ? 1 : o.minLength;
     this.header = o.header;
     this.footer = o.footer;
     this.valueKey = o.valueKey || 'value';
     this.template = compileTemplate(o.template, o.engine, this.valueKey);
+    this.defaultSort = o.defaultSort;
 
     // used then deleted in #initialize
     this.local = o.local;
@@ -38,6 +43,7 @@ var Dataset = (function() {
 
     this.itemHash = {};
     this.adjacencyList = {};
+    this.defaultOrder = [];
 
     // only initialize storage if there's a name otherwise
     // loading from storage on subsequent page loads is impossible
@@ -172,6 +178,26 @@ var Dataset = (function() {
         that.adjacencyList[character] = masterAdjacency ?
           masterAdjacency.concat(adjacency) : adjacency;
       });
+
+      // create default ordering if default suggestions are enabled
+      if (this.minLength===0){
+        for ( var hashKey in processedData.itemHash ){
+          this.defaultOrder.push(hashKey);  
+        }
+        if ( utils.isFunction(this.defaultSort) ){
+          this.defaultOrder.sort(function(a,b){
+            return that.defaultSort(that.itemHash[a], that.itemHash[b]);
+          });
+        }  
+      }
+    },
+
+    _getDefaultList: function(){
+      var defaultList = [];
+      for (var i=0; i<Math.min(this.limit, this.defaultOrder.length); i++){
+        defaultList.push(this.itemHash[this.defaultOrder[i]])
+      }
+      return defaultList;
     },
 
     _getLocalSuggestions: function(terms) {
@@ -255,6 +281,9 @@ var Dataset = (function() {
       if (query.length < this.minLength) {
         return;
       }
+
+      //show defaults
+      if (query.length==0) return cb(this._getDefaultList());
 
       terms = utils.tokenizeQuery(query);
       suggestions = this._getLocalSuggestions(terms).slice(0, this.limit);

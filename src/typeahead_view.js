@@ -65,6 +65,7 @@ var TypeaheadView = (function() {
     this.$node = buildDomStructure(o.input);
     this.datasets = o.datasets;
     this.dir = null;
+    this.showDefaultSuggestions = false;
 
     this.eventBus = o.eventBus;
 
@@ -72,7 +73,11 @@ var TypeaheadView = (function() {
     $input = this.$node.find('.tt-query');
     $hint = this.$node.find('.tt-hint');
 
-    this.dropdownView = new DropdownView({ menu: $menu })
+    for (var i=0; i<this.datasets.length; i++){
+      if ( this.datasets[i].minLength === 0 ) this.showDefaultSuggestions = true;
+    }    
+
+    this.dropdownView = new DropdownView({ menu: $menu, showDefaultSuggestions: this.showDefaultSuggestions })
     .on('suggestionSelected', this._handleSelection)
     .on('cursorMoved', this._clearHint)
     .on('cursorMoved', this._setInputValueToSuggestionUnderCursor)
@@ -84,7 +89,7 @@ var TypeaheadView = (function() {
     .on('opened closed', this._propagateEvent);
 
     this.inputView = new InputView({ input: $input, hint: $hint })
-    .on('focused', this._openDropdown)
+    .on('focused', this._handleFocus)
     .on('blured', this._closeDropdown)
     .on('blured', this._setInputValueToQuery)
     .on('enterKeyed tabKeyed', this._handleSelection)
@@ -151,6 +156,7 @@ var TypeaheadView = (function() {
 
       if (hint && dropdownIsVisible && !inputHasOverflow) {
         inputValue = this.inputView.getInputValue();
+        if (!inputValue) return;
         query = inputValue
         .replace(/\s{2,}/g, ' ') // condense whitespace
         .replace(/^\s+/g, ''); // strip leading whitespace
@@ -179,6 +185,13 @@ var TypeaheadView = (function() {
       var suggestion = e.data;
 
       this.inputView.setInputValue(suggestion.value, true);
+    },
+
+    _handleFocus: function(){
+      if ( this.showDefaultSuggestions ){
+        this._getSuggestions();
+      }
+      this._openDropdown();      
     },
 
     _openDropdown: function() {
@@ -224,7 +237,7 @@ var TypeaheadView = (function() {
     _getSuggestions: function() {
       var that = this, query = this.inputView.getQuery();
 
-      if (utils.isBlankString(query)) { return; }
+      if (utils.isBlankString(query) && !this.showDefaultSuggestions) { return; }
 
       utils.each(this.datasets, function(i, dataset) {
         dataset.getSuggestions(query, function(suggestions) {
