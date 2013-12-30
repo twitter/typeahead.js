@@ -1,4 +1,6 @@
 [![build status](https://secure.travis-ci.org/twitter/typeahead.js.png?branch=master)](http://travis-ci.org/twitter/typeahead.js)
+[![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
+
 
 [typeahead.js][gh-page]
 =======================
@@ -118,7 +120,7 @@ interactions.
 Turns any `input[type="text"]` element into a typeahead. `options` is an 
 options hash that's used to configure the typeahead to your liking.
 [Typeahead Options](#typeahead-options) goes over the available configs. 
-Subsequent arguments (`\*datasets`), are individual option hashes for datasets. 
+Subsequent arguments (`*datasets`), are individual option hashes for datasets. 
 For more details regarding datasets, refer to [Datasets](#datasets).
 
 ```javascript
@@ -194,7 +196,7 @@ When initializing a typeahead, there are a number of options you can configure.
 * `minLength` – The minimum character length needed before suggestions start 
   getting rendered. Defaults to `1`.
 
-### Dataset
+### Datasets
 
 A typeahead is composed of one or more datasets. For simple use cases, one 
 dataset will usually suffice. If however you wanted to build something like
@@ -207,14 +209,11 @@ Datasets can be configured using the following options.
   number.
 
 * `source` – The backing data source that provides suggestions. Expected to be 
-  either an [options hash for a bloodhound](#bloodhound-options), an instance
-  of a Bloodhoud, or a function with the signature `(query, cb)`. If the last
-  option is used, it is expected that the function will compute the suggestion 
-  set for `query`, convert the suggestions to an array of [datums](#datums), 
-  and then invoke `cb` with that array as the first and only argument.
-  
-  that `cb` will be invoked with an array of 
-  [datums](#datums) that are a match for `query`. **Required**.
+  either an [options hash for a bloodhound](#bloodhound-options), a Bloodhound
+  instance, or a function with the signature `(query, cb)`. If the last option 
+  is used, it is expected that the function will compute the suggestion set for
+  `query`, convert the suggestions to an array of [datums](#datums), and then 
+  invoke `cb` with that array as the first and only argument. **Required**.
 
 * `templates` – A hash of templates to be used when rendering the dataset.
 
@@ -335,10 +334,10 @@ bloodhound.initialize();
 
 #### Bloodhound#get(query, cb)
 
-Retrieves datums from the data source matching `query` and invokes `cb` with 
-them. `cb` will always be called at least once with the mixed results from
-`local` and `prefetch`. If those results are insufficent, `cb` will be called 
-again later with the mixed results from `local`, `prefetch`, **and** `remote`.
+Retrieves suggestions for `query` and invokes `cb` with them. `cb` will always 
+be called at least once with the mixed results from `local` and `prefetch`. If 
+those results are insufficent, `cb` will be called again later with the mixed 
+results from `local`, `prefetch`, **and** `remote`.
 
 ```javascript
 bloodhound.get(myQuery, function(suggestions) {
@@ -456,8 +455,8 @@ is token-based. When `Bloodhound#get` is called, it tokenizes `query` using
 tokens.
 
 By default, a bloodhound will generate tokens for a datum by tokenizing its 
-value. However, it is possible to explicitly set the tokens for a datum by 
-including a `tokens` property.
+value with `tokenizer`. However, it is possible to explicitly set the tokens 
+for a datum by including a `tokens` property.
 
 ```javascript
 {
