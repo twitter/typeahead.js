@@ -55,6 +55,8 @@ var Section = (function() {
     // ### private
 
     _render: function render(query, suggestions) {
+      if (!this.$el) { return; }
+
       var that = this, hasSuggestions;
 
       this.$el.empty();
