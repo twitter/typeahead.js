@@ -7,7 +7,7 @@
     'Transport',
     'SearchIndex',
     'Input',
-    'Section',
+    'Dataset',
     'Dropdown'
     ];
 

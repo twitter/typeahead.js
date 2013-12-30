@@ -3,24 +3,24 @@ describe('Dropdown', function() {
   beforeEach(function() {
     var $fixture;
 
-    jasmine.Section.useMock();
+    jasmine.Dataset.useMock();
 
     setFixtures(fixtures.html.menu);
 
     $fixture = $('#jasmine-fixtures');
     this.$menu = $fixture.find('.tt-dropdown-menu');
-    this.$menu.html(fixtures.html.section);
+    this.$menu.html(fixtures.html.dataset);
 
-    this.view = new Dropdown({ menu: this.$menu, sections: [{}] });
-    this.section = this.view.sections[0];
+    this.view = new Dropdown({ menu: this.$menu, datasets: [{}] });
+    this.dataset = this.view.datasets[0];
   });
 
-  it('should throw an error if menu and/or sections is missing', function() {
+  it('should throw an error if menu and/or datasets is missing', function() {
     expect(noMenu).toThrow();
-    expect(noSections).toThrow();
+    expect(noDatasets).toThrow();
 
     function noMenu() { new Dropdown({ menu: '.menu' }); }
-    function noSections() { new Dropdown({ sections: true }); }
+    function noDatasets() { new Dropdown({ datasets: true }); }
   });
 
   describe('when mouseenter is triggered', function() {
@@ -95,32 +95,32 @@ describe('Dropdown', function() {
     });
   });
 
-  describe('when rendered is triggered on a section', function() {
+  describe('when rendered is triggered on a dataset', function() {
     it('should hide the dropdown if empty', function() {
-      this.section.isEmpty.andReturn(true);
+      this.dataset.isEmpty.andReturn(true);
 
       this.view.open();
       this.view._show();
-      this.section.trigger('rendered');
+      this.dataset.trigger('rendered');
 
       expect(this.$menu).not.toBeVisible();
     });
 
     it('should show the dropdown if not empty', function() {
-      this.section.isEmpty.andReturn(false);
+      this.dataset.isEmpty.andReturn(false);
 
       this.view.open();
       this.view._hide();
-      this.section.trigger('rendered');
+      this.dataset.trigger('rendered');
 
       expect(this.$menu).toBeVisible();
     });
 
-    it('should trigger sectionRendered', function() {
+    it('should trigger datasetRendered', function() {
       var spy;
 
-      this.view.onSync('sectionRendered', spy = jasmine.createSpy());
-      this.section.trigger('rendered');
+      this.view.onSync('datasetRendered', spy = jasmine.createSpy());
+      this.dataset.trigger('rendered');
 
       expect(spy).toHaveBeenCalled();
     });
@@ -304,16 +304,16 @@ describe('Dropdown', function() {
   });
 
   describe('#update', function() {
-    it('should invoke update on each section', function() {
+    it('should invoke update on each dataset', function() {
       this.view.update();
-      expect(this.section.update).toHaveBeenCalled();
+      expect(this.dataset.update).toHaveBeenCalled();
     });
   });
 
   describe('#empty', function() {
-    it('should invoke clear on each section', function() {
+    it('should invoke clear on each dataset', function() {
       this.view.empty();
-      expect(this.section.clear).toHaveBeenCalled();
+      expect(this.dataset.clear).toHaveBeenCalled();
     });
   });
 
@@ -352,10 +352,10 @@ describe('Dropdown', function() {
       expect($menu.off).toHaveBeenCalledWith('.tt');
     });
 
-    it('should destroy its sections', function() {
+    it('should destroy its datasets', function() {
       this.view.destroy();
 
-      expect(this.section.destroy).toHaveBeenCalled();
+      expect(this.dataset.destroy).toHaveBeenCalled();
     });
 
     it('should null out its reference to the menu element', function() {

@@ -16,14 +16,14 @@ var Dropdown = (function() {
     o = o || {};
 
     if (!o.menu) {
-      $.error('menu and/or sections are required');
+      $.error('menu is required');
     }
 
     this.isOpen = false;
     this.isEmpty = true;
     this.isMouseOverDropdown = false;
 
-    this.sections = _.map(o.sections, initializeSection);
+    this.datasets = _.map(o.datasets, initializeDataset);
 
     // bound functions
     onMouseEnter = _.bind(this._onMouseEnter, this);
@@ -39,9 +39,9 @@ var Dropdown = (function() {
     .on('mouseenter.tt', '.tt-suggestion', onSuggestionMouseEnter)
     .on('mouseleave.tt', '.tt-suggestion', onSuggestionMouseLeave);
 
-    _.each(this.sections, function(section) {
-      that.$menu.append(section.getRoot());
-      section.onSync('rendered', that._onRendered, that);
+    _.each(this.datasets, function(dataset) {
+      that.$menu.append(dataset.getRoot());
+      dataset.onSync('rendered', that._onRendered, that);
     });
   }
 
@@ -74,13 +74,13 @@ var Dropdown = (function() {
     },
 
     _onRendered: function onRendered() {
-      this.isEmpty = _.every(this.sections, isSectionEmpty);
+      this.isEmpty = _.every(this.datasets, isDatasetEmpty);
 
       this.isEmpty ? this._hide() : (this.isOpen && this._show());
 
-      this.trigger('sectionRendered');
+      this.trigger('datasetRendered');
 
-      function isSectionEmpty(section) { return section.isEmpty(); }
+      function isDatasetEmpty(dataset) { return dataset.isEmpty(); }
     },
 
     _hide: function() {
@@ -201,9 +201,9 @@ var Dropdown = (function() {
 
       if ($el.length) {
         datum = {
-          raw: Section.extractDatum($el),
-          value: Section.extractValue($el),
-          sectionName: Section.extractSectionName($el)
+          raw: Dataset.extractDatum($el),
+          value: Dataset.extractValue($el),
+          datasetName: Dataset.extractDatasetName($el)
         };
       }
 
@@ -219,15 +219,15 @@ var Dropdown = (function() {
     },
 
     update: function update(query) {
-      _.each(this.sections, updateSection);
+      _.each(this.datasets, updateDataset);
 
-      function updateSection(section) { section.update(query); }
+      function updateDataset(dataset) { dataset.update(query); }
     },
 
     empty: function empty() {
-      _.each(this.sections, clearSection);
+      _.each(this.datasets, clearDataset);
 
-      function clearSection(section) { section.clear(); }
+      function clearDataset(dataset) { dataset.clear(); }
     },
 
     isVisible: function isVisible() {
@@ -239,9 +239,9 @@ var Dropdown = (function() {
 
       this.$menu = null;
 
-      _.each(this.sections, destroySection);
+      _.each(this.datasets, destroyDataset);
 
-      function destroySection(section) { section.destroy(); }
+      function destroyDataset(dataset) { dataset.destroy(); }
     }
   });
 
@@ -250,7 +250,7 @@ var Dropdown = (function() {
   // helper functions
   // ----------------
 
-  function initializeSection(oSection) {
-    return new Section(oSection);
+  function initializeDataset(oDataset) {
+    return new Dataset(oDataset);
   }
 })();

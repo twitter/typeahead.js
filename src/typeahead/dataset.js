@@ -4,13 +4,13 @@
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var Section = (function() {
-  var sectionKey = 'ttSection', valueKey = 'ttValue', datumKey = 'ttDatum';
+var Dataset = (function() {
+  var datasetKey = 'ttDataset', valueKey = 'ttValue', datumKey = 'ttDatum';
 
   // constructor
   // -----------
 
-  function Section(o) {
+  function Dataset(o) {
     o = o || {};
     o.templates = o.templates || {};
 
@@ -18,7 +18,7 @@ var Section = (function() {
       $.error('missing source');
     }
 
-    // tracks the last query the section was updated for
+    // tracks the last query the dataset was updated for
     this.query = null;
 
     this.highlight = !!o.highlight;
@@ -29,28 +29,28 @@ var Section = (function() {
 
     this.templates = getTemplates(o.templates, this.valueKey);
 
-    this.$el = $(html.section.replace('%CLASS%', this.name));
+    this.$el = $(html.dataset.replace('%CLASS%', this.name));
   }
 
   // static methods
   // --------------
 
-  Section.extractSectionName = function extractSectionName(el) {
-    return $(el).data(sectionKey);
+  Dataset.extractDatasetName = function extractDatasetName(el) {
+    return $(el).data(datasetKey);
   };
 
-  Section.extractValue = function extractDatum(el) {
+  Dataset.extractValue = function extractDatum(el) {
     return $(el).data(valueKey);
   };
 
-  Section.extractDatum = function extractDatum(el) {
+  Dataset.extractDatum = function extractDatum(el) {
     return $(el).data(datumKey);
   };
 
   // instance methods
   // ----------------
 
-  _.mixin(Section.prototype, EventEmitter, {
+  _.mixin(Dataset.prototype, EventEmitter, {
 
     // ### private
 
@@ -99,7 +99,7 @@ var Section = (function() {
           innerHtml = that.templates.suggestion(suggestion);
           outerHtml = html.suggestion.replace('%BODY%', innerHtml);
           $el = $(outerHtml)
-          .data(sectionKey, that.name)
+          .data(datasetKey, that.name)
           .data(valueKey, suggestion[that.valueKey])
           .data(datumKey, suggestion);
 
@@ -154,7 +154,7 @@ var Section = (function() {
     }
   });
 
-  return Section;
+  return Dataset;
 
   // helper functions
   // ----------------

@@ -10,34 +10,55 @@
   typeaheadKey = 'ttTypeahead';
 
   methods = {
-    initialize: function initialize(o /*, splot of sections */) {
-      var sections = [].slice.call(arguments, 1);
+    initialize: function initialize(o /*, splot of datasets */) {
+      var datasets = [].slice.call(arguments, 1);
 
       o = o || {};
 
       return this.each(attach);
 
       function attach() {
-        var $input = $(this), typeahead;
+        var $input = $(this), promises, eventBus, typeahead;
 
-        _.each(sections, function(section) {
+        promises = _.map(datasets, function(dataset) {
+          var promise = $.Deferred().resolve().promise();
+
           // HACK: force highlight as a top-level config
-          section.highlight = !!o.highlight;
+          dataset.highlight = !!o.highlight;
 
           // if source is an object, convert it to a bloodhound
-          section.source = _.isObject(section.source) ?
-            bloodhoundAdapter(section.source).initialize() : section.source;
+          if (_.isObject(dataset.source)) {
+            dataset.source = bloodhoundAdapter(dataset.source);
+            promise = dataset.source.initialize();
+          }
+
+          return promise;
         });
+
+        eventBus = new EventBus({ el: $input });
 
         typeahead = new Typeahead({
           input: $input,
+          eventBus: eventBus,
           withHint: _.isUndefined(o.hint) ? true : !!o.hint,
           minLength: o.minLength,
           autoselect: o.autoselect,
-          sections: sections
+          datasets: datasets
         });
 
         $input.data(typeaheadKey, typeahead);
+
+        $.when.apply($, promises)
+        .done(trigger('initialized'))
+        .fail(trigger('initialized:err'));
+
+        // defer trigging of events to make it possible to attach
+        // a listener immediately after jQuery#typeahead is invoked
+        function trigger(eventName) {
+          return function() {
+          _.defer(function() { eventBus.trigger(eventName); });
+          };
+        }
       }
     },
 
@@ -114,10 +135,10 @@
 
   jQuery.fn.typeahead.bloodhoundAdapter = bloodhoundAdapter;
 
-  function bloodhoundAdapter() {
-    var source;
+  function bloodhoundAdapter(o) {
+    var bloodhound, source;
 
-    bloodhound = _.isObject(bloodhound) ? new Bloodhound(bloodhound) : bloodhound;
+    bloodhound = (o instanceof Bloodhound) ? o : new Bloodhound(o);
     source = _.bind(bloodhound.get, bloodhound);
 
     source.initialize = function() {
@@ -128,6 +149,7 @@
 
     source.add = function(data) {
       bloodhound.add();
+      return dataSource.initialize();
     };
 
     return source;

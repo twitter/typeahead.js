@@ -10,9 +10,9 @@ var Typeahead = (function() {
   // constructor
   // -----------
 
-  // THOUGHT: what if sections could dynamically be added/removed?
+  // THOUGHT: what if datasets could dynamically be added/removed?
   function Typeahead(o) {
-    var $menu, $input, $hint, sections;
+    var $menu, $input, $hint, datasets;
 
     o = o || {};
 
@@ -28,15 +28,15 @@ var Typeahead = (function() {
     $input = this.$node.find('.tt-input');
     $hint = this.$node.find('.tt-hint');
 
-    this.eventBus = new EventBus({ el: $input });
+    this.eventBus = o.eventBus || new EventBus({ el: $input });
 
-    this.dropdown = new Dropdown({ menu: $menu, sections: o.sections })
+    this.dropdown = new Dropdown({ menu: $menu, datasets: o.datasets })
     .onSync('suggestionClicked', this._onSuggestionClicked, this)
     .onSync('cursorMoved', this._onCursorMoved, this)
     .onSync('cursorRemoved', this._onCursorRemoved, this)
     .onSync('opened', this._onOpened, this)
     .onSync('closed', this._onClosed, this)
-    .onAsync('sectionRendered', this._onSectionRendered, this);
+    .onAsync('datasetRendered', this._onDatasetRendered, this);
 
     this.input = new Input({ input: $input, hint: $hint })
     .onSync('focused', this._onFocused, this)
@@ -86,7 +86,7 @@ var Typeahead = (function() {
       this.input.clearHint();
       this.input.setInputValue(datum.value, true);
 
-      this.eventBus.trigger('cursorchanged', datum.raw, datum.sectionName);
+      this.eventBus.trigger('cursorchanged', datum.raw, datum.datasetName);
     },
 
     _onCursorRemoved: function onCursorRemoved() {
@@ -94,7 +94,7 @@ var Typeahead = (function() {
       this._updateHint();
     },
 
-    _onSectionRendered: function onSectionRendered() {
+    _onDatasetRendered: function onDatasetRendered() {
       this._updateHint();
     },
 
@@ -236,7 +236,7 @@ var Typeahead = (function() {
         datum = this.dropdown.getDatumForTopSuggestion();
         datum && this.input.setInputValue(datum.value);
 
-        this.eventBus.trigger('autocompleted', datum.raw, datum.sectionName);
+        this.eventBus.trigger('autocompleted', datum.raw, datum.datasetName);
       }
     },
 
@@ -253,7 +253,7 @@ var Typeahead = (function() {
       // defer the closing of the dropdown otherwise it'll stay open
       _.defer(_.bind(this.dropdown.close, this.dropdown));
 
-      this.eventBus.trigger('selected', datum.raw, datum.sectionName);
+      this.eventBus.trigger('selected', datum.raw, datum.datasetName);
     },
 
     // ### public

@@ -148,7 +148,7 @@ var Bloodhound = (function() {
       this.local && deferred.done(addLocalToIndex);
 
       this.transport = this.remote ? new Transport(this.remote) : null;
-      this.initialize = function initialize() { return that; };
+      this.initialize = function initialize() { return deferred.promise(); };
 
       return deferred.promise();
 

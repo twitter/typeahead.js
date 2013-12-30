@@ -5,7 +5,7 @@ describe('Typeahead', function() {
     var $fixture, $input;
 
     jasmine.Input.useMock();
-    jasmine.Section.useMock();
+    jasmine.Dataset.useMock();
     jasmine.Dropdown.useMock();
 
     setFixtures(fixtures.html.textInput);
@@ -18,7 +18,7 @@ describe('Typeahead', function() {
     this.view = new Typeahead({
       input: this.$input,
       withHint: true,
-      sections: {}
+      datasets: {}
     });
 
     this.input = this.view.input;
@@ -94,14 +94,14 @@ describe('Typeahead', function() {
     });
   });
 
-  describe('when dropdown triggers sectionRendered', function() {
+  describe('when dropdown triggers datasetRendered', function() {
     it('should update the hint asynchronously', function() {
       this.dropdown.getDatumForTopSuggestion.andReturn(testDatum);
       this.dropdown.isVisible.andReturn(true);
       this.input.hasOverflow.andReturn(false);
       this.input.getInputValue.andReturn(testDatum.value.slice(0, 2));
 
-      this.dropdown.trigger('sectionRendered');
+      this.dropdown.trigger('datasetRendered');
 
       waitsFor(function() {
         return !!this.input.setHintValue.callCount;
