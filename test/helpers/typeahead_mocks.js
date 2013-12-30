@@ -2,7 +2,7 @@
   var components;
 
   components = [
-    'Dataset',
+    'Bloodhound',
     'PersistentStorage',
     'Transport',
     'SearchIndex',

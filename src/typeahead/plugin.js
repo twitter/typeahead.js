@@ -24,9 +24,9 @@
           // HACK: force highlight as a top-level config
           section.highlight = !!o.highlight;
 
-          // if source is an object, convert it to a dataset
+          // if source is an object, convert it to a bloodhound
           section.source = _.isObject(section.source) ?
-            datasetAdapter(section.source).initialize() : section.source;
+            bloodhoundAdapter(section.source).initialize() : section.source;
         });
 
         typeahead = new Typeahead({
@@ -112,22 +112,22 @@
     }
   };
 
-  jQuery.fn.typeahead.datasetAdapter = datasetAdapter;
+  jQuery.fn.typeahead.bloodhoundAdapter = bloodhoundAdapter;
 
-  function datasetAdapter(dataset) {
+  function bloodhoundAdapter() {
     var source;
 
-    dataset = _.isObject(dataset) ? new Dataset(dataset) : dataset;
-    source = _.bind(dataset.get, dataset);
+    bloodhound = _.isObject(bloodhound) ? new Bloodhound(bloodhound) : bloodhound;
+    source = _.bind(bloodhound.get, bloodhound);
 
     source.initialize = function() {
       // returns a promise that is resolved after prefetch data
       // is loaded and processed
-      return dataset.initialize();
+      return bloodhound.initialize();
     };
 
     source.add = function(data) {
-      dataset.add();
+      bloodhound.add();
     };
 
     return source;

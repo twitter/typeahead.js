@@ -4,13 +4,13 @@ var semver = require('semver'),
       common: [
       'src/common/utils.js'
       ],
-      dataset: [
-      'src/dataset/version.js',
-      'src/dataset/lru_cache.js',
-      'src/dataset/persistent_storage.js',
-      'src/dataset/transport.js',
-      'src/dataset/search_index.js',
-      'src/dataset/dataset.js'
+      bloodhound: [
+      'src/bloodhound/version.js',
+      'src/bloodhound/lru_cache.js',
+      'src/bloodhound/persistent_storage.js',
+      'src/bloodhound/transport.js',
+      'src/bloodhound/search_index.js',
+      'src/bloodhound/bloodhound.js'
       ],
       typeahead: [
       'src/typeahead/html.js',
@@ -45,14 +45,14 @@ module.exports = function(grunt) {
         banner: '<%= banner %>',
         enclose: { 'window.jQuery': '$' }
       },
-      dataset: {
+      bloodhound: {
         options: {
           mangle: false,
           beautify: true,
           compress: false
         },
-        src: files.common.concat(files.dataset),
-        dest: '<%= buildDir %>/dataset.js'
+        src: files.common.concat(files.bloodhound),
+        dest: '<%= buildDir %>/bloodhound.js'
       },
       typeahead: {
         options: {
@@ -70,7 +70,7 @@ module.exports = function(grunt) {
           beautify: true,
           compress: false
         },
-        src: files.common.concat(files.dataset, files.typeahead),
+        src: files.common.concat(files.bloodhound, files.typeahead),
         dest: '<%= buildDir %>/typeahead.bundle.js'
 
       },
@@ -79,7 +79,7 @@ module.exports = function(grunt) {
           mangle: true,
           compress: true
         },
-        src: files.common.concat(files.dataset, files.typeahead),
+        src: files.common.concat(files.bloodhound, files.typeahead),
         dest: '<%= buildDir %>/typeahead.bundle.min.js'
       }
     },

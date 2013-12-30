@@ -4,7 +4,7 @@
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var Dataset = (function() {
+var Bloodhound = (function() {
   var keys;
 
   keys = { data: 'data', protocol: 'protocol', thumbprint: 'thumbprint' };
@@ -12,7 +12,7 @@ var Dataset = (function() {
   // constructor
   // -----------
 
-  function Dataset(o) {
+  function Bloodhound(o) {
     if (!o || (!o.local && !o.prefetch && !o.remote)) {
       $.error('one of local, prefetch, or remote is required');
     }
@@ -40,7 +40,7 @@ var Dataset = (function() {
   // instance methods
   // ----------------
 
-  _.mixin(Dataset.prototype, {
+  _.mixin(Bloodhound.prototype, {
 
     // ### private
 
@@ -137,7 +137,7 @@ var Dataset = (function() {
     // ### public
 
     // the contents of this function are broken out of the constructor
-    // to help improve the testability of datasets
+    // to help improve the testability of bloodhounds
     initialize: function initialize() {
       var that = this, deferred;
 
@@ -207,7 +207,7 @@ var Dataset = (function() {
     }
   });
 
-  return Dataset;
+  return Bloodhound;
 
   // helper functions
   // ----------------

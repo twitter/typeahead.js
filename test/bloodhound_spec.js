@@ -1,4 +1,4 @@
-describe('Dataset', function() {
+describe('Bloodhound', function() {
 
   beforeEach(function() {
     jasmine.Ajax.useMock();
@@ -12,14 +12,14 @@ describe('Dataset', function() {
 
   describe('local', function() {
     beforeEach(function() {
-      this.dataset = new Dataset({ local: fixtures.data.simple });
-      this.dataset.initialize();
+      this.bloodhound = new Bloodhound({ local: fixtures.data.simple });
+      this.bloodhound.initialize();
     });
 
-    it('should hydrate the dataset', function() {
+    it('should hydrate the bloodhound', function() {
       var spy = jasmine.createSpy();
 
-      this.dataset.get('big', spy);
+      this.bloodhound.get('big', spy);
 
       expect(spy).toHaveBeenCalledWith([
         { value: 'big' },
@@ -33,30 +33,30 @@ describe('Dataset', function() {
     it('should throw error if url is not set', function() {
       expect(test).toThrow();
 
-      function test() { var d = new Dataset({ prefetch: {} }); }
+      function test() { var d = new Bloodhound({ prefetch: {} }); }
     });
 
     it('should use url or cacheKey to store data locally', function() {
       var ttl = 100;
 
-      this.dataset1 = new Dataset({
+      this.bloodhound1 = new Bloodhound({
         prefetch: { url: '/test1', cacheKey: 'woah' }
       });
       expect(PersistentStorage).toHaveBeenCalledWith('woah');
 
-      this.dataset2 = new Dataset({
+      this.bloodhound2 = new Bloodhound({
         prefetch: { url: '/test2', ttl: ttl, thumbprint: '!' }
       });
       expect(PersistentStorage).toHaveBeenCalledWith('/test2');
 
-      this.dataset2.initialize();
+      this.bloodhound2.initialize();
       ajaxRequests[0].response(fixtures.ajaxResps.ok);
 
-      expect(this.dataset2.storage.set)
+      expect(this.bloodhound2.storage.set)
         .toHaveBeenCalledWith('data', fixtures.serialized.simple, ttl);
-      expect(this.dataset2.storage.set)
+      expect(this.bloodhound2.storage.set)
         .toHaveBeenCalledWith('protocol', 'http:', ttl);
-      expect(this.dataset2.storage.set)
+      expect(this.bloodhound2.storage.set)
         .toHaveBeenCalledWith('thumbprint', '%VERSION%!', ttl);
     });
 
@@ -66,10 +66,10 @@ describe('Dataset', function() {
       spy1 = jasmine.createSpy();
       spy2 = jasmine.createSpy();
 
-      this.dataset1 = new Dataset({ prefetch: '/test1' });
-      this.dataset2 = new Dataset({ prefetch: { url: '/test2' } });
-      this.dataset1.initialize();
-      this.dataset2.initialize();
+      this.bloodhound1 = new Bloodhound({ prefetch: '/test1' });
+      this.bloodhound2 = new Bloodhound({ prefetch: { url: '/test2' } });
+      this.bloodhound1.initialize();
+      this.bloodhound2.initialize();
 
       ajaxRequests[0].response(fixtures.ajaxResps.ok);
       ajaxRequests[1].response(fixtures.ajaxResps.ok);
@@ -77,8 +77,8 @@ describe('Dataset', function() {
       expect(ajaxRequests[0].url).toBe('/test1');
       expect(ajaxRequests[1].url).toBe('/test2');
 
-      this.dataset1.get('big', spy1);
-      this.dataset2.get('big', spy2);
+      this.bloodhound1.get('big', spy1);
+      this.bloodhound2.get('big', spy2);
 
       expect(spy1).toHaveBeenCalledWith([
         { value: 'big' },
@@ -99,16 +99,16 @@ describe('Dataset', function() {
       filterSpy = jasmine.createSpy().andCallFake(fakeFilter);
       spy = jasmine.createSpy();
 
-      this.dataset = new Dataset({
+      this.bloodhound = new Bloodhound({
         prefetch: { url: '/test', filter: filterSpy }
       });
-      this.dataset.initialize();
+      this.bloodhound.initialize();
 
       mostRecentAjaxRequest().response(fixtures.ajaxResps.ok);
 
       expect(filterSpy).toHaveBeenCalled();
 
-      this.dataset.get('big', spy);
+      this.bloodhound.get('big', spy);
 
       expect(spy).toHaveBeenCalledWith([
         { value: 'BIG' },
@@ -124,13 +124,13 @@ describe('Dataset', function() {
     it('should not make a request if data is available in storage', function() {
       var that = this, spy = jasmine.createSpy();
 
-      this.dataset = new Dataset({ name: 'name', prefetch: '/test' });
-      this.dataset.storage.get.andCallFake(fakeGet);
-      this.dataset.initialize();
+      this.bloodhound = new Bloodhound({ name: 'name', prefetch: '/test' });
+      this.bloodhound.storage.get.andCallFake(fakeGet);
+      this.bloodhound.initialize();
 
       expect(mostRecentAjaxRequest()).toBeNull();
 
-      this.dataset.get('big', spy);
+      this.bloodhound.get('big', spy);
 
       expect(spy).toHaveBeenCalledWith([
         { value: 'big' },
@@ -149,7 +149,7 @@ describe('Dataset', function() {
             val = 'http:';
             break;
           case 'thumbprint':
-            val = that.dataset.prefetch.thumbprint;
+            val = that.bloodhound.prefetch.thumbprint;
             break;
         }
 
@@ -160,29 +160,29 @@ describe('Dataset', function() {
 
   describe('remote', function() {
     it('should perform query substitution on the provided url', function() {
-      this.dataset1 = new Dataset({
+      this.bloodhound1 = new Bloodhound({
         remote: { url: '/test?q=$$', wildcard: '$$' }
       });
-      this.dataset2 = new Dataset({
+      this.bloodhound2 = new Bloodhound({
         remote: {
           url: '/test?q=%QUERY',
           replace: function(str, query) {return str.replace('%QUERY', query);  }
         }
       });
 
-      this.dataset1.initialize();
-      this.dataset2.initialize();
+      this.bloodhound1.initialize();
+      this.bloodhound2.initialize();
 
-      this.dataset1.get('one two', $.noop);
-      this.dataset2.get('one two', $.noop);
+      this.bloodhound1.get('one two', $.noop);
+      this.bloodhound2.get('one two', $.noop);
 
-      expect(this.dataset1.transport.get).toHaveBeenCalledWith(
+      expect(this.bloodhound1.transport.get).toHaveBeenCalledWith(
         '/test?q=one%20two',
         { method: 'get', dataType: 'json' },
         jasmine.any(Function)
       );
 
-      expect(this.dataset2.transport.get).toHaveBeenCalledWith(
+      expect(this.bloodhound2.transport.get).toHaveBeenCalledWith(
         '/test?q=one two',
         { method: 'get', dataType: 'json' },
         jasmine.any(Function)
@@ -195,13 +195,13 @@ describe('Dataset', function() {
       spy = jasmine.createSpy();
       filterSpy = jasmine.createSpy().andCallFake(fakeFilter);
 
-      this.dataset = new Dataset({
+      this.bloodhound = new Bloodhound({
         remote: { url: '/test', filter: filterSpy }
       });
-      this.dataset.initialize();
+      this.bloodhound.initialize();
 
-      this.dataset.transport.get.andCallFake(fakeGet);
-      this.dataset.get('big', spy);
+      this.bloodhound.transport.get.andCallFake(fakeGet);
+      this.bloodhound.get('big', spy);
 
       waitsFor(function() { return spy.callCount; });
 
@@ -227,11 +227,11 @@ describe('Dataset', function() {
     it('should call #get callback once if cache hit', function() {
       var spy = jasmine.createSpy();
 
-      this.dataset = new Dataset({ remote: '/test?q=%QUERY' });
-      this.dataset.initialize();
-      this.dataset.transport.get.andCallFake(fakeGet);
+      this.bloodhound = new Bloodhound({ remote: '/test?q=%QUERY' });
+      this.bloodhound.initialize();
+      this.bloodhound.transport.get.andCallFake(fakeGet);
 
-      this.dataset.get('dog', spy);
+      this.bloodhound.get('dog', spy);
 
       expect(spy.callCount).toBe(1);
 
@@ -249,17 +249,17 @@ describe('Dataset', function() {
       spy1 = jasmine.createSpy();
       spy2 = jasmine.createSpy();
 
-      this.dataset = new Dataset({
+      this.bloodhound = new Bloodhound({
         limit: 3,
         local: fixtures.data.simple,
         remote: { url: '/test?q=%QUERY' }
       });
-      this.dataset.initialize();
+      this.bloodhound.initialize();
 
-      this.dataset.transport.get.andCallFake(fakeGet);
+      this.bloodhound.transport.get.andCallFake(fakeGet);
 
-      this.dataset.get('big', spy1);
-      this.dataset.get('bigg', spy2);
+      this.bloodhound.get('big', spy1);
+      this.bloodhound.get('bigg', spy2);
 
       expect(spy1.callCount).toBe(1);
       expect(spy2.callCount).toBe(1);
