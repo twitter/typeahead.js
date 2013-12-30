@@ -150,7 +150,7 @@ var Dataset = (function() {
       this.transport = this.remote ? new Transport(this.remote) : null;
       this.initialize = function initialize() { return that; };
 
-      return this;
+      return deferred.promise();
 
       function addLocalToIndex() { that.add(that.local); }
     },
@@ -162,8 +162,6 @@ var Dataset = (function() {
       normalized = this._normalize(data);
 
       this.index.add(normalized);
-
-      return this;
     },
 
     get: function get(query, cb) {

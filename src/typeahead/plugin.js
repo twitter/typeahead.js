@@ -121,13 +121,13 @@
     source = _.bind(dataset.get, dataset);
 
     source.initialize = function() {
-      dataset.initialize();
-      return source;
+      // returns a promise that is resolved after prefetch data
+      // is loaded and processed
+      return dataset.initialize();
     };
 
     source.add = function(data) {
       dataset.add();
-      return source;
     };
 
     return source;
