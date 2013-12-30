@@ -4,7 +4,7 @@
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-(function() {
+(function(Bloodhound) {
   var typeaheadKey, methods;
 
   typeaheadKey = 'ttTypeahead';
@@ -20,26 +20,24 @@
       function attach() {
         var $input = $(this), promises, eventBus, typeahead;
 
-        promises = _.map(datasets, function(dataset) {
-          var promise = $.Deferred().resolve().promise();
+        promises = _.map(datasets, function(d) {
+          var promise = $.Deferred().resolve();
 
           // HACK: force highlight as a top-level config
-          dataset.highlight = !!o.highlight;
+          d.highlight = !!o.highlight;
 
           // if source is an object, convert it to a bloodhound
-          if (_.isObject(dataset.source)) {
-            dataset.source = bloodhoundAdapter(dataset.source);
-            promise = dataset.source.initialize();
+          if (_.isObject(d.source) || isBloodhound(d.source)) {
+            d.source = bloodhoundAdapter(d.source);
+            promise = d.source.initialize();
           }
 
           return promise;
         });
 
-        eventBus = new EventBus({ el: $input });
-
         typeahead = new Typeahead({
           input: $input,
-          eventBus: eventBus,
+          eventBus: eventBus = new EventBus({ el: $input }),
           withHint: _.isUndefined(o.hint) ? true : !!o.hint,
           minLength: o.minLength,
           autoselect: o.autoselect,
@@ -48,9 +46,13 @@
 
         $input.data(typeaheadKey, typeahead);
 
-        $.when.apply($, promises)
-        .done(trigger('initialized'))
-        .fail(trigger('initialized:err'));
+        // only trigger these events if at least one dataset is
+        // using a bloodhound as a source
+        if (promises.length) {
+          $.when.apply($, promises)
+          .done(trigger('initialized'))
+          .fail(trigger('initialized:err'));
+        }
 
         // defer trigging of events to make it possible to attach
         // a listener immediately after jQuery#typeahead is invoked
@@ -133,25 +135,31 @@
     }
   };
 
-  jQuery.fn.typeahead.bloodhoundAdapter = bloodhoundAdapter;
+  // helper functions
+  // ----------------
 
   function bloodhoundAdapter(o) {
     var bloodhound, source;
 
-    bloodhound = (o instanceof Bloodhound) ? o : new Bloodhound(o);
+    if (!Bloodhound) {
+      $.error('Bloodhound constructor has not been loaded');
+    }
+
+    bloodhound = isBloodhound(o) ? o : new Bloodhound(o);
     source = _.bind(bloodhound.get, bloodhound);
 
     source.initialize = function() {
-      // returns a promise that is resolved after prefetch data
-      // is loaded and processed
       return bloodhound.initialize();
     };
 
     source.add = function(data) {
       bloodhound.add();
-      return dataSource.initialize();
     };
 
     return source;
   };
-})();
+
+  function isBloodhound(obj) {
+    return Bloodhound && obj instanceof Bloodhound;
+  }
+})(window.Bloodhound);
