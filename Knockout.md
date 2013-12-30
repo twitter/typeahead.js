@@ -131,10 +131,55 @@ So in case we only want to accept countries in our list, the typeahead will allo
     
 See example2 in action on [Plunker](http://plnkr.co/edit/QaRp2m?p=preview)
 
+Example 3, prefetch:
+=====
+## 1) Synchronous prefetch example
+This example shows how to use pefetchHandler to load prefetched data by our own internal function and thus in perfect control of the prefetch data.
+We can omit the prefetch options and just set the handler function as the prefetch option like this, if we do not require extra options like ttl or cacheKey.
+    
+    data-bind="value: vm.selectedText1, typeahead: { selectedDatum: vm.selectedCountry1, prefetch: vm.handlerSync, valueKey: 'code', nameKey: 'name', tokenFields: 'name,code,localName', valueFields: 'localName', templateElement: '#countryItemTemplate'}"
+
+We bind the selected text from the control by normal knockout valueabinding to `selectedText1` in the viewmodel
+In case user picks something in the autocomplete we get the original data to the viewmodels `selectedCountry` using the `selectedDatum` option. If we are handling synchronous fetch, (do not have to wait for remote response) we do not have to wrap the result in promise, just return the data  
+**Handler function in viewmodel:**
+    
+    function handlerSync() {
+    var data = [];
+    countryList.forEach(function (itm) { data.push(itm); });
+    return data;
+    }
+## 2) Asynchronous prefetch example
+The next typeahead control demonstrates asynchronous prefetch.
+    
+    data-bind="value: vm.selectedText2, typeahead: {selectedDatum: vm.selectedCountry2, minLength: 0, isBusy: vm.isInProgress, prefetch: vm.handlerAssSync, valueKey: 'code', nameKey: 'name', tokenFields: 'name,code,localName', valueFields: 'localName', templateElement: '#countryItemTemplate'}"
+Note that this one is configured to show all available options when focused `minLength: 0`.
+Also we bind busy indicator `vm.isInProgress` to the knockout binding option `isBusy`. This means that `busyUpdate` events from the typeahead control are catched by the knockout binding handler and used for updating the bound knockout variable, yet again bound to the visible property of the progress indicator.
+The assync handler function in the viewmodel for this case looks like this:
+	
+	function handlerAsSync() {
+        var data = [];
+        var def = $.Deferred(); 
+        function onTimeout() {
+          def.resolve(data); 
+        }
+        countryList.forEach(function (itm) { data.push(itm); });
+        setTimeout(onTimeout,3000); 
+        return def;
+    }
+Above we use `setTimeout()` to delay the execution so we can see a progress indicator fire off (when the prefetched data is not fetched from the cache). 
+In the Plunker demo referenced below you see two buttons that demonstrate the `clearCache` and the `refresh` methods of typeahead.
+Another new feature of this typeahead version is that you no longer need to initialize pre-set values using the `setQuery` method.
+While the input control is initializing you can start to type in text and the suggestions will update automatically once the prefetched suggestion data is ready.
+See this example in action on [Plunker](http://plnkr.co/edit/56nDoL?p=preview)
+
+
 ## Compatibility to the official typeahead.js
 
-<b>Note that at his moment, the binder [typeaheadKoBinding.js](dist/typeaheadKoBinding.js>) will not work with the official typeahead.js version, you have to use the accompanying version: [typeahead.js](dist/typeahead.js)</b>.  The main reason is that the official does not include many of the features provided here.  Also at this moment the official also contains critical bugs. See the [typeahead issue list](https://github.com/twitter/typeahead.js/issues?state=open) for details on that. 
+<b>Note that at his moment, the binder [typeaheadKoBinding.js](dist/typeaheadKoBinding.js>) will not work with the official typeahead.js version, you have to use the accompanying version: [typeahead.js](dist/typeahead.js)</b>.  The main reason is that the official does not include many of the features provided here.  Also at this moment the official (v9.3) also contains critical bugs. See the [typeahead issue list](https://github.com/twitter/typeahead.js/issues?state=open) for details on that. 
 
 ## Knockout binder reference
 
-See the [reference manual](KnockoutRef.md) for the binding handler.
+**See the [reference manual](KnockoutRef.md) for the binding handler.**
+
+## JQuery examples
+**You will also find the equivilent [JQuery examples here](Examples.md)**

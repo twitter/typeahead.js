@@ -86,10 +86,10 @@ Destroys previously initialized typeaheads. This entails reverting DOM modificat
     $('input.typeahead-devs').typeahead('destroy');
     
 
-#### jQuery#typeahead('setQuery', query) **>>New<<**
+#### jQuery#typeahead('setQuery', query) 
+Sets the current query of the typeahead. This is equivalent to using `$("input.typeahead").val(query)`.  
+ ***>>New<<** *In earlier versions of typeahead, if were using `remote` or `prefetch` data, this method was necessary to initialize the data in the control.  This fork solved this problem so initialization of data no longer requires any tricks.  You can use any method you like to set the data in the input box and do it whenever you like.* 
 
-Sets the current query of the typeahead. This is always preferable to using `$("input.typeahead").val(query)`, which will result in unexpected behaviour. To clear the query, simply set it to an empty string.  
- *If you are using `remote` data and want to initialize the typeahead value with some value, you need to call this method.*  
  
 **Example:**  
     
@@ -97,7 +97,7 @@ Sets the current query of the typeahead. This is always preferable to using `$("
     
 #### jQuery#typeahead('setDatum', datum) **>>New<<**
 
-Sets the selected datum object of the typeahead. *If you are using `remote` data and want to initialize the typeahead value with some datum, you need to call this method.*  This method is preferred for initialization over the ` setQuery ` method, especially if the `restrictInputToDatum` option is used.  
+Sets the selected datum object of the typeahead.  This method is preferred for initialization over the `setQuery` method in case you have actual data record for the selected option.  In case you have no record but want to initialize the text, then use the setQuery instead.
  
 **Example:**  
     
@@ -132,7 +132,7 @@ The cache cleared is both the remote and the prefetched cache.
 
 Reloads all suggestion data in the control.  This includes `local`, `prefetch` and `remote` data.  This function is mostly handy when the html page containing the control is reused, for example when used in SPA applications.  In that case the Initialize method is not executed automatically but we may still require refresh on the control.   
 When `cacheKey` is used as function or local data is data bound using data binding library (such as `Knockout`) we may want to update the suggestion data manually when underlying data (i.e. `local`) is changed.
-The refresh method returnes Jquery deferred object that resolves when all data is reloaded.  New event is also raised: `typeahead:refreshed`
+The refresh method returnes JQuery deferred object that resolves when all data is reloaded.  New event is also raised: `typeahead:refreshed`
  
 **Example:** 
     
@@ -186,7 +186,7 @@ If we have the internal `selectedDatum` set, the text will be set to that datums
 
 * `local` – An array of [datums][datum].
 
-* `localSearcher` **>>New<<** - Function with the signature function(query,dataset) to override the normal suggestion getter for the local and prefetched data. It returns list of search items (suggestions) on the form {name: `<display name>`, value: `<key value>`, tokens: `<List of search tokens>`, datum: `<the datum object>`}.  The query parameter is the current search query and the dataset the typeahead dataset object.  
+* `matcher` **>>New<<** - Function with the signature function(query,dataset) to override the normal suggestion getter for the local and prefetched data. It returns list of search items (suggestions) on the form {name: `<display name>`, value: `<key value>`, tokens: `<List of search tokens>`, datum: `<the datum object>`}.  The query parameter is the current search query and the dataset the typeahead dataset object.  
 ***Be warned:** it requires knowledge of the internals of typeahead's dataset to create function of this complexity.
 
 * `prefetch` – Can be a URL to a JSON file containing an array of datums or function handling datum population or, if more configurability is needed, a [prefetch options object][prefetch].
@@ -229,7 +229,7 @@ When configuring `prefetch`, the following options are available:
 * `url` – A URL to a JSON file containing an array of datums. **url or handler Required.**
 
 * `prefetcHandler` **>>New<<** - Custom function with the signature `function()`, returning array of datums, to take control of the prefetched data retrieval.  This can be both used to handle local synchronous data or to fetch asynchronous data from remote source using the **promise pattern**.    
-In case this function is used for asynchronous data fetch it must return `promise`, but it should return `true` for synchronous operations.  Both [JQuery promises](http://api.jquery.com/promise/ "JQuery promises") and [Q promises](http://documentup.com/kriskowal/q/#introduction) are supported.
+In case this function is used for asynchronous data fetch it must return  the data array wraped in`promise` (i.e. `return $.Deferred().resolve(data);`), but it should return the data arrey  for synchronous operations.  Both [JQuery promises](http://api.jquery.com/promise/ "JQuery promises") and [Q promises](http://documentup.com/kriskowal/q/#introduction) are supported.
 
 * `ttl` – The time (in milliseconds) the prefetched data should be cached in local storage. Defaults to `86400000` (1 day).  Setting this value to 0 will prevent caching.
 
@@ -301,21 +301,24 @@ typeahead.js triggers the following custom events:
 
 * `typeahead:reloaded` **>>New<<** – Triggered when dataset has been reloaded using the typeahead method `reload`.  
 
+* `typeahead:busyUpdate` **>>New<<** – Triggered when the typeahead starts or stops lookup work -> is busy processing or looking up data.  This applies also to `prefetch` data.  This event can be used to manage loaders or busy indicators for the control. Your worker functon should have the following signature:  `function myFunction(element,isBusy)`  where isBusy is the boolean busy indication value.
+
 All custom events are triggered on the element initialized as a typeahead.
 
 You can use JQuery to hook the custom events to your handling functions.  
   
 **Example:**  
     
-    $(´#yourElementIdWithHash´.on('typeahead:selected', yourSelectedEfentHanlerFunction); 
+    $(´#yourElementIdWithHash´.on('typeahead:selected', yourSelectedEventHanlerFunction); 
     
 where the handler function has this format:
     
     function yourSelectedEventHanlerFunction(element,datum) { 
-       Datum contains here the info about the cell you selected.   
-       Element is the input box element.
+		//your implementation here
     }
   
+Above the **datum** parameter contains the data for the suggestion you selected.   
+**Element** is the input box **Dom** element.
 
 ### Template Engine Compatibility
 

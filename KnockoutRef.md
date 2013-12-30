@@ -10,22 +10,28 @@ Include the link reference to the scripts in you html file.  Place the scripts a
 
 Compatibility to the official typeahead.js
 ====
-<b>Note that at his moment, the binder [typeaheadKoBinding.js](dist/typeaheadKoBinding.js>) will not work with the official typeahead.js version, you have to use the accompanying version: [typeahead.js](dist/typeahead.js)</b>.  The main reason is that the official does not include many of the features provided here.  Also at this moment the official also contains critical bugs. See the [typeahead issue list](https://github.com/twitter/typeahead.js/issues?state=open) for details on that.  However this version is fully backward compatible with the official version so you should not loose any functionality with your previous modifications if you replace your version of typeahead.js with this one. If you do, please report it at my [typeahead fork](https://github.com/Svakinn/typeahead.js/issues)
+<b>Note that at his moment, the binder [typeaheadKoBinding.js](dist/typeaheadKoBinding.js>) will not work with the official typeahead.js version, you have to use the accompanying version: [typeahead.js](dist/typeahead.js)</b>.  The main reason is that the official does not include many of the features provided here.  Also at this moment the official also contains critical bugs. See the [typeahead issue list](https://github.com/twitter/typeahead.js/issues?state=open) for details on that.  However this version is fully backward compatible with the official version so you should not loose any functionality with your previous modifications if you replace your version of typeahead.js with this one. If you do, please report it at my [typeahead fork](https://github.com/Svakinn/typeahead.js/issues)  
+**Note: New version of official typeahead is coming soon (v0.10).**  It will not support all of the features required for this binding handler, but the next one after that (v0.11) hopefully will.
 
 Data bind
 ======
-There are two values you can data bind to your viewmodel:
-# 1) the input value
+There are 4 values you can data bind to your viewmodel:
+# 1) The input value
 Here you use the normal Knockout value data binding:
     
     <input data-bind="value: vm.myText, typeahead: {.. the rest of the options..}">
 
    The data type in your viewmodel should be knockoutObservable() on text item.
-# 2) the selected datum
-The selected datum is the object that includes the data in the underlying options list that is currently selected.  When nothing is selected the value will be `null`.  When you have selected item in the typeahead by `autocompletion` or by `selection` the value of your binding will be the underlying record you used for the typeahead dataset (local,remote,prefetch).
+# 2) The selected datum
+The selected datum - `selectedDatum` is the object that includes the data in the underlying options list that is currently selected.  When nothing is selected the value will be `null`.  When you have selected item in the typeahead by `autocompletion` or by `selection` the value of your binding will be the underlying record you used for the typeahead dataset (local,remote,prefetch).
     
     <input data-bind="tyepahead: {selectedDatum: vm.myDatum, .... the rest of the options......}">
-# 2) The suggestion source
+# 2) The busy indicator
+The typeahead controls indicates when it is doing some work in the background, using the event `busyUpdate`.  
+Typeahead is busy when it is initializing initial data and when it is searching for suggestions. This binding control wraps this up for you with the binding option `isBusy`.
+    
+    <input data-bind="tyepahead: {isBusy: vm.busy, selectedDatum: vm.myDatum, .... the rest of the options......}">
+# 4) The suggestion source
 This can be any of following: `local`, `remote` or `prefetch`. 
 In fact you can use any or all of them simultaneously and some of them more than once.  
 The `typeahaead` control requires the `remote` and `prefetch` options to have their own options.
@@ -73,6 +79,7 @@ The binder adds few settings on top of this:
 For example if your hidden element containing the template has the id 'myTemplate' then this value should be set to '#myTemplate'. 
 - **tokenFields**  - Seee above.  Note that this value only effects `local` and `prefetch` datasets. 
 - **valueFields**  - See above.
+- **isBusy**  - See above
  
 #Binder extra defaults
 Two default settings are also provided by the binder, on top of the typeahead default settings.
@@ -82,4 +89,3 @@ Defaulted settings
 - **name**:  the element id of the input control
 
 See the [Knockout example](Knockout.md) about examples on how the data binder is applied.
-

@@ -1,4 +1,4 @@
-﻿/*!
+﻿/*
  * typeahead.js 0.9.4  Svakinn: perhaps the many changes here deserve a new version number - of course few comments need to be removed before this code is released
  * Bugfixes: IE11 detection, blur/focus flicker on dropdown click, local suggestions now handle values with spaces
  * Remote handler functionality (handling function option instead of ajax) still allowing for throttling and cache, supports JQuery and Q promises
@@ -9,6 +9,8 @@
  * New typeahead interface methods: getDatum, getQuery, setDatum, clearCache, openDropdown and closeDropdown
  * New event noSelect: when user leaves field without selecting valid datum.
  * Option to set minLength as 0 to get all suggestion (to the limit) for empty text in input
+ * Improved suggestion triggering, eliminating the need to initialize values with the setQuery method
+ * Busy indication with the new typeahead:busyUpdate event
  * Accompanying this update is a Knockout binding handler that greatly simplifies the work of initialization, auto-Datum creation and two-way databinding to selected Datum
  * See updated Readme.md and the new Handler.md and Knockout.md for details.
  * Credits for this update:  nathankoop and bowser project for the IE11 detection, zhigang1992 for the restrictInputToDatum option, cusspvz for the handler name, adanaltamira for minLength documentation, and last but not least
@@ -85,7 +87,7 @@
         },
         mixin: $.extend,
         getUniqueId: function () {
-            var counter = 0;
+            var counter = 1;    //0 as value cuases problems with conditional checks, mabe this should be converted to string as well?
             return function () {
                 return counter++;
             };
@@ -315,7 +317,7 @@
             requestCache = requestCache || new RequestCache();
             maxPendingRequests = utils.isNumber(o.maxParallelRequests) ? o.maxParallelRequests : maxPendingRequests || 6;
             this.url = o.url;
-            this.handler = o.handler = (typeof o.handler === 'function' ? o.handler : null);
+            this.handler = o.handler = (typeof o.handler == 'function' ? o.handler : null);
             this.wildcard = o.wildcard || "%QUERY";
             this.filter = o.filter;
             this.replace = o.replace;
@@ -380,7 +382,7 @@
                 var that = this, encodedQuery = encodeURIComponent(query || ""), url, resp, cacheKey;
                 cb = cb || utils.noop;
                 url = this.url ? (this.replace ? this.replace(this.url, encodedQuery) : this.url.replace(this.wildcard, encodedQuery)) : '';
-                if (typeof this.cacheKey === 'function')
+                if (typeof this.cacheKey == 'function')
                     cacheKey = this.cacheKey(query);
                 else
                     cacheKey = this.cacheKey ? this.cacheKey + '%_' + query : url;
@@ -436,7 +438,7 @@
                 this.cacheKeyFn = o.cacheKey;
             }
             else
-                this.cacheKey = o.cacheKey ? o.cacheKey : o.name;
+                this.cacheKey = o.cacheKey ? o.cacheKey : this.name;
             this.header = o.header;
             this.footer = o.footer;
             this.valueKey = o.valueKey || "value";
@@ -446,7 +448,7 @@
             this.local = o.local;
             this.prefetch = o.prefetch;
             this.remote = o.remote;
-            this.localSearcher = o.localSearcher; //override for _getLocalSuggestions
+            this.matcher = o.matcher; //override for _getLocalSuggestions
             this.itemHash = {};
             this.adjacencyList = {};
             this.nameAdjacencyList = {};
@@ -480,7 +482,7 @@
                     });
                     deferred = $.Deferred().resolve();
                 } else {
-                    if (o.prefetchHandler && typeof o.prefetchHandler === 'function') {
+                    if (o.prefetchHandler && typeof o.prefetchHandler == 'function') {
                         //Support Q promises as well as JQuery promises, remember that Q can consume JQuery promise but not vice versa
                         if (typeof Q !== 'undefined') {
                             deferred = $.Deferred();
@@ -500,8 +502,8 @@
                 }
                 return deferred;
                 function errorPrefetchdata(jqxhr, textStatus, error) {
-                    console.log('Prefetch error: '+error.message);
-                }
+                    console.log('Prefetch error: ' + error.message);
+                };
                 function processPrefetchData(data) {
                     var filteredData = o.filter ? o.filter(data) : data, processedData = that._processData(filteredData), itemHash = processedData.itemHash, adjacencyList = processedData.adjacencyList, nameAdjacencyList = processedData.nameAdjacencyList;
                     if (that.storage) {
@@ -631,10 +633,10 @@
                             if (item.name.search(regSrc) === 0) {
                                 suggestions.push(item);
                                 noFound++;
-                            }
+                            };
                             if (noFound == this.limit)
                                 break;
-                        }
+                        };
                     }
 
                     if (noFound < this.limit) {
@@ -673,8 +675,8 @@
             initialize: function () {
                 var deferred;
                 this.local && this._processLocalData(this.local);
-                if (this.remote && typeof this.remote === 'function') this.remote = { handler: this.remote }; //Allow for remote to be handler function
-                if (this.prefetch && typeof this.prefetch === 'function') this.prefetch = { prefetchHandler: this.prefetch }; //Allow for prefetch to be handler function
+                if (this.remote && typeof this.remote == 'function') this.remote = { handler: this.remote }; //Allow for remote to be handler function
+                if (this.prefetch && typeof this.prefetch == 'function') this.prefetch = { prefetchHandler: this.prefetch }; //Allow for prefetch to be handler function
                 if (this.remote && !this.remote.url && !this.remote.cacheKey && !this.remote.name) this.remote.cacheKey = this.cacheKey || this.remote.name || this.name; //Fallback for caching name for handler if cacheKey is not specified in the remote section, another approach would be to raise error if missing
                 this.transport = this.remote ? new Transport(this.remote) : null;
                 this.isRemote = this.remote ? true : false;
@@ -692,8 +694,8 @@
                 }
                 //terms = utils.tokenizeQuery(query);
                 //suggestions = this._getLocalSuggestions(terms).slice(0, this.limit);
-                if (this.localSearcher && typeof this.localSearcher === 'function')
-                    suggestons = this.localSearcher(query,this);
+                if (this.matcher && typeof this.matcher == 'function')
+                    suggestons = this.matcher(query, this);
                 else
                     suggestions = this._getLocalSuggestions(query);
                 if (this.transport)
@@ -704,7 +706,7 @@
                     utils.each(data, function (i, datum) {
                         var item = that._transformDatum(datum), isDuplicate;
                         isDuplicate = utils.some(suggestions, function (suggestion) {
-                            return item.value === suggestion.value; 
+                            return item.value === suggestion.value;
                         });
                         !isDuplicate && suggestions.push(item);
                         return suggestions.length < that.limit;
@@ -721,6 +723,9 @@
                     if (this.cacheKey != oldKey)
                         this.clearCache();
                 }
+                this.itemHash = {};
+                this.adjacencyList = {};
+                this.nameAdjacencyList = {};
                 this.local && this._processLocalData(this.local);
                 return this.prefetch ? this._loadPrefetchData(this.prefetch) : $.Deferred().resolve();
             },
@@ -761,6 +766,7 @@
                 40: "down"
             };
             this.tracer = o.tracer;
+            this.isFocused = false;  
             this.$hint = $(o.hint);
             this.$input = $(o.input).on("blur.tt", this._handleBlur).on("focus.tt", this._handleFocus).on("keydown.tt", this._handleSpecialKeyEvent);
             if (!utils.isMsie()) {
@@ -779,10 +785,12 @@
         utils.mixin(InputView.prototype, EventTarget, {
             _handleFocus: function () {
                 //this.tracer.push('inputview focus');
+                this.isFocused = true;
                 this.trigger("focused");
             },
             _handleBlur: function () {
                 //this.tracer.push('inputview blured');
+                this.isFocused = false;
                 this.trigger("blured");
             },
             _handleSpecialKeyEvent: function ($e) {
@@ -790,12 +798,15 @@
                 keyName && this.trigger(keyName + "Keyed", $e);
             },
             _compareQueryToInputValue: function () {
-                var inputValue = this.getInputValue(), isSameQuery = compareQueries(this.query, inputValue), isSameQueryExceptWhitespace = isSameQuery ? this.query.length !== inputValue.length : false;
-                if (isSameQueryExceptWhitespace) {
-                    this.trigger("whitespaceChanged", {
-                        value: this.query
-                    });
-                } else if (!isSameQuery) {
+                var inputValue = this.getInputValue(), isSameQuery = compareQueries(this.query, inputValue);
+                //No need for whitespace handling, query suggestons include whitespace like any other character!
+                //, isSameQueryExceptWhitespace = isSameQuery ? this.query.length !== inputValue.length : false;
+                //if (isSameQueryExceptWhitespace) {
+                //    this.trigger("whitespaceChanged", {
+                //        value: this.query
+                //    });
+                //} else
+                if (!isSameQuery) {
                     this.trigger("queryChanged", {
                         value: this.query = inputValue
                     });
@@ -848,6 +859,10 @@
                     return valueLength === range.text.length;
                 }
                 return true;
+            },
+            //Report if the input has focus or not 
+            hasFocus: function () {
+                return this.isFocused || this.$input.is(':focus');
             }
         });
         return InputView;
@@ -896,7 +911,7 @@
             this.isOpen = false;
             this.isEmpty = true;
             this.isMouseOverDropdown = false;
-            this.$menu = $(o.menu).on("mousedown.tt",this._handleMouseDown).on("mouseenter.tt", this._handleMouseenter).on("mouseleave.tt", this._handleMouseleave).on("click.tt", ".tt-suggestion", this._handleSelection).on("mouseover.tt", ".tt-suggestion", this._handleMouseover);
+            this.$menu = $(o.menu).on("mousedown.tt", this._handleMouseDown).on("mouseenter.tt", this._handleMouseenter).on("mouseleave.tt", this._handleMouseleave).on("click.tt", ".tt-suggestion", this._handleSelection).on("mouseover.tt", ".tt-suggestion", this._handleMouseover);
         }
         utils.mixin(DropdownView.prototype, EventTarget, {
             _handleMouseenter: function () {
@@ -981,7 +996,8 @@
             open: function () {
                 if (!this.isOpen) {
                     this.isOpen = true;
-                    !this.isEmpty && this._show();
+                    //!this.isEmpty && this._show();
+                    this._show();
                     this.trigger("opened");
                 }
             },
@@ -1101,11 +1117,13 @@
             utils.bindAll(this);
             this.$node = buildDomStructure(o.input);
             this.selectedDatum = null;
-            this.selectedDatumDsName = null; 
+            this.selectedDatumDsName = null;
             this.datasets = o.datasets;
             this.dir = null;
             this.eventBus = o.eventBus;
             this.hasRemote = false;
+            this.isBusy = false;  //For controllyng busy/notBusy events
+            this.isLoading = false; //
             this.dsnameAny = null; //Failsafe dsname for setDatum
             this.restrictInputToDatum = null;
             this.tracer = null; //Debug tool for logs since console.log is unusable in IE since it receives focus
@@ -1123,11 +1141,11 @@
                         this.hasRemote = true;
                         this.dsnameAny = this.datasets[i].name; //prefer remote dataset as failsafe for setDatum
                     }
-                    if (!this.restrictInputToDatum && this.datasets[i].restrictInputToDatum)
-                        this.restrictInputToDatum = this.datasets[i].restrictInputToDatum;
+                    if (!this.restrictInputToDatum && this.datasets[i]['restrictInputToDatum'])
+                        this.restrictInputToDatum = this.datasets[i]['restrictInputToDatum'];
                     if (!this.tracer)
-                        this.tracer = this.datasets[i].tracer;
-                    if (this.minMinLength === null || this.minMinLength > this.datasets[i].minLength) 
+                        this.tracer = this.datasets[i]['tracer'];
+                    if (this.minMinLength === null || this.minMinLength > this.datasets[i].minLength)
                         this.minMinLength = this.datasets[i].minLength;
                 }
             }
@@ -1143,13 +1161,25 @@
                 input: $input,
                 hint: $hint,
                 tracer: this.tracer
-            }).on("focused", this._openDropdown).on("blured", this._closeDropdown).on("blured", this._setInputValueToQuery).on("blured", this._manageLeaving).on("enterKeyed tabKeyed", this._handleSelection).on("queryChanged", this._clearHint).on("queryChanged", this._clearSuggestions).on("queryChanged", this._getSuggestions).on("whitespaceChanged", this._updateHint).on("queryChanged whitespaceChanged", this._openDropdown).on("queryChanged whitespaceChanged", this._setLanguageDirection).on("escKeyed", this._closeDropdown).on("escKeyed", this._setInputValueToQuery).on("tabKeyed upKeyed downKeyed", this._managePreventDefault).on("upKeyed downKeyed", this._moveDropdownCursor).on("upKeyed downKeyed", this._openDropdown).on("tabKeyed leftKeyed rightKeyed", this._autocomplete);
+                //Little cleanup of all the event handlers here
+                //I do not see any need for handling whitespace key at all !
+            }).on("focused", this._handleFocused).on("enterKeyed tabKeyed", this._handleSelection)//.on("queryChanged", this._clearHint).on("queryChanged", this._clearSuggestions).on("queryChanged", this._queryForSuggestions)
+                //.on("whitespaceChanged", this._updateHint)
+                //.on("queryChanged whitespaceChanged", this._queryForSuggestions)
+                //.on("queryChanged whitespaceChanged", this._setLanguageDirection) //include in queryForSuggestions
+                .on("queryChanged", this._queryForSuggestions)
+                .on("escKeyed", this._closeDropdown).on("escKeyed", this._setInputValueToQuery)
+                .on("tabKeyed upKeyed downKeyed", this._managePreventDefault)
+                .on("upKeyed downKeyed", this._moveDropdownCursor)
+                .on("upKeyed downKeyed", this._openDropdown)
+                .on("tabKeyed leftKeyed rightKeyed", this._autocomplete)
+                .on("blured", this._handleBlured); 
         }
         utils.mixin(TypeaheadView.prototype, EventTarget, {
             _managePreventDefault: function (e) {
                 var $e = e.data, hint, inputValue, preventDefault = false;
                 switch (e.type) {
-                    case "tabKeyed":
+                    case "tabKeyed":  //Stop user from leaving input on tab-key if auto-completion is still to be done by tab key
                         hint = this.inputView.getHintValue();
                         inputValue = this.inputView.getInputValue();
                         preventDefault = hint && hint !== inputValue;
@@ -1165,9 +1195,9 @@
             _manageLeaving: function (e) {
                 //this.tracer.push('Leaving');
                 var inputValue = this.inputView.getInputValue();
-                var restrict = (typeof this.restrictInputToDatum === 'function' ? this.restrictInputToDatum() : this.restrictInputToDatum);
+                var restrict = (typeof this.restrictInputToDatum == 'function' ? this.restrictInputToDatum() : this.restrictInputToDatum);
                 //To allow user to select nothing we nullify the datum if the input string is empty and the datum name is not empty
-                if (inputValue === null || inputValue.length === 0) {
+                if (inputValue === null || inputValue.length == 0) {
                     if (!this.selectedDatum || this.selectedDatum[this.dsIdx[this.selectedDatumDsName].nameKey]) {
                         this.selectedDatum = null; //Clear the selected datum and notify
                         this.eventBus.trigger("noSelect", ''); //TTrigger event for databinding since user is deliberatly selecting empty value
@@ -1187,7 +1217,7 @@
                         this.inputView.setInputValue('', true); //Reset input value to empty value if restriction
                     this.eventBus.trigger("noSelect", inputValue); //TTrigger event for databinding of selected datum
                 }
-                
+
             },
             _setLanguageDirection: function () {
                 var dir = this.inputView.getLanguageDirection();
@@ -1221,11 +1251,15 @@
                 var suggestion = e.data;
                 this.inputView.setInputValue(suggestion.name, true);
             },
-            _openDropdown: function (e) {
-                this.dropdownView.open();
+            _openDropdown: function (e) {  //basically does the same thing as _queryForSuggestions now but only if closed
+                //this.dropdownView.open();
+                if (!this.dropdownView.isOpen)
+                    this._queryForSuggestions(); //Suggestion render will open dropdown when something is found
             },
             _closeDropdown: function (e) {
-                this.dropdownView[e.type === "blured" ? "closeUnlessMouseIsOverDropdown" : "close"]();
+                var e_type = e && e.type ? e.type : 'close'; //Ability to call without event info
+                this._handleBusy(false, null);
+                this.dropdownView[e_type === "blured" ? "closeUnlessMouseIsOverDropdown" : "close"]();
             },
             _moveDropdownCursor: function (e) {
                 var $e = e.data;
@@ -1250,32 +1284,76 @@
                     this.selectedDatumDsName = suggestion.dsname;
                     this.selectedDatum = suggestion.datum;
                     this._clearSuggestions();
-                    this._getSuggestions();
+                    //this._getSuggestions();
                     //this._updateHint();
                     //The previous code was to tackle the problem of the dropdownview having received focus on mouse click
                     //This has been fixed now, at least for FF and Crome so we sould be able to simpli close the dropdown without refocusing the input view
                     //byClick ? this.inputView.focus() : e.data.preventDefault();
                     //byClick && utils.isMsie() ? utils.defer(this.dropdownView.close) : this.dropdownView.close();
                     //Another thing we want to do here is to clear 
+                    this._handleBusy(false, null);
                     this.dropdownView.close();
                     this.eventBus.trigger("selected", suggestion.datum, suggestion.dataset);
-                }
+                };
                 //else
                 //    this.tracer.push('Typeaheadview handleselection found no suggestion');
             },
-            _getSuggestions: function () {
+            //Allow page/binders manage busy controller or dataBind to busy property
+            //This function is called when Suggestions are rendered but also when the dropdown is closed, the same goes for prefetching data
+            //Caller sets null for unknown values, else true/false
+            _handleBusy: function (isBusy, isLoading) {
+                var busyNow = this.isBusy === true || this.isLoading === true;
+                if (!busyNow && (isBusy === true || isLoading === true))
+                    this.eventBus.trigger("busyUpdate",true);
+                else if (busyNow && (isBusy === false || isLoading === false)) {
+                    var okNow = true;
+                    if (this.isBusy === true && isBusy !== false)
+                        okNow = false;
+                    if (this.isLoading === true && isLoading !== false)
+                        okNow = false;
+                    okNow && this.eventBus.trigger("busyUpdate",false);
+                }
+                if (isBusy !== null)
+                    this.isBusy = isBusy;
+                if (isLoading !== null)
+                    this.isLoading = isLoading;
+            },
+            _handleFocused: function () {
+                this.inputView.isFocused = true; //Debug
+                this._queryForSuggestions();
+            },
+            _handleBlured: function (e) {
+                this.inputView.isFocused = false; //Debug
+                this._closeDropdown(e);
+                this._setInputValueToQuery();
+                this._manageLeaving(e);
+            },
+            //Now made to run on demand (on focus on input or when typing)
+            //Also renamed from _getSuggestons since same method name with different functionality is used in other classes
+            _queryForSuggestions: function () {
+                this._clearHint();
+                this._clearSuggestions();
                 var that = this, query = this.inputView.getQuery();
                 //this.tracer.push('Typeaheadview getSuggestins: '+query);
                 if (this.minMinLength !== 0 && utils.isBlankString(query)) {
                     return;
                 }
+                this._handleBusy(true, null);
                 utils.each(this.datasets, function (i, dataset) {
                     dataset.getSuggestions(query, function (suggestions) {
-                        if (query === that.inputView.getQuery()) {
-                            that.dropdownView.renderSuggestions(dataset, suggestions);
+                        if (query === that.inputView.getQuery()) { //This is still the active query
+                            //NOW OPEN THE DROPDOWN - but only if this is the focused input control
+                            if (that.inputView.hasFocus()) {
+                                that._setLanguageDirection;
+                                that.dropdownView.open(); 
+                                that.dropdownView.renderSuggestions(dataset, suggestions);
+                            }
                         }
                     });
                 });
+                if (query === that.inputView.getQuery()) {
+                    this._handleBusy(false, null);
+                }
             },
             _autocomplete: function (e) {
                 var isCursorAtEnd, ignoreEvent, query, hint, suggestion;
@@ -1312,14 +1390,15 @@
                 this.inputView.setInputValue(query);
                 this._clearHint();
                 this._clearSuggestions();
-                this._getSuggestions();
+                //this._getSuggestions();  
+                //this._queryForSuggestions();  //ToDO: this is questionable, should only do this if control is focused (now only needed if prefetch is in progress)
             },
             setDatum: function (datum, dsname) {
                 //Since we are using namekeys and valuekeys we can not assume how to pickup datum values unless we have the name and value keys
                 //Those keys are stored in the dataset, this is why we need the dsname property.
                 //We are still prepared for it to be emty, because it should be ok if we have only one dataset,only one remote dataset the datum belongs to, or all the datasets use the same keys. (probably 95% of all cases)
                 dsname = dsname ? dsname : this.dsnameAny;
-                if (dsname && this.dsIdx[dsname].nameKey) {
+                if (typeof dsname !== 'undefined' && this.dsIdx[dsname].nameKey) {
                     this.selectedDatumDsName = dsname;
                     this.selectedDatum = datum;
                     query = datum ? datum[this.dsIdx[dsname].nameKey] : '';
@@ -1327,8 +1406,9 @@
                     this.inputView.setInputValue(query);
                     this._clearHint();
                     this._clearSuggestions();
-                    this._getSuggestions();
-                }
+                    //this._getSuggestions();
+                    //this._queryForSuggestions(); //ToDO: this is questionable, should only do this if control is focused (now only needed if prefetch is in progress)
+                };
             }
         });
         return TypeaheadView;
@@ -1374,26 +1454,25 @@
         var cache = {}, viewKey = "ttView", methods, eventbus;
         methods = {
             initialize: function (datasetDefs) {
-                var datasets;
+                var datasets, view;
                 datasetDefs = utils.isArray(datasetDefs) ? datasetDefs : [datasetDefs];
                 if (datasetDefs.length === 0) {
                     $.error("no datasets provided");
                 }
                 datasets = utils.map(datasetDefs, function (o) {
-                    var dataset = cache[o.name] ? cache[o.name] : new Dataset(o);
-                    if (o.name) {
-                        cache[o.name] = dataset;
-                    }
-                    return dataset;
+                    //No reason to cache the whole dataset object, preset and remote cache should do fine
+                    //var dataset = cache[o.name] ? cache[o.name] : new Dataset(o);
+                    //if (o.name) {
+                    //    cache[o.name] = dataset;
+                    //}
+                    //return dataset;
+                    return new Dataset(o);
                 });
                 return this.each(initialize);
                 function initialize() {
                     var $input = $(this), deferreds;
                     eventBus = new EventBus({
                         el: $input
-                    });
-                    deferreds = utils.map(datasets, function (dataset) {
-                        return dataset.initialize();
                     });
                     $input.data(viewKey, new TypeaheadView({
                         input: $input,
@@ -1402,23 +1481,37 @@
                         }),
                         datasets: datasets,
                     }));
+                    view = $(this).data(viewKey);
+                    view._handleBusy(null, true); //Notify busy for initialiszation
+                    deferreds = utils.map(datasets, function (dataset) {
+                        return dataset.initialize();
+                    });
                     $.when.apply($, deferreds).always(function () {
                         utils.defer(function () {
+                            //if current is focused - recalculate suggestions - releaving programmers from calling setQuery on initialized
+                            if (view.inputView && view.inputView.hasFocus())
+                                view._queryForSuggestions();
+                            view._handleBusy(null, false); //Notify no longer busy for initialization
                             eventBus.trigger("initialized");
                         });
                     });
                 }
             },
             reload: function () {
-                var $input = $(this), view = $(this).data(viewKey), deferreds;
+                var $input = $(this), deferreds, view = $input.data(viewKey) ;
                 return this.each(reload);
                 function reload() {
                     var datasets = view && view.datasets ? view.datasets : null;
+                    view._handleBusy(null, true); //Notify busy for reload
+                    view._clearSuggestions();
                     deferreds = utils.map(datasets, function (dataset) {
                         return dataset.reload();
                     });
                     $.when.apply($, deferreds).always(function () {
                         utils.defer(function () {
+                            if (view && view.inputView && view.inputView.hasFocus())
+                                view._queryForSuggestions();
+                            view._handleBusy(null, false); //Notify reload compleated
                             eventBus.trigger("reloaded");
                         });
                     });
@@ -1429,7 +1522,7 @@
                 return this.each(destroy);
                 function destroy() {
                     var $this = $(this), view = $this.data(viewKey);
-                    if (view) {
+                    if (view = $input.data(viewKey)) {
                         view.destroy();
                         $this.removeData(viewKey);
                     }
@@ -1439,9 +1532,9 @@
                 var view = $(this).data(viewKey);
                 view && view.setQuery(query);
             },
-            setDatum: function (datum,dsname) {
+            setDatum: function (datum, dsname) {
                 var view = $(this).data(viewKey);
-                view && view.setDatum(datum,dsname);
+                view && view.setDatum(datum, dsname);
             },
             getDatum: function () {
                 var view = $(this).data(viewKey);
@@ -1459,13 +1552,13 @@
                     ds.clearCache();
                 }
             },
-            openDropdown: function () { //Note: will onl work if current selecton has suggestons populated
+            openDropdown: function () {
                 var view = $(this).data(viewKey);
-                view && view.dropdownView.open();
+                view && view._openDropdown();
             },
             closeDropdown: function () {
                 var view = $(this).data(viewKey);
-                view && view.dropdownView.close();
+                view && view._closeDropdown();
             }
         };
         jQuery.fn.typeahead = function (method) {
