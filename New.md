@@ -92,5 +92,5 @@ I took a quick look at open issues for the last 5 months and it seems that the c
 \#166-loalf
 
 #Platform Testing
-At this moment I have successfully tested this version on IE11, Chrome and Firefox on Windows 8.1  and Safari and Chrome on IPhone.  
+At this moment I have successfully tested this version on IE11, Chrome and Firefox on Windows 8.1, IE on Windows phone and Safari and Chrome on IPhone.  
 If you try out this fork and find any issues please let me know on the [Isues list](https://github.com/Svakinn/typeahead.js/issues) of the fork.  I promise to respond promptly :-)
