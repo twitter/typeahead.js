@@ -141,7 +141,7 @@ describe('DropdownView', function() {
 
         this.$menu
         .find('.tt-suggestions > .tt-suggestion')
-        .addClass('.tt-is-under-cursor');
+        .addClass('tt-is-under-cursor');
 
         // HACK: let's just assume this has been set to true
         this.dropdownView.isMouseOverDropdown = true;
