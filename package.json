@@ -33,7 +33,7 @@
     "grunt-exec": "~0.4",
     "grunt-contrib-watch": "~0.2",
     "grunt-contrib-jshint": "~0.1",
-    "grunt-contrib-uglify": "git://github.com/jharding/grunt-contrib-uglify.git#support-enclose-option",
+    "grunt-contrib-uglify": "~0.2.6",
     "grunt-contrib-concat": "~0.1",
     "grunt-contrib-connect": "~0.1",
     "grunt-contrib-clean": "~0.4.0",

@@ -30,17 +30,24 @@ describe('Dataset', function() {
   });
 
   describe('prefetch', function() {
-    it('should only cache data locally if name is set', function() {
+    it('should throw error if url is not set', function() {
+      expect(test).toThrow();
+
+      function test() { var d = new Dataset({ prefetch: {} }); }
+    });
+
+    it('should use url or cacheKey to store data locally', function() {
       var ttl = 100;
 
-      this.dataset1 = new Dataset({ prefetch: 'test2' });
-      expect(PersistentStorage).not.toHaveBeenCalled();
+      this.dataset1 = new Dataset({
+        prefetch: { url: '/test1', cacheKey: 'woah' }
+      });
+      expect(PersistentStorage).toHaveBeenCalledWith('woah');
 
       this.dataset2 = new Dataset({
-        name: 'name',
-        prefetch: { url: '/test1', ttl: ttl, thumbprint: '!' }
+        prefetch: { url: '/test2', ttl: ttl, thumbprint: '!' }
       });
-      expect(PersistentStorage).toHaveBeenCalledWith('name');
+      expect(PersistentStorage).toHaveBeenCalledWith('/test2');
 
       this.dataset2.initialize();
       ajaxRequests[0].response(fixtures.ajaxResps.ok);

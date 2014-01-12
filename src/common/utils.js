@@ -1,14 +1,14 @@
 /*
  * typeahead.js
- * https://github.com/twitter/typeahead
+ * https://github.com/twitter/typeahead.js
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
 var _ = {
   isMsie: function() {
-    var match = /(msie) ([\w.]+)/i.exec(navigator.userAgent);
-
-    return match ? parseInt(match[2], 10) : false;
+    // from https://github.com/ded/bowser/blob/master/bowser.js
+    return /(msie|trident)/i.test(navigator.userAgent) ?
+      navigator.userAgent.match(/(msie |rv:)(\d+(.\d+)?)/i)[2] : false
   },
 
   isBlankString: function(str) { return !str || /^\s*$/.test(str); },

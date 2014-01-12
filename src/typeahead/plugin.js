@@ -1,6 +1,6 @@
 /*
  * typeahead.js
- * https://github.com/twitter/typeahead
+ * https://github.com/twitter/typeahead.js
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
@@ -10,7 +10,9 @@
   typeaheadKey = 'ttTypeahead';
 
   methods = {
-    initialize: function initialize(o) {
+    initialize: function initialize(o /*, splot of sections */) {
+      var sections = [].slice.call(arguments, 1);
+
       o = o || {};
 
       return this.each(attach);
@@ -18,12 +20,21 @@
       function attach() {
         var $input = $(this), typeahead;
 
+        _.each(sections, function(section) {
+          // HACK: force highlight as a top-level config
+          section.highlight = !!o.highlight;
+
+          // if source is an object, convert it to a dataset
+          section.source = _.isObject(section.source) ?
+            datasetAdapter(section.source).initialize() : section.source;
+        });
+
         typeahead = new Typeahead({
           input: $input,
           withHint: _.isUndefined(o.hint) ? true : !!o.hint,
-          minLength: o.minLength || 0,
-          autoselect: !!o.autoselect,
-          sections: _.isArray(o.sections) ? o.sections : [o.sections]
+          minLength: o.minLength,
+          autoselect: o.autoselect,
+          sections: sections
         });
 
         $input.data(typeaheadKey, typeahead);
@@ -55,7 +66,8 @@
     },
 
     val: function val(newVal) {
-      return _.isString(newVal) ? this.each(setQuery) : this.map(getQuery).get();
+      return _.isString(newVal) ?
+        this.each(setQuery) : this.map(getQuery).get();
 
       function setQuery() {
         var $input = $(this), typeahead;
@@ -98,5 +110,26 @@
     else {
       return methods.initialize.apply(this, arguments);
     }
+  };
+
+  jQuery.fn.typeahead.datasetAdapter = datasetAdapter;
+
+  function datasetAdapter(dataset) {
+    var source;
+
+    dataset = _.isObject(dataset) ? new Dataset(dataset) : dataset;
+    source = _.bind(dataset.get, dataset);
+
+    source.initialize = function() {
+      dataset.initialize();
+      return source;
+    };
+
+    source.add = function(data) {
+      dataset.add();
+      return source;
+    };
+
+    return source;
   };
 })();

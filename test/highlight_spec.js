@@ -1,15 +1,4 @@
 describe('highlight', function() {
-
-  it('should throw an error if node is not set', function() {
-    expect(init).toThrow();
-    function init() { highlight({ pattern: 'abc' }); }
-  });
-
-  it('should throw an error if pattern is not set', function() {
-    expect(init).toThrow();
-    function init() { highlight({ node: document.createElement('div') }); }
-  });
-
   it('should allow tagName to be specified', function() {
     var before = 'abcde',
         after = 'a<span>bcd</span>e',

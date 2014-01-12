@@ -44,12 +44,6 @@ describe('Typeahead', function() {
 
       waitsFor(function() { return this.dropdown.close.callCount; });
     });
-
-    it('should bring focus to the input', function() {
-      this.dropdown.trigger('suggestionClicked');
-
-      expect(this.input.focus).toHaveBeenCalled();
-    });
   });
 
   describe('when dropdown triggers cursorMoved', function() {
@@ -101,7 +95,7 @@ describe('Typeahead', function() {
   });
 
   describe('when dropdown triggers sectionRendered', function() {
-    it('should update the hint', function() {
+    it('should update the hint asynchronously', function() {
       this.dropdown.getDatumForTopSuggestion.andReturn(testDatum);
       this.dropdown.isVisible.andReturn(true);
       this.input.hasOverflow.andReturn(false);
@@ -109,7 +103,13 @@ describe('Typeahead', function() {
 
       this.dropdown.trigger('sectionRendered');
 
-      expect(this.input.setHintValue).toHaveBeenCalledWith(testDatum.value);
+      waitsFor(function() {
+        return !!this.input.setHintValue.callCount;
+      });
+
+      runs(function() {
+        expect(this.input.setHintValue).toHaveBeenCalledWith(testDatum.value);
+      });
     });
   });
 
@@ -266,6 +266,23 @@ describe('Typeahead', function() {
   });
 
   describe('when input triggers upKeyed', function() {
+    beforeEach(function() {
+      this.input.getQuery.andReturn('ghost');
+    });
+
+    describe('when dropdown is closed and minLength is satisfied', function() {
+      beforeEach(function() {
+        this.dropdown.isOpen = false;
+        this.view.minLength = 2;
+      });
+
+      it('should update dropdown', function() {
+        this.input.trigger('upKeyed');
+
+        expect(this.dropdown.update).toHaveBeenCalledWith('ghost');
+      });
+    });
+
     it('should open the dropdown', function() {
       this.input.trigger('upKeyed');
 
@@ -280,6 +297,23 @@ describe('Typeahead', function() {
   });
 
   describe('when input triggers downKeyed', function() {
+    beforeEach(function() {
+      this.input.getQuery.andReturn('ghost');
+    });
+
+    describe('when dropdown is closed and minLength is satisfied', function() {
+      beforeEach(function() {
+        this.dropdown.isOpen = false;
+        this.view.minLength = 2;
+      });
+
+      it('should update dropdown', function() {
+        this.input.trigger('downKeyed');
+
+        expect(this.dropdown.update).toHaveBeenCalledWith('ghost');
+      });
+    });
+
     it('should open the dropdown', function() {
       this.input.trigger('downKeyed');
 

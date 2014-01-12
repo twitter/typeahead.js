@@ -1,6 +1,6 @@
 /*
  * typeahead.js
- * https://github.com/twitter/typeahead
+ * https://github.com/twitter/typeahead.js
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
@@ -23,7 +23,8 @@ var highlight = (function(doc) {
     o = _.mixin({}, defaults, o);
 
     if (!o.node || !o.pattern) {
-      throw new Error('both node and pattern must be set');
+      // fail silently
+      return;
     }
 
     // support wrapping multiple patterns

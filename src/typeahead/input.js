@@ -1,6 +1,6 @@
 /*
  * typeahead.js
- * https://github.com/twitter/typeahead
+ * https://github.com/twitter/typeahead.js
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
@@ -216,9 +216,12 @@ var Input = (function() {
     },
 
     hasOverflow: function hasOverflow() {
+      // 2 is arbitrary, just picking a small number to handle edge cases
+      var constraint = this.$input.width() - 2;
+
       this.$overflowHelper.text(this.getInputValue());
 
-      return this.$overflowHelper.width() > this.$input.width();
+      return this.$overflowHelper.width() >= constraint;
     },
 
     isCursorAtEnd: function() {
@@ -257,11 +260,10 @@ var Input = (function() {
   // ----------------
 
   function buildOverflowHelper($input) {
-    return $('<span></span>')
+    return $('<pre aria-hidden="true"></pre>')
     .css({
       // position helper off-screen
       position: 'absolute',
-      left: '-9999px',
       visibility: 'hidden',
       // avoid line breaks
       whiteSpace: 'nowrap',

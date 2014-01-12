@@ -1,6 +1,6 @@
 /*
  * typeahead.js
- * https://github.com/twitter/typeahead
+ * https://github.com/twitter/typeahead.js
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
@@ -20,8 +20,8 @@ var Typeahead = (function() {
       $.error('missing input');
     }
 
-    this.autoselect = o.autoselect;
-    this.minLength = o.minLength || 0;
+    this.autoselect = !!o.autoselect;
+    this.minLength = _.isNumber(o.minLength) ? o.minLength : 1;
     this.$node = buildDomStructure(o.input, o.withHint);
 
     $menu = this.$node.find('.tt-dropdown-menu');
@@ -34,9 +34,9 @@ var Typeahead = (function() {
     .onSync('suggestionClicked', this._onSuggestionClicked, this)
     .onSync('cursorMoved', this._onCursorMoved, this)
     .onSync('cursorRemoved', this._onCursorRemoved, this)
-    .onSync('sectionRendered', this._onSectionRendered, this)
     .onSync('opened', this._onOpened, this)
-    .onSync('closed', this._onClosed, this);
+    .onSync('closed', this._onClosed, this)
+    .onAsync('sectionRendered', this._onSectionRendered, this);
 
     this.input = new Input({ input: $input, hint: $hint })
     .onSync('focused', this._onFocused, this)
@@ -50,6 +50,19 @@ var Typeahead = (function() {
     .onSync('rightKeyed', this._onRightKeyed, this)
     .onSync('queryChanged', this._onQueryChanged, this)
     .onSync('whitespaceChanged', this._onWhitespaceChanged, this);
+
+    // HACK: prevents input blur on menu click
+    // https://github.com/twitter/typeahead.js/pull/351
+    $menu.on('mousedown.tt', function($e) {
+      if (_.isMsie() && _.isMsie() < 9) {
+        $input[0].onbeforedeactivate = function() {
+          window.event.returnValue = false;
+          $input[0].onbeforedeactivate = null;
+        };
+      }
+
+      $e.preventDefault();
+    });
   }
 
   // instance methods
@@ -64,9 +77,6 @@ var Typeahead = (function() {
 
       if (datum = this.dropdown.getDatumForSuggestion($el)) {
         this._select(datum);
-
-        // the click event will cause the input to lose focus, so refocus
-        this.input.focus();
       }
     },
 
@@ -147,11 +157,23 @@ var Typeahead = (function() {
     },
 
     _onUpKeyed: function onUpKeyed() {
+      var query = this.input.getQuery();
+
+      if(!this.dropdown.isOpen && query.length >= this.minLength) {
+        this.dropdown.update(query);
+      }
+
       this.dropdown.open();
       this.dropdown.moveCursorUp();
     },
 
     _onDownKeyed: function onDownKeyed() {
+      var query = this.input.getQuery();
+
+      if( !this.dropdown.isOpen && query.length >= this.minLength) {
+        this.dropdown.update(query);
+      }
+
       this.dropdown.open();
       this.dropdown.moveCursorDown();
     },
@@ -222,6 +244,7 @@ var Typeahead = (function() {
       this.input.clearHint();
       this.input.setQuery(datum.value);
       this.input.setInputValue(datum.value, true);
+      this.dropdown.empty();
 
       this._setLanguageDirection();
 

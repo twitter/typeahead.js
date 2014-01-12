@@ -1,10 +1,10 @@
 /*
  * typeahead.js
- * https://github.com/twitter/typeahead
+ * https://github.com/twitter/typeahead.js
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var Dataset = window.Dataset = (function() {
+var Dataset = (function() {
   var keys;
 
   keys = { data: 'data', protocol: 'protocol', thumbprint: 'thumbprint' };
@@ -17,22 +17,24 @@ var Dataset = window.Dataset = (function() {
       $.error('one of local, prefetch, or remote is required');
     }
 
-    this.name = o.name || _.getUniqueId();
     this.limit = o.limit || 5;
     this.valueKey = o.valueKey || 'value';
-    this.dupChecker = getDupChecker(o.dupChecker);
     this.sorter = getSorter(o.sorter);
+    this.dupDetector = getDupDetector(o.dupDetector, this.valueKey);
 
     this.local = getLocal(o);
     this.prefetch = getPrefetch(o);
     this.remote = getRemote(o);
 
+    this.cacheKey = this.prefetch ?
+      (this.prefetch.cacheKey || this.prefetch.url) : null;
+
     // the backing data structure used for fast pattern matching
     this.index = new SearchIndex({ tokenizer: o.tokenizer });
 
-    // only initialize storage if there's a name otherwise
+    // only initialize storage if there's a cacheKey otherwise
     // loading from storage on subsequent page loads is impossible
-    this.storage = o.name ? new PersistentStorage(o.name) : null;
+    this.storage = this.cacheKey ? new PersistentStorage(this.cacheKey) : null;
   }
 
   // instance methods
@@ -97,6 +99,8 @@ var Dataset = window.Dataset = (function() {
         value = _.isString(raw) ? raw : raw[that.valueKey];
         datum = { value: value, tokens: raw.tokens };
 
+        // if the raw datum is a string, transform it into an
+        // object as that's what gets passed to the precompiled templates
         _.isString(raw) ?
           (datum.raw = {})[that.valueKey] = raw :
           datum.raw = raw;
@@ -158,6 +162,8 @@ var Dataset = window.Dataset = (function() {
       normalized = this._normalize(data);
 
       this.index.add(normalized);
+
+      return this;
     },
 
     get: function get(query, cb) {
@@ -184,7 +190,7 @@ var Dataset = window.Dataset = (function() {
 
           // checks for duplicates
           isDuplicate = _.some(matchesWithBackfill, function(match) {
-            return that.dupChecker(remoteMatch, match);
+            return that.dupDetector(remoteMatch, match);
           });
 
           !isDuplicate && matchesWithBackfill.push(remoteMatch.raw);
@@ -194,7 +200,7 @@ var Dataset = window.Dataset = (function() {
           return matchesWithBackfill.length < that.limit;
         });
 
-        cb && cb(matchesWithBackfill.sort(this.sorter));
+        cb && cb(matchesWithBackfill.sort(that.sorter));
       }
 
       function pickRaw(obj) { return obj.raw; }
@@ -212,15 +218,15 @@ var Dataset = window.Dataset = (function() {
     function defaultSorter() { return 0; }
   }
 
-  function getDupChecker(dupChecker) {
-    if (!_.isFunction(dupChecker)) {
-      dupChecker = dupChecker === false ? ignoreDups : standardDupChecker;
+  function getDupDetector(dupDetector, valueKey) {
+    if (!_.isFunction(dupDetector)) {
+      dupDetector = dupDetector === false ? ignoreDups : defaultDupDetector;
     }
 
-    return dupChecker;
+    return dupDetector;
 
     function ignoreDups() { return false; }
-    function standardDupChecker(a, b) { return a.value === b.value; }
+    function defaultDupDetector(a, b) { return a[valueKey] === b[valueKey]; }
   }
 
   function getLocal(o) {
@@ -247,6 +253,8 @@ var Dataset = window.Dataset = (function() {
 
       prefetch.ajax.method = prefetch.ajax.method || 'get';
       prefetch.ajax.dataType = prefetch.ajax.dataType || 'json';
+
+      !prefetch.url && $.error('prefetch requires url to be set');
     }
 
     return prefetch;
@@ -279,6 +287,8 @@ var Dataset = window.Dataset = (function() {
 
       delete remote.rateLimitBy;
       delete remote.rateLimitWait;
+
+      !remote.url && $.error('remote requires url to be set');
     }
 
     return remote;

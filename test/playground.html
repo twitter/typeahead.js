@@ -50,145 +50,127 @@
     </div>
 
     <script>
-      var states = new Dataset({
-        valueKey: 'state',
-        local: [
-          "Alabama",
-          "Alaska",
-          "Arizona",
-          "Arkansas",
-          "California",
-          "Colorado",
-          "Connecticut",
-          "Delaware",
-          "Florida",
-          "Georgia",
-          "Hawaii",
-          "Idaho",
-          "Illinois",
-          "Indiana",
-          "Iowa",
-          "Kansas",
-          "Kentucky",
-          "Louisiana",
-          "Maine",
-          "Maryland",
-          "Massachusetts",
-          "Michigan",
-          "Minnesota",
-          "Mississippi",
-          "Missouri",
-          "Montana",
-          "Nebraska",
-          "Nevada",
-          "New Hampshire",
-          "New Jersey",
-          "New Mexico",
-          "New York",
-          "North Carolina",
-          "North Dakota",
-          "Ohio",
-          "Oklahoma",
-          "Oregon",
-          "Pennsylvania",
-          "Rhode Island",
-          "South Carolina",
-          "South Dakota",
-          "Tennessee",
-          "Texas",
-          "Utah",
-          "Vermont",
-          "Virginia",
-          "Washington",
-          "West Virginia",
-          "Wisconsin",
-          "Wyoming"
-        ]
-      }).initialize();
-
       $('.states').typeahead({
-        sections: { 
-          name: 'states',
-          highlight: true,
-          source: states
+        highlight: true
+      },
+      {
+        valueKey: 'state',
+        source: {
+          valueKey: 'state',
+          local: [
+            "Alabama",
+            "Alaska",
+            "Arizona",
+            "Arkansas",
+            "California",
+            "Colorado",
+            "Connecticut",
+            "Delaware",
+            "Florida",
+            "Georgia",
+            "Hawaii",
+            "Idaho",
+            "Illinois",
+            "Indiana",
+            "Iowa",
+            "Kansas",
+            "Kentucky",
+            "Louisiana",
+            "Maine",
+            "Maryland",
+            "Massachusetts",
+            "Michigan",
+            "Minnesota",
+            "Mississippi",
+            "Missouri",
+            "Montana",
+            "Nebraska",
+            "Nevada",
+            "New Hampshire",
+            "New Jersey",
+            "New Mexico",
+            "New York",
+            "North Carolina",
+            "North Dakota",
+            "Ohio",
+            "Oklahoma",
+            "Oregon",
+            "Pennsylvania",
+            "Rhode Island",
+            "South Carolina",
+            "South Dakota",
+            "Tennessee",
+            "Texas",
+            "Utah",
+            "Vermont",
+            "Virginia",
+            "Washington",
+            "West Virginia",
+            "Wisconsin",
+            "Wyoming"
+          ]
         }
       });
 
 
-      var badTokens = new Dataset({
-        local: [
-          {
-            value: 'all bad',
-            tokens: ['  ', ' ', null, undefined, false, 'all', 'bad']
-          },
-          {
-            value: 'whitespace',
-            tokens: ['  ', ' ', '\t', '\n', 'whitespace']
-          },
-          {
-            value: 'undefined',
-            tokens: [undefined, 'undefined']
-          },
-          {
-            value: 'null',
-            tokens: [null, 'null']
-          },
-          {
-            value: 'false',
-            tokens: [false, 'false']
-          }
-        ]
-      }).initialize();
-
-      $('.bad-tokens').typeahead({
-        sections: { 
-          name: 'bad tokens',
-          source: badTokens
-        }
-      });
-
-      var regexes = new Dataset({
-        local: [
-          '*.js',
-          '[Tt]ypeahead.js',
-          '^typeahead.js$',
-          'typeahead.js(0.8.2)',
-          'typeahead.js(@\\d.\\d.\\d)',
-          'typeahead.js@0.8.2'
-        ]
-      }).initialize();
-
-      $('.regex-symbols').typeahead({
-        sections: { 
-          name: 'regexes',
-          source: regexes
-        }
-      });
-
-      var letters = new Dataset({
-        local: ['a', 'ab', 'abc', 'abcd', 'abcde']
-      }).initialize();
-
-      $('.header-footer').typeahead({
-        sections: [
-          {
-            name: 'top',
-            source: letters,
-            templates: {
-              header: '<h3>Header</h3>',
-              footer: '<h3>Footer</h3>'
+      $('.bad-tokens').typeahead(null, {
+        source: {
+          local: [
+            {
+              value: 'all bad',
+              tokens: ['  ', ' ', null, undefined, false, 'all', 'bad']
+            },
+            {
+              value: 'whitespace',
+              tokens: ['  ', ' ', '\t', '\n', 'whitespace']
+            },
+            {
+              value: 'undefined',
+              tokens: [undefined, 'undefined']
+            },
+            {
+              value: 'null',
+              tokens: [null, 'null']
+            },
+            {
+              value: 'false',
+              tokens: [false, 'false']
             }
-          },
-          {
-            name: 'bottom',
-            source: letters,
-            templates: {
-              header: '<h3>start</h3>',
-              footer: '<h3>end</h3>',
-              empty: '<h3>empty</h3>'
-            }
-          }
-        ]
+          ]
+        }
+      });
+
+      $('.regex-symbols').typeahead(null, {
+        source: {
+          local: [
+            '*.js',
+            '[Tt]ypeahead.js',
+            '^typeahead.js$',
+            'typeahead.js(0.8.2)',
+            'typeahead.js(@\\d.\\d.\\d)',
+            'typeahead.js@0.8.2'
+          ]
+        }
+      });
+
+      $('.header-footer').typeahead(null, {
+        source: {
+          local: ['a', 'ab', 'abc', 'abcd', 'abcde']
+        },
+        templates: {
+          header: '<h3>Header</h3>',
+          footer: '<h3>Footer</h3>'
+        }
+      },
+      {
+        source: {
+          local: ['a', 'ab', 'abc', 'abcd', 'abcde']
+        },
+        templates: {
+          header: '<h3>start</h3>',
+          footer: '<h3>end</h3>',
+          empty: '<h3>empty</h3>'
+        }
       });
 
       $('input').on([

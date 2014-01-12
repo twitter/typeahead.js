@@ -1,6 +1,6 @@
 /*
  * typeahead.js
- * https://github.com/twitter/typeahead
+ * https://github.com/twitter/typeahead.js
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
@@ -56,7 +56,7 @@ var css = {
 if (_.isMsie()) {
    // ie6-8 (and 9?) doesn't fire hover and click events for elements with
    // transparent backgrounds, for a workaround, use 1x1 transparent gif
-  _.mixin(css.query, {
+  _.mixin(css.input, {
     backgroundImage: 'url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7)'
   });
 }
@@ -65,5 +65,5 @@ if (_.isMsie()) {
 if (_.isMsie() && _.isMsie() <= 7) {
   // if someone can tell me why this is necessary to align
   // the hint with the query in ie7, i'll send you $5 - @JakeHarding
-  _.mixin(css.query, { marginTop: '-1px' });
+  _.mixin(css.input, { marginTop: '-1px' });
 }
