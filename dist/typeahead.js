@@ -813,7 +813,7 @@
                 return $suggestion.length > 0 ? extractSuggestion($suggestion) : null;
             },
             renderSuggestions: function(dataset, suggestions) {
-                var datasetClassName = "tt-dataset-" + dataset.name, wrapper = '<div class="tt-suggestion">%body</div>', compiledHtml, $suggestionsList, $dataset = this.$menu.find("." + datasetClassName), elBuilder, fragment, $el;
+                var datasetClassName = "tt-dataset-" + dataset.name.replace(/\W/g, ''), wrapper = '<div class="tt-suggestion">%body</div>', compiledHtml, $suggestionsList, $dataset = this.$menu.find("." + datasetClassName), elBuilder, fragment, $el;
                 if ($dataset.length === 0) {
                     $suggestionsList = $(html.suggestionsList).css(css.suggestionsList);
                     $dataset = $("<div></div>").addClass(datasetClassName).append(dataset.header).append($suggestionsList).append(dataset.footer).appendTo(this.$menu);
@@ -824,7 +824,7 @@
                     elBuilder = document.createElement("div");
                     fragment = document.createDocumentFragment();
                     utils.each(suggestions, function(i, suggestion) {
-                        suggestion.dataset = dataset.name;
+                        suggestion.dataset = dataset.name.replace(/\W/g, '');
                         compiledHtml = dataset.template(suggestion.datum);
                         elBuilder.innerHTML = wrapper.replace("%body", compiledHtml);
                         $el = $(elBuilder.firstChild).css(css.suggestion).data("suggestion", suggestion);
@@ -835,7 +835,7 @@
                     });
                     $dataset.show().find(".tt-suggestions").html(fragment);
                 } else {
-                    this.clearSuggestions(dataset.name);
+                    this.clearSuggestions(dataset.name.replace(/\W/g, ''));
                 }
                 this.trigger("suggestionsRendered");
             },
