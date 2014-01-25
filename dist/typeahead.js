@@ -796,7 +796,13 @@
                     left: "auto",
                     right: " 0"
                 };
-                dir === "ltr" ? this.$menu.css(ltrCss) : this.$menu.css(rtlCss);
+                if (dir === "ltr") {
+                    this.$menu.css(ltrCss);
+                    this.$hint.css(ltrCss);
+                } else {
+                    this.$menu.css(rtlCss);
+                    this.$hint.css(rtlCss);
+                }
             },
             moveCursorUp: function() {
                 this._moveCursor(-1);
