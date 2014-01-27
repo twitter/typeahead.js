@@ -13,7 +13,7 @@ var Transport = (function() {
   function Transport(o) {
     utils.bindAll(this);
 
-    o = utils.isString(o) ? { url: o } : o;
+    o = utils.isString(o) || utils.isFunction(o) ? { url: o } : o;
 
     requestCache = requestCache || new RequestCache();
 
@@ -99,13 +99,16 @@ var Transport = (function() {
       var that = this,
           encodedQuery = encodeURIComponent(query || ''),
           url,
-          resp;
+          resp,
+          baseUrl = this.url;
 
       cb = cb || utils.noop;
 
+      baseUrl = utils.isFunction(baseUrl) ? baseUrl.call() : baseUrl;
+
       url = this.replace ?
-        this.replace(this.url, encodedQuery) :
-        this.url.replace(this.wildcard, encodedQuery);
+        this.replace(baseUrl, encodedQuery) :
+        baseUrl.replace(this.wildcard, encodedQuery);
 
       // in-memory cache hit
       if (resp = requestCache.get(url)) {
