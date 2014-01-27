@@ -9,13 +9,19 @@
 
   methods = {
     initialize: function(datasetDefs) {
-      var datasets;
+      var datasets, hasTriggerCharacter;
 
       datasetDefs = utils.isArray(datasetDefs) ? datasetDefs : [datasetDefs];
 
       if (datasetDefs.length === 0) {
         $.error('no datasets provided');
       }
+
+      // If any of the datasets have a trigger, then we will need to pass
+      // that flag to typeahead
+      hasTriggerCharacter = utils.some(datasetDefs, function (dataset) {
+        return !!dataset.triggerCharacter;
+      });
 
       datasets = utils.map(datasetDefs, function(o) {
         var dataset = cache[o.name] ? cache[o.name] :  new Dataset(o);
@@ -41,7 +47,8 @@
         $input.data(viewKey, new TypeaheadView({
           input: $input,
           eventBus: eventBus = new EventBus({ el: $input }),
-          datasets: datasets
+          datasets: datasets,
+          hasTriggerCharacter: hasTriggerCharacter
         }));
 
         $.when.apply($, deferreds)

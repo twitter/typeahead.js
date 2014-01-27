@@ -8,6 +8,7 @@ var TypeaheadView = (function() {
   var html = {
         wrapper: '<span class="twitter-typeahead"></span>',
         hint: '<input class="tt-hint" type="text" autocomplete="off" spellcheck="off" disabled>',
+        textareaHint: '<textarea class="tt-hint" autocomplete="off" spellcheck="off" disabled></textarea>',
         dropdown: '<span class="tt-dropdown-menu"></span>'
       },
       css = {
@@ -67,6 +68,8 @@ var TypeaheadView = (function() {
     this.dir = null;
 
     this.eventBus = o.eventBus;
+
+    this.hasTriggerCharacter = o.hasTriggerCharacter;
 
     $menu = this.$node.find('.tt-dropdown-menu');
     $input = this.$node.find('.tt-query');
@@ -154,6 +157,11 @@ var TypeaheadView = (function() {
         query = inputValue
         .replace(/\s{2,}/g, ' ') // condense whitespace
         .replace(/^\s+/g, ''); // strip leading whitespace
+
+        if (this.hasTriggerCharacter) {
+          query = this._parseForTrigger(query).completion;
+        }
+
         escapedQuery = utils.escapeRegExChars(query);
 
         beginsWithQuery = new RegExp('^(?:' + escapedQuery + ')(.*$)', 'i');
@@ -178,7 +186,7 @@ var TypeaheadView = (function() {
     _setInputValueToSuggestionUnderCursor: function(e) {
       var suggestion = e.data;
 
-      this.inputView.setInputValue(suggestion.value, true);
+      this.inputView.setInputValue(this._getSuggestion(suggestion.value), true);
     },
 
     _openDropdown: function() {
@@ -205,7 +213,7 @@ var TypeaheadView = (function() {
             e.data : this.dropdownView.getSuggestionUnderCursor();
 
       if (suggestion) {
-        this.inputView.setInputValue(suggestion.value);
+        this.inputView.setInputValue(this._getSuggestion(suggestion.value));
 
         // if triggered by click, ensure the query input still has focus
         // if triggered by keypress, prevent default browser behavior
@@ -222,18 +230,28 @@ var TypeaheadView = (function() {
     },
 
     _getSuggestions: function() {
-      var that = this, query = this.inputView.getQuery();
+      var that = this,
+          query = this.inputView.getQuery(),
+          cursorPosition = this.inputView.$input.selectionStart;
 
       if (utils.isBlankString(query)) { return; }
 
       utils.each(this.datasets, function(i, dataset) {
-        dataset.getSuggestions(query, function(suggestions) {
+        dataset.getSuggestions(query, cursorPosition, function(suggestions) {
           // only render the suggestions if the query hasn't changed
           if (query === that.inputView.getQuery()) {
             that.dropdownView.renderSuggestions(dataset, suggestions);
           }
         });
       });
+    },
+
+    _getSuggestion: function (value) {
+      if (this.hasTriggerCharacter) {
+        var parsed = this._parseForTrigger(this.inputView.getQuery());
+        value = parsed.pre + parsed.trigger + value;
+      }
+      return value;
     },
 
     _autocomplete: function(e) {
@@ -252,7 +270,7 @@ var TypeaheadView = (function() {
 
       if (hint !== '' && query !== hint) {
         suggestion = this.dropdownView.getFirstSuggestion();
-        this.inputView.setInputValue(suggestion.value);
+        this.inputView.setInputValue(this._getSuggestion(suggestion.value));
 
         this.eventBus.trigger(
           'autocompleted',
@@ -264,6 +282,10 @@ var TypeaheadView = (function() {
 
     _propagateEvent: function(e) {
       this.eventBus.trigger(e.type);
+    },
+
+    _parseForTrigger: function (query) {
+      return this.datasets[0].parseForTrigger(query, this.inputView.$input.selectionStart);
     },
 
     // public methods
@@ -294,7 +316,7 @@ var TypeaheadView = (function() {
     var $wrapper = $(html.wrapper),
         $dropdown = $(html.dropdown),
         $input = $(input),
-        $hint = $(html.hint);
+        $hint = $(input.is('textarea') ? html.textareaHint : html.hint);
 
     $wrapper = $wrapper.css(css.wrapper);
     $dropdown = $dropdown.css(css.dropdown);

@@ -393,6 +393,8 @@
             this.remote = o.remote;
             this.itemHash = {};
             this.adjacencyList = {};
+            this.triggerCharacter = o.triggerCharacter;
+            this.triggerRegex = o.triggerRegex;
             this.storage = o.name ? new PersistentStorage(o.name) : null;
         }
         utils.mixin(Dataset.prototype, {
@@ -508,6 +510,37 @@
                 });
                 return suggestions;
             },
+            _findTriggerPosition: function(str, position) {
+                if (!this.triggerCharacter || !this.triggerRegex) {
+                    return -1;
+                }
+                var index = str.lastIndexOf(this.triggerCharacter, position);
+                var charBeforeTrigger;
+                if (index === -1) {
+                    return -1;
+                }
+                charBeforeTrigger = str[index - 1];
+                if (charBeforeTrigger && charBeforeTrigger !== " ") {
+                    return -1;
+                }
+                if (!str.substring(index, position).match(this.triggerRegex)) {
+                    return -1;
+                }
+                return index;
+            },
+            parseForTrigger: function(query, cursorPosition) {
+                var triggerIndex = this._findTriggerPosition(query, cursorPosition);
+                if (triggerIndex === -1) {
+                    return null;
+                } else {
+                    return {
+                        pre: query.substring(0, triggerIndex),
+                        trigger: this.triggerCharacter,
+                        completion: query.substring(triggerIndex + 1, cursorPosition),
+                        post: query.substring(cursorPosition)
+                    };
+                }
+            },
             initialize: function() {
                 var deferred;
                 this.local && this._processLocalData(this.local);
@@ -519,8 +552,16 @@
                 };
                 return deferred;
             },
-            getSuggestions: function(query, cb) {
-                var that = this, terms, suggestions, cacheHit = false;
+            getSuggestions: function(query, cursorPosition, cb) {
+                var that = this, terms, suggestions, parsedForTrigger, cacheHit = false;
+                if (this.triggerCharacter && this.triggerRegex) {
+                    parsedForTrigger = this.parseForTrigger(query, cursorPosition);
+                    if (!parsedForTrigger) {
+                        return;
+                    } else {
+                        query = parsedForTrigger.completion;
+                    }
+                }
                 if (query.length < this.minLength) {
                     return;
                 }
@@ -858,6 +899,7 @@
         var html = {
             wrapper: '<span class="twitter-typeahead"></span>',
             hint: '<input class="tt-hint" type="text" autocomplete="off" spellcheck="off" disabled>',
+            textareaHint: '<textarea class="tt-hint" autocomplete="off" spellcheck="off" disabled></textarea>',
             dropdown: '<span class="tt-dropdown-menu"></span>'
         }, css = {
             wrapper: {
@@ -905,6 +947,7 @@
             this.datasets = o.datasets;
             this.dir = null;
             this.eventBus = o.eventBus;
+            this.hasTriggerCharacter = o.hasTriggerCharacter;
             $menu = this.$node.find(".tt-dropdown-menu");
             $input = this.$node.find(".tt-query");
             $hint = this.$node.find(".tt-hint");
@@ -946,6 +989,9 @@
                 if (hint && dropdownIsVisible && !inputHasOverflow) {
                     inputValue = this.inputView.getInputValue();
                     query = inputValue.replace(/\s{2,}/g, " ").replace(/^\s+/g, "");
+                    if (this.hasTriggerCharacter) {
+                        query = this._parseForTrigger(query).completion;
+                    }
                     escapedQuery = utils.escapeRegExChars(query);
                     beginsWithQuery = new RegExp("^(?:" + escapedQuery + ")(.*$)", "i");
                     match = beginsWithQuery.exec(hint);
@@ -963,7 +1009,7 @@
             },
             _setInputValueToSuggestionUnderCursor: function(e) {
                 var suggestion = e.data;
-                this.inputView.setInputValue(suggestion.value, true);
+                this.inputView.setInputValue(this._getSuggestion(suggestion.value), true);
             },
             _openDropdown: function() {
                 this.dropdownView.open();
@@ -980,24 +1026,31 @@
             _handleSelection: function(e) {
                 var byClick = e.type === "suggestionSelected", suggestion = byClick ? e.data : this.dropdownView.getSuggestionUnderCursor();
                 if (suggestion) {
-                    this.inputView.setInputValue(suggestion.value);
+                    this.inputView.setInputValue(this._getSuggestion(suggestion.value));
                     byClick ? this.inputView.focus() : e.data.preventDefault();
                     byClick && utils.isMsie() ? utils.defer(this.dropdownView.close) : this.dropdownView.close();
                     this.eventBus.trigger("selected", suggestion.datum, suggestion.dataset);
                 }
             },
             _getSuggestions: function() {
-                var that = this, query = this.inputView.getQuery();
+                var that = this, query = this.inputView.getQuery(), cursorPosition = this.inputView.$input.selectionStart;
                 if (utils.isBlankString(query)) {
                     return;
                 }
                 utils.each(this.datasets, function(i, dataset) {
-                    dataset.getSuggestions(query, function(suggestions) {
+                    dataset.getSuggestions(query, cursorPosition, function(suggestions) {
                         if (query === that.inputView.getQuery()) {
                             that.dropdownView.renderSuggestions(dataset, suggestions);
                         }
                     });
                 });
+            },
+            _getSuggestion: function(value) {
+                if (this.hasTriggerCharacter) {
+                    var parsed = this._parseForTrigger(this.inputView.getQuery());
+                    value = parsed.pre + parsed.trigger + value;
+                }
+                return value;
             },
             _autocomplete: function(e) {
                 var isCursorAtEnd, ignoreEvent, query, hint, suggestion;
@@ -1012,12 +1065,15 @@
                 hint = this.inputView.getHintValue();
                 if (hint !== "" && query !== hint) {
                     suggestion = this.dropdownView.getFirstSuggestion();
-                    this.inputView.setInputValue(suggestion.value);
+                    this.inputView.setInputValue(this._getSuggestion(suggestion.value));
                     this.eventBus.trigger("autocompleted", suggestion.datum, suggestion.dataset);
                 }
             },
             _propagateEvent: function(e) {
                 this.eventBus.trigger(e.type);
+            },
+            _parseForTrigger: function(query) {
+                return this.datasets[0].parseForTrigger(query, this.inputView.$input.selectionStart);
             },
             destroy: function() {
                 this.inputView.destroy();
@@ -1035,7 +1091,7 @@
         });
         return TypeaheadView;
         function buildDomStructure(input) {
-            var $wrapper = $(html.wrapper), $dropdown = $(html.dropdown), $input = $(input), $hint = $(html.hint);
+            var $wrapper = $(html.wrapper), $dropdown = $(html.dropdown), $input = $(input), $hint = $(input.is("textarea") ? html.textareaHint : html.hint);
             $wrapper = $wrapper.css(css.wrapper);
             $dropdown = $dropdown.css(css.dropdown);
             $hint.css(css.hint).css({
@@ -1076,11 +1132,14 @@
         var cache = {}, viewKey = "ttView", methods;
         methods = {
             initialize: function(datasetDefs) {
-                var datasets;
+                var datasets, hasTriggerCharacter;
                 datasetDefs = utils.isArray(datasetDefs) ? datasetDefs : [ datasetDefs ];
                 if (datasetDefs.length === 0) {
                     $.error("no datasets provided");
                 }
+                hasTriggerCharacter = utils.some(datasetDefs, function(dataset) {
+                    return !!dataset.triggerCharacter;
+                });
                 datasets = utils.map(datasetDefs, function(o) {
                     var dataset = cache[o.name] ? cache[o.name] : new Dataset(o);
                     if (o.name) {
@@ -1101,7 +1160,8 @@
                         eventBus: eventBus = new EventBus({
                             el: $input
                         }),
-                        datasets: datasets
+                        datasets: datasets,
+                        hasTriggerCharacter: hasTriggerCharacter
                     }));
                     $.when.apply($, deferreds).always(function() {
                         utils.defer(function() {

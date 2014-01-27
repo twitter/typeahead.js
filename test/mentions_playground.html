@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="vendor/jquery-1.9.1.js"></script>
+    <script src="../dist/typeahead.js"></script>
+
+    <style>
+      .container {
+        width: 800px;
+        margin: 50px auto;
+      }
+
+      .typeahead-wrapper {
+        display: block;
+        margin: 50px 0;
+      }
+
+      .tt-dropdown-menu {
+        background-color: #fff;
+        border: 1px solid #000;
+      }
+
+      .tt-suggestion.tt-is-under-cursor {
+        background-color: #ccc;
+      }
+
+      .triggered-events {
+        float: right;
+        width: 500px;
+        height: 300px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <textarea class="triggered-events"></textarea>
+      <div class="typeahead-wrapper">
+        <textarea class="mentions"></textarea>
+      </div>
+      <div class="typeahead-wrapper">
+        <textarea class="names"></textarea>
+      </div>
+      <div class="typeahead-wrapper">
+        <textarea class="normal"></textarea>
+      </div>
+    </div>
+
+    <script>
+      var states = [
+        "Alabama",
+        "Alaska",
+        "Arizona",
+        "Arkansas",
+        "California",
+        "Colorado",
+        "Connecticut",
+        "Delaware",
+        "Florida",
+        "Georgia",
+        "Hawaii",
+        "Idaho",
+        "Illinois",
+        "Indiana",
+        "Iowa",
+        "Kansas",
+        "Kentucky",
+        "Louisiana",
+        "Maine",
+        "Maryland",
+        "Massachusetts",
+        "Michigan",
+        "Minnesota",
+        "Mississippi",
+        "Missouri",
+        "Montana",
+        "Nebraska",
+        "Nevada",
+        "New Hampshire",
+        "New Jersey",
+        "New Mexico",
+        "New York",
+        "North Carolina",
+        "North Dakota",
+        "Ohio",
+        "Oklahoma",
+        "Oregon",
+        "Pennsylvania",
+        "Rhode Island",
+        "South Carolina",
+        "South Dakota",
+        "Tennessee",
+        "Texas",
+        "Utah",
+        "Vermont",
+        "Virginia",
+        "Washington",
+        "West Virginia",
+        "Wisconsin",
+        "Wyoming"
+      ];
+
+      $('.mentions').typeahead({
+        triggerCharacter: '@',
+        triggerRegex: /^@\w*$/,
+        local: states
+      });
+
+      var names = [
+        "Luke Karrys",
+        "Bob Test",
+        "Test Bob",
+        "Michael Scott"
+      ];
+
+      $('.names').typeahead({
+        triggerCharacter: '@',
+        triggerRegex: /^@[\w\s]*$/,
+        local: names
+      });
+
+      $('.normal').typeahead({
+        local: states
+      });
+
+      $('.typeahead-wrapper textarea').on([
+        'typeahead:initialized',
+        'typeahead:selected',
+        'typeahead:autocompleted',
+        'typeahead:opened',
+        'typeahead:closed'
+      ].join(' '), logToTextarea);
+
+      function logToTextarea($e) {
+        var $textarea = $('.triggered-events'),
+            val = $textarea.val(),
+            args = [].slice.call(arguments, 1)
+            type = $e.type,
+            stringifiedArgs = window.JSON ? JSON.stringify(args) : '';
+
+        $textarea.val([val, type, stringifiedArgs, '\n'].join('\n'));
+        $textarea[0].scrollTop = $textarea[0].scrollHeight;
+      }
+    </script>
+  </body>
+</html>
