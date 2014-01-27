@@ -196,3 +196,42 @@ describe('Transport', function() {
     });
   });
 });
+
+describe('Transport function as url', function() {
+  var successData = { prop: 'val' },
+      successResp = { status: 200, responseText: JSON.stringify(successData) },
+      errorResp = { status: 500 },
+      _debounce;
+
+  beforeEach(function() {
+    jasmine.Ajax.useMock();
+    jasmine.RequestCache.useMock();
+
+    _debounce = utils.debounce;
+    utils.debounce = function(fn) { return fn; };
+
+    this.transport = new Transport({
+      url: function () { return 'http://example.com?q=$$'; },
+      wildcard: '$$',
+      debounce: true,
+      maxParallelRequests: 3
+    });
+
+    // request cache is hidden in transport's closure
+    // so this is how we access it to spy on its methods
+    this.requestCache = RequestCache.instance;
+    spyOn(this.requestCache, 'get');
+    spyOn(this.requestCache, 'set');
+  });
+
+  describe('#get', function() {
+    describe('when below pending requests threshold', function() {
+      it('should make remote request', function() {
+        this.transport.get('has space');
+        this.request = mostRecentAjaxRequest();
+
+        expect(this.request).not.toBeNull();
+      });
+    });
+  });
+});
