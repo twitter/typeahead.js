@@ -134,7 +134,8 @@ var Dataset = (function() {
 
       // normalize tokens
       item.tokens = utils.map(item.tokens, function(token) {
-        return token.toLowerCase();
+        token = token.toLowerCase();
+        return charMap ? utils.normalizeChars(token, charMap) : token;
       });
 
       return item;
