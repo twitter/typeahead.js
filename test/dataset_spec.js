@@ -464,10 +464,16 @@ describe('Dataset', function() {
   // helper functions
   // ----------------
 
-  function createItem(val) {
+  function createItem(val, charMap) {
+    var tokens = utils.tokenizeText(val);
+    if (charMap) {
+      tokens = utils.map(tokens, function(token) {
+        return utils.normalizeChars(token, fixtureCharMap)
+      });
+    }
     return {
       value: val,
-      tokens: utils.tokenizeText(val),
+      tokens: tokens,
       datum: { value: val }
     };
   }
