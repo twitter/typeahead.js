@@ -260,6 +260,13 @@ var Dataset = (function() {
       }
 
       terms = utils.tokenizeQuery(query);
+
+      if (this.charMap) {
+        terms = utils.map(terms, function(term) {
+          return utils.normalizeChars(term, that.charMap);
+        });
+      }
+
       suggestions = this._getLocalSuggestions(terms).slice(0, this.limit);
 
       if (suggestions.length < this.limit && this.transport) {
