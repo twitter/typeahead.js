@@ -29,6 +29,7 @@ var Dataset = (function() {
     this.header = o.header;
     this.footer = o.footer;
     this.valueKey = o.valueKey || 'value';
+    this.charMap = o.charMap;
     this.template = compileTemplate(o.template, o.engine, this.valueKey);
 
     // used then deleted in #initialize
@@ -114,7 +115,8 @@ var Dataset = (function() {
     _transformDatum: function(datum) {
       var value = utils.isString(datum) ? datum : datum[this.valueKey],
           tokens = datum.tokens || utils.tokenizeText(value),
-          item = { value: value, tokens: tokens };
+          item = { value: value, tokens: tokens },
+          charMap = this.charMap;
 
       if (utils.isString(datum)) {
         item.datum = {};
