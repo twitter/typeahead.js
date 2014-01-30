@@ -7,6 +7,8 @@ describe('Dataset', function() {
       { value: 'tea' },
       { value: 'coffee' }
       ],
+      fixtureAccentedStrings = ['crème brûlée'],
+      fixtureCharMap = { 'èéêë': 'e', 'ùúûü': 'u' },
       expectedAdjacencyList = {
         g: ['grape'],
         c: ['coconut', 'cake', 'coffee'],
