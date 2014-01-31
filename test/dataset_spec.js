@@ -399,6 +399,47 @@ describe('Dataset', function() {
         ]);
       });
     });
+
+    describe('with charMap', function() {
+      var accentStrings = ['æther', 'aegis', 'Björk Guðmundsdóttir', 'cream', 'crème brûlée', 'ça va', 'jalapeño', 'übermensch', 'underpants', 'weißbier', 'Margaret Weiss'],
+          charMap = {'æ': 'ae', 'èé': 'e', 'óö': 'o', 'ûü': 'u', 'ç': 'c', 'ð': 'th', 'ñ': 'n', 'ß': 'ss'};
+
+      beforeEach(function() {
+        this.dataset = new Dataset({ local: accentStrings, charMap: charMap });
+        this.dataset.initialize();
+      });
+
+      it('maps character keys to their respective values', function() {
+        this.dataset.getSuggestions('ae', function(items) {
+          expect(items).toEqual([
+            createItem('æther', charMap),
+            createItem('aegis')
+          ]);
+        });
+
+        this.dataset.getSuggestions('c', function(items) {
+          expect(items).toEqual([
+            createItem('cream'),
+            createItem('crème brûlée', charMap),
+            createItem('ça va', charMap)
+          ]);
+        });
+
+        this.dataset.getSuggestions('cre', function(items) {
+          expect(items).toEqual([
+            createItem('cream'),
+            createItem('crème brûlée', charMap)
+          ]);
+        });
+
+        this.dataset.getSuggestions('weiss', function(items) {
+          expect(items).toEqual([
+            createItem('weißbier', charMap),
+            createItem('Margaret Weiss', charMap)
+          ]);
+        });
+      });
+    });
   });
 
   describe('tokenization', function() {
@@ -464,10 +505,18 @@ describe('Dataset', function() {
   // helper functions
   // ----------------
 
-  function createItem(val) {
+  function createItem(val, charMap) {
+    var tokens = utils.tokenizeText(val);
+
+    if (charMap) {
+      tokens = utils.map(tokens, function(token) {
+        return utils.normalizeChars(token, charMap);
+      });
+    }
+
     return {
       value: val,
-      tokens: utils.tokenizeText(val),
+      tokens: tokens,
       datum: { value: val }
     };
   }

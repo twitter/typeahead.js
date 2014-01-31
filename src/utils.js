@@ -152,6 +152,15 @@ var utils = {
     return $.trim(str).toLowerCase().split(/[\s\-_]+/);
   },
 
+  normalizeChars: function(str, charMap) {
+    $.each(charMap, function(pattern, replace) {
+      pattern = new RegExp('[' + utils.escapeRegExChars(pattern) + ']', 'gi');
+      str = str.replace(pattern, replace);
+    });
+
+    return str;
+  },
+
   getProtocol: function() {
     return location.protocol;
   },
