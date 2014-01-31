@@ -129,6 +129,13 @@
         tokenizeText: function(str) {
             return $.trim(str).toLowerCase().split(/[\s\-_]+/);
         },
+        normalizeChars: function(str, charMap) {
+            $.each(charMap, function(pattern, replace) {
+                pattern = new RegExp("[" + utils.escapeRegExChars(pattern) + "]", "gi");
+                str = str.replace(pattern, replace);
+            });
+            return str;
+        },
         getProtocol: function() {
             return location.protocol;
         },
@@ -387,6 +394,7 @@
             this.header = o.header;
             this.footer = o.footer;
             this.valueKey = o.valueKey || "value";
+            this.charMap = o.charMap;
             this.template = compileTemplate(o.template, o.engine, this.valueKey);
             this.local = o.local;
             this.prefetch = o.prefetch;
@@ -437,7 +445,7 @@
                 var value = utils.isString(datum) ? datum : datum[this.valueKey], tokens = datum.tokens || utils.tokenizeText(value), item = {
                     value: value,
                     tokens: tokens
-                };
+                }, charMap = this.charMap;
                 if (utils.isString(datum)) {
                     item.datum = {};
                     item.datum[this.valueKey] = datum;
@@ -448,7 +456,8 @@
                     return !utils.isBlankString(token);
                 });
                 item.tokens = utils.map(item.tokens, function(token) {
-                    return token.toLowerCase();
+                    token = token.toLowerCase();
+                    return charMap ? utils.normalizeChars(token, charMap) : token;
                 });
                 return item;
             },
@@ -525,6 +534,11 @@
                     return;
                 }
                 terms = utils.tokenizeQuery(query);
+                if (this.charMap) {
+                    terms = utils.map(terms, function(term) {
+                        return utils.normalizeChars(term, that.charMap);
+                    });
+                }
                 suggestions = this._getLocalSuggestions(terms).slice(0, this.limit);
                 if (suggestions.length < this.limit && this.transport) {
                     cacheHit = this.transport.get(query, processRemoteData);
