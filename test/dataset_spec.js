@@ -302,6 +302,25 @@ describe('Dataset', function() {
         expect(Transport).toHaveBeenCalledWith('/remote');
       });
     });
+
+    describe('when called with charMap', function() {
+      beforeEach(function() {
+        this.expectedItemHash = {
+          'crème brûlée': createItem('crème brûlée', fixtureCharMap)
+        };
+        this.expectedAdjacencyList = {
+          c: ['crème brûlée'],
+          b: ['crème brûlée']
+        };
+        this.dataset = new Dataset({ local: fixtureAccentedStrings, charMap: fixtureCharMap });
+        this.dataset.initialize();
+      });
+
+      it('should process and merge the data', function() {
+        expect(this.dataset.itemHash).toEqual(this.expectedItemHash);
+        expect(this.dataset.adjacencyList).toEqual(this.expectedAdjacencyList);
+      });
+    });
   });
 
   describe('#getSuggestions', function() {
