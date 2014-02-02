@@ -141,7 +141,7 @@ module.exports = function(grunt) {
           'sed -E -i "" \'s/v[0-9]+\\.[0-9]+\\.[0-9]+/v<%= version %>/\' index.html',
           'git add index.html',
           'git commit -m "Add assets for <%= version %>."',
-          'git push',
+          //'git push',
           'git checkout -',
           'rm -rf typeahead.js'
         ].join(' && ')
@@ -187,7 +187,7 @@ module.exports = function(grunt) {
       'exec:git_add',
       'exec:git_commit:' + version,
       'exec:git_tag:' + version,
-      'exec:git_push',
+      //'exec:git_push',
       'exec:publish_assets'
     ]);
   });
@@ -195,10 +195,10 @@ module.exports = function(grunt) {
   grunt.registerTask('manifests', 'Update manifests.', function(version) {
     var _ = grunt.util._,
         pkg = grunt.file.readJSON('package.json'),
-        component = grunt.file.readJSON('component.json'),
+        bower = grunt.file.readJSON('bower.json'),
         jqueryPlugin = grunt.file.readJSON('typeahead.js.jquery.json');
 
-    component = JSON.stringify(_.extend(component, {
+    bower = JSON.stringify(_.extend(bower, {
       name: pkg.name,
       version: version
     }), null, 2);
@@ -220,7 +220,7 @@ module.exports = function(grunt) {
     }), null, 2);
 
     grunt.file.write('package.json', pkg);
-    grunt.file.write('component.json', component);
+    grunt.file.write('bower.json', bower);
     grunt.file.write('typeahead.js.jquery.json', jqueryPlugin);
   });
 
