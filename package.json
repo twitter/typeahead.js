@@ -43,5 +43,5 @@
     "test": "./node_modules/.bin/karma start --single-run --browsers PhantomJS"
   },
   "private": true,
-  "version": "0.9.3"
+  "version": "0.10.0"
 }
