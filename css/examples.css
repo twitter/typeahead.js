@@ -15,7 +15,7 @@ html {
 }
 
 .container {
-  max-width: 700px;
+  max-width: 750px;
   margin: 0 auto;
   text-align: center;
 }
@@ -121,7 +121,7 @@ p {
   line-height: 24px;
 }
 
-.tt-suggestion.tt-is-under-cursor {
+.tt-suggestion.tt-cursor {
   color: #fff;
   background-color: #0097cf;
 

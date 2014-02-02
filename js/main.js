@@ -1,17 +1,28 @@
 $(document).ready(function() {
-  $('.typeahead').typeahead({
-    name: 'repos'
-  , prefetch: 'data/repos.json'
-  , template: [
-      '<p class="repo-language">{{language}}</p>'
-    , '<p class="repo-name">{{name}}</p>'
-    , '<p class="repo-description">{{description}}</p>'
-    ].join('')
-  , engine: Hogan
+  var haunt, repos;
+
+  repos = new Bloodhound({
+    datumTokenizer: function(d) { return d.tokens; },
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    prefetch: 'data/repos.json'
   });
 
-  var haunt = ghostwriter.haunt({
-    input: '.typeahead'
+  repos.initialize();
+
+  $('.typeahead').typeahead(null, {
+    name: 'repos',
+    source: repos.ttAdapter(),
+    templates: {
+      suggestion: Handlebars.compile([
+        '<p class="repo-language">{{language}}</p>',
+        '<p class="repo-name">{{name}}</p>',
+        '<p class="repo-description">{{description}}</p>'
+      ].join(''))
+    }
+  });
+
+  haunt = ghostwriter.haunt({
+    input: '#main-typeahead'
   , interval: 500
   , manuscript: [
       ghostwriter.noop

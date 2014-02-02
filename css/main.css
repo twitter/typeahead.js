@@ -226,7 +226,7 @@ p {
   margin: 0;
 }
 
-.twitter-typeahead .tt-suggestion.tt-is-under-cursor {
+.twitter-typeahead .tt-suggestion.tt-cursor {
   color: #03739c;
 }
 
