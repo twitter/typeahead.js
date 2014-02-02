@@ -68,7 +68,7 @@ promise
 Computes a set of suggestions for `query`. `cb` will be invoked with an array
 of datums that represent said set. `cb` will always be invoked once 
 synchronously with suggestions that were available on the client. If those
-suggestions are insufficient and `remote` was configured, `cb` may also be 
+suggestions are insufficient (# of suggestions is less than `limit`) and `remote` was configured, `cb` may also be 
 invoked asynchronously with the suggestions available on the client mixed with
 suggestions from the `remote` source.
 
