@@ -4,7 +4,7 @@
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-(function(Bloodhound) {
+(function() {
   var typeaheadKey, methods;
 
   typeaheadKey = 'ttTypeahead';
@@ -18,21 +18,11 @@
       return this.each(attach);
 
       function attach() {
-        var $input = $(this), promises, eventBus, typeahead;
+        var $input = $(this), eventBus, typeahead;
 
-        promises = _.map(datasets, function(d) {
-          var promise = $.Deferred().resolve();
-
+        _.each(datasets, function(d) {
           // HACK: force highlight as a top-level config
           d.highlight = !!o.highlight;
-
-          // if source is an object, convert it to a bloodhound
-          if (_.isObject(d.source) || isBloodhound(d.source)) {
-            d.source = bloodhoundAdapter(d.source);
-            promise = d.source.initialize();
-          }
-
-          return promise;
         });
 
         typeahead = new Typeahead({
@@ -45,14 +35,6 @@
         });
 
         $input.data(typeaheadKey, typeahead);
-
-        // only trigger these events if at least one dataset is
-        // using a bloodhound as a source
-        if (promises.length) {
-          $.when.apply($, promises)
-          .done(trigger('initialized'))
-          .fail(trigger('initialized:err'));
-        }
 
         // defer trigging of events to make it possible to attach
         // a listener immediately after jQuery#typeahead is invoked
@@ -134,32 +116,4 @@
       return methods.initialize.apply(this, arguments);
     }
   };
-
-  // helper functions
-  // ----------------
-
-  function bloodhoundAdapter(o) {
-    var bloodhound, source;
-
-    if (!Bloodhound) {
-      $.error('Bloodhound constructor has not been loaded');
-    }
-
-    bloodhound = isBloodhound(o) ? o : new Bloodhound(o);
-    source = _.bind(bloodhound.get, bloodhound);
-
-    source.initialize = function() {
-      return bloodhound.initialize();
-    };
-
-    source.add = function(data) {
-      bloodhound.add();
-    };
-
-    return source;
-  };
-
-  function isBloodhound(obj) {
-    return Bloodhound && obj instanceof Bloodhound;
-  }
-})(window.Bloodhound);
+})();

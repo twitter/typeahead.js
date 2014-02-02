@@ -18,19 +18,21 @@ var Bloodhound = window.Bloodhound = (function() {
     }
 
     this.limit = o.limit || 5;
-    this.valueKey = o.valueKey || 'value';
-    this.sorter = getSorter(o.sorter);
-    this.dupDetector = getDupDetector(o.dupDetector, this.valueKey);
+    this.sorter = o.sorter || noSort;
+    this.dupDetector = o.dupDetector || ignoreDuplicates;
 
-    this.local = getLocal(o);
-    this.prefetch = getPrefetch(o);
-    this.remote = getRemote(o);
+    this.local = oParser.local(o);
+    this.prefetch = oParser.prefetch(o);
+    this.remote = oParser.remote(o);
 
     this.cacheKey = this.prefetch ?
       (this.prefetch.cacheKey || this.prefetch.url) : null;
 
     // the backing data structure used for fast pattern matching
-    this.index = new SearchIndex({ tokenizer: o.tokenizer });
+    this.index = new SearchIndex({
+      datumTokenizer: o.datumTokenizer,
+      queryTokenizer: o.queryTokenizer
+    });
 
     // only initialize storage if there's a cacheKey otherwise
     // loading from storage on subsequent page loads is impossible
@@ -59,7 +61,7 @@ var Bloodhound = window.Bloodhound = (function() {
       return deferred;
 
       function handlePrefetchResponse(resp) {
-        var filtered, normalized;
+        var filtered;
 
         filtered = o.filter ? o.filter(resp) : resp;
         that.add(filtered);
@@ -72,7 +74,6 @@ var Bloodhound = window.Bloodhound = (function() {
       var that = this, url, uriEncodedQuery;
 
       query = query || '';
-
       uriEncodedQuery = encodeURIComponent(query);
 
       url = this.remote.replace ?
@@ -84,28 +85,7 @@ var Bloodhound = window.Bloodhound = (function() {
       function handleRemoteResponse(resp) {
         var filtered = that.remote.filter ? that.remote.filter(resp) : resp;
 
-        cb(that._normalize(filtered));
-      }
-    },
-
-    _normalize: function normalize(data) {
-      var that = this;
-
-      return _.map(data, normalizeRawDatum);
-
-      function normalizeRawDatum(raw) {
-        var value, datum;
-
-        value = _.isString(raw) ? raw : raw[that.valueKey];
-        datum = { value: value, tokens: raw.tokens };
-
-        // if the raw datum is a string, transform it into an
-        // object as that's what gets passed to the precompiled templates
-        _.isString(raw) ?
-          (datum.raw = {})[that.valueKey] = raw :
-          datum.raw = raw;
-
-        return datum;
+        cb(filtered);
       }
     },
 
@@ -156,18 +136,13 @@ var Bloodhound = window.Bloodhound = (function() {
     },
 
     add: function add(data) {
-      var normalized;
-
-      data = _.isArray(data) ? data : [data];
-      normalized = this._normalize(data);
-
-      this.index.add(normalized);
+      this.index.add(data);
     },
 
     get: function get(query, cb) {
       var that = this, matches, cacheHit = false;
 
-      matches = _.map(this.index.get(query), pickRaw)
+      matches = this.index.get(query)
       .sort(this.sorter)
       .slice(0, this.limit);
 
@@ -182,8 +157,6 @@ var Bloodhound = window.Bloodhound = (function() {
 
       function returnRemoteMatches(remoteMatches) {
         var matchesWithBackfill = matches.slice(0);
-
-        remoteMatches = _.map(remoteMatches, pickRaw);
 
         _.each(remoteMatches, function(remoteMatch) {
           var isDuplicate;
@@ -202,9 +175,9 @@ var Bloodhound = window.Bloodhound = (function() {
 
         cb && cb(matchesWithBackfill.sort(that.sorter));
       }
+    },
 
-      function pickRaw(obj) { return obj.raw; }
-    }
+    ttAdapter: function ttAdapter() { return _.bind(this.get, this); }
   });
 
   return Bloodhound;
@@ -212,93 +185,7 @@ var Bloodhound = window.Bloodhound = (function() {
   // helper functions
   // ----------------
 
-  function getSorter(sorter) {
-    return sorter || defaultSorter;
+  function noSort() { return 0; }
 
-    function defaultSorter() { return 0; }
-  }
-
-  function getDupDetector(dupDetector, valueKey) {
-    if (!_.isFunction(dupDetector)) {
-      dupDetector = dupDetector === false ? ignoreDups : defaultDupDetector;
-    }
-
-    return dupDetector;
-
-    function ignoreDups() { return false; }
-    function defaultDupDetector(a, b) { return a[valueKey] === b[valueKey]; }
-  }
-
-  function getLocal(o) {
-    return o.local || null;
-  }
-
-  function getPrefetch(o) {
-    var prefetch, defaults;
-
-    defaults = {
-      url: null,
-      thumbprint: '',
-      ttl: 24 * 60 * 60 * 1000, // 1 day
-      filter: null,
-      ajax: {}
-    };
-
-    if (prefetch = o.prefetch || null) {
-      // support basic (url) and advanced configuration
-      prefetch = _.isString(prefetch) ? { url: prefetch } : prefetch;
-
-      prefetch = _.mixin(defaults, prefetch);
-      prefetch.thumbprint = VERSION + prefetch.thumbprint;
-
-      prefetch.ajax.method = prefetch.ajax.method || 'get';
-      prefetch.ajax.dataType = prefetch.ajax.dataType || 'json';
-
-      !prefetch.url && $.error('prefetch requires url to be set');
-    }
-
-    return prefetch;
-  }
-
-  function getRemote(o) {
-    var remote, defaults;
-
-    defaults = {
-      url: null,
-      wildcard: '%QUERY',
-      replace: null,
-      rateLimitBy: 'debounce',
-      rateLimitWait: 300,
-      send: null,
-      filter: null,
-      ajax: {}
-    };
-
-    if (remote = o.remote || null) {
-      // support basic (url) and advanced configuration
-      remote = _.isString(remote) ? { url: remote } : remote;
-
-      remote = _.mixin(defaults, remote);
-      remote.rateLimiter = /^throttle$/i.test(remote.rateLimitBy) ?
-        byThrottle(remote.rateLimitWait) : byDebounce(remote.rateLimitWait);
-
-      remote.ajax.method = remote.ajax.method || 'get';
-      remote.ajax.dataType = remote.ajax.dataType || 'json';
-
-      delete remote.rateLimitBy;
-      delete remote.rateLimitWait;
-
-      !remote.url && $.error('remote requires url to be set');
-    }
-
-    return remote;
-
-    function byDebounce(wait) {
-      return function(fn) { return _.debounce(fn, wait); };
-    }
-
-    function byThrottle(wait) {
-      return function(fn) { return _.throttle(fn, wait); };
-    }
-  }
+  function ignoreDuplicates() { return false; }
 })();

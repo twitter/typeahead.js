@@ -25,7 +25,7 @@ var Dataset = (function() {
     this.name = o.name || _.getUniqueId();
 
     this.source = o.source;
-    this.valueKey = o.valueKey || 'value';
+    this.valueKey = o.displayKey || 'value';
 
     this.templates = getTemplates(o.templates, this.valueKey);
 
@@ -160,8 +160,6 @@ var Dataset = (function() {
   // ----------------
 
   function getTemplates(templates, valueKey) {
-    valueKey = valueKey || 'value';
-
     return {
       empty: templates.empty && _.templatify(templates.empty),
       header: templates.header && _.templatify(templates.header),

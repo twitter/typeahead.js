@@ -12,7 +12,12 @@ var SearchIndex = (function() {
   function SearchIndex(o) {
     o = o || {};
 
-    this.tokenize = o.tokenizer || tokenize;
+    if (!o.datumTokenizer || !o.queryTokenizer) {
+      $.error('datumTokenizer and queryTokenizer are both required');
+    }
+
+    this.datumTokenizer = o.datumTokenizer;
+    this.queryTokenizer = o.queryTokenizer;
 
     this.datums = [];
     this.trie = newNode();
@@ -39,10 +44,7 @@ var SearchIndex = (function() {
         var id, tokens;
 
         id = that.datums.push(datum) - 1;
-        tokens = normalizeTokens(datum.tokens || that.tokenize(datum.value));
-
-        // delete the tokens from the datum object to save storage space
-        delete datum.tokens;
+        tokens = normalizeTokens(that.datumTokenizer(datum));
 
         _.each(tokens, function(token) {
           var node, chars, ch, ids;
@@ -58,14 +60,10 @@ var SearchIndex = (function() {
       });
     },
 
-    remove: function remove() {
-      $.error('not implemented');
-    },
-
     get: function get(query) {
       var that = this, tokens, matches;
 
-      tokens = this.tokenize(query);
+      tokens = normalizeTokens(this.queryTokenizer(query));
 
       _.each(tokens, function(token) {
         var node, chars, ch, ids;
@@ -106,10 +104,6 @@ var SearchIndex = (function() {
 
   // helper functions
   // ----------------
-
-  function tokenize(str) {
-    return $.trim(str).toLowerCase().split(/\s+/);
-  }
 
   function normalizeTokens(tokens) {
    // filter out falsy tokens
