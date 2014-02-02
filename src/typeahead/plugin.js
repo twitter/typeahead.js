@@ -107,7 +107,7 @@
     }
   };
 
-  jQuery.fn.typeahead = function(method) {
+  $.fn.typeahead = function(method) {
     if (methods[method]) {
       return methods[method].apply(this, [].slice.call(arguments, 1));
     }
