@@ -227,6 +227,8 @@ pass the suggestion engine's typeahead adapter:
 ```javascript
 var engine = new Bloodhound({ /* options */ });
 
+engine.initialize();
+
 $('.typeahead').typeahead(null, {
   source: engine.ttAdapter()
 });
