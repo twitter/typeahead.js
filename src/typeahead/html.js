@@ -9,5 +9,5 @@ var html = {
   dropdown: '<span class="tt-dropdown-menu"></span>',
   dataset: '<div class="tt-dataset-%CLASS%"></div>',
   suggestions: '<span class="tt-suggestions"></span>',
-  suggestion: '<div class="tt-suggestion">%BODY%</div>',
+  suggestion: '<div class="tt-suggestion">%BODY%</div>'
 };

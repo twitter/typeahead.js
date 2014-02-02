@@ -98,7 +98,7 @@ module.exports = function(grunt) {
       options: {
         jshintrc: '.jshintrc'
       },
-      src: 'src/**/*',
+      src: 'src/**/*.js',
       test: ['test/*_spec.js'],
       gruntfile: ['Gruntfile.js']
     },
