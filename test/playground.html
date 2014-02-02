@@ -51,8 +51,10 @@
 
     <script>
       var states = new Bloodhound({
-        datumTokenizer: function(d) { return d.val.split(/\s+/); },
-        queryTokenizer: function(q) { return q.split(/\s+/); },
+        datumTokenizer: function(d) { 
+          return Bloodhound.tokenizers.whitespace(d.val); 
+        },
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
         local: [
           { val: 'Alabama' },
           { val: 'Alaska' },
@@ -120,7 +122,7 @@
 
       var badTokens = new Bloodhound({
         datumTokenizer: function(d) { return d.tokens; },
-        queryTokenizer: function(q) { return q.split(/\s+/); },
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
         local: [
           {
             value1: 'all bad',
@@ -158,8 +160,10 @@
       });
 
       var regexSymbols = new Bloodhound({
-        datumTokenizer: function(d) { return d.val.split(/\s+/); },
-        queryTokenizer: function(q) { return q.split(/\s+/); },
+        datumTokenizer: function(d) { 
+          return Bloodhound.tokenizers.whitespace(d.val); 
+        },
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
         local: [
           { val: '*.js' },
           { val: '[Tt]ypeahead.js' },
@@ -178,8 +182,10 @@
       });
 
       var abc = new Bloodhound({
-        datumTokenizer: function(d) { return d.val.split(/\s+/); },
-        queryTokenizer: function(q) { return q.split(/\s+/); },
+        datumTokenizer: function(d) { 
+          return Bloodhound.tokenizers.whitespace(d.val); 
+        },
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
         local: [
           { val: 'a' }, 
           { val: 'ab' }, 

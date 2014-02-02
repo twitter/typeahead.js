@@ -39,6 +39,19 @@ var Bloodhound = window.Bloodhound = (function() {
     this.storage = this.cacheKey ? new PersistentStorage(this.cacheKey) : null;
   }
 
+  // static methods
+  // --------------
+
+  Bloodhound.tokenizers = {
+    whitespace: function whitespaceTokenizer(s) {
+      return s.split(/\s+/);
+    },
+
+    nonword: function nonwordTokenizer(s) {
+      return s.split(/\W+/);
+    }
+  };
+
   // instance methods
   // ----------------
 
