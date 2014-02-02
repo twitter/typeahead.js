@@ -1,11 +1,14 @@
 /*
  * typeahead.js
- * https://github.com/twitter/typeahead
+ * https://github.com/twitter/typeahead.js
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
 var EventBus = (function() {
   var namespace = 'typeahead:';
+
+  // constructor
+  // -----------
 
   function EventBus(o) {
     if (!o || !o.el) {
@@ -15,9 +18,12 @@ var EventBus = (function() {
     this.$el = $(o.el);
   }
 
-  utils.mixin(EventBus.prototype, {
-    // public methods
-    // --------------
+  // instance methods
+  // ----------------
+
+  _.mixin(EventBus.prototype, {
+
+    // ### public
 
     trigger: function(type) {
       var args = [].slice.call(arguments, 1);
