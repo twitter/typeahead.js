@@ -62,7 +62,7 @@ module.exports = function(grunt) {
           compress: false
         },
         src: files.common.concat(files.typeahead),
-        dest: '<%= buildDir %>/typeahead.js'
+        dest: '<%= buildDir %>/typeahead.jquery.js'
 
       },
       bundle: {

@@ -35,11 +35,11 @@ Other methods:
 * [Download zipball of latest release][zipball].
 * Download the latest dist files individually:
   * *[bloodhound.js]* (standalone suggestion engine)
-  * *[typeahead.js]* (standalone UI view)
-  * *[typeahead.bundle.js]* (*bloodhound.js* + *typeahead.js*)
+  * *[typeahead.jquery.js]* (standalone UI view)
+  * *[typeahead.bundle.js]* (*bloodhound.js* + *typeahead.jquery.js*)
   * *[typeahead.bundle.min.js]*
 
-**Note:** both *bloodhound.js* and *typeahead.js* have a dependency on 
+**Note:** both *bloodhound.js* and *typeahead.jquery.js* have a dependency on 
 [jQuery] 1.9+.
 
 <!-- section links -->
@@ -47,7 +47,7 @@ Other methods:
 [Bower]: http://bower.io/
 [zipball]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.js.zip
 [bloodhound.js]: http://twitter.github.com/typeahead.js/releases/latest/bloodhound.js
-[typeahead.js]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.js
+[typeahead.jquery.js]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.jquery.js
 [typeahead.bundle.js]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.bundle.js
 [typeahead.bundle.min.js]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.bundle.min.js
 [jQuery]: http://jquery.com/
