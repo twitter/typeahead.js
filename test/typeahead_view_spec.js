@@ -13,7 +13,7 @@ describe('Typeahead', function() {
     $fixture = $('#jasmine-fixtures');
     this.$input = $fixture.find('input');
 
-    testDatum = fixtures.normalized.simple[0];
+    testDatum = fixtures.data.simple[0];
 
     this.view = new Typeahead({
       input: this.$input,

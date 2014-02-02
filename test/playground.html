@@ -50,122 +50,158 @@
     </div>
 
     <script>
+      var states = new Bloodhound({
+        datumTokenizer: function(d) { return d.val.split(/\s+/); },
+        queryTokenizer: function(q) { return q.split(/\s+/); },
+        local: [
+          { val: 'Alabama' },
+          { val: 'Alaska' },
+          { val: 'Arizona' },
+          { val: 'Arkansas' },
+          { val: 'California' },
+          { val: 'Colorado' },
+          { val: 'Connecticut' },
+          { val: 'Delaware' },
+          { val: 'Florida' },
+          { val: 'Georgia' },
+          { val: 'Hawaii' },
+          { val: 'Idaho' },
+          { val: 'Illinois' },
+          { val: 'Indiana' },
+          { val: 'Iowa' },
+          { val: 'Kansas' },
+          { val: 'Kentucky' },
+          { val: 'Louisiana' },
+          { val: 'Maine' },
+          { val: 'Maryland' },
+          { val: 'Massachusetts' },
+          { val: 'Michigan' },
+          { val: 'Minnesota' },
+          { val: 'Mississippi' },
+          { val: 'Missouri' },
+          { val: 'Montana' },
+          { val: 'Nebraska' },
+          { val: 'Nevada' },
+          { val: 'New Hampshire' },
+          { val: 'New Jersey' },
+          { val: 'New Mexico' },
+          { val: 'New York' },
+          { val: 'North Carolina' },
+          { val: 'North Dakota' },
+          { val: 'Ohio' },
+          { val: 'Oklahoma' },
+          { val: 'Oregon' },
+          { val: 'Pennsylvania' },
+          { val: 'Rhode Island' },
+          { val: 'South Carolina' },
+          { val: 'South Dakota' },
+          { val: 'Tennessee' },
+          { val: 'Texas' },
+          { val: 'Utah' },
+          { val: 'Vermont' },
+          { val: 'Virginia' },
+          { val: 'Washington' },
+          { val: 'West Virginia' },
+          { val: 'Wisconsin' },
+          { val: 'Wyoming' }
+        ]
+      });
+
+      states.initialize();
+
       $('.states').typeahead({
         highlight: true
       },
       {
-        valueKey: 'state',
-        source: {
-          valueKey: 'state',
-          local: [
-            "Alabama",
-            "Alaska",
-            "Arizona",
-            "Arkansas",
-            "California",
-            "Colorado",
-            "Connecticut",
-            "Delaware",
-            "Florida",
-            "Georgia",
-            "Hawaii",
-            "Idaho",
-            "Illinois",
-            "Indiana",
-            "Iowa",
-            "Kansas",
-            "Kentucky",
-            "Louisiana",
-            "Maine",
-            "Maryland",
-            "Massachusetts",
-            "Michigan",
-            "Minnesota",
-            "Mississippi",
-            "Missouri",
-            "Montana",
-            "Nebraska",
-            "Nevada",
-            "New Hampshire",
-            "New Jersey",
-            "New Mexico",
-            "New York",
-            "North Carolina",
-            "North Dakota",
-            "Ohio",
-            "Oklahoma",
-            "Oregon",
-            "Pennsylvania",
-            "Rhode Island",
-            "South Carolina",
-            "South Dakota",
-            "Tennessee",
-            "Texas",
-            "Utah",
-            "Vermont",
-            "Virginia",
-            "Washington",
-            "West Virginia",
-            "Wisconsin",
-            "Wyoming"
-          ]
-        }
+        displayKey: 'val',
+        source: states.ttAdapter()
       });
 
+
+      var badTokens = new Bloodhound({
+        datumTokenizer: function(d) { return d.tokens; },
+        queryTokenizer: function(q) { return q.split(/\s+/); },
+        local: [
+          {
+            value1: 'all bad',
+            jake: '111',
+            tokens: ['  ', ' ', null, undefined, false, 'all', 'bad']
+          },
+          {
+            value1: 'whitespace',
+            jake: '112',
+            tokens: ['  ', ' ', '\t', '\n', 'whitespace']
+          },
+          {
+            value1: 'undefined',
+            jake: '113',
+            tokens: [undefined, 'undefined']
+          },
+          {
+            value1: 'null',
+            jake: '114',
+            tokens: [null, 'null']
+          },
+          {
+            value1: 'false',
+            jake: '115',
+            tokens: [false, 'false']
+          }
+        ]
+      });
+
+      badTokens.initialize();
 
       $('.bad-tokens').typeahead(null, {
-        source: {
-          local: [
-            {
-              value: 'all bad',
-              tokens: ['  ', ' ', null, undefined, false, 'all', 'bad']
-            },
-            {
-              value: 'whitespace',
-              tokens: ['  ', ' ', '\t', '\n', 'whitespace']
-            },
-            {
-              value: 'undefined',
-              tokens: [undefined, 'undefined']
-            },
-            {
-              value: 'null',
-              tokens: [null, 'null']
-            },
-            {
-              value: 'false',
-              tokens: [false, 'false']
-            }
-          ]
-        }
+        displayKey: 'value1',
+        source: badTokens.ttAdapter()
       });
+
+      var regexSymbols = new Bloodhound({
+        datumTokenizer: function(d) { return d.val.split(/\s+/); },
+        queryTokenizer: function(q) { return q.split(/\s+/); },
+        local: [
+          { val: '*.js' },
+          { val: '[Tt]ypeahead.js' },
+          { val: '^typeahead.js$' },
+          { val: 'typeahead.js(0.8.2)' },
+          { val: 'typeahead.js(@\\d.\\d.\\d)' },
+          { val: 'typeahead.js@0.8.2' }
+        ]
+      });
+
+      regexSymbols.initialize();
 
       $('.regex-symbols').typeahead(null, {
-        source: {
-          local: [
-            '*.js',
-            '[Tt]ypeahead.js',
-            '^typeahead.js$',
-            'typeahead.js(0.8.2)',
-            'typeahead.js(@\\d.\\d.\\d)',
-            'typeahead.js@0.8.2'
-          ]
-        }
+        displayKey: 'val',
+        source: regexSymbols.ttAdapter()
       });
 
+      var abc = new Bloodhound({
+        datumTokenizer: function(d) { return d.val.split(/\s+/); },
+        queryTokenizer: function(q) { return q.split(/\s+/); },
+        local: [
+          { val: 'a' }, 
+          { val: 'ab' }, 
+          { val: 'abc' }, 
+          { val: 'abcd' }, 
+          { val: 'abcde' }
+        ]
+      });
+
+      abc.initialize();
+
       $('.header-footer').typeahead(null, {
-        source: {
-          local: ['a', 'ab', 'abc', 'abcd', 'abcde']
-        },
+        displayKey: 'val',
+        source: abc.ttAdapter(),
         templates: {
           header: '<h3>Header</h3>',
           footer: '<h3>Footer</h3>'
         }
       },
       {
-        source: {
-          local: ['a', 'ab', 'abc', 'abcd', 'abcde']
-        },
+        displayKey: 'val',
+        source: abc.ttAdapter(),
         templates: {
           header: '<h3>start</h3>',
           footer: '<h3>end</h3>',

@@ -1,14 +1,21 @@
 describe('SearchIndex', function() {
 
   beforeEach(function() {
-    this.searchIndex = new SearchIndex();
+    this.searchIndex = new SearchIndex({
+      datumTokenizer: datumTokenizer,
+      queryTokenizer: queryTokenizer
+    });
+
     this.searchIndex.add(fixtures.data.simple);
   });
 
   it('should support serialization/deserialization', function() {
     var serialized = this.searchIndex.serialize();
 
-    this.searchIndex = new SearchIndex();
+    this.searchIndex = new SearchIndex({
+      datumTokenizer: datumTokenizer,
+      queryTokenizer: queryTokenizer
+    });
     this.searchIndex.bootstrap(serialized);
 
     expect(this.searchIndex.get('smaller')).toEqual([{ value: 'smaller' }]);
@@ -18,12 +25,6 @@ describe('SearchIndex', function() {
     this.searchIndex.add({ value: 'new' });
 
     expect(this.searchIndex.get('new')).toEqual([{ value: 'new' }]);
-  });
-
-  it('should allow tokens to be set manually', function() {
-    this.searchIndex.add({ value: 'old', tokens: ['new'] });
-
-    expect(this.searchIndex.get('new')).toEqual([{ value: 'old' }]);
   });
 
   it('#get should return datums that match the given query', function() {
@@ -40,11 +41,13 @@ describe('SearchIndex', function() {
     ]);
   });
 
-  it('#remote should throw an exception', function() {
-    expect(this.searchIndex.remove).toThrow();
-  });
-
   it('#get should return an empty array of there are no matches', function() {
     expect(this.searchIndex.get('wtf')).toEqual([]);
   });
+
+  // helper functions
+  // ----------------
+
+  function datumTokenizer(d) { return $.trim(d.value).split(/\s+/); }
+  function queryTokenizer(s) { return $.trim(s).split(/\s+/); }
 });

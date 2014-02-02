@@ -3,7 +3,7 @@ var fixtures = fixtures || {};
 fixtures.ajaxResps = {
   ok: {
     status: 200,
-    responseText: '["big", "bigger", "biggest", "small", "smaller", "smallest"]'
+    responseText: '[{ "value": "big" }, { "value": "bigger" }, { "value": "biggest" }, { "value": "small" }, { "value": "smaller" }, { "value": "smallest" }]'
   },
   ok1: {
     status: 200,

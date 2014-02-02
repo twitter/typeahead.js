@@ -12,7 +12,12 @@ describe('Bloodhound', function() {
 
   describe('local', function() {
     beforeEach(function() {
-      this.bloodhound = new Bloodhound({ local: fixtures.data.simple });
+      this.bloodhound = new Bloodhound({
+        datumTokenizer: datumTokenizer,
+        queryTokenizer: queryTokenizer,
+        local: fixtures.data.simple
+      });
+
       this.bloodhound.initialize();
     });
 
@@ -40,11 +45,15 @@ describe('Bloodhound', function() {
       var ttl = 100;
 
       this.bloodhound1 = new Bloodhound({
+        datumTokenizer: datumTokenizer,
+        queryTokenizer: queryTokenizer,
         prefetch: { url: '/test1', cacheKey: 'woah' }
       });
       expect(PersistentStorage).toHaveBeenCalledWith('woah');
 
       this.bloodhound2 = new Bloodhound({
+        datumTokenizer: datumTokenizer,
+        queryTokenizer: queryTokenizer,
         prefetch: { url: '/test2', ttl: ttl, thumbprint: '!' }
       });
       expect(PersistentStorage).toHaveBeenCalledWith('/test2');
@@ -66,8 +75,16 @@ describe('Bloodhound', function() {
       spy1 = jasmine.createSpy();
       spy2 = jasmine.createSpy();
 
-      this.bloodhound1 = new Bloodhound({ prefetch: '/test1' });
-      this.bloodhound2 = new Bloodhound({ prefetch: { url: '/test2' } });
+      this.bloodhound1 = new Bloodhound({
+        datumTokenizer: datumTokenizer,
+        queryTokenizer: queryTokenizer,
+        prefetch: '/test1'
+      });
+      this.bloodhound2 = new Bloodhound({
+        datumTokenizer: datumTokenizer,
+        queryTokenizer: queryTokenizer,
+        prefetch: { url: '/test2' }
+      });
       this.bloodhound1.initialize();
       this.bloodhound2.initialize();
 
@@ -100,6 +117,8 @@ describe('Bloodhound', function() {
       spy = jasmine.createSpy();
 
       this.bloodhound = new Bloodhound({
+        datumTokenizer: datumTokenizer,
+        queryTokenizer: queryTokenizer,
         prefetch: { url: '/test', filter: filterSpy }
       });
       this.bloodhound.initialize();
@@ -117,14 +136,18 @@ describe('Bloodhound', function() {
       ]);
 
       function fakeFilter(resp) {
-        return ['BIG', 'BIGGER', 'BIGGEST'];
+        return [{ value: 'BIG' }, { value: 'BIGGER' }, { value: 'BIGGEST' }];
       }
     });
 
     it('should not make a request if data is available in storage', function() {
       var that = this, spy = jasmine.createSpy();
 
-      this.bloodhound = new Bloodhound({ name: 'name', prefetch: '/test' });
+      this.bloodhound = new Bloodhound({
+        datumTokenizer: datumTokenizer,
+        queryTokenizer: queryTokenizer,
+        prefetch: '/test'
+      });
       this.bloodhound.storage.get.andCallFake(fakeGet);
       this.bloodhound.initialize();
 
@@ -161,9 +184,13 @@ describe('Bloodhound', function() {
   describe('remote', function() {
     it('should perform query substitution on the provided url', function() {
       this.bloodhound1 = new Bloodhound({
+        datumTokenizer: datumTokenizer,
+        queryTokenizer: queryTokenizer,
         remote: { url: '/test?q=$$', wildcard: '$$' }
       });
       this.bloodhound2 = new Bloodhound({
+        datumTokenizer: datumTokenizer,
+        queryTokenizer: queryTokenizer,
         remote: {
           url: '/test?q=%QUERY',
           replace: function(str, query) {return str.replace('%QUERY', query);  }
@@ -196,6 +223,8 @@ describe('Bloodhound', function() {
       filterSpy = jasmine.createSpy().andCallFake(fakeFilter);
 
       this.bloodhound = new Bloodhound({
+        datumTokenizer: datumTokenizer,
+        queryTokenizer: queryTokenizer,
         remote: { url: '/test', filter: filterSpy }
       });
       this.bloodhound.initialize();
@@ -216,7 +245,7 @@ describe('Bloodhound', function() {
       });
 
       function fakeFilter(resp) {
-        return ['BIG', 'BIGGER', 'BIGGEST'];
+        return [{ value: 'BIG' }, { value: 'BIGGER' }, { value: 'BIGGEST' }];
       }
 
       function fakeGet(url, o, cb) {
@@ -227,7 +256,11 @@ describe('Bloodhound', function() {
     it('should call #get callback once if cache hit', function() {
       var spy = jasmine.createSpy();
 
-      this.bloodhound = new Bloodhound({ remote: '/test?q=%QUERY' });
+      this.bloodhound = new Bloodhound({
+        datumTokenizer: datumTokenizer,
+        queryTokenizer: queryTokenizer,
+        remote: '/test?q=%QUERY'
+      });
       this.bloodhound.initialize();
       this.bloodhound.transport.get.andCallFake(fakeGet);
 
@@ -251,6 +284,8 @@ describe('Bloodhound', function() {
 
       this.bloodhound = new Bloodhound({
         limit: 3,
+        datumTokenizer: datumTokenizer,
+        queryTokenizer: queryTokenizer,
         local: fixtures.data.simple,
         remote: { url: '/test?q=%QUERY' }
       });
@@ -291,4 +326,10 @@ describe('Bloodhound', function() {
       }
     });
   });
+
+  // helper functions
+  // ----------------
+
+  function datumTokenizer(d) { return $.trim(d.value).split(/\s+/); }
+  function queryTokenizer(s) { return $.trim(s).split(/\s+/); }
 });
