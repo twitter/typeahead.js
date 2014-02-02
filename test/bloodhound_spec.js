@@ -205,13 +205,13 @@ describe('Bloodhound', function() {
 
       expect(this.bloodhound1.transport.get).toHaveBeenCalledWith(
         '/test?q=one%20two',
-        { method: 'get', dataType: 'json' },
+        { type: 'GET', dataType: 'json' },
         jasmine.any(Function)
       );
 
       expect(this.bloodhound2.transport.get).toHaveBeenCalledWith(
         '/test?q=one two',
-        { method: 'get', dataType: 'json' },
+        { type: 'GET', dataType: 'json' },
         jasmine.any(Function)
       );
     });
