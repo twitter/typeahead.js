@@ -7,7 +7,7 @@
 (function() {
   var old, typeaheadKey, methods;
 
-  old = jQuery.fn.typeahead;
+  old = $.fn.typeahead;
 
   typeaheadKey = 'ttTypeahead';
 
@@ -109,7 +109,7 @@
     }
   };
 
-  jQuery.fn.typeahead = function(method) {
+  $.fn.typeahead = function(method) {
     if (methods[method]) {
       return methods[method].apply(this, [].slice.call(arguments, 1));
     }
@@ -119,8 +119,8 @@
     }
   };
 
-  jQuery.fn.typeahead.noConflict = function noConflict() {
-    jQuery.fn.typeahead = old;
+  $.fn.typeahead.noConflict = function noConflict() {
+    $.fn.typeahead = old;
     return this;
   };
 })();
