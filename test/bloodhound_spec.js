@@ -276,6 +276,39 @@ describe('Bloodhound', function() {
   });
 
   describe('local/prefetch/remote integration', function() {
+    it('duplicates should be removed if dupDetector is provided', function() {
+      var spy;
+
+      spy = jasmine.createSpy();
+
+      this.bloodhound = new Bloodhound({
+        limit: 6,
+        datumTokenizer: datumTokenizer,
+        queryTokenizer: queryTokenizer,
+        dupDetector: function(d1, d2) { return d1.value === d2.value; },
+        local: fixtures.data.animals,
+        remote: { url: '/test?q=%QUERY' }
+      });
+
+      this.bloodhound.initialize();
+
+      this.bloodhound.transport.get.andCallFake(fakeGet);
+
+      this.bloodhound.get('dog', spy);
+
+      expect(spy).toHaveBeenCalledWith([{ value: 'dog' }]);
+
+      waitsFor(function() { return spy.callCount === 2; });
+
+      runs(function() {
+        expect(spy).toHaveBeenCalledWith(fixtures.data.animals);
+      });
+
+      function fakeGet(url, o, cb) {
+        setTimeout(function() { cb(fixtures.data.animals); }, 0);
+      }
+    });
+
     it('remote should backfill local/prefetch', function() {
       var spy1, spy2;
 
@@ -320,9 +353,7 @@ describe('Bloodhound', function() {
       });
 
       function fakeGet(url, o, cb) {
-        setTimeout(function() {
-          cb(fixtures.data.animals);
-        }, 0);
+        setTimeout(function() { cb(fixtures.data.animals); }, 0);
       }
     });
   });
