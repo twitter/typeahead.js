@@ -87,6 +87,7 @@ var SearchIndex = (function() {
 
         // break early if we find out there are no possible matches
         else {
+          matches = [];
           return false;
         }
       });
