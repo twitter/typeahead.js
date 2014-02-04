@@ -110,12 +110,18 @@ $('.example-sports .typeahead').typeahead({
 {
   name: 'nba',
   displayKey: 'team',
-  source: nba.ttAdapter()
+  source: nba.ttAdapter(),
+  templates: {
+    header: '<h3 class="league-name">NBA Teams</h3>'
+  }
 },
 {
   name: 'nhl',
   displayKey: 'team',
-  source: nhl.ttAdapter()
+  source: nhl.ttAdapter(),
+  templates: {
+    header: '<h3 class="league-name">NHL Teams</h3>'
+  }
 });
 
 films = new Bloodhound({
