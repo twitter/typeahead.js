@@ -18,6 +18,10 @@ var Dataset = (function() {
       $.error('missing source');
     }
 
+    if (o.name && !isValidName(o.name)) {
+      $.error('invalid dataset name: ' + o.name);
+    }
+
     // tracks the last query the dataset was updated for
     this.query = null;
 
@@ -170,5 +174,10 @@ var Dataset = (function() {
     function suggestionTemplate(context) {
       return '<p>' + context[valueKey] + '</p>';
     }
+  }
+
+  function isValidName(str) {
+    // dashes, underscores, letters, and numbers
+    return (/^[_a-zA-Z0-9-]+$/).test(str);
   }
 })();
