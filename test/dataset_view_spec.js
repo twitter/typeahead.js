@@ -13,6 +13,14 @@ describe('Dataset', function() {
     function noSource() { new Dataset(); }
   });
 
+  it('should throw an error if the name is not a valid class name', function() {
+    expect(fn).toThrow();
+
+    function fn() {
+      var d = new Dataset({ name: 'a space', source: $.noop });
+    }
+  });
+
   describe('#getRoot', function() {
     it('should return the root element', function() {
       expect(this.dataset.getRoot()).toBe('div.tt-dataset-test');
