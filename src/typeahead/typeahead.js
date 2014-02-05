@@ -291,6 +291,7 @@ var Typeahead = (function() {
     $hint = $input.clone().css(css.hint).css(getBackgroundStyles($input));
 
     $hint
+    .val('')
     .removeData()
     .addClass('tt-hint')
     .removeAttr('id name placeholder')
