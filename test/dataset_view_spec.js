@@ -37,6 +37,21 @@ describe('Dataset', function() {
       expect(this.dataset.getRoot()).toContainText('three');
     });
 
+    it('should allow custom display functions', function() {
+      this.dataset = new Dataset({
+        name: 'test',
+        display: function(o) { return o.display; },
+        source: this.source = jasmine.createSpy('source')
+      });
+
+      this.source.andCallFake(fakeGetForDisplayFn);
+      this.dataset.update('woah');
+
+      expect(this.dataset.getRoot()).toContainText('4');
+      expect(this.dataset.getRoot()).toContainText('5');
+      expect(this.dataset.getRoot()).toContainText('6');
+    });
+
     it('should render empty when no suggestions are available', function() {
       this.dataset = new Dataset({
         source: this.source,
@@ -165,6 +180,10 @@ describe('Dataset', function() {
       { value: 'two', raw: { value: 'two' } },
       { value: 'three', raw: { value: 'three' } }
     ]);
+  }
+
+  function fakeGetForDisplayFn(query, cb) {
+    cb([{ display: '4' }, { display: '5' }, { display: '6' } ]);
   }
 
   function fakeGetWithSyncEmptyResults(query, cb) {

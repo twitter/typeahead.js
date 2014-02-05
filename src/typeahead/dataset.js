@@ -29,9 +29,9 @@ var Dataset = (function() {
     this.name = o.name || _.getUniqueId();
 
     this.source = o.source;
-    this.valueKey = o.displayKey || 'value';
+    this.displayFn = getDisplayFn(o.display || o.displayKey);
 
-    this.templates = getTemplates(o.templates, this.valueKey);
+    this.templates = getTemplates(o.templates, this.displayFn);
 
     this.$el = $(html.dataset.replace('%CLASS%', this.name));
   }
@@ -107,7 +107,7 @@ var Dataset = (function() {
           outerHtml = html.suggestion.replace('%BODY%', innerHtml);
           $el = $(outerHtml)
           .data(datasetKey, that.name)
-          .data(valueKey, suggestion[that.valueKey])
+          .data(valueKey, that.displayFn(suggestion))
           .data(datumKey, suggestion);
 
           $el.children().each(function() { $(this).css(css.suggestionChild); });
@@ -166,7 +166,15 @@ var Dataset = (function() {
   // helper functions
   // ----------------
 
-  function getTemplates(templates, valueKey) {
+  function getDisplayFn(display) {
+    display = display || 'value';
+
+    return _.isFunction(display) ? display : displayFn;
+
+    function displayFn(obj) { return obj[display]; }
+  }
+
+  function getTemplates(templates, displayFn) {
     return {
       empty: templates.empty && _.templatify(templates.empty),
       header: templates.header && _.templatify(templates.header),
@@ -175,7 +183,7 @@ var Dataset = (function() {
     };
 
     function suggestionTemplate(context) {
-      return '<p>' + context[valueKey] + '</p>';
+      return '<p>' + displayFn(context) + '</p>';
     }
   }
 
