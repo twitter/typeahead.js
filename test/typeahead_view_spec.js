@@ -38,7 +38,7 @@ describe('Typeahead', function() {
 
       expect(spy).toHaveBeenCalled();
       expect(this.input.clearHint).toHaveBeenCalled();
-      expect(this.input.setQuery).toHaveBeenCalledWith(testDatum.value)
+      expect(this.input.setQuery).toHaveBeenCalledWith(testDatum.value);
       expect(this.input.setInputValue)
       .toHaveBeenCalledWith(testDatum.value, true);
 
@@ -190,7 +190,7 @@ describe('Typeahead', function() {
 
       expect(spy).toHaveBeenCalled();
       expect(this.input.clearHint).toHaveBeenCalled();
-      expect(this.input.setQuery).toHaveBeenCalledWith(testDatum.value)
+      expect(this.input.setQuery).toHaveBeenCalledWith(testDatum.value);
       expect(this.input.setInputValue)
       .toHaveBeenCalledWith(testDatum.value, true);
 
@@ -222,7 +222,7 @@ describe('Typeahead', function() {
 
         expect(spy).toHaveBeenCalled();
         expect(this.input.clearHint).toHaveBeenCalled();
-        expect(this.input.setQuery).toHaveBeenCalledWith(testDatum.value)
+        expect(this.input.setQuery).toHaveBeenCalledWith(testDatum.value);
         expect(this.input.setInputValue)
         .toHaveBeenCalledWith(testDatum.value, true);
 
