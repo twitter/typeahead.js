@@ -111,6 +111,7 @@ var Typeahead = (function() {
     },
 
     _onFocused: function onFocused() {
+      this.dropdown.empty();
       this.dropdown.open();
     },
 
