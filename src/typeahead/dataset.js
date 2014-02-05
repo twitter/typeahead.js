@@ -87,11 +87,14 @@ var Dataset = (function() {
       }
 
       function getSuggestionsHtml() {
-        var $suggestions;
+        var $suggestions, nodes;
 
-        $suggestions = $(html.suggestions)
-        .css(css.suggestions)
-        .append(_.map(suggestions, getSuggestionNode));
+        $suggestions = $(html.suggestions).css(css.suggestions);
+
+        // jQuery#append doesn't support arrays as the first argument
+        // until version 1.8, see http://bugs.jquery.com/ticket/11231
+        nodes = _.map(suggestions, getSuggestionNode);
+        $suggestions.append.apply($suggestions, nodes);
 
         that.highlight && highlight({ node: $suggestions[0], pattern: query });
 
