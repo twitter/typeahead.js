@@ -61,6 +61,7 @@ var Typeahead = (function() {
         };
       }
 
+      // ie 9+ and other browsers
       $e.preventDefault();
     });
   }
@@ -115,10 +116,7 @@ var Typeahead = (function() {
     },
 
     _onBlurred: function onBlurred() {
-      // don't close the menu because this was triggered by a blur event
-      // and if the menu is closed, it'll prevent the probable associated
-      // click event from being fired
-      !this.dropdown.isMouseOverDropdown && this.dropdown.close();
+      this.dropdown.close();
     },
 
     _onEnterKeyed: function onEnterKeyed(type, $e) {

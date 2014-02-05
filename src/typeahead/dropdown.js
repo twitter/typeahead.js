@@ -21,7 +21,6 @@ var Dropdown = (function() {
 
     this.isOpen = false;
     this.isEmpty = true;
-    this.isMouseOverDropdown = false;
 
     this.datasets = _.map(o.datasets, initializeDataset);
 
@@ -33,8 +32,6 @@ var Dropdown = (function() {
     onSuggestionMouseLeave = _.bind(this._onSuggestionMouseLeave, this);
 
     this.$menu = $(o.menu)
-    .on('mouseenter.tt', onMouseEnter)
-    .on('mouseleave.tt', onMouseLeave)
     .on('click.tt', '.tt-suggestion', onSuggestionClick)
     .on('mouseenter.tt', '.tt-suggestion', onSuggestionMouseEnter)
     .on('mouseleave.tt', '.tt-suggestion', onSuggestionMouseLeave);
@@ -51,14 +48,6 @@ var Dropdown = (function() {
   _.mixin(Dropdown.prototype, EventEmitter, {
 
     // ### private
-
-    _onMouseEnter: function onMouseEnter($e) {
-      this.isMouseOverDropdown = true;
-    },
-
-    _onMouseLeave: function onMouseLeave($e) {
-      this.isMouseOverDropdown = false;
-    },
 
     _onSuggestionClick: function onSuggestionClick($e) {
       this.trigger('suggestionClicked', $($e.currentTarget));
@@ -165,7 +154,7 @@ var Dropdown = (function() {
 
     close: function close() {
       if (this.isOpen) {
-        this.isOpen = this.isMouseOverDropdown = false;
+        this.isOpen = false;
 
         this._removeCursor();
         this._hide();
