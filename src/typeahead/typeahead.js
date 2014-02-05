@@ -241,15 +241,15 @@ var Typeahead = (function() {
       this.input.clearHint();
       this.input.setQuery(datum.value);
       this.input.setInputValue(datum.value, true);
-      this.dropdown.close();
 
       this._setLanguageDirection();
+
+      this.eventBus.trigger('selected', datum.raw, datum.datasetName);
+      this.dropdown.close();
 
       // #118: allow click event to bubble up to the body before removing
       // the suggestions otherwise we break event delegation
       _.defer(_.bind(this.dropdown.empty, this.dropdown));
-
-      this.eventBus.trigger('selected', datum.raw, datum.datasetName);
     },
 
     // ### public
