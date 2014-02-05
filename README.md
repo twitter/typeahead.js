@@ -133,7 +133,10 @@ Developers
 ----------
 
 If you plan on contributing to typeahead.js, be sure to read the 
-[contributing guidelines].
+[contributing guidelines]. A good starting place for new contributors are issues
+labeled with [entry-level]. Entry-level issues tend to require minor changes 
+and provide developers a chance to get more familiar with typeahead.js before
+taking on more challenging work.
 
 In order to build and test typeahead.js, you'll need to install its dev 
 dependencies (`$ npm install`) and have [grunt-cli] 
@@ -150,6 +153,7 @@ Grunt tasks that'll be useful in development.
 <!-- section links -->
 
 [contributing guidelines]: https://github.com/twitter/typeahead.js/blob/master/CONTRIBUTING.md
+[entry-level]: https://github.com/twitter/typeahead.js/issues?&labels=entry-level&state=open
 [grunt-cli]: https://github.com/gruntjs/grunt-cli
 
 Authors
