@@ -121,7 +121,7 @@ var Bloodhound = window.Bloodhound = (function() {
       // the stored data is considered expired if the thumbprints
       // don't match or if the protocol it was originally stored under
       // has changed
-      isExpired = stored.thumbprint !== thumbprint ||
+      var isExpired = stored.thumbprint !== thumbprint ||
         stored.protocol !== location.protocol;
 
       return stored.data && !isExpired ? stored.data : null;
