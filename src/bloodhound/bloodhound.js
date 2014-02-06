@@ -111,7 +111,7 @@ var Bloodhound = window.Bloodhound = (function() {
     },
 
     _readFromStorage: function readFromStorage(thumbprint) {
-      var stored = {};
+      var stored = {}, isExpired;
 
       if (this.storage) {
         stored.data = this.storage.get(keys.data);
