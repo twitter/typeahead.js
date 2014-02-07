@@ -94,7 +94,7 @@ options you can configure.
   `remote`.
 
 * `dupDetector` – If set, this is expected to be a function with the signature 
-  `(remoteMatch, match)` that returns `true` if the datums are duplicates or 
+  `(remoteMatch, localMatch)` that returns `true` if the datums are duplicates or 
   `false` otherwise. If not set, duplicate detection will not be performed.
 
 * `sorter` – A [compare function] used to sort matched datums for a given query.
