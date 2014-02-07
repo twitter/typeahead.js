@@ -193,7 +193,7 @@ For a quick example, if a datum was tokenized into the following set of
 tokens...
 
 ```javascript
-['typeahead.js', 'typeahead', 'autocomlete', 'javascript'];
+['typeahead.js', 'typeahead', 'autocomplete', 'javascript'];
 ```
 
 ...it would be a valid match for queries such as:
