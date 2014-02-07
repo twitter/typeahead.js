@@ -232,10 +232,4 @@ engine.initialize();
 $('.typeahead').typeahead(null, {
   source: engine.ttAdapter()
 });
-
-// or if you don't need to keep around a reference to the suggestion engine,
-// you can just do this
-$('.typeahead').typeahead(null, {
-  source: (new Bloodhound({ /* options */ })).ttAdapter()
-});
 ```
