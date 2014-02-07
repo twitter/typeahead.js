@@ -15,6 +15,27 @@ For more information on semantic versioning, please visit http://semver.org/.
 
 ---
 
+### 0.10.0 February 2, 2014
+
+This release was almost a complete rewrite of typeahead.js and will hopefully
+lay the foundation for the 1.0.0 release. It's impossible to enumerate all of 
+the issues that were fixed. If you want to get an idea of what issues 0.10.0 
+resolved, take a look at the closed issues in the [0.10.0 milestone].
+
+The most important change in 0.10.0 is that typeahead.js was broken up into 2 
+individual components: Bloodhound and jQuery#typeahead. Bloodhound is an 
+feature-rich suggestion engine. jQuery#typeahead is a jQuery plugin that turns
+input controls into typeaheads.
+
+It's impossible to write a typeahead library that supports every use-case out 
+of the box – that was the main motivation behind decomposing typeahead.js. 
+Previously, some prospective typeahead.js users were unable to use the library 
+because either the suggestion engine or the typeahead UI did not meet their
+requirements. In those cases, they were either forced to fork typeahead.js and
+make the necessary modifications or they had to give up on using typeahead.js
+entirely. Now they have the option of swapping out the component that doesn't 
+work for them with a custom implementation.
+
 ### 0.9.3 June 24, 2013
 
 * Ensure cursor visibility in menus with overflow. [#209][209]
@@ -82,6 +103,8 @@ For more information on semantic versioning, please visit http://semver.org/.
 * Search multiple datasets.
 * Share datasets (and caching) between multiple inputs.
 * And much, much more...
+
+[0.10.0 milestone]: https://github.com/twitter/typeahead.js/issues?milestone=8&page=1&state=closed
 
 [270]: https://github.com/twitter/typeahead.js/pull/270
 [266]: https://github.com/twitter/typeahead.js/pull/266
