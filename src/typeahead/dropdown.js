@@ -10,8 +10,8 @@ var Dropdown = (function() {
   // -----------
 
   function Dropdown(o) {
-    var that = this, onMouseEnter, onMouseLeave, onSuggestionClick,
-        onSuggestionMouseEnter, onSuggestionMouseLeave;
+    var that = this, onSuggestionClick, onSuggestionMouseEnter,
+        onSuggestionMouseLeave;
 
     o = o || {};
 
@@ -25,8 +25,6 @@ var Dropdown = (function() {
     this.datasets = _.map(o.datasets, initializeDataset);
 
     // bound functions
-    onMouseEnter = _.bind(this._onMouseEnter, this);
-    onMouseLeave = _.bind(this._onMouseLeave, this);
     onSuggestionClick = _.bind(this._onSuggestionClick, this);
     onSuggestionMouseEnter = _.bind(this._onSuggestionMouseEnter, this);
     onSuggestionMouseLeave = _.bind(this._onSuggestionMouseLeave, this);
