@@ -73,8 +73,9 @@
     },
 
     val: function val(newVal) {
-      return _.isString(newVal) ?
-        this.each(setQuery) : this.map(getQuery).get();
+      // mirror jQuery#val functionality: reads opearte on first match,
+      // write operates on all matches
+      return !arguments.length ? getQuery(this.first()) : this.each(setQuery);
 
       function setQuery() {
         var $input = $(this), typeahead;
@@ -84,8 +85,8 @@
         }
       }
 
-      function getQuery() {
-        var $input = $(this), typeahead, query;
+      function getQuery($input) {
+        var typeahead, query;
 
         if (typeahead = $input.data(typeaheadKey)) {
           query = typeahead.getQuery();
