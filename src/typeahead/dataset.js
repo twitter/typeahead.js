@@ -79,7 +79,7 @@ var Dataset = (function() {
       this.trigger('rendered');
 
       function getEmptyHtml() {
-        return that.templates.empty({ query: query });
+        return that.templates.empty({ query: query, isEmpty: true });
       }
 
       function getSuggestionsHtml() {
