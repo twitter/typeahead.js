@@ -213,6 +213,7 @@ var Dropdown = (function() {
 
     empty: function empty() {
       _.each(this.datasets, clearDataset);
+      this.isEmpty = true;
 
       function clearDataset(dataset) { dataset.clear(); }
     },
