@@ -12,8 +12,11 @@
   typeaheadKey = 'ttTypeahead';
 
   methods = {
-    initialize: function initialize(o /*, splot of datasets */) {
-      var datasets = [].slice.call(arguments, 1);
+    // supported signatures:
+    // function(o, dataset, dataset, ...)
+    // function(o, [dataset, dataset, ...])
+    initialize: function initialize(o, datasets) {
+      datasets = _.isArray(datasets) ? datasets : [].slice.call(arguments, 1);
 
       o = o || {};
 
