@@ -37,14 +37,6 @@
         });
 
         $input.data(typeaheadKey, typeahead);
-
-        // defer trigging of events to make it possible to attach
-        // a listener immediately after jQuery#typeahead is invoked
-        function trigger(eventName) {
-          return function() {
-          _.defer(function() { eventBus.trigger(eventName); });
-          };
-        }
       }
     },
 
