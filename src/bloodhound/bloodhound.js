@@ -18,7 +18,7 @@ var Bloodhound = window.Bloodhound = (function() {
     }
 
     this.limit = o.limit || 5;
-    this.sorter = o.sorter || noSort;
+    this.sorter = getSorter(o.sorter);
     this.dupDetector = o.dupDetector || ignoreDuplicates;
 
     this.local = oParser.local(o);
@@ -155,9 +155,8 @@ var Bloodhound = window.Bloodhound = (function() {
     get: function get(query, cb) {
       var that = this, matches, cacheHit = false;
 
-      matches = this.index.get(query)
-      .sort(this.sorter)
-      .slice(0, this.limit);
+      matches = this.index.get(query);
+      matches = this.sorter(matches).slice(0, this.limit);
 
       if (matches.length < this.limit && this.transport) {
         cacheHit = this._getFromRemote(query, returnRemoteMatches);
@@ -198,7 +197,12 @@ var Bloodhound = window.Bloodhound = (function() {
   // helper functions
   // ----------------
 
-  function noSort() { return 0; }
+  function getSorter(sortFn) {
+    return _.isFunction(sortFn) ? sort : noSort;
+
+    function sort(array) { return array.sort(sortFn); }
+    function noSort(array) { return array; }
+  }
 
   function ignoreDuplicates() { return false; }
 })();
