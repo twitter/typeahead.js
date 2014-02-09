@@ -216,6 +216,7 @@ var Dropdown = (function() {
       this.isEmpty = true;
 
       function clearDataset(dataset) { dataset.clear(); }
+      this.isEmpty = true;
     },
 
     isVisible: function isVisible() {
