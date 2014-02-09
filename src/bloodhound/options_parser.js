@@ -13,7 +13,13 @@ var oParser = (function() {
   };
 
   function getLocal(o) {
-    return o.local || null;
+    var local =  o.local || null;
+
+    if (_.isFunction(local)) {
+        local = local.call(null);
+    }
+
+    return local;
   }
 
   function getPrefetch(o) {
