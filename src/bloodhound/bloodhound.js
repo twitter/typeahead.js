@@ -185,7 +185,7 @@ var Bloodhound = window.Bloodhound = (function() {
           return matchesWithBackfill.length < that.limit;
         });
 
-        cb && cb(matchesWithBackfill.sort(that.sorter));
+        cb && cb(that.sorter(matchesWithBackfill));
       }
     },
 
