@@ -1,5 +1,5 @@
 /*!
- * typeahead.js 0.10.0
+ * typeahead.js 0.10.1
  * https://github.com/twitter/typeahead.js
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
@@ -120,7 +120,7 @@
         },
         noop: function() {}
     };
-    var VERSION = "0.10.0";
+    var VERSION = "0.10.1";
     var LruCache = function(root, undefined) {
         function LruCache(maxSize) {
             this.maxSize = maxSize || 100;
@@ -264,7 +264,7 @@
         var pendingRequestsCount = 0, pendingRequests = {}, maxPendingRequests = 6, requestCache = new LruCache(10);
         function Transport(o) {
             o = o || {};
-            this._send = o.send ? callbackToDeferred(o.send) : $.ajax;
+            this._send = o.transport ? callbackToDeferred(o.transport) : $.ajax;
             this._get = o.rateLimiter ? o.rateLimiter(this._get) : this._get;
         }
         Transport.setMaxPendingRequests = function setMaxPendingRequests(num) {
@@ -452,7 +452,11 @@
             remote: getRemote
         };
         function getLocal(o) {
-            return o.local || null;
+            var local = o.local || null;
+            if (_.isFunction(local)) {
+                local = local.call(null);
+            }
+            return local;
         }
         function getPrefetch(o) {
             var prefetch, defaults;
@@ -469,7 +473,7 @@
                 } : prefetch;
                 prefetch = _.mixin(defaults, prefetch);
                 prefetch.thumbprint = VERSION + prefetch.thumbprint;
-                prefetch.ajax.method = prefetch.ajax.method || "get";
+                prefetch.ajax.type = prefetch.ajax.type || "GET";
                 prefetch.ajax.dataType = prefetch.ajax.dataType || "json";
                 !prefetch.url && $.error("prefetch requires url to be set");
             }
@@ -493,7 +497,7 @@
                 } : remote;
                 remote = _.mixin(defaults, remote);
                 remote.rateLimiter = /^throttle$/i.test(remote.rateLimitBy) ? byThrottle(remote.rateLimitWait) : byDebounce(remote.rateLimitWait);
-                remote.ajax.method = remote.ajax.method || "get";
+                remote.ajax.type = remote.ajax.type || "GET";
                 remote.ajax.dataType = remote.ajax.dataType || "json";
                 delete remote.rateLimitBy;
                 delete remote.rateLimitWait;
@@ -524,7 +528,7 @@
                 $.error("one of local, prefetch, or remote is required");
             }
             this.limit = o.limit || 5;
-            this.sorter = o.sorter || noSort;
+            this.sorter = getSorter(o.sorter);
             this.dupDetector = o.dupDetector || ignoreDuplicates;
             this.local = oParser.local(o);
             this.prefetch = oParser.prefetch(o);
@@ -580,7 +584,7 @@
                 }
             },
             _readFromStorage: function readFromStorage(thumbprint) {
-                var stored = {};
+                var stored = {}, isExpired;
                 if (this.storage) {
                     stored.data = this.storage.get(keys.data);
                     stored.protocol = this.storage.get(keys.protocol);
@@ -607,7 +611,8 @@
             },
             get: function get(query, cb) {
                 var that = this, matches, cacheHit = false;
-                matches = this.index.get(query).sort(this.sorter).slice(0, this.limit);
+                matches = this.index.get(query);
+                matches = this.sorter(matches).slice(0, this.limit);
                 if (matches.length < this.limit && this.transport) {
                     cacheHit = this._getFromRemote(query, returnRemoteMatches);
                 }
@@ -622,7 +627,7 @@
                         !isDuplicate && matchesWithBackfill.push(remoteMatch);
                         return matchesWithBackfill.length < that.limit;
                     });
-                    cb && cb(matchesWithBackfill.sort(that.sorter));
+                    cb && cb(that.sorter(matchesWithBackfill));
                 }
             },
             ttAdapter: function ttAdapter() {
@@ -630,8 +635,14 @@
             }
         });
         return Bloodhound;
-        function noSort() {
-            return 0;
+        function getSorter(sortFn) {
+            return _.isFunction(sortFn) ? sort : noSort;
+            function sort(array) {
+                return array.sort(sortFn);
+            }
+            function noSort(array) {
+                return array;
+            }
         }
         function ignoreDuplicates() {
             return false;

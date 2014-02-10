@@ -1,5 +1,5 @@
 /*!
- * typeahead.js 0.10.0
+ * typeahead.js 0.10.1
  * https://github.com/twitter/typeahead.js
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
@@ -533,12 +533,15 @@
             if (!o.source) {
                 $.error("missing source");
             }
+            if (o.name && !isValidName(o.name)) {
+                $.error("invalid dataset name: " + o.name);
+            }
             this.query = null;
             this.highlight = !!o.highlight;
             this.name = o.name || _.getUniqueId();
             this.source = o.source;
-            this.valueKey = o.displayKey || "value";
-            this.templates = getTemplates(o.templates, this.valueKey);
+            this.displayFn = getDisplayFn(o.display || o.displayKey);
+            this.templates = getTemplates(o.templates, this.displayFn);
             this.$el = $(html.dataset.replace("%CLASS%", this.name));
         }
         Dataset.extractDatasetName = function extractDatasetName(el) {
@@ -566,12 +569,15 @@
                 this.trigger("rendered");
                 function getEmptyHtml() {
                     return that.templates.empty({
-                        query: query
+                        query: query,
+                        isEmpty: true
                     });
                 }
                 function getSuggestionsHtml() {
-                    var $suggestions;
-                    $suggestions = $(html.suggestions).css(css.suggestions).append(_.map(suggestions, getSuggestionNode));
+                    var $suggestions, nodes;
+                    $suggestions = $(html.suggestions).css(css.suggestions);
+                    nodes = _.map(suggestions, getSuggestionNode);
+                    $suggestions.append.apply($suggestions, nodes);
                     that.highlight && highlight({
                         node: $suggestions[0],
                         pattern: query
@@ -581,7 +587,7 @@
                         var $el, innerHtml, outerHtml;
                         innerHtml = that.templates.suggestion(suggestion);
                         outerHtml = html.suggestion.replace("%BODY%", innerHtml);
-                        $el = $(outerHtml).data(datasetKey, that.name).data(valueKey, suggestion[that.valueKey]).data(datumKey, suggestion);
+                        $el = $(outerHtml).data(datasetKey, that.name).data(valueKey, that.displayFn(suggestion)).data(datumKey, suggestion);
                         $el.children().each(function() {
                             $(this).css(css.suggestionChild);
                         });
@@ -623,7 +629,14 @@
             }
         });
         return Dataset;
-        function getTemplates(templates, valueKey) {
+        function getDisplayFn(display) {
+            display = display || "value";
+            return _.isFunction(display) ? display : displayFn;
+            function displayFn(obj) {
+                return obj[display];
+            }
+        }
+        function getTemplates(templates, displayFn) {
             return {
                 empty: templates.empty && _.templatify(templates.empty),
                 header: templates.header && _.templatify(templates.header),
@@ -631,39 +644,33 @@
                 suggestion: templates.suggestion || suggestionTemplate
             };
             function suggestionTemplate(context) {
-                return "<p>" + context[valueKey] + "</p>";
+                return "<p>" + displayFn(context) + "</p>";
             }
+        }
+        function isValidName(str) {
+            return /^[_a-zA-Z0-9-]+$/.test(str);
         }
     }();
     var Dropdown = function() {
         function Dropdown(o) {
-            var that = this, onMouseEnter, onMouseLeave, onSuggestionClick, onSuggestionMouseEnter, onSuggestionMouseLeave;
+            var that = this, onSuggestionClick, onSuggestionMouseEnter, onSuggestionMouseLeave;
             o = o || {};
             if (!o.menu) {
                 $.error("menu is required");
             }
             this.isOpen = false;
             this.isEmpty = true;
-            this.isMouseOverDropdown = false;
             this.datasets = _.map(o.datasets, initializeDataset);
-            onMouseEnter = _.bind(this._onMouseEnter, this);
-            onMouseLeave = _.bind(this._onMouseLeave, this);
             onSuggestionClick = _.bind(this._onSuggestionClick, this);
             onSuggestionMouseEnter = _.bind(this._onSuggestionMouseEnter, this);
             onSuggestionMouseLeave = _.bind(this._onSuggestionMouseLeave, this);
-            this.$menu = $(o.menu).on("mouseenter.tt", onMouseEnter).on("mouseleave.tt", onMouseLeave).on("click.tt", ".tt-suggestion", onSuggestionClick).on("mouseenter.tt", ".tt-suggestion", onSuggestionMouseEnter).on("mouseleave.tt", ".tt-suggestion", onSuggestionMouseLeave);
+            this.$menu = $(o.menu).on("click.tt", ".tt-suggestion", onSuggestionClick).on("mouseenter.tt", ".tt-suggestion", onSuggestionMouseEnter).on("mouseleave.tt", ".tt-suggestion", onSuggestionMouseLeave);
             _.each(this.datasets, function(dataset) {
                 that.$menu.append(dataset.getRoot());
                 dataset.onSync("rendered", that._onRendered, that);
             });
         }
         _.mixin(Dropdown.prototype, EventEmitter, {
-            _onMouseEnter: function onMouseEnter($e) {
-                this.isMouseOverDropdown = true;
-            },
-            _onMouseLeave: function onMouseLeave($e) {
-                this.isMouseOverDropdown = false;
-            },
             _onSuggestionClick: function onSuggestionClick($e) {
                 this.trigger("suggestionClicked", $($e.currentTarget));
             },
@@ -734,7 +741,7 @@
             },
             close: function close() {
                 if (this.isOpen) {
-                    this.isOpen = this.isMouseOverDropdown = false;
+                    this.isOpen = false;
                     this._removeCursor();
                     this._hide();
                     this.trigger("closed");
@@ -781,6 +788,7 @@
             },
             empty: function empty() {
                 _.each(this.datasets, clearDataset);
+                this.isEmpty = true;
                 function clearDataset(dataset) {
                     dataset.clear();
                 }
@@ -866,10 +874,11 @@
                 this.eventBus.trigger("closed");
             },
             _onFocused: function onFocused() {
+                this.dropdown.empty();
                 this.dropdown.open();
             },
             _onBlurred: function onBlurred() {
-                !this.dropdown.isMouseOverDropdown && this.dropdown.close();
+                this.dropdown.close();
             },
             _onEnterKeyed: function onEnterKeyed(type, $e) {
                 var cursorDatum, topSuggestionDatum;
@@ -963,10 +972,10 @@
                 this.input.clearHint();
                 this.input.setQuery(datum.value);
                 this.input.setInputValue(datum.value, true);
-                this.dropdown.empty();
                 this._setLanguageDirection();
-                _.defer(_.bind(this.dropdown.close, this.dropdown));
                 this.eventBus.trigger("selected", datum.raw, datum.datasetName);
+                this.dropdown.close();
+                _.defer(_.bind(this.dropdown.empty, this.dropdown));
             },
             open: function open() {
                 this.dropdown.open();
@@ -994,7 +1003,7 @@
             $wrapper = $(html.wrapper).css(css.wrapper);
             $dropdown = $(html.dropdown).css(css.dropdown);
             $hint = $input.clone().css(css.hint).css(getBackgroundStyles($input));
-            $hint.removeData().addClass("tt-hint").removeAttr("id name placeholder").prop("disabled", true).attr({
+            $hint.val("").removeData().addClass("tt-hint").removeAttr("id name placeholder").prop("disabled", true).attr({
                 autocomplete: "off",
                 spellcheck: "false"
             });
@@ -1035,11 +1044,12 @@
         }
     }();
     (function() {
-        var typeaheadKey, methods;
+        var old, typeaheadKey, methods;
+        old = $.fn.typeahead;
         typeaheadKey = "ttTypeahead";
         methods = {
-            initialize: function initialize(o) {
-                var datasets = [].slice.call(arguments, 1);
+            initialize: function initialize(o, datasets) {
+                datasets = _.isArray(datasets) ? datasets : [].slice.call(arguments, 1);
                 o = o || {};
                 return this.each(attach);
                 function attach() {
@@ -1058,13 +1068,6 @@
                         datasets: datasets
                     });
                     $input.data(typeaheadKey, typeahead);
-                    function trigger(eventName) {
-                        return function() {
-                            _.defer(function() {
-                                eventBus.trigger(eventName);
-                            });
-                        };
-                    }
                 }
             },
             open: function open() {
@@ -1086,15 +1089,15 @@
                 }
             },
             val: function val(newVal) {
-                return _.isString(newVal) ? this.each(setQuery) : this.map(getQuery).get();
+                return !arguments.length ? getQuery(this.first()) : this.each(setQuery);
                 function setQuery() {
                     var $input = $(this), typeahead;
                     if (typeahead = $input.data(typeaheadKey)) {
                         typeahead.setQuery(newVal);
                     }
                 }
-                function getQuery() {
-                    var $input = $(this), typeahead, query;
+                function getQuery($input) {
+                    var typeahead, query;
                     if (typeahead = $input.data(typeaheadKey)) {
                         query = typeahead.getQuery();
                     }
@@ -1112,12 +1115,16 @@
                 }
             }
         };
-        jQuery.fn.typeahead = function(method) {
+        $.fn.typeahead = function(method) {
             if (methods[method]) {
                 return methods[method].apply(this, [].slice.call(arguments, 1));
             } else {
                 return methods.initialize.apply(this, arguments);
             }
+        };
+        $.fn.typeahead.noConflict = function noConflict() {
+            $.fn.typeahead = old;
+            return this;
         };
     })();
 })(window.jQuery);

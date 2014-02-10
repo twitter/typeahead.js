@@ -1,6 +1,6 @@
 {
   "name": "typeahead.js",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "main": [
     "bloodhound.js",
     "typeahead.jquery.js",
