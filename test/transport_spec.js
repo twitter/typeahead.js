@@ -36,7 +36,7 @@ describe('Transport', function() {
         cbSpy = jasmine.createSpy(),
         sendSpy = jasmine.createSpy().andCallFake(send);
 
-    this.transport = new Transport({ send: sendSpy });
+    this.transport = new Transport({ transport: sendSpy });
     this.transport.get('/test', cbSpy);
 
     waitsFor(function() { return cbSpy.callCount; });

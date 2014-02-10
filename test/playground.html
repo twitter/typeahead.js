@@ -47,6 +47,16 @@
       <div class="typeahead-wrapper">
         <input class="header-footer" type="text" placeholder="header footer">
       </div>
+      <div class="typeahead-wrapper">
+        <input class="ltr" type="text" placeholder="ltr">
+      </div>
+      <div class="typeahead-wrapper">
+        <input class="rtl" type="text" placeholder="rtl">
+      </div>
+      <div class="typeahead-wrapper">
+        <input class="mixed" type="text" placeholder="mixed">
+      </div>
+    </div>
     </div>
 
     <script>
@@ -224,6 +234,78 @@
         'typeahead:opened',
         'typeahead:closed'
       ].join(' '), logToTextarea);
+
+      var ltr = new Bloodhound({
+        datumTokenizer: function(d) { 
+          return Bloodhound.tokenizers.whitespace(d.val); 
+        },
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        local: [
+          { val: "one" },
+          { val: "two three" },
+          { val: "four" },
+          { val: "five six" },
+          { val: "seven" }
+        ]
+      });
+
+      ltr.initialize();
+
+      $('.ltr').typeahead({
+        highlight: true
+      },
+      {
+        displayKey: 'val',
+        source: ltr.ttAdapter()
+      });
+
+      var rtl = new Bloodhound({
+        datumTokenizer: function(d) { 
+          return Bloodhound.tokenizers.whitespace(d.val); 
+        },
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        local: [
+          { val: "שלום" },
+          { val: "ערב טוב" },
+          { val: "מה שלומך" },
+          { val: "רב תודות" },
+          { val: "אין דבר" }
+        ]
+      });
+
+      rtl.initialize();
+
+      $('.rtl').typeahead({
+        highlight: true
+      },
+      {
+        displayKey: 'val',
+        source: rtl.ttAdapter()
+      });
+
+      var mixed = new Bloodhound({
+        datumTokenizer: function(d) { 
+          return Bloodhound.tokenizers.whitespace(d.val); 
+        },
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        local: [
+          { val: "שלום" },
+          { val: "ערב טוב" },
+          { val: "מה שלומך" },
+          { val: "one" },
+          { val: "two three" }
+        ]
+      });
+
+      mixed.initialize();
+
+      $('.mixed').typeahead({
+        highlight: true
+      },
+      {
+        displayKey: 'val',
+        source: mixed.ttAdapter()
+      });
 
       function logToTextarea($e) {
         var $textarea = $('.triggered-events'),

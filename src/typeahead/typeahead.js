@@ -51,8 +51,7 @@ var Typeahead = (function() {
     .onSync('queryChanged', this._onQueryChanged, this)
     .onSync('whitespaceChanged', this._onWhitespaceChanged, this);
 
-    // HACK: prevents input blur on menu click
-    // https://github.com/twitter/typeahead.js/pull/351
+    // #351: prevents input blur on menu click
     $menu.on('mousedown.tt', function($e) {
       if (_.isMsie() && _.isMsie() < 9) {
         $input[0].onbeforedeactivate = function() {
@@ -61,6 +60,7 @@ var Typeahead = (function() {
         };
       }
 
+      // ie 9+ and other browsers
       $e.preventDefault();
     });
   }
@@ -111,14 +111,12 @@ var Typeahead = (function() {
     },
 
     _onFocused: function onFocused() {
+      this.dropdown.empty();
       this.dropdown.open();
     },
 
     _onBlurred: function onBlurred() {
-      // don't close the menu because this was triggered by a blur event
-      // and if the menu is closed, it'll prevent the probable associated
-      // click event from being fired
-      !this.dropdown.isMouseOverDropdown && this.dropdown.close();
+      this.dropdown.close();
     },
 
     _onEnterKeyed: function onEnterKeyed(type, $e) {
@@ -244,16 +242,15 @@ var Typeahead = (function() {
       this.input.clearHint();
       this.input.setQuery(datum.value);
       this.input.setInputValue(datum.value, true);
-      this.dropdown.empty();
 
       this._setLanguageDirection();
 
-      // in ie, focus is not a synchronous event, so when a selection
-      // is triggered by a click within the dropdown menu, we need to
-      // defer the closing of the dropdown otherwise it'll stay open
-      _.defer(_.bind(this.dropdown.close, this.dropdown));
-
       this.eventBus.trigger('selected', datum.raw, datum.datasetName);
+      this.dropdown.close();
+
+      // #118: allow click event to bubble up to the body before removing
+      // the suggestions otherwise we break event delegation
+      _.defer(_.bind(this.dropdown.empty, this.dropdown));
     },
 
     // ### public
@@ -295,6 +292,7 @@ var Typeahead = (function() {
     $hint = $input.clone().css(css.hint).css(getBackgroundStyles($input));
 
     $hint
+    .val('')
     .removeData()
     .addClass('tt-hint')
     .removeAttr('id name placeholder')

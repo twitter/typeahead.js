@@ -11,26 +11,56 @@ describe('Bloodhound', function() {
   });
 
   describe('local', function() {
-    beforeEach(function() {
-      this.bloodhound = new Bloodhound({
-        datumTokenizer: datumTokenizer,
-        queryTokenizer: queryTokenizer,
-        local: fixtures.data.simple
+    describe('when local is an array', function() {
+      beforeEach(function() {
+        this.bloodhound = new Bloodhound({
+          datumTokenizer: datumTokenizer,
+          queryTokenizer: queryTokenizer,
+          local: fixtures.data.simple
+        });
+
+        this.bloodhound.initialize();
       });
 
-      this.bloodhound.initialize();
+      it('should hydrate the bloodhound', function() {
+        var spy = jasmine.createSpy();
+
+        this.bloodhound.get('big', spy);
+
+        expect(spy).toHaveBeenCalledWith([
+          { value: 'big' },
+          { value: 'bigger' },
+          { value: 'biggest' }
+        ]);
+      });
     });
 
-    it('should hydrate the bloodhound', function() {
-      var spy = jasmine.createSpy();
+    describe('when local is a function that returns an array', function() {
+      beforeEach(function() {
+        var localFn = function() {
+          return fixtures.data.simple;
+        };
 
-      this.bloodhound.get('big', spy);
+        this.bloodhound = new Bloodhound({
+          datumTokenizer: datumTokenizer,
+          queryTokenizer: queryTokenizer,
+          local: localFn
+        });
 
-      expect(spy).toHaveBeenCalledWith([
-        { value: 'big' },
-        { value: 'bigger' },
-        { value: 'biggest' }
-      ]);
+        this.bloodhound.initialize();
+      });
+
+      it('should hydrate the bloodhound', function() {
+        var spy = jasmine.createSpy();
+
+        this.bloodhound.get('big', spy);
+
+        expect(spy).toHaveBeenCalledWith([
+          { value: 'big' },
+          { value: 'bigger' },
+          { value: 'biggest' }
+        ]);
+      });
     });
   });
 
@@ -205,13 +235,13 @@ describe('Bloodhound', function() {
 
       expect(this.bloodhound1.transport.get).toHaveBeenCalledWith(
         '/test?q=one%20two',
-        { method: 'get', dataType: 'json' },
+        { type: 'GET', dataType: 'json' },
         jasmine.any(Function)
       );
 
       expect(this.bloodhound2.transport.get).toHaveBeenCalledWith(
         '/test?q=one two',
-        { method: 'get', dataType: 'json' },
+        { type: 'GET', dataType: 'json' },
         jasmine.any(Function)
       );
     });

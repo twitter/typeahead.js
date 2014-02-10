@@ -2,8 +2,6 @@
   "curly": true,
   "newcap": true,
   "noarg": true,
-  "noempty": true,
-  "nonew": true,
   "quotmark": "single",
   "regexp": true,
   "trailing": true,

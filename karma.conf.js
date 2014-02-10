@@ -5,6 +5,9 @@
 // base path, that will be used to resolve files and exclude
 basePath = '';
 
+preprocessors = {
+'src/**/*.js': 'coverage'
+};
 
 // list of files / patterns to load in the browser
 files = [
@@ -43,7 +46,7 @@ exclude = [
 
 // test results reporter to use
 // possible values: 'dots', 'progress', 'junit'
-reporters = ['progress'];
+reporters = ['progress', 'coverage'];
 
 
 // web server port
@@ -53,6 +56,11 @@ port = 9876;
 // cli runner port
 runnerPort = 9100;
 
+// code coverage configs
+coverageReporter = {
+  type : 'html',
+  dir : 'test/coverage/'
+}
 
 // enable / disable colors in the output (reporters and logs)
 colors = true;

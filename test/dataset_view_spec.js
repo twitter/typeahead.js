@@ -13,6 +13,14 @@ describe('Dataset', function() {
     function noSource() { new Dataset(); }
   });
 
+  it('should throw an error if the name is not a valid class name', function() {
+    expect(fn).toThrow();
+
+    function fn() {
+      var d = new Dataset({ name: 'a space', source: $.noop });
+    }
+  });
+
   describe('#getRoot', function() {
     it('should return the root element', function() {
       expect(this.dataset.getRoot()).toBe('div.tt-dataset-test');
@@ -27,6 +35,21 @@ describe('Dataset', function() {
       expect(this.dataset.getRoot()).toContainText('one');
       expect(this.dataset.getRoot()).toContainText('two');
       expect(this.dataset.getRoot()).toContainText('three');
+    });
+
+    it('should allow custom display functions', function() {
+      this.dataset = new Dataset({
+        name: 'test',
+        display: function(o) { return o.display; },
+        source: this.source = jasmine.createSpy('source')
+      });
+
+      this.source.andCallFake(fakeGetForDisplayFn);
+      this.dataset.update('woah');
+
+      expect(this.dataset.getRoot()).toContainText('4');
+      expect(this.dataset.getRoot()).toContainText('5');
+      expect(this.dataset.getRoot()).toContainText('6');
     });
 
     it('should render empty when no suggestions are available', function() {
@@ -157,6 +180,10 @@ describe('Dataset', function() {
       { value: 'two', raw: { value: 'two' } },
       { value: 'three', raw: { value: 'three' } }
     ]);
+  }
+
+  function fakeGetForDisplayFn(query, cb) {
+    cb([{ display: '4' }, { display: '5' }, { display: '6' } ]);
   }
 
   function fakeGetWithSyncEmptyResults(query, cb) {
