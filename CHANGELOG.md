@@ -26,6 +26,7 @@ For more information on semantic versioning, please visit http://semver.org/.
 * `jQuery#typeahead('val')` now mirrors `jQuery#val()`. [#659]
 * Datasets can now be passed to jQuery plugin as an array. [#664]
 * Added a `noConflict` method to the jQuery plugin. [#612]
+* Bloodhound's `local` property can now be a function. [#485]
 
 ### 0.10.0 February 2, 2014
 
@@ -126,6 +127,7 @@ work for them with a custom implementation.
 [630]: https://github.com/twitter/typeahead.js/pull/630
 [612]: https://github.com/twitter/typeahead.js/pull/612
 [610]: https://github.com/twitter/typeahead.js/pull/610
+[485]: https://github.com/twitter/typeahead.js/pull/485
 [270]: https://github.com/twitter/typeahead.js/pull/270
 [266]: https://github.com/twitter/typeahead.js/pull/266
 [260]: https://github.com/twitter/typeahead.js/pull/260
