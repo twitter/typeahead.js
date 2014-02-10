@@ -19,14 +19,14 @@ For more information on semantic versioning, please visit http://semver.org/.
 
 **Hotfix**
 
-* Fixed bug that prevented some ajax configs from being respected. [#630]
-* Event delegation on suggestion clicks is no longer broken. [#118]
-* Ensure dataset names are valid class name suffixes. [#610]
-* Added support for `displayKey` to be a function. [#633]
-* `jQuery#typeahead('val')` now mirrors `jQuery#val()`. [#659]
-* Datasets can now be passed to jQuery plugin as an array. [#664]
-* Added a `noConflict` method to the jQuery plugin. [#612]
-* Bloodhound's `local` property can now be a function. [#485]
+* Fixed bug that prevented some ajax configs from being respected. [#630][630]
+* Event delegation on suggestion clicks is no longer broken. [#118][118]
+* Ensure dataset names are valid class name suffixes. [#610][610]
+* Added support for `displayKey` to be a function. [#633][633]
+* `jQuery#typeahead('val')` now mirrors `jQuery#val()`. [#659][659]
+* Datasets can now be passed to jQuery plugin as an array. [#664][664]
+* Added a `noConflict` method to the jQuery plugin. [#612][612]
+* Bloodhound's `local` property can now be a function. [#485][485]
 
 ### 0.10.0 February 2, 2014
 
