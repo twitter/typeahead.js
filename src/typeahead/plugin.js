@@ -5,13 +5,18 @@
  */
 
 (function() {
-  var typeaheadKey, methods;
+  var old, typeaheadKey, methods;
+
+  old = $.fn.typeahead;
 
   typeaheadKey = 'ttTypeahead';
 
   methods = {
-    initialize: function initialize(o /*, splot of datasets */) {
-      var datasets = [].slice.call(arguments, 1);
+    // supported signatures:
+    // function(o, dataset, dataset, ...)
+    // function(o, [dataset, dataset, ...])
+    initialize: function initialize(o, datasets) {
+      datasets = _.isArray(datasets) ? datasets : [].slice.call(arguments, 1);
 
       o = o || {};
 
@@ -35,14 +40,6 @@
         });
 
         $input.data(typeaheadKey, typeahead);
-
-        // defer trigging of events to make it possible to attach
-        // a listener immediately after jQuery#typeahead is invoked
-        function trigger(eventName) {
-          return function() {
-          _.defer(function() { eventBus.trigger(eventName); });
-          };
-        }
       }
     },
 
@@ -71,8 +68,9 @@
     },
 
     val: function val(newVal) {
-      return _.isString(newVal) ?
-        this.each(setQuery) : this.map(getQuery).get();
+      // mirror jQuery#val functionality: reads opearte on first match,
+      // write operates on all matches
+      return !arguments.length ? getQuery(this.first()) : this.each(setQuery);
 
       function setQuery() {
         var $input = $(this), typeahead;
@@ -82,8 +80,8 @@
         }
       }
 
-      function getQuery() {
-        var $input = $(this), typeahead, query;
+      function getQuery($input) {
+        var typeahead, query;
 
         if (typeahead = $input.data(typeaheadKey)) {
           query = typeahead.getQuery();
@@ -107,7 +105,7 @@
     }
   };
 
-  jQuery.fn.typeahead = function(method) {
+  $.fn.typeahead = function(method) {
     if (methods[method]) {
       return methods[method].apply(this, [].slice.call(arguments, 1));
     }
@@ -115,5 +113,10 @@
     else {
       return methods.initialize.apply(this, arguments);
     }
+  };
+
+  $.fn.typeahead.noConflict = function noConflict() {
+    $.fn.typeahead = old;
+    return this;
   };
 })();

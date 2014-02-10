@@ -23,20 +23,6 @@ describe('Dropdown', function() {
     function noDatasets() { new Dropdown({ datasets: true }); }
   });
 
-  describe('when mouseenter is triggered', function() {
-    it('should set isMouseOverDropdown to true', function() {
-      this.$menu.mouseleave().mouseenter();
-      expect(this.view.isMouseOverDropdown).toBe(true);
-    });
-  });
-
-  describe('when mouseleave is triggered', function() {
-    it('should set isMouseOverDropdown to false', function() {
-      this.$menu.mouseenter().mouseleave();
-      expect(this.view.isMouseOverDropdown).toBe(false);
-    });
-  });
-
   describe('when click event is triggered on a suggestion', function() {
     it('should trigger suggestionClicked', function() {
       var spy;

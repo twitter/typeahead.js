@@ -13,7 +13,13 @@ var oParser = (function() {
   };
 
   function getLocal(o) {
-    return o.local || null;
+    var local =  o.local || null;
+
+    if (_.isFunction(local)) {
+        local = local.call(null);
+    }
+
+    return local;
   }
 
   function getPrefetch(o) {
@@ -34,7 +40,7 @@ var oParser = (function() {
       prefetch = _.mixin(defaults, prefetch);
       prefetch.thumbprint = VERSION + prefetch.thumbprint;
 
-      prefetch.ajax.method = prefetch.ajax.method || 'get';
+      prefetch.ajax.type = prefetch.ajax.type || 'GET';
       prefetch.ajax.dataType = prefetch.ajax.dataType || 'json';
 
       !prefetch.url && $.error('prefetch requires url to be set');
@@ -65,7 +71,7 @@ var oParser = (function() {
       remote.rateLimiter = /^throttle$/i.test(remote.rateLimitBy) ?
         byThrottle(remote.rateLimitWait) : byDebounce(remote.rateLimitWait);
 
-      remote.ajax.method = remote.ajax.method || 'get';
+      remote.ajax.type = remote.ajax.type || 'GET';
       remote.ajax.dataType = remote.ajax.dataType || 'json';
 
       delete remote.rateLimitBy;

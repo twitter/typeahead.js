@@ -15,7 +15,22 @@ For more information on semantic versioning, please visit http://semver.org/.
 
 ---
 
+### 0.10.1 February 9, 2014
+
+**Hotfix**
+
+* Fixed bug that prevented some ajax configs from being respected. [#630][630]
+* Event delegation on suggestion clicks is no longer broken. [#118][118]
+* Ensure dataset names are valid class name suffixes. [#610][610]
+* Added support for `displayKey` to be a function. [#633][633]
+* `jQuery#typeahead('val')` now mirrors `jQuery#val()`. [#659][659]
+* Datasets can now be passed to jQuery plugin as an array. [#664][664]
+* Added a `noConflict` method to the jQuery plugin. [#612][612]
+* Bloodhound's `local` property can now be a function. [#485][485]
+
 ### 0.10.0 February 2, 2014
+
+**Introducting Bloodhound**
 
 This release was almost a complete rewrite of typeahead.js and will hopefully
 lay the foundation for the 1.0.0 release. It's impossible to enumerate all of 
@@ -106,6 +121,13 @@ work for them with a custom implementation.
 
 [0.10.0 milestone]: https://github.com/twitter/typeahead.js/issues?milestone=8&page=1&state=closed
 
+[664]: https://github.com/twitter/typeahead.js/pull/664
+[659]: https://github.com/twitter/typeahead.js/pull/659
+[633]: https://github.com/twitter/typeahead.js/pull/633
+[630]: https://github.com/twitter/typeahead.js/pull/630
+[612]: https://github.com/twitter/typeahead.js/pull/612
+[610]: https://github.com/twitter/typeahead.js/pull/610
+[485]: https://github.com/twitter/typeahead.js/pull/485
 [270]: https://github.com/twitter/typeahead.js/pull/270
 [266]: https://github.com/twitter/typeahead.js/pull/266
 [260]: https://github.com/twitter/typeahead.js/pull/260
@@ -120,6 +142,7 @@ work for them with a custom implementation.
 [137]: https://github.com/twitter/typeahead.js/pull/137
 [132]: https://github.com/twitter/typeahead.js/pull/132
 [131]: https://github.com/twitter/typeahead.js/pull/131
+[118]: https://github.com/twitter/typeahead.js/pull/118
 [116]: https://github.com/twitter/typeahead.js/pull/116
 [115]: https://github.com/twitter/typeahead.js/pull/115
 [109]: https://github.com/twitter/typeahead.js/pull/109

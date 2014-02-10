@@ -18,6 +18,10 @@ var Dataset = (function() {
       $.error('missing source');
     }
 
+    if (o.name && !isValidName(o.name)) {
+      $.error('invalid dataset name: ' + o.name);
+    }
+
     // tracks the last query the dataset was updated for
     this.query = null;
 
@@ -25,9 +29,9 @@ var Dataset = (function() {
     this.name = o.name || _.getUniqueId();
 
     this.source = o.source;
-    this.valueKey = o.displayKey || 'value';
+    this.displayFn = getDisplayFn(o.display || o.displayKey);
 
-    this.templates = getTemplates(o.templates, this.valueKey);
+    this.templates = getTemplates(o.templates, this.displayFn);
 
     this.$el = $(html.dataset.replace('%CLASS%', this.name));
   }
@@ -79,15 +83,18 @@ var Dataset = (function() {
       this.trigger('rendered');
 
       function getEmptyHtml() {
-        return that.templates.empty({ query: query });
+        return that.templates.empty({ query: query, isEmpty: true });
       }
 
       function getSuggestionsHtml() {
-        var $suggestions;
+        var $suggestions, nodes;
 
-        $suggestions = $(html.suggestions)
-        .css(css.suggestions)
-        .append(_.map(suggestions, getSuggestionNode));
+        $suggestions = $(html.suggestions).css(css.suggestions);
+
+        // jQuery#append doesn't support arrays as the first argument
+        // until version 1.8, see http://bugs.jquery.com/ticket/11231
+        nodes = _.map(suggestions, getSuggestionNode);
+        $suggestions.append.apply($suggestions, nodes);
 
         that.highlight && highlight({ node: $suggestions[0], pattern: query });
 
@@ -100,7 +107,7 @@ var Dataset = (function() {
           outerHtml = html.suggestion.replace('%BODY%', innerHtml);
           $el = $(outerHtml)
           .data(datasetKey, that.name)
-          .data(valueKey, suggestion[that.valueKey])
+          .data(valueKey, that.displayFn(suggestion))
           .data(datumKey, suggestion);
 
           $el.children().each(function() { $(this).css(css.suggestionChild); });
@@ -159,7 +166,15 @@ var Dataset = (function() {
   // helper functions
   // ----------------
 
-  function getTemplates(templates, valueKey) {
+  function getDisplayFn(display) {
+    display = display || 'value';
+
+    return _.isFunction(display) ? display : displayFn;
+
+    function displayFn(obj) { return obj[display]; }
+  }
+
+  function getTemplates(templates, displayFn) {
     return {
       empty: templates.empty && _.templatify(templates.empty),
       header: templates.header && _.templatify(templates.header),
@@ -168,7 +183,12 @@ var Dataset = (function() {
     };
 
     function suggestionTemplate(context) {
-      return '<p>' + context[valueKey] + '</p>';
+      return '<p>' + displayFn(context) + '</p>';
     }
+  }
+
+  function isValidName(str) {
+    // dashes, underscores, letters, and numbers
+    return (/^[_a-zA-Z0-9-]+$/).test(str);
   }
 })();

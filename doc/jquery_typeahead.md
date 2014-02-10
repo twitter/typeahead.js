@@ -93,6 +93,16 @@ Sets the value of the typeahead. This should be used in place of `jQuery#val`.
 $('.typeahead').typeahead('val', myVal);
 ```
 
+#### jQuery.fn.typeahead.noConflict()
+
+Returns a reference to the typeahead plugin and reverts `jQuery.fn.typeahead` 
+to its previous value. Can be used to avoid naming collisions. 
+
+```javascript
+var typeahead = jQuery.fn.typeahead.noConflict();
+jQuery.fn._typeahead = typeahead;
+```
+
 ### Options
 
 When initializing a typeahead, there are a number of options you can configure.
@@ -133,12 +143,15 @@ Datasets can be configured using the following options.
   how, see [Bloodhound Integration](#bloodhound-integration). **Required**.
 
 * `name` – The name of the dataset. This will be appended to `tt-dataset-` to 
-  form the class name of the containing DOM element. Defaults to a random 
+  form the class name of the containing DOM element.  Must only consist of 
+  underscores, dashes, letters (`a-z`), and numbers. Defaults to a random 
   number.
 
-* `displayKey` – The key used to access a suggestion object's string 
-  representation. If a suggestion is selected, its string representation is 
-  what the typeahead's value is set to. Defaults to `value`.
+* `displayKey` – For a given suggestion object, determines the string 
+  representation of it. This will be used when setting the value of the input
+  control after a suggestion is selected. Can be either a key string or a 
+  function that transforms a suggestion object into a string. Defaults to 
+  `value`.
 
 * `templates` – A hash of templates to be used when rendering the dataset. Note
   a precompiled template is a function that takes a JavaScript object as its

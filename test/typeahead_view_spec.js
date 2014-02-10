@@ -38,7 +38,7 @@ describe('Typeahead', function() {
 
       expect(spy).toHaveBeenCalled();
       expect(this.input.clearHint).toHaveBeenCalled();
-      expect(this.input.setQuery).toHaveBeenCalledWith(testDatum.value)
+      expect(this.input.setQuery).toHaveBeenCalledWith(testDatum.value);
       expect(this.input.setInputValue)
       .toHaveBeenCalledWith(testDatum.value, true);
 
@@ -155,6 +155,12 @@ describe('Typeahead', function() {
   });
 
   describe('when input triggers focused', function() {
+    it('should empty the dropdown', function() {
+      this.input.trigger('focused');
+
+      expect(this.dropdown.empty).toHaveBeenCalled();
+    });
+
     it('should open the dropdown', function() {
       this.input.trigger('focused');
 
@@ -184,7 +190,7 @@ describe('Typeahead', function() {
 
       expect(spy).toHaveBeenCalled();
       expect(this.input.clearHint).toHaveBeenCalled();
-      expect(this.input.setQuery).toHaveBeenCalledWith(testDatum.value)
+      expect(this.input.setQuery).toHaveBeenCalledWith(testDatum.value);
       expect(this.input.setInputValue)
       .toHaveBeenCalledWith(testDatum.value, true);
 
@@ -216,7 +222,7 @@ describe('Typeahead', function() {
 
         expect(spy).toHaveBeenCalled();
         expect(this.input.clearHint).toHaveBeenCalled();
-        expect(this.input.setQuery).toHaveBeenCalledWith(testDatum.value)
+        expect(this.input.setQuery).toHaveBeenCalledWith(testDatum.value);
         expect(this.input.setInputValue)
         .toHaveBeenCalledWith(testDatum.value, true);
 
