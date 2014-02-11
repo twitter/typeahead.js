@@ -40,7 +40,11 @@ argument.
 var engine = new Bloodhound({
   name: 'animals',
   local: [{ val: 'dog' }, { val: 'pig' }, { val: 'moose' }],
-  remote: 'http://example.com/animals?q=%QUERY'
+  remote: 'http://example.com/animals?q=%QUERY',
+  datumTokenizer: function(d) { 
+      return Bloodhound.tokenizers.whitespace(d.val); 
+  },
+  queryTokenizer: Bloodhound.tokenizers.whitespace
 });
 ```
 
