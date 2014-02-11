@@ -83,7 +83,7 @@ var Typeahead = (function() {
     _onCursorMoved: function onCursorMoved() {
       var datum = this.dropdown.getDatumForCursor();
 
-      this.input.clearHint();
+      this._clearHint();
       this.input.setInputValue(datum.value, true);
 
       this.eventBus.trigger('cursorchanged', datum.raw, datum.datasetName);
@@ -105,7 +105,7 @@ var Typeahead = (function() {
     },
 
     _onClosed: function onClosed() {
-      this.input.clearHint();
+      this._clearHint();
 
       this.eventBus.trigger('closed');
     },
@@ -185,7 +185,7 @@ var Typeahead = (function() {
     },
 
     _onQueryChanged: function onQueryChanged(e, query) {
-      this.input.clearHint();
+      this._clearHint();
       this.dropdown.empty();
       query.length >= this.minLength && this.dropdown.update(query);
       this.dropdown.open();
@@ -208,8 +208,9 @@ var Typeahead = (function() {
     },
 
     _updateHint: function updateHint() {
-      var datum, inputValue, query, escapedQuery, frontMatchRegEx, match;
+      var suggestion, datum, inputValue, query, escapedQuery, frontMatchRegEx, match;
 
+      suggestion = this.dropdown.getTopSuggestion();
       datum = this.dropdown.getDatumForTopSuggestion();
 
       if (datum && this.dropdown.isVisible() && !this.input.hasOverflow()) {
@@ -221,6 +222,20 @@ var Typeahead = (function() {
         match = frontMatchRegEx.exec(datum.value);
 
         this.input.setHintValue(inputValue + (match ? match[1] : ''));
+
+        if (this.autoselect) {
+          suggestion.first().addClass('tt-autoselect');
+        }
+      }
+    },
+
+    _clearHint: function clearHint() {
+      var suggestion = this.dropdown.getTopSuggestion();
+
+      this.input.clearHint();
+
+      if (suggestion && suggestion.length > 0) {
+        suggestion.first().removeClass('tt-autoselect');
       }
     },
 
@@ -239,7 +254,7 @@ var Typeahead = (function() {
     },
 
     _select: function select(datum) {
-      this.input.clearHint();
+      this._clearHint();
       this.input.setQuery(datum.value);
       this.input.setInputValue(datum.value, true);
 
