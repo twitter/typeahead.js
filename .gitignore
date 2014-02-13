@@ -7,3 +7,6 @@ test/coverage
 
 node_modules
 npm-debug.log
+
+*.iml
+.idea
