@@ -139,7 +139,7 @@ var Bloodhound = window.Bloodhound = (function() {
 
       // make sure local is added to the index after prefetch
       if (_.isFunction(this.local)) {
-        this.local = this.local.call(null);
+        that.local = this.local = this.local.call(null);
       }
 
       this.local && deferred.done(addLocalToIndex);
