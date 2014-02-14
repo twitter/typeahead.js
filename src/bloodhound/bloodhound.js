@@ -137,11 +137,10 @@ var Bloodhound = window.Bloodhound = (function() {
       deferred = this.prefetch ?
         this._loadPrefetch(this.prefetch) : $.Deferred().resolve();
 
-      // make sure local is added to the index after prefetch
-      if (_.isFunction(this.local)) {
-        that.local = this.local = this.local.call(null);
-      }
+      // local can be a function that returns an array of datums
+      this.local = _.isFunction(this.local) ? this.local() : this.local;
 
+      // make sure local is added to the index after prefetch
       this.local && deferred.done(addLocalToIndex);
 
       this.transport = this.remote ? new Transport(this.remote) : null;
