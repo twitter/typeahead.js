@@ -202,7 +202,11 @@ var Dropdown = (function() {
     },
 
     getDatumForTopSuggestion: function getDatumForTopSuggestion() {
-      return this.getDatumForSuggestion(this._getSuggestions().first());
+      return this.getDatumForSuggestion(this.getTopSuggestion());
+    },
+
+    getTopSuggestion: function getTopSuggestion() {
+      return this._getSuggestions().first();
     },
 
     update: function update(query) {

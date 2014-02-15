@@ -149,7 +149,7 @@ var Dataset = (function() {
     },
 
     clear: function clear() {
-      this._render(this.query || '');
+//      this._render(this.query || '');
     },
 
     isEmpty: function isEmpty() {
