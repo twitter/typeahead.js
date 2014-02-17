@@ -47,7 +47,7 @@ var SearchIndex = (function() {
         tokens = normalizeTokens(that.datumTokenizer(datum));
 
         _.each(tokens, function(token) {
-          var node, chars, ch, ids;
+          var node, chars, ch;
 
           node = that.trie;
           chars = token.split('');
