@@ -78,7 +78,7 @@ var Transport = (function() {
     // ### public
 
     get: function(url, o, cb) {
-      var that = this, resp;
+      var resp;
 
       if (_.isFunction(o)) {
         cb = o;

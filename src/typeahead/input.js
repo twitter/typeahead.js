@@ -87,12 +87,12 @@ var Input = (function() {
 
     // ### private
 
-    _onBlur: function onBlur($e) {
+    _onBlur: function onBlur() {
       this.resetInputValue();
       this.trigger('blurred');
     },
 
-    _onFocus: function onFocus($e) {
+    _onFocus: function onFocus() {
       this.trigger('focused');
     },
 
@@ -106,7 +106,7 @@ var Input = (function() {
       }
     },
 
-    _onInput: function onInput($e) {
+    _onInput: function onInput() {
       this._checkInputValue();
     },
 

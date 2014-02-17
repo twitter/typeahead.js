@@ -12,7 +12,7 @@ var Typeahead = (function() {
 
   // THOUGHT: what if datasets could dynamically be added/removed?
   function Typeahead(o) {
-    var $menu, $input, $hint, datasets;
+    var $menu, $input, $hint;
 
     o = o || {};
 
