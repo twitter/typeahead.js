@@ -19,8 +19,7 @@ var SearchIndex = (function() {
     this.datumTokenizer = o.datumTokenizer;
     this.queryTokenizer = o.queryTokenizer;
 
-    this.datums = [];
-    this.trie = newNode();
+    this.reset();
   }
 
   // instance methods
@@ -94,6 +93,11 @@ var SearchIndex = (function() {
 
       return matches ?
         _.map(unique(matches), function(id) { return that.datums[id]; }) : [];
+    },
+
+    reset: function reset() {
+      this.datums = [];
+      this.trie = newNode();
     },
 
     serialize: function serialize() {
