@@ -111,11 +111,11 @@ var Typeahead = (function() {
     },
 
     _onFocused: function onFocused() {
-      this.dropdown.empty();
       this.dropdown.open();
     },
 
     _onBlurred: function onBlurred() {
+      this.dropdown.empty();
       this.dropdown.close();
     },
 
@@ -145,7 +145,7 @@ var Typeahead = (function() {
       }
 
       else {
-        this._autocomplete();
+        this._autocomplete(true);
       }
     },
 
@@ -168,7 +168,7 @@ var Typeahead = (function() {
     _onDownKeyed: function onDownKeyed() {
       var query = this.input.getQuery();
 
-      if( !this.dropdown.isOpen && query.length >= this.minLength) {
+      if(!this.dropdown.isOpen && query.length >= this.minLength) {
         this.dropdown.update(query);
       }
 
@@ -224,13 +224,14 @@ var Typeahead = (function() {
       }
     },
 
-    _autocomplete: function autocomplete() {
-      var hint, query, datum;
+    _autocomplete: function autocomplete(laxCursor) {
+      var hint, query, isCursorAtEnd, datum;
 
       hint = this.input.getHintValue();
       query = this.input.getQuery();
+      isCursorAtEnd = laxCursor || this.input.isCursorAtEnd();
 
-      if (hint && query !== hint && this.input.isCursorAtEnd()) {
+      if (hint && query !== hint && isCursorAtEnd) {
         datum = this.dropdown.getDatumForTopSuggestion();
         datum && this.input.setInputValue(datum.value);
 

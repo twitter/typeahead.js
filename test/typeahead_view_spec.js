@@ -155,12 +155,6 @@ describe('Typeahead', function() {
   });
 
   describe('when input triggers focused', function() {
-    it('should empty the dropdown', function() {
-      this.input.trigger('focused');
-
-      expect(this.dropdown.empty).toHaveBeenCalled();
-    });
-
     it('should open the dropdown', function() {
       this.input.trigger('focused');
 
@@ -169,6 +163,12 @@ describe('Typeahead', function() {
   });
 
   describe('when input triggers blurred', function() {
+    it('should empty the dropdown', function() {
+      this.input.trigger('blurred');
+
+      expect(this.dropdown.empty).toHaveBeenCalled();
+    });
+
     it('should close the dropdown', function() {
       this.input.trigger('blurred');
 
