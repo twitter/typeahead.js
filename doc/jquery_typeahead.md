@@ -34,72 +34,63 @@ In an effort to take advantage of the pre-existing knowledge of typeahead.js
 users, the behavior of the typeahead.js UI is modeled after google.com's search 
 box. Below details how the UI reacts to pertinent events.
 
-### Input Control Gains Focus
+**Input Control Gains Focus**
 
-The typeahead is activated and begins listening for keyboard events.
+* The typeahead is activated and begins listening for keyboard events.
 
-### Input Control Loses Focus
+**Input Control Loses Focus**
 
-The typeahead is deactivated and the dropdown menu is cleared and closed.
+* The typeahead is deactivated and stops listening for keyboard events.
+* Any existing suggestions are cleared from the dropdown menu.
+* If open, the dropdown menu is closed.
 
-### Value of the Input Control Changes
+**Value of the Input Control Changes**
 
-When the value of the input control changes, the following happens:
-
-* If the dropdown menu was closed, it opens.
-* Suggestions are rendered.
-* If the new query is a prefix of the top suggestion, the hint is updated. 
-  Otherwise the hint is cleared.
+* If closed, the dropdown menu is opened.
+* Suggestions for the new query are rendered.
+* If the new query is a prefix match of the top suggestion, the hint is updated. 
+  Otherwise, the hint is cleared.
 * Language direction detection is performed and the proper CSS styles are 
   applied.
 
-### Up Arrow is Keyed
+**Up Arrow is Keyed**
 
-The result of keying the up arrow is dependent on the state of the typeahead.
+* If closed, the dropdown menu is opened and suggestions will get rendered.
+* If the dropdown menu is open and suggestions are present, the cursor of the
+  dropdown menu will move up one suggestion.
 
-If the dropdown menu is closed, keying the up arrow key will open the dropdown 
-menu and render suggestions.
+**Down Arrow is Keyed**
 
-If the dropdown menu is open and contains suggestions, keying the up arrow 
-key will move the typeahead cursor down one suggestion.
+* If closed, the dropdown menu is opened and suggestions will get rendered.
+* If the dropdown menu is open and suggestions are present, the cursor of the
+  dropdown menu will move down one suggestion.
 
-If the dropdown menu is open and contains no suggestions, keying the up arrow 
-key will result in no visible changes.
+**Left Arrow is Keyed**
 
-### Down Arrow is Keyed
+* If the detected language direction of the input control is RTL, the value
+  of the input control is set to the value of the shown hint.
 
-### Left Arrow is Keyed
+**Right Arrow is Keyed**
 
-Ignored by typeahead.js.
+* If the detected language direction of the input control is LTR, the value
+  of the input control is set to the value of the shown hint.
 
-**Note**: this assumes the language is LTR; for RTL languages, the behavior for 
-keying the left and right arrow keys are swapped.
+**Tab is Keyed**
 
-### Right Arrow is Keyed
+* If the cursor of the dropdown menu is on a suggestion, that suggestion will be
+  selected.
+* If the cursor of the dropdown menu is not on a suggestion and a hint is being
+  displayed, the value of the input control is set to the value of the shown
+  hint.
 
-If a hint is showing and the text cursor is at the end of the query, the query
-is updated to the value of the hint.
+**Enter is Keyed**
 
-**Note**: this assumes the language is LTR; for RTL languages, the behavior for 
-keying the left and right arrow keys are swapped.
+* If the cursor of the dropdown menu is on a suggestion, that suggestion will be
+  selected.
 
-### Tab is Keyed
+**Esc is Keyed**
 
-The result of keying the tab key is dependent on the state of the typeahead.
-
-If the dropdown menu is opened and the cursor is over a suggestion, keying the 
-tab key will select that suggestion.
-
-If a hint is showing, the query is updated to the value of the hint.
-
-### Enter is Keyed
-
-If the dropdown menu cursor is over a suggestion, keying the enter key will 
-select that suggestion.
-
-### Esc is Keyed
-
-Closes the dropdown menu.
+* If open, the dropdown menu is closed.
 
 Usage
 -----
