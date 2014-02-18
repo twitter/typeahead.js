@@ -8,6 +8,7 @@ Table of Contents
 -----------------
 
 * [Features](#features)
+* [Specification](#specification)
 * [Usage](#usage)
   * [API](#api)
   * [Options](#options)
@@ -25,6 +26,80 @@ Features
 * Works well with RTL languages and input method editors
 * Highlights query matches within the suggestion
 * Triggers custom events
+
+Specification
+-------------
+
+In an effort to take advantage of the pre-existing knowledge of typeahead.js 
+users, the behavior of the typeahead.js UI is modeled after google.com's search 
+box. Below details how the UI reacts to pertinent events.
+
+### Input Control Gains Focus
+
+The typeahead is activated and begins listening for keyboard events.
+
+### Input Control Loses Focus
+
+The typeahead is deactivated and the dropdown menu is cleared and closed.
+
+### Value of the Input Control Changes
+
+When the value of the input control changes, the following happens:
+
+* If the dropdown menu was closed, it opens.
+* Suggestions are rendered.
+* If the new query is a prefix of the top suggestion, the hint is updated. 
+  Otherwise the hint is cleared.
+* Language direction detection is performed and the proper CSS styles are 
+  applied.
+
+### Up Arrow is Keyed
+
+The result of keying the up arrow is dependent on the state of the typeahead.
+
+If the dropdown menu is closed, keying the up arrow key will open the dropdown 
+menu and render suggestions.
+
+If the dropdown menu is open and contains suggestions, keying the up arrow 
+key will move the typeahead cursor down one suggestion.
+
+If the dropdown menu is open and contains no suggestions, keying the up arrow 
+key will result in no visible changes.
+
+### Down Arrow is Keyed
+
+### Left Arrow is Keyed
+
+Ignored by typeahead.js.
+
+**Note**: this assumes the language is LTR; for RTL languages, the behavior for 
+keying the left and right arrow keys are swapped.
+
+### Right Arrow is Keyed
+
+If a hint is showing and the text cursor is at the end of the query, the query
+is updated to the value of the hint.
+
+**Note**: this assumes the language is LTR; for RTL languages, the behavior for 
+keying the left and right arrow keys are swapped.
+
+### Tab is Keyed
+
+The result of keying the tab key is dependent on the state of the typeahead.
+
+If the dropdown menu is opened and the cursor is over a suggestion, keying the 
+tab key will select that suggestion.
+
+If a hint is showing, the query is updated to the value of the hint.
+
+### Enter is Keyed
+
+If the dropdown menu cursor is over a suggestion, keying the enter key will 
+select that suggestion.
+
+### Esc is Keyed
+
+Closes the dropdown menu.
 
 Usage
 -----
