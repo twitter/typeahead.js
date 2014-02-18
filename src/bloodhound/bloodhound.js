@@ -4,10 +4,14 @@
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var Bloodhound = window.Bloodhound = (function() {
-  var keys;
+(function(root) {
+  var old, keys;
 
+  old = root.Bloodhound;
   keys = { data: 'data', protocol: 'protocol', thumbprint: 'thumbprint' };
+
+  // add Bloodhoud to global context
+  root.Bloodhound = Bloodhound;
 
   // constructor
   // -----------
@@ -41,6 +45,11 @@ var Bloodhound = window.Bloodhound = (function() {
 
   // static methods
   // --------------
+
+  Bloodhound.noConflict = function noConflict() {
+    root.Bloodhound = old;
+    return Bloodhound;
+  };
 
   Bloodhound.tokenizers = {
     whitespace: function whitespaceTokenizer(s) {
@@ -208,4 +217,4 @@ var Bloodhound = window.Bloodhound = (function() {
   }
 
   function ignoreDuplicates() { return false; }
-})();
+})(this);
