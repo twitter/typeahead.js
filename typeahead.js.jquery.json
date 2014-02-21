@@ -5,7 +5,7 @@
     }
   ],
   "dependencies": {
-    "jquery": "~1.9"
+    "jquery": ">=1.9"
   },
   "docs": "https://github.com/twitter/typeahead.js",
   "demo": "http://twitter.github.com/typeahead.js/examples",
