@@ -8,6 +8,6 @@
     "dist/typeahead.bundle.min.js"
   ],
   "dependencies": {
-    "jquery": "~1.9"
+    "jquery": ">=1.9"
   }
 }
