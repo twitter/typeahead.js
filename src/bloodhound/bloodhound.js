@@ -155,10 +155,8 @@ var Bloodhound = window.Bloodhound = (function() {
     get: function get(query, cb) {
       var that = this, matches = [], cacheHit = false;
 
-      if(!this.index.isEmpty()) {
-        matches = this.index.get(query);
-        matches = this.sorter(matches).slice(0, this.limit);
-      }
+      matches = this.index.get(query);
+      matches = this.sorter(matches).slice(0, this.limit);
 
       if (matches.length < this.limit && this.transport) {
         cacheHit = this._getFromRemote(query, returnRemoteMatches);
