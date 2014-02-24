@@ -376,10 +376,16 @@ describe('Typeahead', function() {
       expect(this.input.clearHint).toHaveBeenCalled();
     });
 
-    it('should empty dropdown', function() {
-      this.input.trigger('queryChanged', testDatum.value);
+    it('should empty dropdown if the query is empty', function() {
+      this.input.trigger('queryChanged', '');
 
       expect(this.dropdown.empty).toHaveBeenCalled();
+    });
+
+    it('should not empty dropdown if the query is non-empty', function() {
+      this.input.trigger('queryChanged', testDatum.value);
+
+      expect(this.dropdown.empty).not.toHaveBeenCalled();
     });
 
     it('should update dropdown', function() {

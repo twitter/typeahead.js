@@ -169,7 +169,7 @@
     },
 
     get: function get(query, cb) {
-      var that = this, matches, cacheHit = false;
+      var that = this, matches = [], cacheHit = false;
 
       matches = this.index.get(query);
       matches = this.sorter(matches).slice(0, this.limit);
@@ -180,8 +180,10 @@
 
       // if a cache hit occurred, skip rendering local matches
       // because the rendering of local/remote matches is already
-      // in the event loop
-      !cacheHit && cb && cb(matches);
+      // in the event loop.
+      // if we don't have any local matches and we're going to the
+      // network, don't render unnecessarily.
+      !cacheHit && (matches.length > 0 || !this.transport) && cb && cb(matches);
 
       function returnRemoteMatches(remoteMatches) {
         var matchesWithBackfill = matches.slice(0);
@@ -200,7 +202,6 @@
           // the remote results and can break out of the each loop
           return matchesWithBackfill.length < that.limit;
         });
-
         cb && cb(that.sorter(matchesWithBackfill));
       }
     },
