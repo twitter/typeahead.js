@@ -98,6 +98,10 @@ var SearchIndex = (function() {
 
     serialize: function serialize() {
       return { datums: this.datums, trie: this.trie };
+    },
+
+    isEmpty: function isEmpty() {
+      return this.datums.length === 0;
     }
   });
 

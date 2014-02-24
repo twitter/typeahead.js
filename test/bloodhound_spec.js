@@ -283,25 +283,87 @@ describe('Bloodhound', function() {
       }
     });
 
-    it('should call #get callback once if cache hit', function() {
-      var spy = jasmine.createSpy();
+    describe('when there is not matching data in the search index', function() {
+      beforeEach(function() {
+        this.bloodhound = new Bloodhound({
+          datumTokenizer: datumTokenizer,
+          queryTokenizer: queryTokenizer,
+          remote: '/test?q=%QUERY',
+          local: { value: 'not an animal' }
+        });
 
-      this.bloodhound = new Bloodhound({
-        datumTokenizer: datumTokenizer,
-        queryTokenizer: queryTokenizer,
-        remote: '/test?q=%QUERY'
+        this.bloodhound.initialize();
       });
-      this.bloodhound.initialize();
-      this.bloodhound.transport.get.andCallFake(fakeGet);
 
-      this.bloodhound.get('dog', spy);
+      it('should call #get callback once if there is a cache hit', function() {
+        var spy = jasmine.createSpy();
 
-      expect(spy.callCount).toBe(1);
+        this.bloodhound.transport.get.andCallFake(fakeGetWithCacheHit);
+        this.bloodhound.get('dog', spy);
 
-      function fakeGet(url, o, cb) {
-        cb(fixtures.data.animals);
-        return true;
-      }
+        expect(spy.callCount).toBe(1);
+
+        function fakeGetWithCacheHit(url, o, cb) {
+          cb(fixtures.data.animals);
+          return true;
+        }
+      });
+
+      it('should call #get callback once if there is a cache miss', function() {
+        var spy = jasmine.createSpy();
+
+        this.bloodhound.transport.get.andCallFake(fakeGetWithCacheMiss);
+        this.bloodhound.get('dog', spy);
+
+        expect(spy.callCount).toBe(1);
+
+        function fakeGetWithCacheMiss(url, o, cb) {
+          cb(fixtures.data.animals);
+          return false;
+        }
+      });
+
+    });
+
+    describe('when there is matching data in the search index', function() {
+      beforeEach(function() {
+        this.bloodhound = new Bloodhound({
+          datumTokenizer: datumTokenizer,
+          queryTokenizer: queryTokenizer,
+          remote: '/test?q=%QUERY',
+          local: { value: 'dog' }
+        });
+
+        this.bloodhound.initialize();
+      });
+
+      it('should call the #get callback twice if there is a cache miss', function() {
+        var spy = jasmine.createSpy();
+
+        this.bloodhound.transport.get.andCallFake(fakeGetWithCacheMiss);
+        this.bloodhound.get('dog', spy);
+
+        expect(spy.callCount).toBe(2);
+
+        function fakeGetWithCacheMiss(url, o, cb) {
+          cb(fixtures.data.animals);
+          return false;
+        }
+      });
+
+      it('should call the #get callback once if there is a cache hit', function() {
+        var spy = jasmine.createSpy();
+
+        this.bloodhound.transport.get.andCallFake(fakeGetWithCacheHit);
+        this.bloodhound.get('dog', spy);
+
+        expect(spy.callCount).toBe(1);
+
+        function fakeGetWithCacheHit(url, o, cb) {
+          cb(fixtures.data.animals);
+          return true;
+        }
+      });
     });
   });
 

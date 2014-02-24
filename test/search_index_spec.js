@@ -45,6 +45,18 @@ describe('SearchIndex', function() {
     expect(this.searchIndex.get('wtf')).toEqual([]);
   });
 
+  it('#isEmpty should return false if the index is not empty', function() {
+    expect(this.searchIndex.isEmpty()).not.toBeTruthy();
+  });
+
+  it('#isEmpty should return true if the index is empty', function() {
+    this.searchIndex = new SearchIndex({
+      datumTokenizer: datumTokenizer,
+      queryTokenizer: queryTokenizer
+    });
+
+    expect(this.searchIndex.isEmpty()).toBeTruthy();
+  });
   // helper functions
   // ----------------
 
