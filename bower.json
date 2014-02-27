@@ -1,12 +1,7 @@
 {
   "name": "typeahead.js",
   "version": "0.10.1",
-  "main": [
-    "dist/bloodhound.js",
-    "dist/typeahead.jquery.js",
-    "dist/typeahead.bundle.js",
-    "dist/typeahead.bundle.min.js"
-  ],
+  "main": "dist/typeahead.bundle.js",
   "dependencies": {
     "jquery": ">=1.9"
   }
