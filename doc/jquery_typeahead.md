@@ -147,6 +147,8 @@ Datasets can be configured using the following options.
   underscores, dashes, letters (`a-z`), and numbers. Defaults to a random 
   number.
 
+* `suggestionParser` – Create a custom suggestion parser. Expects a function of the signature function(suggestion) and returning a valid suggestion object.
+
 * `displayKey` – For a given suggestion object, determines the string 
   representation of it. This will be used when setting the value of the input
   control after a suggestion is selected. Can be either a key string or a 
