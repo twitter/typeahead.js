@@ -104,8 +104,8 @@ var Dataset = (function() {
           var $el, innerHtml, outerHtml;
 
           innerHtml = that.templates.suggestion(suggestion);
-          outerHtml = html.suggestion.replace('%BODY%', innerHtml);
-          $el = $(outerHtml)
+          outerHtml = $(html.suggestion).html(innerHtml);
+          $el = outerHtml
           .data(datasetKey, that.name)
           .data(valueKey, that.displayFn(suggestion))
           .data(datumKey, suggestion);
