@@ -103,7 +103,7 @@ var Dataset = (function() {
         function getSuggestionNode(suggestion) {
           var $el, innerHtml, outerHtml;
 
-          innerHtml = that.templates.suggestion(suggestion);
+          innerHtml = that.templates.suggestion(suggestion, query);
           outerHtml = html.suggestion.replace('%BODY%', innerHtml);
           $el = $(outerHtml)
           .data(datasetKey, that.name)
