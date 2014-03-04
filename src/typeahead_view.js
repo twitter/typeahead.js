@@ -100,6 +100,11 @@ var TypeaheadView = (function() {
     .on('upKeyed downKeyed', this._moveDropdownCursor)
     .on('upKeyed downKeyed', this._openDropdown)
     .on('tabKeyed leftKeyed rightKeyed', this._autocomplete);
+
+    // FLM: Initialize Suggestions, in case we have any minLength==0 datasets
+    // This ensures that the first time you focus on the input View,
+    // suggestions are ready and the dropdown opens
+    this._getSuggestions();
   }
 
   utils.mixin(TypeaheadView.prototype, EventTarget, {
@@ -149,17 +154,24 @@ var TypeaheadView = (function() {
           beginsWithQuery,
           match;
 
+      // FLM: always show the cursor highlighting the top item after querychange
+      this.dropdownView.snapCursorTo(this.dropdownView._getSuggestions().first());
+
       if (hint && dropdownIsVisible && !inputHasOverflow) {
         inputValue = this.inputView.getInputValue();
-        query = inputValue
-        .replace(/\s{2,}/g, ' ') // condense whitespace
-        .replace(/^\s+/g, ''); // strip leading whitespace
-        escapedQuery = utils.escapeRegExChars(query);
+        // FLM: because we now have suggestions even for empty string,
+        // avoid showing both a hint AND the place-holder text when the query is empty
+        if(!utils.isBlankString(inputValue)) {
+          query = inputValue
+          .replace(/\s{2,}/g, ' ') // condense whitespace
+          .replace(/^\s+/g, ''); // strip leading whitespace
+          escapedQuery = utils.escapeRegExChars(query);
 
-        beginsWithQuery = new RegExp('^(?:' + escapedQuery + ')(.*$)', 'i');
-        match = beginsWithQuery.exec(hint);
+          beginsWithQuery = new RegExp('^(?:' + escapedQuery + ')(.*$)', 'i');
+          match = beginsWithQuery.exec(hint);
 
-        this.inputView.setHintValue(inputValue + (match ? match[1] : ''));
+          this.inputView.setHintValue(inputValue + (match ? match[1] : ''));
+        }
       }
     },
 
@@ -224,7 +236,8 @@ var TypeaheadView = (function() {
     _getSuggestions: function() {
       var that = this, query = this.inputView.getQuery();
 
-      if (utils.isBlankString(query)) { return; }
+      // FLM: we may have suggesstions from datasets with minLength: 0
+      // if (utils.isBlankString(query)) { return; }
 
       utils.each(this.datasets, function(i, dataset) {
         dataset.getSuggestions(query, function(suggestions) {

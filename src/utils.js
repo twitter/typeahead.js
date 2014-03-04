@@ -144,12 +144,15 @@ var utils = {
     };
   },
 
+  // FLM: Urban Compass does not want to split queries on whitespace
   tokenizeQuery: function(str) {
-    return $.trim(str).toLowerCase().split(/[\s]+/);
+    return [$.trim(str).toLowerCase()];
+    //return $.trim(str).toLowerCase().split(/[\s]+/);
   },
 
   tokenizeText: function(str) {
-    return $.trim(str).toLowerCase().split(/[\s\-_]+/);
+    //return $.trim(str).toLowerCase().split(/[\s\-_]+/);
+    return this.tokenizeQuery(str);
   },
 
   getProtocol: function() {

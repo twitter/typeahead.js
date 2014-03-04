@@ -25,7 +25,7 @@ var Dataset = (function() {
 
     this.name = o.name || utils.getUniqueId();
     this.limit = o.limit || 5;
-    this.minLength = o.minLength || 1;
+    this.minLength = o.minLength === undefined ? 1 : o.minLength; // FLM: allow minLength of '0'
     this.header = o.header;
     this.footer = o.footer;
     this.valueKey = o.valueKey || 'value';
@@ -180,6 +180,10 @@ var Dataset = (function() {
           lists = [],
           shortestList,
           suggestions = [];
+
+      // FLM: Special case when the query is empty - return everything
+      if(this.minLength === 0 && terms.length === 1 && terms[0] === "")
+        return utils.map(this.itemHash, function(x){ return x; });
 
       // create a unique array of the first chars in
       // the terms this comes in handy when multiple

@@ -45,9 +45,7 @@ var DropdownView = (function() {
 
     _handleMouseover: function($e) {
       var $suggestion = $($e.currentTarget);
-
-      this._getSuggestions().removeClass('tt-is-under-cursor');
-      $suggestion.addClass('tt-is-under-cursor');
+      this.snapCursorTo($suggestion);
     },
 
     _handleSelection: function($e) {
@@ -125,6 +123,11 @@ var DropdownView = (function() {
 
     // public methods
     // --------------
+
+    snapCursorTo: function($suggestion) {
+      this._getSuggestions().removeClass("tt-is-under-cursor");
+      $suggestion.addClass("tt-is-under-cursor");
+    },
 
     destroy: function() {
       this.$menu.off('.tt');
