@@ -55,6 +55,14 @@ module.exports = function(grunt) {
         src: files.common.concat(files.bloodhound),
         dest: '<%= buildDir %>/bloodhound.js'
       },
+      bloodhoundMin: {
+        options: {
+          mangle: true,
+          compress: true
+        },
+        src: files.common.concat(files.bloodhound),
+        dest: '<%= buildDir %>/bloodhound.min.js'
+      },
       typeahead: {
         options: {
           mangle: false,
@@ -63,6 +71,15 @@ module.exports = function(grunt) {
         },
         src: files.common.concat(files.typeahead),
         dest: '<%= buildDir %>/typeahead.jquery.js'
+
+      },
+      typeaheadMin: {
+        options: {
+          mangle: true,
+          compress: true
+        },
+        src: files.common.concat(files.typeahead),
+        dest: '<%= buildDir %>/typeahead.jquery.min.js'
 
       },
       bundle: {
