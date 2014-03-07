@@ -279,7 +279,7 @@ describe('Bloodhound', function() {
       }
 
       function fakeGet(url, o, cb) {
-        cb(fixtures.data.simple);
+        cb(null, fixtures.data.simple);
       }
     });
 
@@ -299,9 +299,27 @@ describe('Bloodhound', function() {
       expect(spy.callCount).toBe(1);
 
       function fakeGet(url, o, cb) {
-        cb(fixtures.data.animals);
+        cb(null, fixtures.data.animals);
         return true;
       }
+    });
+
+    it('should should treat failures as empty suggestion sets', function() {
+      var spy = jasmine.createSpy();
+
+      this.bloodhound = new Bloodhound({
+        datumTokenizer: datumTokenizer,
+        queryTokenizer: queryTokenizer,
+        remote: '/test?q=%QUERY'
+      });
+      this.bloodhound.initialize();
+      this.bloodhound.transport.get.andCallFake(fakeGet);
+
+      this.bloodhound.get('dog', spy);
+
+      expect(spy).toHaveBeenCalledWith([]);
+
+      function fakeGet(url, o, cb) { cb(true); }
     });
   });
 
@@ -335,7 +353,7 @@ describe('Bloodhound', function() {
       });
 
       function fakeGet(url, o, cb) {
-        setTimeout(function() { cb(fixtures.data.animals); }, 0);
+        setTimeout(function() { cb(null, fixtures.data.animals); }, 0);
       }
     });
 
@@ -383,7 +401,7 @@ describe('Bloodhound', function() {
       });
 
       function fakeGet(url, o, cb) {
-        setTimeout(function() { cb(fixtures.data.animals); }, 0);
+        setTimeout(function() { cb(null, fixtures.data.animals); }, 0);
       }
     });
   });

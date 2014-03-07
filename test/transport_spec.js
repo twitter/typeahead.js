@@ -28,7 +28,7 @@ describe('Transport', function() {
     req.response(resp);
 
     expect(req.url).toBe('/test');
-    expect(spy).toHaveBeenCalledWith(resp.parsed);
+    expect(spy).toHaveBeenCalledWith(null, resp.parsed);
   });
 
   it('should allow the transport mechanism to be configured', function() {
@@ -42,7 +42,7 @@ describe('Transport', function() {
     waitsFor(function() { return cbSpy.callCount; });
 
     runs(function() {
-      expect(cbSpy).toHaveBeenCalledWith(resp.parsed);
+      expect(cbSpy).toHaveBeenCalledWith(null, resp.parsed);
       expect(sendSpy).toHaveBeenCalledWith(
         '/test',
         {},
@@ -96,8 +96,8 @@ describe('Transport', function() {
       // no ajax requests were made on subsequent requests
       expect(ajaxRequests.length).toBe(2);
 
-      expect(spy1).toHaveBeenCalledWith(fixtures.ajaxResps.ok.parsed);
-      expect(spy2).toHaveBeenCalledWith(fixtures.ajaxResps.ok1.parsed);
+      expect(spy1).toHaveBeenCalledWith(null, fixtures.ajaxResps.ok.parsed);
+      expect(spy2).toHaveBeenCalledWith(null, fixtures.ajaxResps.ok1.parsed);
     });
   });
 
@@ -114,8 +114,8 @@ describe('Transport', function() {
     waitsFor(function() { return spy1.callCount && spy2.callCount; });
 
     runs(function() {
-      expect(spy1).toHaveBeenCalledWith(fixtures.ajaxResps.ok.parsed);
-      expect(spy2).toHaveBeenCalledWith(fixtures.ajaxResps.ok.parsed);
+      expect(spy1).toHaveBeenCalledWith(null, fixtures.ajaxResps.ok.parsed);
+      expect(spy2).toHaveBeenCalledWith(null, fixtures.ajaxResps.ok.parsed);
     });
   });
 
@@ -139,7 +139,7 @@ describe('Transport', function() {
     expect(spy).toHaveBeenCalled();
   });
 
-  it('should not invoke the callback on failure', function() {
+  it('should invoke the callback with err set to true on failure', function() {
     var req, resp = fixtures.ajaxResps.err, spy = jasmine.createSpy();
 
     this.transport.get('/test', spy);
@@ -148,6 +148,6 @@ describe('Transport', function() {
     req.response(resp);
 
     expect(req.url).toBe('/test');
-    expect(spy).not.toHaveBeenCalledWith(resp.parsed);
+    expect(spy).toHaveBeenCalledWith(true);
   });
 });

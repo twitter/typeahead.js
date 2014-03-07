@@ -104,9 +104,13 @@
 
       return this.transport.get(url, this.remote.ajax, handleRemoteResponse);
 
-      function handleRemoteResponse(resp) {
-        var filtered = that.remote.filter ? that.remote.filter(resp) : resp;
+      function handleRemoteResponse(err, resp) {
+        var filtered;
 
+        // failed request is equivalent to an empty suggestion set
+        if (err) { return cb([]); }
+
+        filtered = that.remote.filter ? that.remote.filter(resp) : resp;
         cb(filtered);
       }
     },
