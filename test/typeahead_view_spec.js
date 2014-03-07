@@ -382,7 +382,7 @@ describe('Typeahead', function() {
       expect(this.dropdown.empty).toHaveBeenCalled();
     });
 
-    it('should empty dropdown if the query is non-empty', function() {
+    it('should not empty dropdown if the query is non-empty', function() {
       this.input.trigger('queryChanged', testDatum.value);
 
       expect(this.dropdown.empty).not.toHaveBeenCalled();
