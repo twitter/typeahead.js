@@ -145,6 +145,9 @@ module.exports = function(grunt) {
           'git checkout -',
           'rm -rf typeahead.js'
         ].join(' && ')
+      },
+      npm_publish: {
+        cmd: 'npm publish'
       }
     },
 
@@ -188,6 +191,7 @@ module.exports = function(grunt) {
       'exec:git_commit:' + version,
       'exec:git_tag:' + version,
       //'exec:git_push',
+      //'exec:npm_publish',
       'exec:publish_assets'
     ]);
   });
