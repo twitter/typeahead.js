@@ -1058,6 +1058,10 @@
         function Dataset(o) {
             o = o || {};
             o.templates = o.templates || {};
+            o.suggestionParser = o.suggestionParser || function(suggestion) {
+                return suggestion;
+            };
+            this.suggestionParser = o.suggestionParser;
             if (!o.source) {
                 $.error("missing source");
             }
@@ -1114,8 +1118,8 @@
                     function getSuggestionNode(suggestion) {
                         var $el, innerHtml, outerHtml;
                         innerHtml = that.templates.suggestion(suggestion);
-                        outerHtml = html.suggestion.replace("%BODY%", innerHtml);
-                        $el = $(outerHtml).data(datasetKey, that.name).data(valueKey, that.displayFn(suggestion)).data(datumKey, suggestion);
+                        outerHtml = $(html.suggestion).html(innerHtml);
+                        $el = outerHtml.data(datasetKey, that.name).data(valueKey, that.displayFn(that.suggestionParser(suggestion))).data(datumKey, that.suggestionParser(suggestion));
                         $el.children().each(function() {
                             $(this).css(css.suggestionChild);
                         });
