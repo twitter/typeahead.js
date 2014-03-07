@@ -186,9 +186,7 @@ var Typeahead = (function() {
 
     _onQueryChanged: function onQueryChanged(e, query) {
       this.input.clearHint();
-      if(query.length === 0) {
-        this.dropdown.empty();
-      }
+      query === '' && this.dropdown.empty();
       query.length >= this.minLength && this.dropdown.update(query);
       this.dropdown.open();
       this._setLanguageDirection();

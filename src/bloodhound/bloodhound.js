@@ -180,10 +180,12 @@
 
       // if a cache hit occurred, skip rendering local matches
       // because the rendering of local/remote matches is already
-      // in the event loop.
-      // if we don't have any local matches and we're going to the
-      // network, don't render unnecessarily.
-      !cacheHit && (matches.length > 0 || !this.transport) && cb && cb(matches);
+      // in the event loop
+      if (!cacheHit) {
+        // only render if there are some local suggestions or we're
+        // going to the network to backfill
+        (matches.length > 0 || !this.transport) && cb && cb(matches);
+      }
 
       function returnRemoteMatches(remoteMatches) {
         var matchesWithBackfill = matches.slice(0);
