@@ -171,7 +171,7 @@ var Dataset = (function() {
 
     return _.isFunction(display) ? display : displayFn;
 
-    function displayFn(obj) { return obj[display]; }
+    function displayFn(obj) { return _.deep(obj, display); }
   }
 
   function getTemplates(templates, displayFn) {
