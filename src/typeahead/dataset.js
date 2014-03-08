@@ -101,11 +101,10 @@ var Dataset = (function() {
         return $suggestions;
 
         function getSuggestionNode(suggestion) {
-          var $el, innerHtml, outerHtml;
+          var $el;
 
-          innerHtml = that.templates.suggestion(suggestion);
-          outerHtml = html.suggestion.replace('%BODY%', innerHtml);
-          $el = $(outerHtml)
+          $el = $(html.suggestion)
+          .append(that.templates.suggestion(suggestion))
           .data(datasetKey, that.name)
           .data(valueKey, that.displayFn(suggestion))
           .data(datumKey, suggestion);
