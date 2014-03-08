@@ -29,6 +29,29 @@ var Typeahead = (function() {
     $input = this.$node.find('.tt-input');
     $hint = this.$node.find('.tt-hint');
 
+    // #705: if there's scrollable overflow, ie doesn't support
+    // blur cancellations when the scrollbar is clicked
+    //
+    // #351: preventDefault won't cancel blurs in ie <= 8
+    $input.on('blur.tt', function($e) {
+      var active, isActive, hasActive;
+
+      active = document.activeElement;
+      isActive = $menu.is(active);
+      hasActive = $menu.has(active).length > 0;
+
+      if (_.isMsie() && (isActive || hasActive)) {
+        $e.preventDefault();
+        // stop immediate in order to prevent Input#_onBlur from
+        // getting exectued
+        $e.stopImmediatePropagation();
+        _.defer(function() { $input.focus(); });
+      }
+    });
+
+    // #351: prevents input blur due to clicks within dropdown menu
+    $menu.on('mousedown.tt', function($e) { $e.preventDefault(); });
+
     this.eventBus = o.eventBus || new EventBus({ el: $input });
 
     this.dropdown = new Dropdown({ menu: $menu, datasets: o.datasets })
@@ -51,19 +74,6 @@ var Typeahead = (function() {
     .onSync('rightKeyed', this._onRightKeyed, this)
     .onSync('queryChanged', this._onQueryChanged, this)
     .onSync('whitespaceChanged', this._onWhitespaceChanged, this);
-
-    // #351: prevents input blur on menu click
-    $menu.on('mousedown.tt', function($e) {
-      if (_.isMsie() && _.isMsie() < 9) {
-        $input[0].onbeforedeactivate = function() {
-          window.event.returnValue = false;
-          $input[0].onbeforedeactivate = null;
-        };
-      }
-
-      // ie 9+ and other browsers
-      $e.preventDefault();
-    });
 
     this._setLanguageDirection();
   }
