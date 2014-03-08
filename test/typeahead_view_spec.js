@@ -155,6 +155,12 @@ describe('Typeahead', function() {
   });
 
   describe('when input triggers focused', function() {
+    it('should activate the typeahead', function() {
+      this.input.trigger('focused');
+
+      expect(this.view.isActivated).toBe(true);
+    });
+
     it('should open the dropdown', function() {
       this.input.trigger('focused');
 
@@ -163,6 +169,12 @@ describe('Typeahead', function() {
   });
 
   describe('when input triggers blurred', function() {
+    it('should deactivate the typeahead', function() {
+      this.input.trigger('blurred');
+
+      expect(this.view.isActivated).toBe(false);
+    });
+
     it('should empty the dropdown', function() {
       this.input.trigger('blurred');
 
@@ -510,20 +522,28 @@ describe('Typeahead', function() {
     });
   });
 
-  describe('#getQuery', function() {
+  describe('#getVal', function() {
     it('should return the current query', function() {
       this.input.getQuery.andReturn('woah');
       this.view.close();
 
-      expect(this.view.getQuery()).toBe('woah');
+      expect(this.view.getVal()).toBe('woah');
     });
   });
 
-  describe('#getQuery', function() {
-    it('should update the input value', function() {
-      this.view.setQuery('woah');
+  describe('#setVal', function() {
+    it('should update query', function() {
+      this.view.isActivated = true;
+      this.view.setVal('woah');
 
       expect(this.input.setInputValue).toHaveBeenCalledWith('woah');
+    });
+
+    it('should update query silently if not activated', function() {
+      this.view.setVal('woah');
+
+      expect(this.input.setQuery).toHaveBeenCalledWith('woah');
+      expect(this.input.setInputValue).toHaveBeenCalledWith('woah', true);
     });
   });
 
