@@ -299,6 +299,32 @@ describe('Input', function() {
     });
   });
 
+  describe('#clearHintIfInvalid', function() {
+    it('should clear hint if input value is empty string', function() {
+      this.view.setInputValue('', true);
+      this.view.setHintValue('cheese');
+      this.view.clearHintIfInvalid();
+
+      expect(this.view.getHintValue()).toBe('');
+    });
+
+    it('should clear hint if input value is not prefix of input', function() {
+      this.view.setInputValue('milk', true);
+      this.view.setHintValue('cheese');
+      this.view.clearHintIfInvalid();
+
+      expect(this.view.getHintValue()).toBe('');
+    });
+
+    it('should not clear hint if input value is prefix of input', function() {
+      this.view.setInputValue('che', true);
+      this.view.setHintValue('cheese');
+      this.view.clearHintIfInvalid();
+
+      expect(this.view.getHintValue()).toBe('cheese');
+    });
+  });
+
   describe('#getLanguageDirection', function() {
     it('should return the language direction of the input', function() {
       this.$input.css('direction', 'ltr');

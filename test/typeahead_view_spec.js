@@ -37,7 +37,6 @@ describe('Typeahead', function() {
       this.dropdown.trigger('suggestionClicked');
 
       expect(spy).toHaveBeenCalled();
-      expect(this.input.clearHint).toHaveBeenCalled();
       expect(this.input.setQuery).toHaveBeenCalledWith(testDatum.value);
       expect(this.input.setInputValue)
       .toHaveBeenCalledWith(testDatum.value, true);
@@ -49,12 +48,6 @@ describe('Typeahead', function() {
   describe('when dropdown triggers cursorMoved', function() {
     beforeEach(function() {
       this.dropdown.getDatumForCursor.andReturn(testDatum);
-    });
-
-    it('should clear the hint', function() {
-      this.dropdown.trigger('cursorMoved');
-
-      expect(this.input.clearHint).toHaveBeenCalled();
     });
 
     it('should update the input value', function() {
@@ -201,7 +194,6 @@ describe('Typeahead', function() {
       this.input.trigger('enterKeyed', $e);
 
       expect(spy).toHaveBeenCalled();
-      expect(this.input.clearHint).toHaveBeenCalled();
       expect(this.input.setQuery).toHaveBeenCalledWith(testDatum.value);
       expect(this.input.setInputValue)
       .toHaveBeenCalledWith(testDatum.value, true);
@@ -233,7 +225,6 @@ describe('Typeahead', function() {
         this.input.trigger('tabKeyed', $e);
 
         expect(spy).toHaveBeenCalled();
-        expect(this.input.clearHint).toHaveBeenCalled();
         expect(this.input.setQuery).toHaveBeenCalledWith(testDatum.value);
         expect(this.input.setInputValue)
         .toHaveBeenCalledWith(testDatum.value, true);
@@ -446,10 +437,10 @@ describe('Typeahead', function() {
   });
 
   describe('when input triggers queryChanged', function() {
-    it('should clear the hint', function() {
+    it('should clear the hint if it has become invalid', function() {
       this.input.trigger('queryChanged', testDatum.value);
 
-      expect(this.input.clearHint).toHaveBeenCalled();
+      expect(this.input.clearHintIfInvalid).toHaveBeenCalled();
     });
 
     it('should empty dropdown if the query is empty', function() {

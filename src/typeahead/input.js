@@ -43,7 +43,10 @@ var Input = (function() {
 
     // if no hint, noop all the hint related functions
     if (this.$hint.length === 0) {
-      this.setHintValue = this.getHintValue = this.clearHint = _.noop;
+      this.clearHint =
+      this.setHintValue =
+      this.getHintValue =
+      this.clearHintIfInvalid = _.noop;
     }
 
     // ie7 and ie8 don't support the input event
@@ -192,7 +195,8 @@ var Input = (function() {
     setInputValue: function setInputValue(value, silent) {
       this.$input.val(value);
 
-      !silent && this._checkInputValue();
+      // silent prevents any additional events from being triggered
+      silent ? this.clearHint() : this._checkInputValue();
     },
 
     getHintValue: function getHintValue() {
@@ -204,11 +208,21 @@ var Input = (function() {
     },
 
     resetInputValue: function resetInputValue() {
-      this.$input.val(this.query);
+      this.setInputValue(this.query, true);
     },
 
     clearHint: function clearHint() {
-      this.$hint.val('');
+      this.setHintValue('');
+    },
+
+    clearHintIfInvalid: function clearHintIfInvalid() {
+      var val, hint, valIsPrefixOfHint;
+
+      val = this.getInputValue();
+      hint = this.getHintValue();
+      valIsPrefixOfHint = val !== hint && hint.indexOf(val) === 0;
+
+      (val === '' || !valIsPrefixOfHint) && this.clearHint();
     },
 
     getLanguageDirection: function getLanguageDirection() {

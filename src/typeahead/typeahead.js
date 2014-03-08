@@ -96,7 +96,6 @@ var Typeahead = (function() {
     _onCursorMoved: function onCursorMoved() {
       var datum = this.dropdown.getDatumForCursor();
 
-      this.input.clearHint();
       this.input.setInputValue(datum.value, true);
 
       this.eventBus.trigger('cursorchanged', datum.raw, datum.datasetName);
@@ -198,7 +197,7 @@ var Typeahead = (function() {
     },
 
     _onQueryChanged: function onQueryChanged(e, query) {
-      this.input.clearHint();
+      this.input.clearHintIfInvalid();
 
       query.length >= this.minLength ?
         this.dropdown.update(query) :
@@ -224,19 +223,19 @@ var Typeahead = (function() {
     },
 
     _updateHint: function updateHint() {
-      var datum, inputValue, query, escapedQuery, frontMatchRegEx, match;
+      var datum, val, query, escapedQuery, frontMatchRegEx, match;
 
       datum = this.dropdown.getDatumForTopSuggestion();
 
       if (datum && this.dropdown.isVisible() && !this.input.hasOverflow()) {
-        inputValue = this.input.getInputValue();
-        query = Input.normalizeQuery(inputValue);
+        val = this.input.getInputValue();
+        query = Input.normalizeQuery(val);
         escapedQuery = _.escapeRegExChars(query);
 
-        frontMatchRegEx = new RegExp('^(?:' + escapedQuery + ')(.*$)', 'i');
+        frontMatchRegEx = new RegExp('^(?:' + escapedQuery + ')(.+$)', 'i');
         match = frontMatchRegEx.exec(datum.value);
 
-        this.input.setHintValue(inputValue + (match ? match[1] : ''));
+        match ? this.input.setHintValue(val + match[1]) : this.input.clearHint();
       }
     },
 
@@ -256,7 +255,6 @@ var Typeahead = (function() {
     },
 
     _select: function select(datum) {
-      this.input.clearHint();
       this.input.setQuery(datum.value);
       this.input.setInputValue(datum.value, true);
 
@@ -281,8 +279,6 @@ var Typeahead = (function() {
     },
 
     setVal: function setVal(val) {
-      this.input.clearHint();
-
       if (this.isActivated) {
         this.input.setInputValue(val);
       }
