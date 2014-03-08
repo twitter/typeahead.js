@@ -249,6 +249,40 @@ describe('Dropdown', function() {
     });
   });
 
+  describe('#moveCursorToTop', function() {
+    beforeEach(function() {
+      this.view.open();
+    });
+
+    it('should move the cursor to first suggestion', function() {
+      var $first;
+
+      $first = this.view._getSuggestions().first();
+
+      this.view.moveCursorToTop();
+      expect(this.view._getCursor()).toBe($first);
+    });
+
+    it('should not trigger cursorMoved', function() {
+      var spy;
+
+      this.view.onSync('cursorMoved', spy = jasmine.createSpy());
+      this.view.moveCursorToTop();
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('should remove existing cursor', function() {
+      var $bottom;
+
+      $bottom = this.view._getSuggestions().eq(-1);
+      this.view._setCursor($bottom);
+      this.view.moveCursorToTop();
+
+      expect(this.view._getCursor().length).toBe(1);
+    });
+  });
+
   describe('#getDatumForSuggestion', function() {
     it('should extract the datum from the suggestion element', function() {
       var $suggestion, datum;

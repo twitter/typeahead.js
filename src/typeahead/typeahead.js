@@ -96,6 +96,9 @@ var Typeahead = (function() {
 
     _onDatasetRendered: function onDatasetRendered() {
       this._updateHint();
+      if (this.autoselect) {
+        this.dropdown.moveCursorToTop();
+      }
     },
 
     _onOpened: function onOpened() {

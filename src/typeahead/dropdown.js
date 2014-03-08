@@ -129,6 +129,20 @@ var Dropdown = (function() {
       this._ensureVisible($newCursor);
     },
 
+    _moveCursorToTop: function moveCursorToTop() {
+      var $suggestion = this._getSuggestions().first();
+
+      if (!this.isOpen || !$suggestion) { return; }
+
+      this._removeCursor();
+
+      this._setCursor($suggestion, true);
+
+      // in the case of scrollable overflow
+      // make sure the cursor is visible in the menu
+      this._ensureVisible($suggestion);
+    },
+
     _ensureVisible: function ensureVisible($el) {
       var elTop, elBottom, menuScrollTop, menuHeight;
 
@@ -181,6 +195,10 @@ var Dropdown = (function() {
 
     moveCursorDown: function moveCursorDown() {
       this._moveCursor(+1);
+    },
+
+    moveCursorToTop: function moveCursorToTop() {
+      this._moveCursorToTop();
     },
 
     getDatumForSuggestion: function getDatumForSuggestion($el) {
