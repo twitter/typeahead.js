@@ -55,15 +55,15 @@ box. Below details how the UI reacts to pertinent events.
 
 **Up Arrow is Keyed**
 
-* If closed, the dropdown menu is opened and suggestions will get rendered.
-* If the dropdown menu is open and suggestions are present, the cursor of the
-  dropdown menu will move up one suggestion.
+* If closed, the dropdown menu is opened and suggestions are rendered.
+* If open and suggestions are present, the cursor of the dropdown menu will 
+  move up one suggestion.
 
 **Down Arrow is Keyed**
 
-* If closed, the dropdown menu is opened and suggestions will get rendered.
-* If the dropdown menu is open and suggestions are present, the cursor of the
-  dropdown menu will move down one suggestion.
+* If closed, the dropdown menu is opened and suggestions are rendered.
+* If open and suggestions are present, the cursor of the dropdown menu will 
+  move down one suggestion.
 
 **Left Arrow is Keyed**
 

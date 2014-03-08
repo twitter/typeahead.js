@@ -276,16 +276,54 @@ describe('Typeahead', function() {
       this.input.getQuery.andReturn('ghost');
     });
 
-    describe('when dropdown is closed and minLength is satisfied', function() {
+    describe('when dropdown is empty and minLength is satisfied', function() {
       beforeEach(function() {
-        this.dropdown.isOpen = false;
+        this.dropdown.isEmpty = true;
         this.view.minLength = 2;
+
+        this.input.trigger('upKeyed');
       });
 
       it('should update dropdown', function() {
-        this.input.trigger('upKeyed');
-
         expect(this.dropdown.update).toHaveBeenCalledWith('ghost');
+      });
+
+      it('should not move cursor up', function() {
+        expect(this.dropdown.moveCursorUp).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when dropdown is not empty', function() {
+      beforeEach(function() {
+        this.dropdown.isEmpty = false;
+        this.view.minLength = 2;
+
+        this.input.trigger('upKeyed');
+      });
+
+      it('should not update dropdown', function() {
+        expect(this.dropdown.update).not.toHaveBeenCalled();
+      });
+
+      it('should move cursor up', function() {
+        expect(this.dropdown.moveCursorUp).toHaveBeenCalled();
+      });
+    });
+
+    describe('when minLength is not satisfied', function() {
+      beforeEach(function() {
+        this.dropdown.isEmpty = true;
+        this.view.minLength = 10;
+
+        this.input.trigger('upKeyed');
+      });
+
+      it('should not update dropdown', function() {
+        expect(this.dropdown.update).not.toHaveBeenCalled();
+      });
+
+      it('should move cursor up', function() {
+        expect(this.dropdown.moveCursorUp).toHaveBeenCalled();
       });
     });
 
@@ -293,12 +331,6 @@ describe('Typeahead', function() {
       this.input.trigger('upKeyed');
 
       expect(this.dropdown.open).toHaveBeenCalled();
-    });
-
-    it('should move the cursor up', function() {
-      this.input.trigger('upKeyed');
-
-      expect(this.dropdown.moveCursorUp).toHaveBeenCalled();
     });
   });
 
@@ -307,16 +339,54 @@ describe('Typeahead', function() {
       this.input.getQuery.andReturn('ghost');
     });
 
-    describe('when dropdown is closed and minLength is satisfied', function() {
+    describe('when dropdown is empty and minLength is satisfied', function() {
       beforeEach(function() {
-        this.dropdown.isOpen = false;
+        this.dropdown.isEmpty = true;
         this.view.minLength = 2;
+
+        this.input.trigger('downKeyed');
       });
 
       it('should update dropdown', function() {
-        this.input.trigger('downKeyed');
-
         expect(this.dropdown.update).toHaveBeenCalledWith('ghost');
+      });
+
+      it('should not move cursor down', function() {
+        expect(this.dropdown.moveCursorDown).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when dropdown is not empty', function() {
+      beforeEach(function() {
+        this.dropdown.isEmpty = false;
+        this.view.minLength = 2;
+
+        this.input.trigger('downKeyed');
+      });
+
+      it('should not update dropdown', function() {
+        expect(this.dropdown.update).not.toHaveBeenCalled();
+      });
+
+      it('should move cursor down', function() {
+        expect(this.dropdown.moveCursorDown).toHaveBeenCalled();
+      });
+    });
+
+    describe('when minLength is not satisfied', function() {
+      beforeEach(function() {
+        this.dropdown.isEmpty = true;
+        this.view.minLength = 10;
+
+        this.input.trigger('downKeyed');
+      });
+
+      it('should not update dropdown', function() {
+        expect(this.dropdown.update).not.toHaveBeenCalled();
+      });
+
+      it('should move cursor down', function() {
+        expect(this.dropdown.moveCursorDown).toHaveBeenCalled();
       });
     });
 
@@ -324,12 +394,6 @@ describe('Typeahead', function() {
       this.input.trigger('downKeyed');
 
       expect(this.dropdown.open).toHaveBeenCalled();
-    });
-
-    it('should move the cursor down', function() {
-      this.input.trigger('downKeyed');
-
-      expect(this.dropdown.moveCursorDown).toHaveBeenCalled();
     });
   });
 
