@@ -1,3 +1,17 @@
+```javascript
+$('.typeahead').typeahead({
+  minLength: 3,
+  highlight: true,
+  wdith: 450,
+},
+{
+  name: 'my-dataset',
+  source: mySource
+});
+```
+* `width` - The current width to render the input for a responsive web design. 
+  Defaults to `width` style in the according css file.
+
 [![build status](https://secure.travis-ci.org/twitter/typeahead.js.png?branch=master)](http://travis-ci.org/twitter/typeahead.js)
 [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
 
