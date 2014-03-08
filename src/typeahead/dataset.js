@@ -158,7 +158,8 @@ var Dataset = (function() {
 
     clear: function clear() {
       this.cancel();
-      this._render(this.query || '');
+      this.$el.empty();
+      this.trigger('rendered');
     },
 
     isEmpty: function isEmpty() {
