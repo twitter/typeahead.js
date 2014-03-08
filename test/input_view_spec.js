@@ -83,7 +83,7 @@ describe('Input', function() {
     it('should prevent default behavior if there is a hint', function() {
       var $e;
 
-      this.view.setHintValue('good');
+      this.view.setHint('good');
       this.view.setInputValue('goo');
 
       $e = simulateKeyEvent(this.$input, 'keydown', KEYS.tab);
@@ -273,10 +273,10 @@ describe('Input', function() {
     });
   });
 
-  describe('#getHintValue/#setHintValue', function() {
+  describe('#getHint/#setHint', function() {
     it('should act as getter/setter to value of hint', function() {
-      this.view.setHintValue('mountain');
-      expect(this.view.getHintValue()).toBe('mountain');
+      this.view.setHint('mountain');
+      expect(this.view.getHint()).toBe('mountain');
     });
   });
 
@@ -292,36 +292,36 @@ describe('Input', function() {
 
   describe('#clearHint', function() {
     it('should set the hint value to the empty string', function() {
-      this.view.setHintValue('cheese');
+      this.view.setHint('cheese');
       this.view.clearHint();
 
-      expect(this.view.getHintValue()).toBe('');
+      expect(this.view.getHint()).toBe('');
     });
   });
 
   describe('#clearHintIfInvalid', function() {
     it('should clear hint if input value is empty string', function() {
       this.view.setInputValue('', true);
-      this.view.setHintValue('cheese');
+      this.view.setHint('cheese');
       this.view.clearHintIfInvalid();
 
-      expect(this.view.getHintValue()).toBe('');
+      expect(this.view.getHint()).toBe('');
     });
 
     it('should clear hint if input value is not prefix of input', function() {
       this.view.setInputValue('milk', true);
-      this.view.setHintValue('cheese');
+      this.view.setHint('cheese');
       this.view.clearHintIfInvalid();
 
-      expect(this.view.getHintValue()).toBe('');
+      expect(this.view.getHint()).toBe('');
     });
 
     it('should not clear hint if input value is prefix of input', function() {
       this.view.setInputValue('che', true);
-      this.view.setHintValue('cheese');
+      this.view.setHint('cheese');
       this.view.clearHintIfInvalid();
 
-      expect(this.view.getHintValue()).toBe('cheese');
+      expect(this.view.getHint()).toBe('cheese');
     });
   });
 

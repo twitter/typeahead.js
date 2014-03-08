@@ -235,14 +235,14 @@ var Typeahead = (function() {
         frontMatchRegEx = new RegExp('^(?:' + escapedQuery + ')(.+$)', 'i');
         match = frontMatchRegEx.exec(datum.value);
 
-        match ? this.input.setHintValue(val + match[1]) : this.input.clearHint();
+        match ? this.input.setHint(val + match[1]) : this.input.clearHint();
       }
     },
 
     _autocomplete: function autocomplete(laxCursor) {
       var hint, query, isCursorAtEnd, datum;
 
-      hint = this.input.getHintValue();
+      hint = this.input.getHint();
       query = this.input.getQuery();
       isCursorAtEnd = laxCursor || this.input.isCursorAtEnd();
 

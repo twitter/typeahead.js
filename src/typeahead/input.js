@@ -43,9 +43,9 @@ var Input = (function() {
 
     // if no hint, noop all the hint related functions
     if (this.$hint.length === 0) {
+      this.setHint =
+      this.getHint =
       this.clearHint =
-      this.setHintValue =
-      this.getHintValue =
       this.clearHintIfInvalid = _.noop;
     }
 
@@ -118,7 +118,7 @@ var Input = (function() {
 
       switch (keyName) {
         case 'tab':
-          hintValue = this.getHintValue();
+          hintValue = this.getHint();
           inputValue = this.getInputValue();
 
           preventDefault = hintValue &&
@@ -199,27 +199,27 @@ var Input = (function() {
       silent ? this.clearHint() : this._checkInputValue();
     },
 
-    getHintValue: function getHintValue() {
-      return this.$hint.val();
-    },
-
-    setHintValue: function setHintValue(value) {
-      this.$hint.val(value);
-    },
-
     resetInputValue: function resetInputValue() {
       this.setInputValue(this.query, true);
     },
 
+    getHint: function getHint() {
+      return this.$hint.val();
+    },
+
+    setHint: function setHint(value) {
+      this.$hint.val(value);
+    },
+
     clearHint: function clearHint() {
-      this.setHintValue('');
+      this.setHint('');
     },
 
     clearHintIfInvalid: function clearHintIfInvalid() {
       var val, hint, valIsPrefixOfHint;
 
       val = this.getInputValue();
-      hint = this.getHintValue();
+      hint = this.getHint();
       valIsPrefixOfHint = val !== hint && hint.indexOf(val) === 0;
 
       (val === '' || !valIsPrefixOfHint) && this.clearHint();
