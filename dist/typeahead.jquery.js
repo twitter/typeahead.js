@@ -820,7 +820,7 @@
             }
             this.autoselect = !!o.autoselect;
             this.minLength = _.isNumber(o.minLength) ? o.minLength : 1;
-            this.$node = buildDomStructure(o.input, o.withHint);
+            this.$node = buildDomStructure(o.input, o.withHint, o.width);
             $menu = this.$node.find(".tt-dropdown-menu");
             $input = this.$node.find(".tt-input");
             $hint = this.$node.find(".tt-hint");
@@ -997,11 +997,11 @@
             }
         });
         return Typeahead;
-        function buildDomStructure(input, withHint) {
+        function buildDomStructure(input, withHint, width) {
             var $input, $wrapper, $dropdown, $hint;
             $input = $(input);
-            $wrapper = $(html.wrapper).css(css.wrapper);
-            $dropdown = $(html.dropdown).css(css.dropdown);
+            $wrapper = $(html.wrapper).css(css.wrapper).css('width', width);
+            $dropdown = $(html.dropdown).css(css.dropdown).css('width', width);
             $hint = $input.clone().css(css.hint).css(getBackgroundStyles($input));
             $hint.val("").removeData().addClass("tt-hint").removeAttr("id name placeholder").prop("disabled", true).attr({
                 autocomplete: "off",
@@ -1063,6 +1063,7 @@
                             el: $input
                         }),
                         withHint: _.isUndefined(o.hint) ? true : !!o.hint,
+                        width: o.width,
                         minLength: o.minLength,
                         autoselect: o.autoselect,
                         datasets: datasets
