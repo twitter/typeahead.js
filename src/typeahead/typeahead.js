@@ -20,6 +20,7 @@ var Typeahead = (function() {
       $.error('missing input');
     }
 
+    this.isActivated = false;
     this.autoselect = !!o.autoselect;
     this.minLength = _.isNumber(o.minLength) ? o.minLength : 1;
     this.$node = buildDomStructure(o.input, o.withHint);
@@ -63,6 +64,8 @@ var Typeahead = (function() {
       // ie 9+ and other browsers
       $e.preventDefault();
     });
+
+    this._setLanguageDirection();
   }
 
   // instance methods
@@ -111,10 +114,12 @@ var Typeahead = (function() {
     },
 
     _onFocused: function onFocused() {
+      this.isActivated = true;
       this.dropdown.open();
     },
 
     _onBlurred: function onBlurred() {
+      this.isActivated = false;
       this.dropdown.empty();
       this.dropdown.close();
     },
@@ -265,12 +270,23 @@ var Typeahead = (function() {
       this.dropdown.close();
     },
 
-    getQuery: function getQuery() {
-      return this.input.getQuery();
+    setVal: function setVal(val) {
+      this.input.clearHint();
+
+      if (this.isActivated) {
+        this.input.setInputValue(val);
+      }
+
+      else {
+        this.input.setQuery(val);
+        this.input.setInputValue(val, true);
+      }
+
+      this._setLanguageDirection();
     },
 
-    setQuery: function setQuery(val) {
-      this.input.setInputValue(val);
+    getVal: function getVal() {
+      return this.input.getQuery();
     },
 
     destroy: function destroy() {
