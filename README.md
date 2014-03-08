@@ -156,6 +156,15 @@ Grunt tasks that'll be useful in development.
 [entry-level]: https://github.com/twitter/typeahead.js/issues?&labels=entry-level&state=open
 [grunt-cli]: https://github.com/gruntjs/grunt-cli
 
+Maintainers
+-----------
+
+* **Jake Harding** 
+  * [@JakeHarding](https://twitter.com/JakeHarding) 
+  * [GitHub](https://github.com/jharding)
+
+* **You?**
+
 Authors
 -------
 
