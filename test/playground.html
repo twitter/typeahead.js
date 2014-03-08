@@ -122,11 +122,17 @@
       states.initialize();
 
       $('.states').typeahead({
-        highlight: true
+        highlight: true,
       },
       {
         displayKey: 'val',
-        source: states.ttAdapter()
+        source: states.ttAdapter(),
+        templates: {
+          'empty': function(a) {
+            window.console.log(a);
+            return 'empty';
+          }
+        }
       });
 
 

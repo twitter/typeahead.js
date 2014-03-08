@@ -554,7 +554,7 @@
             return $(el).data(datumKey);
         };
         _.mixin(Dataset.prototype, EventEmitter, {
-            _render: function render(query, suggestions) {
+            _render: function render(query, suggestions, opt_resultKind) {
                 if (!this.$el) {
                     return;
                 }
@@ -570,7 +570,8 @@
                 function getEmptyHtml() {
                     return that.templates.empty({
                         query: query,
-                        isEmpty: true
+                        isEmpty: true,
+                        resultKind: opt_resultKind
                     });
                 }
                 function getSuggestionsHtml() {
@@ -597,13 +598,15 @@
                 function getHeaderHtml() {
                     return that.templates.header({
                         query: query,
-                        isEmpty: !hasSuggestions
+                        isEmpty: !hasSuggestions,
+                        resultKind: opt_resultKind
                     });
                 }
                 function getFooterHtml() {
                     return that.templates.footer({
                         query: query,
-                        isEmpty: !hasSuggestions
+                        isEmpty: !hasSuggestions,
+                        resultKind: opt_resultKind
                     });
                 }
             },
@@ -614,12 +617,12 @@
                 var that = this;
                 this.query = query;
                 this.source(query, renderIfQueryIsSame);
-                function renderIfQueryIsSame(suggestions) {
-                    query === that.query && that._render(query, suggestions);
+                function renderIfQueryIsSame(suggestions, opt_resultKind) {
+                    query === that.query && that._render(query, suggestions, opt_resultKind);
                 }
             },
-            clear: function clear() {
-                this._render(this.query || "");
+            clear: function clear(opt_reason) {
+                this._render(this.query || "", null, opt_reason || "clear");
             },
             isEmpty: function isEmpty() {
                 return this.$el.is(":empty");
@@ -786,11 +789,11 @@
                     dataset.update(query);
                 }
             },
-            empty: function empty() {
+            empty: function empty(opt_reason) {
                 _.each(this.datasets, clearDataset);
                 this.isEmpty = true;
                 function clearDataset(dataset) {
-                    dataset.clear();
+                    dataset.clear(opt_reason);
                 }
             },
             isVisible: function isVisible() {
@@ -874,7 +877,7 @@
                 this.eventBus.trigger("closed");
             },
             _onFocused: function onFocused() {
-                this.dropdown.empty();
+                this.dropdown.empty("focused");
                 this.dropdown.open();
             },
             _onBlurred: function onBlurred() {
@@ -929,7 +932,7 @@
             },
             _onQueryChanged: function onQueryChanged(e, query) {
                 this.input.clearHint();
-                this.dropdown.empty();
+                this.dropdown.empty("loading");
                 query.length >= this.minLength && this.dropdown.update(query);
                 this.dropdown.open();
                 this._setLanguageDirection();

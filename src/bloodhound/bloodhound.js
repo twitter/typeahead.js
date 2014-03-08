@@ -165,7 +165,7 @@ var Bloodhound = window.Bloodhound = (function() {
       // if a cache hit occurred, skip rendering local matches
       // because the rendering of local/remote matches is already
       // in the event loop
-      !cacheHit && cb && cb(matches);
+      !cacheHit && cb && cb(matches, 'local');
 
       function returnRemoteMatches(remoteMatches) {
         var matchesWithBackfill = matches.slice(0);
@@ -185,7 +185,7 @@ var Bloodhound = window.Bloodhound = (function() {
           return matchesWithBackfill.length < that.limit;
         });
 
-        cb && cb(that.sorter(matchesWithBackfill));
+        cb && cb(that.sorter(matchesWithBackfill), 'remote');
       }
     },
 

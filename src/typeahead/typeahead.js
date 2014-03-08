@@ -111,7 +111,7 @@ var Typeahead = (function() {
     },
 
     _onFocused: function onFocused() {
-      this.dropdown.empty();
+      this.dropdown.empty('focused');
       this.dropdown.open();
     },
 
@@ -186,7 +186,7 @@ var Typeahead = (function() {
 
     _onQueryChanged: function onQueryChanged(e, query) {
       this.input.clearHint();
-      this.dropdown.empty();
+      this.dropdown.empty('loading');
       query.length >= this.minLength && this.dropdown.update(query);
       this.dropdown.open();
       this._setLanguageDirection();
