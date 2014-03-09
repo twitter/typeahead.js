@@ -232,6 +232,7 @@ var Typeahead = (function() {
         query = Input.normalizeQuery(val);
         escapedQuery = _.escapeRegExChars(query);
 
+        // match input value, then capture trailing text
         frontMatchRegEx = new RegExp('^(?:' + escapedQuery + ')(.+$)', 'i');
         match = frontMatchRegEx.exec(datum.value);
 

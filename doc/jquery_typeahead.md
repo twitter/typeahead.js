@@ -173,10 +173,6 @@ jQuery.fn._typeahead = typeahead;
 
 When initializing a typeahead, there are a number of options you can configure.
 
-* `autoselect` – If `true`, defaults the suggestion selection to the top 
-  suggestion when the user keys enter while the dropdown menu is open. Defaults
-  to `false`.
-
 * `highlight` – If `true`, when suggestions are rendered, pattern matches
   for the current query in text nodes will be wrapped in a `strong` element. 
   Defaults to `false`.
