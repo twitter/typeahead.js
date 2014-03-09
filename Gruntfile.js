@@ -37,7 +37,7 @@ module.exports = function(grunt) {
       '/*!',
       ' * typeahead.js <%= version %>',
       ' * https://github.com/twitter/typeahead.js',
-      ' * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT',
+      ' * Copyright 2013-<%= grunt.template.today("yyyy") %> Twitter, Inc. and other contributors; Licensed MIT',
       ' */\n\n'
     ].join('\n'),
 
