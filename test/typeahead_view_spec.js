@@ -96,6 +96,9 @@ describe('Typeahead', function() {
 
       this.dropdown.trigger('datasetRendered');
 
+      // ensure it wasn't called synchronously
+      expect(this.input.setHint).not.toHaveBeenCalled();
+
       waitsFor(function() {
         return !!this.input.setHint.callCount;
       });

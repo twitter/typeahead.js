@@ -316,6 +316,15 @@ describe('Input', function() {
       expect(this.view.getHint()).toBe('');
     });
 
+    it('should clear hint if overflow exists', function() {
+      spyOn(this.view, 'hasOverflow').andReturn(true);
+      this.view.setInputValue('che', true);
+      this.view.setHint('cheese');
+      this.view.clearHintIfInvalid();
+
+      expect(this.view.getHint()).toBe('');
+    });
+
     it('should not clear hint if input value is prefix of input', function() {
       this.view.setInputValue('che', true);
       this.view.setHint('cheese');

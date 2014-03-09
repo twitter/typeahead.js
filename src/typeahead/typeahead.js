@@ -236,7 +236,12 @@ var Typeahead = (function() {
         frontMatchRegEx = new RegExp('^(?:' + escapedQuery + ')(.+$)', 'i');
         match = frontMatchRegEx.exec(datum.value);
 
+        // clear hint if there's no trailing text
         match ? this.input.setHint(val + match[1]) : this.input.clearHint();
+      }
+
+      else {
+        this.input.clearHint();
       }
     },
 

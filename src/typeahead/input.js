@@ -216,13 +216,14 @@ var Input = (function() {
     },
 
     clearHintIfInvalid: function clearHintIfInvalid() {
-      var val, hint, valIsPrefixOfHint;
+      var val, hint, valIsPrefixOfHint, isValid;
 
       val = this.getInputValue();
       hint = this.getHint();
       valIsPrefixOfHint = val !== hint && hint.indexOf(val) === 0;
+      isValid = val !== '' && valIsPrefixOfHint && !this.hasOverflow();
 
-      (val === '' || !valIsPrefixOfHint) && this.clearHint();
+      !isValid && this.clearHint();
     },
 
     getLanguageDirection: function getLanguageDirection() {
@@ -279,8 +280,8 @@ var Input = (function() {
       // position helper off-screen
       position: 'absolute',
       visibility: 'hidden',
-      // avoid line breaks
-      whiteSpace: 'nowrap',
+      // avoid line breaks and whitespace collapsing
+      whiteSpace: 'pre',
       // use same font css as input to calculate accurate width
       fontFamily: $input.css('font-family'),
       fontSize: $input.css('font-size'),
