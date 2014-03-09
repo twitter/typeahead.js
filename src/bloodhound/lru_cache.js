@@ -1,7 +1,7 @@
 /*
  * typeahead.js
  * https://github.com/twitter/typeahead.js
- * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
+ * Copyright 2013-2014 Twitter, Inc. and other contributors; Licensed MIT
  */
 
 // inspired by https://github.com/jharding/lru-cache
