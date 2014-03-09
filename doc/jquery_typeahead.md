@@ -8,6 +8,7 @@ Table of Contents
 -----------------
 
 * [Features](#features)
+* [Specification](#specification)
 * [Usage](#usage)
   * [API](#api)
   * [Options](#options)
@@ -25,6 +26,71 @@ Features
 * Works well with RTL languages and input method editors
 * Highlights query matches within the suggestion
 * Triggers custom events
+
+Specification
+-------------
+
+In an effort to take advantage of the pre-existing knowledge of typeahead.js 
+users, the behavior of the typeahead.js UI is modeled after google.com's search 
+box. Below details how the UI reacts to pertinent events.
+
+**Input Control Gains Focus**
+
+* The typeahead is activated and begins listening for keyboard events.
+
+**Input Control Loses Focus**
+
+* The typeahead is deactivated and stops listening for keyboard events.
+* Any existing suggestions are cleared from the dropdown menu.
+* If open, the dropdown menu is closed.
+
+**Value of the Input Control Changes**
+
+* If closed, the dropdown menu is opened.
+* Suggestions for the new query are rendered.
+* If the new query is a prefix match of the top suggestion, the hint is updated. 
+  Otherwise, the hint is cleared.
+* Language direction detection is performed and the proper CSS styles are 
+  applied.
+
+**Up Arrow is Keyed**
+
+* If closed, the dropdown menu is opened and suggestions are rendered.
+* If open and suggestions are present, the cursor of the dropdown menu will 
+  move up one suggestion.
+
+**Down Arrow is Keyed**
+
+* If closed, the dropdown menu is opened and suggestions are rendered.
+* If open and suggestions are present, the cursor of the dropdown menu will 
+  move down one suggestion.
+
+**Left Arrow is Keyed**
+
+* If the detected language direction of the input control is RTL, the value
+  of the input control is set to the value of the shown hint.
+
+**Right Arrow is Keyed**
+
+* If the detected language direction of the input control is LTR, the value
+  of the input control is set to the value of the shown hint.
+
+**Tab is Keyed**
+
+* If the cursor of the dropdown menu is on a suggestion, that suggestion will be
+  selected.
+* If the cursor of the dropdown menu is not on a suggestion and a hint is being
+  displayed, the value of the input control is set to the value of the shown
+  hint.
+
+**Enter is Keyed**
+
+* If the cursor of the dropdown menu is on a suggestion, that suggestion will be
+  selected.
+
+**Esc is Keyed**
+
+* If open, the dropdown menu is closed.
 
 Usage
 -----
@@ -106,10 +172,6 @@ jQuery.fn._typeahead = typeahead;
 ### Options
 
 When initializing a typeahead, there are a number of options you can configure.
-
-* `autoselect` – If `true`, defaults the suggestion selection to the top 
-  suggestion when the user keys enter while the dropdown menu is open. Defaults
-  to `false`.
 
 * `highlight` – If `true`, when suggestions are rendered, pattern matches
   for the current query in text nodes will be wrapped in a `strong` element. 

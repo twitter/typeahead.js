@@ -70,21 +70,21 @@
     val: function val(newVal) {
       // mirror jQuery#val functionality: reads opearte on first match,
       // write operates on all matches
-      return !arguments.length ? getQuery(this.first()) : this.each(setQuery);
+      return !arguments.length ? getVal(this.first()) : this.each(setVal);
 
-      function setQuery() {
+      function setVal() {
         var $input = $(this), typeahead;
 
         if (typeahead = $input.data(typeaheadKey)) {
-          typeahead.setQuery(newVal);
+          typeahead.setVal(newVal);
         }
       }
 
-      function getQuery($input) {
+      function getVal($input) {
         var typeahead, query;
 
         if (typeahead = $input.data(typeaheadKey)) {
-          query = typeahead.getQuery();
+          query = typeahead.getVal();
         }
 
         return query;

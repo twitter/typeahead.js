@@ -43,7 +43,10 @@ var Input = (function() {
 
     // if no hint, noop all the hint related functions
     if (this.$hint.length === 0) {
-      this.setHintValue = this.getHintValue = this.clearHint = _.noop;
+      this.setHint =
+      this.getHint =
+      this.clearHint =
+      this.clearHintIfInvalid = _.noop;
     }
 
     // ie7 and ie8 don't support the input event
@@ -87,12 +90,12 @@ var Input = (function() {
 
     // ### private
 
-    _onBlur: function onBlur($e) {
+    _onBlur: function onBlur() {
       this.resetInputValue();
       this.trigger('blurred');
     },
 
-    _onFocus: function onFocus($e) {
+    _onFocus: function onFocus() {
       this.trigger('focused');
     },
 
@@ -106,7 +109,7 @@ var Input = (function() {
       }
     },
 
-    _onInput: function onInput($e) {
+    _onInput: function onInput() {
       this._checkInputValue();
     },
 
@@ -115,7 +118,7 @@ var Input = (function() {
 
       switch (keyName) {
         case 'tab':
-          hintValue = this.getHintValue();
+          hintValue = this.getHint();
           inputValue = this.getInputValue();
 
           preventDefault = hintValue &&
@@ -192,23 +195,35 @@ var Input = (function() {
     setInputValue: function setInputValue(value, silent) {
       this.$input.val(value);
 
-      !silent && this._checkInputValue();
-    },
-
-    getHintValue: function getHintValue() {
-      return this.$hint.val();
-    },
-
-    setHintValue: function setHintValue(value) {
-      this.$hint.val(value);
+      // silent prevents any additional events from being triggered
+      silent ? this.clearHint() : this._checkInputValue();
     },
 
     resetInputValue: function resetInputValue() {
-      this.$input.val(this.query);
+      this.setInputValue(this.query, true);
+    },
+
+    getHint: function getHint() {
+      return this.$hint.val();
+    },
+
+    setHint: function setHint(value) {
+      this.$hint.val(value);
     },
 
     clearHint: function clearHint() {
-      this.$hint.val('');
+      this.setHint('');
+    },
+
+    clearHintIfInvalid: function clearHintIfInvalid() {
+      var val, hint, valIsPrefixOfHint, isValid;
+
+      val = this.getInputValue();
+      hint = this.getHint();
+      valIsPrefixOfHint = val !== hint && hint.indexOf(val) === 0;
+      isValid = val !== '' && valIsPrefixOfHint && !this.hasOverflow();
+
+      !isValid && this.clearHint();
     },
 
     getLanguageDirection: function getLanguageDirection() {
@@ -265,8 +280,8 @@ var Input = (function() {
       // position helper off-screen
       position: 'absolute',
       visibility: 'hidden',
-      // avoid line breaks
-      whiteSpace: 'nowrap',
+      // avoid line breaks and whitespace collapsing
+      whiteSpace: 'pre',
       // use same font css as input to calculate accurate width
       fontFamily: $input.css('font-family'),
       fontSize: $input.css('font-size'),

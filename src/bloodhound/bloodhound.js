@@ -4,10 +4,14 @@
  * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var Bloodhound = window.Bloodhound = (function() {
-  var keys;
+(function(root) {
+  var old, keys;
 
+  old = root.Bloodhound;
   keys = { data: 'data', protocol: 'protocol', thumbprint: 'thumbprint' };
+
+  // add Bloodhoud to global context
+  root.Bloodhound = Bloodhound;
 
   // constructor
   // -----------
@@ -42,6 +46,11 @@ var Bloodhound = window.Bloodhound = (function() {
   // static methods
   // --------------
 
+  Bloodhound.noConflict = function noConflict() {
+    root.Bloodhound = old;
+    return Bloodhound;
+  };
+
   Bloodhound.tokenizers = {
     whitespace: function whitespaceTokenizer(s) {
       return s.split(/\s+/);
@@ -74,10 +83,9 @@ var Bloodhound = window.Bloodhound = (function() {
       return deferred;
 
       function handlePrefetchResponse(resp) {
-        var filtered;
-
-        filtered = o.filter ? o.filter(resp) : resp;
-        that.add(filtered);
+        // clear to mirror the behavior of bootstrapping
+        that.clear();
+        that.add(o.filter ? o.filter(resp) : resp);
 
         that._saveToStorage(that.index.serialize(), o.thumbprint, o.ttl);
       }
@@ -95,10 +103,8 @@ var Bloodhound = window.Bloodhound = (function() {
 
       return this.transport.get(url, this.remote.ajax, handleRemoteResponse);
 
-      function handleRemoteResponse(resp) {
-        var filtered = that.remote.filter ? that.remote.filter(resp) : resp;
-
-        cb(filtered);
+      function handleRemoteResponse(err, resp) {
+        err ? cb([]) : cb(that.remote.filter ? that.remote.filter(resp) : resp);
       }
     },
 
@@ -127,25 +133,29 @@ var Bloodhound = window.Bloodhound = (function() {
       return stored.data && !isExpired ? stored.data : null;
     },
 
-    // ### public
-
-    // the contents of this function are broken out of the constructor
-    // to help improve the testability of bloodhounds
-    initialize: function initialize() {
-      var that = this, deferred;
+    _initialize: function initialize() {
+      var that = this, local = this.local, deferred;
 
       deferred = this.prefetch ?
         this._loadPrefetch(this.prefetch) : $.Deferred().resolve();
 
       // make sure local is added to the index after prefetch
-      this.local && deferred.done(addLocalToIndex);
+      local && deferred.done(addLocalToIndex);
 
       this.transport = this.remote ? new Transport(this.remote) : null;
-      this.initialize = function initialize() { return deferred.promise(); };
 
-      return deferred.promise();
+      return (this.initPromise = deferred.promise());
 
-      function addLocalToIndex() { that.add(that.local); }
+      function addLocalToIndex() {
+        // local can be a function that returns an array of datums
+        that.add(_.isFunction(local) ? local() : local);
+      }
+    },
+
+    // ### public
+
+    initialize: function initialize(force) {
+      return !this.initPromise || force ? this._initialize() : this.initPromise;
     },
 
     add: function add(data) {
@@ -153,7 +163,7 @@ var Bloodhound = window.Bloodhound = (function() {
     },
 
     get: function get(query, cb) {
-      var that = this, matches, cacheHit = false;
+      var that = this, matches = [], cacheHit = false;
 
       matches = this.index.get(query);
       matches = this.sorter(matches).slice(0, this.limit);
@@ -165,7 +175,11 @@ var Bloodhound = window.Bloodhound = (function() {
       // if a cache hit occurred, skip rendering local matches
       // because the rendering of local/remote matches is already
       // in the event loop
-      !cacheHit && cb && cb(matches);
+      if (!cacheHit) {
+        // only render if there are some local suggestions or we're
+        // going to the network to backfill
+        (matches.length > 0 || !this.transport) && cb && cb(matches);
+      }
 
       function returnRemoteMatches(remoteMatches) {
         var matchesWithBackfill = matches.slice(0);
@@ -184,9 +198,20 @@ var Bloodhound = window.Bloodhound = (function() {
           // the remote results and can break out of the each loop
           return matchesWithBackfill.length < that.limit;
         });
-
         cb && cb(that.sorter(matchesWithBackfill));
       }
+    },
+
+    clear: function clear() {
+      this.index.reset();
+    },
+
+    clearPrefetchCache: function clearPrefetchCache() {
+      this.storage && this.storage.clear();
+    },
+
+    clearRemoteCache: function clearRemoteCache() {
+      this.transport && Transport.resetCache();
     },
 
     ttAdapter: function ttAdapter() { return _.bind(this.get, this); }
@@ -205,4 +230,4 @@ var Bloodhound = window.Bloodhound = (function() {
   }
 
   function ignoreDuplicates() { return false; }
-})();
+})(this);
