@@ -45,6 +45,13 @@ describe('SearchIndex', function() {
     expect(this.searchIndex.get('wtf')).toEqual([]);
   });
 
+  it('#reset should empty the search index', function() {
+    this.searchIndex.reset();
+    expect(this.searchIndex.datums).toEqual([]);
+    expect(this.searchIndex.trie.ids).toEqual([]);
+    expect(this.searchIndex.trie.children).toEqual({});
+  });
+
   // helper functions
   // ----------------
 

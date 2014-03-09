@@ -83,10 +83,9 @@
       return deferred;
 
       function handlePrefetchResponse(resp) {
-        var filtered;
-
-        filtered = o.filter ? o.filter(resp) : resp;
-        that.add(filtered);
+        // clear to mirror the behavior of bootstrapping
+        that.clear();
+        that.add(o.filter ? o.filter(resp) : resp);
 
         that._saveToStorage(that.index.serialize(), o.thumbprint, o.ttl);
       }
@@ -105,13 +104,7 @@
       return this.transport.get(url, this.remote.ajax, handleRemoteResponse);
 
       function handleRemoteResponse(err, resp) {
-        var filtered;
-
-        // failed request is equivalent to an empty suggestion set
-        if (err) { return cb([]); }
-
-        filtered = that.remote.filter ? that.remote.filter(resp) : resp;
-        cb(filtered);
+        err ? cb([]) : cb(that.remote.filter ? that.remote.filter(resp) : resp);
       }
     },
 
@@ -140,28 +133,29 @@
       return stored.data && !isExpired ? stored.data : null;
     },
 
-    // ### public
-
-    // the contents of this function are broken out of the constructor
-    // to help improve the testability of bloodhounds
-    initialize: function initialize() {
-      var that = this, deferred;
+    _initialize: function initialize() {
+      var that = this, local = this.local, deferred;
 
       deferred = this.prefetch ?
         this._loadPrefetch(this.prefetch) : $.Deferred().resolve();
 
-      // local can be a function that returns an array of datums
-      this.local = _.isFunction(this.local) ? this.local() : this.local;
-
       // make sure local is added to the index after prefetch
-      this.local && deferred.done(addLocalToIndex);
+      local && deferred.done(addLocalToIndex);
 
       this.transport = this.remote ? new Transport(this.remote) : null;
-      this.initialize = function initialize() { return deferred.promise(); };
 
-      return deferred.promise();
+      return (this.initPromise = deferred.promise());
 
-      function addLocalToIndex() { that.add(that.local); }
+      function addLocalToIndex() {
+        // local can be a function that returns an array of datums
+        that.add(_.isFunction(local) ? local() : local);
+      }
+    },
+
+    // ### public
+
+    initialize: function initialize(force) {
+      return !this.initPromise || force ? this._initialize() : this.initPromise;
     },
 
     add: function add(data) {
@@ -206,6 +200,18 @@
         });
         cb && cb(that.sorter(matchesWithBackfill));
       }
+    },
+
+    clear: function clear() {
+      this.index.reset();
+    },
+
+    clearPrefetchCache: function clearPrefetchCache() {
+      this.storage && this.storage.clear();
+    },
+
+    clearRemoteCache: function clearRemoteCache() {
+      this.transport && Transport.resetCache();
     },
 
     ttAdapter: function ttAdapter() { return _.bind(this.get, this); }

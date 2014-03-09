@@ -10,6 +10,108 @@ describe('Bloodhound', function() {
     clearAjaxRequests();
   });
 
+  describe('#initialize', function() {
+    beforeEach(function() {
+      this.bloodhound = new Bloodhound({
+        datumTokenizer: datumTokenizer,
+        queryTokenizer: queryTokenizer,
+        local: fixtures.data.simple
+      });
+
+      spyOn(this.bloodhound, '_initialize').andCallThrough();
+    });
+
+    it('should not support reinitialization by default', function() {
+      var p1, p2;
+
+      p1 = this.bloodhound.initialize();
+      p2 = this.bloodhound.initialize();
+
+      expect(p1).toBe(p2);
+      expect(this.bloodhound._initialize.callCount).toBe(1);
+    });
+
+    it('should reinitialize if reintialize flag is true', function() {
+      var p1, p2;
+
+      p1 = this.bloodhound.initialize();
+      p2 = this.bloodhound.initialize(true);
+
+      expect(p1).not.toBe(p2);
+      expect(this.bloodhound._initialize.callCount).toBe(2);
+    });
+  });
+
+  describe('#add', function() {
+    it('should add datums to search index', function() {
+      var spy = jasmine.createSpy();
+
+      this.bloodhound = new Bloodhound({
+        datumTokenizer: datumTokenizer,
+        queryTokenizer: queryTokenizer,
+        local: []
+      });
+      this.bloodhound.initialize();
+      this.bloodhound.add(fixtures.data.simple);
+
+      this.bloodhound.get('big', spy);
+
+      expect(spy).toHaveBeenCalledWith([
+        { value: 'big' },
+        { value: 'bigger' },
+        { value: 'biggest' }
+      ]);
+    });
+  });
+
+  describe('#clear', function() {
+    it('should remove all datums to search index', function() {
+      var spy = jasmine.createSpy();
+
+      this.bloodhound = new Bloodhound({
+        datumTokenizer: datumTokenizer,
+        queryTokenizer: queryTokenizer,
+        local: fixtures.data.simple
+      });
+      this.bloodhound.initialize();
+      this.bloodhound.clear();
+
+      this.bloodhound.get('big', spy);
+
+      expect(spy).toHaveBeenCalledWith([]);
+    });
+  });
+
+  describe('#clearPrefetchCache', function() {
+    it('should clear persistent storage', function() {
+      this.bloodhound = new Bloodhound({
+        datumTokenizer: datumTokenizer,
+        queryTokenizer: queryTokenizer,
+        prefetch: '/test'
+      });
+      this.bloodhound.initialize();
+      this.bloodhound.clearPrefetchCache();
+
+      expect(this.bloodhound.storage.clear).toHaveBeenCalled();
+    });
+  });
+
+  describe('#clearRemoteCache', function() {
+    it('should clear remote request cache', function() {
+      spyOn(Transport, 'resetCache');
+
+      this.bloodhound = new Bloodhound({
+        datumTokenizer: datumTokenizer,
+        queryTokenizer: queryTokenizer,
+        remote: '/test'
+      });
+      this.bloodhound.initialize();
+
+      this.bloodhound.clearRemoteCache();
+      expect(Transport.resetCache).toHaveBeenCalled();
+    });
+  });
+
   describe('local', function() {
     describe('when local is an array', function() {
       beforeEach(function() {
@@ -138,6 +240,20 @@ describe('Bloodhound', function() {
         { value: 'bigger' },
         { value: 'biggest' }
       ]);
+    });
+
+    it('should clear preexisting data', function() {
+      this.bloodhound = new Bloodhound({
+        datumTokenizer: datumTokenizer,
+        queryTokenizer: queryTokenizer,
+        prefetch: '/test'
+      });
+
+      spyOn(this.bloodhound, 'clear');
+      this.bloodhound.initialize();
+
+      mostRecentAjaxRequest().response(fixtures.ajaxResps.ok);
+      expect(this.bloodhound.clear).toHaveBeenCalled();
     });
 
     it('should filter data if filter is provided', function() {
