@@ -128,44 +128,32 @@ module.exports = function(grunt) {
     },
 
     exec: {
-      git_is_clean: {
-        cmd: 'test -z "$(git status --porcelain)"'
-      },
-      git_on_master: {
-        cmd: 'test $(git symbolic-ref --short -q HEAD) = master'
-      },
-      git_add: {
-        cmd: 'git add .'
-      },
+      npm_publish: 'npm publish',
+      git_is_clean: 'test -z "$(git status --porcelain)"',
+      git_on_master: 'test $(git symbolic-ref --short -q HEAD) = master',
+      git_add: 'git add .',
+      git_push: 'git push && git push --tags',
       git_commit: {
         cmd: function(m) { return f('git commit -m "%s"', m); }
       },
       git_tag: {
         cmd: function(v) { return f('git tag v%s -am "%s"', v, v); }
       },
-      git_push: {
-        cmd: 'git push && git push --tags'
-      },
-      publish_assets: {
-        cmd: [
-          'cp -r <%= buildDir %> typeahead.js',
-          'zip -r typeahead.js/typeahead.js.zip typeahead.js',
-          'git checkout gh-pages',
-          'rm -rf releases/latest',
-          'cp -r typeahead.js releases/<%= version %>',
-          'cp -r typeahead.js releases/latest',
-          'git add releases/<%= version %> releases/latest',
-          'sed -E -i "" \'s/v[0-9]+\\.[0-9]+\\.[0-9]+/v<%= version %>/\' index.html',
-          'git add index.html',
-          'git commit -m "Add assets for <%= version %>."',
-          //'git push',
-          'git checkout -',
-          'rm -rf typeahead.js'
-        ].join(' && ')
-      },
-      npm_publish: {
-        cmd: 'npm publish'
-      }
+      publish_assets: [
+        'cp -r <%= buildDir %> typeahead.js',
+        'zip -r typeahead.js/typeahead.js.zip typeahead.js',
+        'git checkout gh-pages',
+        'rm -rf releases/latest',
+        'cp -r typeahead.js releases/<%= version %>',
+        'cp -r typeahead.js releases/latest',
+        'git add releases/<%= version %> releases/latest',
+        'sed -E -i "" \'s/v[0-9]+\\.[0-9]+\\.[0-9]+/v<%= version %>/\' index.html',
+        'git add index.html',
+        'git commit -m "Add assets for <%= version %>."',
+        'git push',
+        'git checkout -',
+        'rm -rf typeahead.js'
+      ].join(' && ')
     },
 
     clean: {
@@ -185,16 +173,22 @@ module.exports = function(grunt) {
         { grunt: true, args: ['server'] },
         { grunt: true, args: ['watch'] }
       ]
+    },
+
+    step: {
+      options: {
+        option: false
+      }
     }
   });
 
-  grunt.registerTask('release', 'Ship it.', function(version) {
+  grunt.registerTask('release', '#shipit', function(version) {
     var curVersion = grunt.config.get('version');
 
     version = semver.inc(curVersion, version) || version;
 
     if (!semver.valid(version) || semver.lte(version, curVersion)) {
-      grunt.fatal('invalid version dummy');
+      grunt.fatal('hey dummy, that version is no good!');
     }
 
     grunt.config.set('version', version);
@@ -202,13 +196,17 @@ module.exports = function(grunt) {
     grunt.task.run([
       'exec:git_on_master',
       'exec:git_is_clean',
-      'manifests:' + version,
+      f('step:Update to version %s?', version),
+      f('manifests:%s', version),
       'build',
       'exec:git_add',
-      'exec:git_commit:' + version,
-      'exec:git_tag:' + version,
-      //'exec:git_push',
-      //'exec:npm_publish',
+      f('exec:git_commit:%s', version),
+      f('exec:git_tag:%s', version),
+      'step:Push changes?',
+      'exec:git_push',
+      'step:Publish to npm?',
+      'exec:npm_publish',
+      'step:Publish assets?',
       'exec:publish_assets'
     ]);
   });
@@ -259,6 +257,7 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-sed');
   grunt.loadNpmTasks('grunt-exec');
+  grunt.loadNpmTasks('grunt-step');
   grunt.loadNpmTasks('grunt-parallel');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-clean');
