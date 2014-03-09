@@ -11,7 +11,7 @@ preprocessors = {
 
 // list of files / patterns to load in the browser
 files = [
-  'test/vendor/**/*',
+  'bower_components/jquery/dist/jquery.js',
   'src/common/utils.js',
   'src/bloodhound/version.js',
   'src/bloodhound/lru_cache.js',
@@ -33,6 +33,8 @@ files = [
   JASMINE,
   JASMINE_ADAPTER,
   'test/fixtures/**/*',
+  'bower_components/jasmine-jquery/lib/jasmine-jquery.js',
+  'bower_components/jasmine-ajax/lib/mock-ajax.js',
   'test/helpers/**/*',
   'test/*_spec.js'
 ];
