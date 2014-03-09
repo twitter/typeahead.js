@@ -83,8 +83,8 @@
       return deferred;
 
       function handlePrefetchResponse(resp) {
-        // reset to mirror the behavior of bootstrapping
-        that.reset();
+        // clear to mirror the behavior of bootstrapping
+        that.clear();
         that.add(o.filter ? o.filter(resp) : resp);
 
         that._saveToStorage(that.index.serialize(), o.thumbprint, o.ttl);
@@ -155,7 +155,7 @@
     // ### public
 
     initialize: function initialize(force) {
-      !this.initPromise || force ? this._initialize() : this.initPromise;
+      return !this.initPromise || force ? this._initialize() : this.initPromise;
     },
 
     add: function add(data) {
@@ -202,7 +202,7 @@
       }
     },
 
-    reset: function reset() {
+    clear: function clear() {
       this.index.reset();
     },
 
