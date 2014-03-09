@@ -48,7 +48,7 @@ var engine = new Bloodhound({
 });
 ```
 
-#### Bloodhound#initialize()
+#### Bloodhound#initialize(reinitialize)
 
 Kicks off the initialization of the suggestion engine. This includes processing 
 the data provided through `local` and fetching/processing the data provided 
@@ -61,6 +61,47 @@ var promise = engine.initialize();
 promise
 .done(function() { console.log('success!'); })
 .fail(function() { console.log('err!'); });
+```
+
+After the initial call of `initialize`, how subsequent invocations of the method
+behave depends on the `reinitialize` argument. If `reinitialize` is falsy, the
+method will not execute the initialization logic and will just return the same 
+jQuery promise returned by the initial invocation. If `reinitialize` is truthy,
+the method will behave as if it were being called for the first time.
+
+```javascript
+var promise1 = engine.initialize();
+var promise2 = engine.initialize();
+var promise3 = engine.initialize(true);
+
+promise1 === promise2;
+promise3 !== promise1 && promise3 !== promise2;
+```
+
+#### Bloodhound#add(datums)
+
+Takes one argument, `datums`, which is expected to be an array of 
+[datums](#datums). The passed in datums will get added to the search index that
+powers the suggestion engine.
+
+```javascript
+engine.add([{ val: 'one' }, { val: 'two' }]);
+```
+
+#### Bloodhound#clear()
+
+Removes all suggestions from the search index.
+
+```javascript
+engine.clear();
+```
+
+#### Bloodhound#clearPrefetchCache()
+
+Removes the prefetch data from local storage.
+
+```javascript
+engine.clearPrefetchCache();
 ```
 
 <!-- section links -->
