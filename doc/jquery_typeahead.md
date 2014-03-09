@@ -120,6 +120,9 @@ When initializing a typeahead, there are a number of options you can configure.
 * `minLength` – The minimum character length needed before suggestions start 
   getting rendered. Defaults to `1`.
 
+* `width` - The current width to render the input for a responsive web design. 
+  Defaults to `width` style in the according css file.
+
 ### Datasets
 
 A typeahead is composed of one or more datasets. When an end-user modifies the
