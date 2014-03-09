@@ -92,7 +92,23 @@ describe('Bloodhound', function() {
       this.bloodhound.initialize();
       this.bloodhound.clearPrefetchCache();
 
-      expect(this.bloodhound.storage.clear).toHaveBeenCalled()
+      expect(this.bloodhound.storage.clear).toHaveBeenCalled();
+    });
+  });
+
+  describe('#clearRemoteCache', function() {
+    it('should clear remote request cache', function() {
+      spyOn(Transport, 'resetCache');
+
+      this.bloodhound = new Bloodhound({
+        datumTokenizer: datumTokenizer,
+        queryTokenizer: queryTokenizer,
+        remote: '/test'
+      });
+      this.bloodhound.initialize();
+
+      this.bloodhound.clearRemoteCache();
+      expect(Transport.resetCache).toHaveBeenCalled();
     });
   });
 

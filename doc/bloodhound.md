@@ -98,10 +98,22 @@ engine.clear();
 
 #### Bloodhound#clearPrefetchCache()
 
-Removes the prefetch data from local storage.
+If you're using `prefetch`, data gets cached in local storage in an effort to
+cut down on unnecessary network requests. `clearPrefetchCache` offers a way to
+programmatically clear said cache.
 
 ```javascript
 engine.clearPrefetchCache();
+```
+
+#### Bloodhound#clearRemoteCache()
+
+If you're using `remote`, Bloodhound will cache the 10 most recent responses
+in an effort to provide a better user experience. `clearRemoteCache` offers a 
+way to programmatically clear said cache.
+
+```javascript
+engine.clearRemoteCache();
 ```
 
 <!-- section links -->

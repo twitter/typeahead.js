@@ -210,6 +210,10 @@
       this.storage && this.storage.clear();
     },
 
+    clearRemoteCache: function clearRemoteCache() {
+      this.transport && Transport.resetCache();
+    },
+
     ttAdapter: function ttAdapter() { return _.bind(this.get, this); }
   });
 
