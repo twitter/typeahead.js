@@ -116,6 +116,17 @@ way to programmatically clear said cache.
 engine.clearRemoteCache();
 ```
 
+#### Bloodhound.noConflict()
+
+Returns a reference to the Bloodhound constructor and reverts 
+`window.Bloodhound` to its previous value. Can be used to avoid naming 
+collisions. 
+
+```javascript
+var Dachshund = Bloodhound.noConflict();
+```
+
+
 <!-- section links -->
 
 [jQuery promise]: http://api.jquery.com/Types/#Promise
