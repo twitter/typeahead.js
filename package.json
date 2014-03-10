@@ -42,7 +42,7 @@
     "grunt-contrib-connect": "~0.1",
     "grunt-contrib-clean": "~0.4.0",
     "grunt-parallel": "0.0.2",
-    "grunt-step": "git://github.com/jharding/grunt-step.git#custom-message"
+    "grunt-step": "~0.2.0"
   },
   "scripts": {
     "test": "./node_modules/.bin/karma start --single-run --browsers PhantomJS"
