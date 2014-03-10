@@ -32,65 +32,138 @@ Specification
 
 In an effort to take advantage of the pre-existing knowledge of typeahead.js 
 users, the behavior of the typeahead.js UI is modeled after google.com's search 
-box. Below details how the UI reacts to pertinent events.
+box. Below is pseudocode that details how the UI reacts to pertinent events.
 
 **Input Control Gains Focus**
 
-* The typeahead is activated and begins listening for keyboard events.
+```
+activate typeahead
+```
 
 **Input Control Loses Focus**
 
-* The typeahead is deactivated and stops listening for keyboard events.
-* Any existing suggestions are cleared from the dropdown menu.
-* If open, the dropdown menu is closed.
+```
+deactivate typeahead
+close dropdown menu
+remove hint
+clear suggestions from dropdown menu
+```
 
 **Value of the Input Control Changes**
 
-* If closed, the dropdown menu is opened.
-* Suggestions for the new query are rendered.
-* If the new query is a prefix match of the top suggestion, the hint is updated. 
-  Otherwise, the hint is cleared.
-* Language direction detection is performed and the proper CSS styles are 
-  applied.
+```
+IF query satisfies minLength requirement THEN
+  request suggestions for new query
+
+  IF suggestions are available THEN
+    render suggestions in dropdown menu
+    open dropdown menu 
+    update hint
+  ELSE
+    close dropdown menu 
+    clear suggestions from dropdown menu
+    remove hint
+  ENDIF
+ELSE
+  close dropdown menu 
+  clear suggestions from dropdown menu
+  remove hint
+ENDIF
+```
 
 **Up Arrow is Keyed**
 
-* If closed, the dropdown menu is opened and suggestions are rendered.
-* If open and suggestions are present, the cursor of the dropdown menu will 
-  move up one suggestion.
+```
+IF dropdown menu is open THEN
+  move dropdown menu cursor up 1 suggestion
+ELSE
+  request suggestions for current query
+
+  IF suggestions are available THEN
+    render suggestions in dropdown menu
+    open dropdown menu 
+    update hint
+  ENDIF
+ENDIF
+```
 
 **Down Arrow is Keyed**
 
-* If closed, the dropdown menu is opened and suggestions are rendered.
-* If open and suggestions are present, the cursor of the dropdown menu will 
-  move down one suggestion.
+```
+IF dropdown menu is open THEN
+  move dropdown menu cursor down 1 suggestion
+ELSE
+  request suggestions for current query
+
+  IF suggestions are available THEN
+    render suggestions in dropdown menu
+    open dropdown menu 
+    update hint
+  ENDIF
+ENDIF
+```
 
 **Left Arrow is Keyed**
 
-* If the detected language direction of the input control is RTL, the value
-  of the input control is set to the value of the shown hint.
+```
+IF detected query language direction is right-to-left THEN
+  IF hint is being shown THEN
+    IF text cursor is at end of query THEN
+      autocomplete query to hint
+    ENDIF
+  ENDIF
+ENDIF
+```
 
 **Right Arrow is Keyed**
 
-* If the detected language direction of the input control is LTR, the value
-  of the input control is set to the value of the shown hint.
+```
+IF detected query language direction is left-to-right THEN
+  IF hint is being shown THEN
+    IF text cursor is at the end of the query THEN
+      autocomplete query to hint
+    ENDIF
+  ENDIF
+ENDIF
+```
 
 **Tab is Keyed**
 
-* If the cursor of the dropdown menu is on a suggestion, that suggestion will be
-  selected.
-* If the cursor of the dropdown menu is not on a suggestion and a hint is being
-  displayed, the value of the input control is set to the value of the shown
-  hint.
+```
+IF dropdown menu cursor is on suggestion THEN
+  close dropdown menu
+  update query to display key of suggestion
+  remove hint
+ELSIF hint is being shown THEN
+  autocomplete query to hint
+ENDIF
+```
 
 **Enter is Keyed**
 
-* If the cursor of the dropdown menu is on a suggestion, that suggestion will be
-  selected.
+```
+IF dropdown menu cursor is on suggestion THEN
+  close dropdown menu
+  update query to display key of suggestion
+  remove hint
+  prevent default browser action e.g. form submit
+ENDIF
+```
 
 **Esc is Keyed**
 
-* If open, the dropdown menu is closed.
+```
+close dropdown menu
+remove hint
+```
+
+**Suggestion is Clicked**
+
+```
+update query to display key of suggestion
+close dropdown menu
+remove hint
+```
 
 Usage
 -----
