@@ -51,15 +51,7 @@
     return Bloodhound;
   };
 
-  Bloodhound.tokenizers = {
-    whitespace: function whitespaceTokenizer(s) {
-      return s.split(/\s+/);
-    },
-
-    nonword: function nonwordTokenizer(s) {
-      return s.split(/\W+/);
-    }
-  };
+  Bloodhound.tokenizers = tokenizers;
 
   // instance methods
   // ----------------
