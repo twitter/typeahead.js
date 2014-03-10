@@ -35,13 +35,33 @@ html {
   color: #333;
 }
 
+a {
+  color: #03739c;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.table-of-contents li {
+  display: inline-block;
+  *display: inline;
+  zoom: 1;
+}
+
+.table-of-contents li a {
+  font-size: 16px;
+  color: #999;
+}
+
 .title,
 .example-name {
   font-family: Prociono;
 }
 
-p {
-  margin: 0 0 10px 0;
+p + p {
+  margin: 30px 0 0 0;
 }
 
 /* site theme */
@@ -138,33 +158,22 @@ p {
 /* example specific styles */
 /* ----------------------- */
 
-.example-twitter-oss .tt-suggestion {
-  padding: 8px 20px;
+#custom-templates .empty-message {
+  padding: 5px 10px;
+ text-align: center;
 }
 
-.example-twitter-oss .tt-suggestion + .tt-suggestion {
-  border-top: 1px solid #ccc;
-}
-
-.example-twitter-oss .repo-language {
-  float: right;
-  font-style: italic;
-}
-
-.example-twitter-oss .repo-name {
-  font-weight: bold;
-}
-
-.example-twitter-oss .repo-description {
-  font-size: 14px;
-}
-
-.example-sports .league-name {
+#multiple-datasets .league-name {
   margin: 0 20px 5px 20px;
   padding: 3px 0;
   border-bottom: 1px solid #ccc;
 }
 
-.example-arabic .tt-dropdown-menu {
+#scrollable-dropdown-menu .tt-dropdown-menu {
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+#rtl-support .tt-dropdown-menu {
   text-align: right;
 }

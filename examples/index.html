@@ -13,95 +13,142 @@
     <div class="container">
       <h1 class="title">examples</h1>
 
-      <div class="example example-numbers">
-        <h2 class="example-name">Dead Simple</h2>
-        <p class="example-description">Suggestions are fetched from the hardcoded local data. </p>
+      <ol class="table-of-contents">
+        <li><a href="#the-basics">The Basics</a></li><span> &middot; </span>
+        <li><a href="#bloodhound">Bloodhound</a></li><span> &middot; </span>
+        <li><a href="#prefetch">Prefetch</a></li><span> &middot; </span>
+        <li><a href="#remote">Remote</a></li><span> &middot; </span>
+        <li><a href="#custom-templates">Custom Templates</a></li><span> &middot; </span>
+        <li><a href="#multiple-datasets">Multiple Datasets</a></li><span> &middot; </span>
+        <li><a href="#scrollable-dropdown-menu">Scrollable Dropdown Menu</a></li><span> &middot; </span>
+        <li><a href="#rtl-support">RTL Support</a></li>
+      </ol>
+
+      <div class="example" id="the-basics">
+        <h2 class="example-name">The Basics</h2>
+        <p class="example-description">
+          When initializing a typeahead using the <a href="https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md">typeahead.js jQuery plugin</a>,
+          you pass the plugin method one or more <a href="https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md#datasets">datasets</a>. 
+          The source of a dataset is responsible for computing a set of 
+          suggestions for a given query.
+        </p>
 
         <div class="demo">
-          <input class="typeahead" type="text" placeholder="numbers (1-10)">
+          <input class="typeahead" type="text" placeholder="States of USA">
         </div>
 
         <div class="gist">
-          <script src="https://gist.github.com/jharding/8764233.js"></script>
+          <script src="https://gist.github.com/jharding/9458744.js"></script>
         </div>
       </div>
 
-      <div class="example example-countries">
-        <h2 class="example-name">Transform Remote Data</h2>
-        <p class="example-description">Prefetches remote data then transforms it into the proper format.</p>
+      <div class="example" id="bloodhound">
+        <h2 class="example-name">Bloodhound (Suggestion Engine)</h2>
+        <p class="example-description">
+          For more advanced use cases, rather than implementing the source for
+          your dataset yourself, you can take advantage of <a href="https://github.com/twitter/typeahead.js/blob/master/doc/bloodhound.md">Bloodhound</a>, 
+          the typeahead.js suggestion engine.
+        </p>
+
+        <p class="example-description">
+          Bloodhound is robust, flexible, and offers advanced functionalities 
+          such as prefetching, intelligent caching, fast lookups, and 
+          backfilling with remote data.  
+        </p>
 
         <div class="demo">
-          <input class="typeahead" type="text" placeholder="countries">
+          <input class="typeahead" type="text" placeholder="States of USA">
         </div>
 
         <div class="gist">
-          <script src="https://gist.github.com/jharding/8156031.js"></script>
+          <script src="https://gist.github.com/jharding/9458749.js"></script>
         </div>
       </div>
 
-      
-      <div class="example example-twitter-oss">
-        <h2 class="example-name">Custom Template</h2>
-        <p class="example-description">Uses a precompiled template to customize look of suggestion.</p>
+      <div class="example" id="prefetch">
+        <h2 class="example-name">Prefetch</h2>
+        <p class="example-description">
+          Prefetched data is fetched and processed on initialization. If the 
+          browser supports local storage, the processed data will be cached 
+          there to prevent additional network requests on subsequent page loads.
+        </p>
 
         <div class="demo">
-          <input class="typeahead" type="text" placeholder="open source projects by Twitter">
+          <input class="typeahead" type="text" placeholder="Countries">
         </div>
 
         <div class="gist">
-          <script src="https://gist.github.com/jharding/8156044.js"></script>
+          <script src="https://gist.github.com/jharding/9458762.js"></script>
         </div>
       </div>
 
-      <div class="example example-arabic">
-        <h2 class="example-name">RTL Support</h2>
-        <p class="example-description">Hardcoded list showing Right-To-Left (RTL) support. Hint support is disabled.</p>
+      <div class="example" id="remote">
+        <h2 class="example-name">Remote</h2>
+        <p class="example-description">
+          Remote data is only used when the data provided by local and prefetch 
+          is insufficient. In order to prevent an obscene number of requests 
+          being made to the remote endpoint, requests are rate-limited.
+        </p>
 
         <div class="demo">
-          <input class="typeahead" type="text" dir="rtl" placeholder="نعم">
+          <input class="typeahead" type="text" placeholder="Oscar winners for Best Picture">
         </div>
 
         <div class="gist">
-          <script src="https://gist.github.com/jharding/8156049.js"></script>
+          <script src="https://gist.github.com/jharding/9458772.js"></script>
         </div>
       </div>
 
-      <div class="example example-sports">
-        <h2 class="example-name">Multiple Sections with Headers</h2>
-        <p class="example-description">Two datasets that are prefetched, stored, and searched on the client. Highlighting is enabled.</p>
+      <div class="example" id="custom-templates">
+        <h2 class="example-name">Custom Templates</h2>
+        <p class="example-description">
+          Custom templates give you full control over how suggestions get 
+          rendered making it easy to customize the look and feel of your 
+          typeahead.
+        </p>
+
+        <div class="demo">
+          <input class="typeahead" type="text" placeholder="Oscar winners for Best Picture">
+        </div>
+
+        <div class="gist">
+          <script src="https://gist.github.com/jharding/9458780.js"></script>
+        </div>
+      </div>
+
+      <div class="example" id="multiple-datasets">
+        <h2 class="example-name">Multiple Datasets</h2>
 
         <div class="demo">
           <input class="typeahead" type="text" placeholder="NBA and NHL teams">
         </div>
 
         <div class="gist">
-          <script src="https://gist.github.com/jharding/8156058.js"></script>
+          <script src="https://gist.github.com/jharding/9458797.js"></script>
         </div>
       </div>
 
-      <div class="example example-films">
-        <h2 class="example-name">Prefetch Backed by Remote</h2>
-        <p class="example-description">Prefetches some data then relies on remote requests for suggestions when prefetched data is insufficient.</p>
+      <div class="example" id="scrollable-dropdown-menu">
+        <h2 class="example-name">Scrollable Dropdown Menu</h2>
 
         <div class="demo">
-          <input class="typeahead" type="text" placeholder="best picture winners">
+          <input class="typeahead" type="text" placeholder="Countries">
         </div>
 
         <div class="gist">
-          <script src="https://gist.github.com/jharding/8156071.js"></script>
+          <script src="https://gist.github.com/jharding/9458816.js"></script>
         </div>
       </div>
 
-      <div class="example example-exclaimation">
-        <h2 class="example-name">Custom Source</h2>
-        <p class="example-description">Uses a hand-rolled source rather than a Bloodhound suggestion engine.</p>
+      <div class="example" id="rtl-support">
+        <h2 class="example-name">RTL Support</h2>
 
         <div class="demo">
-          <input class="typeahead" type="text" placeholder="try it out">
+          <input class="typeahead" type="text" dir="rtl" placeholder="نعم">
         </div>
 
         <div class="gist">
-          <script src="https://gist.github.com/jharding/8156163.js"></script>
+          <script src="https://gist.github.com/jharding/9458824.js"></script>
         </div>
       </div>
     </div>
