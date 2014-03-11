@@ -616,7 +616,7 @@
                 if (matches.length < this.limit && this.transport) {
                     cacheHit = this._getFromRemote(query, returnRemoteMatches);
                 }
-                !cacheHit && cb && cb(matches);
+                !cacheHit && cb && cb(matches, "local");
                 function returnRemoteMatches(remoteMatches) {
                     var matchesWithBackfill = matches.slice(0);
                     _.each(remoteMatches, function(remoteMatch) {
@@ -627,7 +627,7 @@
                         !isDuplicate && matchesWithBackfill.push(remoteMatch);
                         return matchesWithBackfill.length < that.limit;
                     });
-                    cb && cb(that.sorter(matchesWithBackfill));
+                    cb && cb(that.sorter(matchesWithBackfill), "remote");
                 }
             },
             ttAdapter: function ttAdapter() {

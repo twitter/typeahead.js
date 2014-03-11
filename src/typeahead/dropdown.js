@@ -211,11 +211,11 @@ var Dropdown = (function() {
       function updateDataset(dataset) { dataset.update(query); }
     },
 
-    empty: function empty() {
+    empty: function empty(opt_reason) {
       _.each(this.datasets, clearDataset);
       this.isEmpty = true;
 
-      function clearDataset(dataset) { dataset.clear(); }
+      function clearDataset(dataset) { dataset.clear(opt_reason); }
     },
 
     isVisible: function isVisible() {

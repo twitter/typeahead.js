@@ -58,7 +58,7 @@ var Dataset = (function() {
 
     // ### private
 
-    _render: function render(query, suggestions) {
+    _render: function render(query, suggestions, opt_resultKind) {
       if (!this.$el) { return; }
 
       var that = this, hasSuggestions;
@@ -83,7 +83,7 @@ var Dataset = (function() {
       this.trigger('rendered');
 
       function getEmptyHtml() {
-        return that.templates.empty({ query: query, isEmpty: true });
+        return that.templates.empty({ query: query, isEmpty: true, resultKind: opt_resultKind });
       }
 
       function getSuggestionsHtml() {
@@ -119,14 +119,16 @@ var Dataset = (function() {
       function getHeaderHtml() {
         return that.templates.header({
           query: query,
-          isEmpty: !hasSuggestions
+          isEmpty: !hasSuggestions,
+          resultKind: opt_resultKind
         });
       }
 
       function getFooterHtml() {
         return that.templates.footer({
           query: query,
-          isEmpty: !hasSuggestions
+          isEmpty: !hasSuggestions,
+          resultKind: opt_resultKind
         });
       }
     },
@@ -143,13 +145,13 @@ var Dataset = (function() {
       this.query = query;
       this.source(query, renderIfQueryIsSame);
 
-      function renderIfQueryIsSame(suggestions) {
-        query === that.query && that._render(query, suggestions);
+      function renderIfQueryIsSame(suggestions, opt_resultKind) {
+        query === that.query && that._render(query, suggestions, opt_resultKind);
       }
     },
 
-    clear: function clear() {
-      this._render(this.query || '');
+    clear: function clear(opt_reason) {
+      this._render(this.query || '', null, opt_reason || 'clear');
     },
 
     isEmpty: function isEmpty() {

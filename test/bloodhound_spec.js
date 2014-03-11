@@ -31,7 +31,7 @@ describe('Bloodhound', function() {
           { value: 'big' },
           { value: 'bigger' },
           { value: 'biggest' }
-        ]);
+        ], 'local');
       });
     });
 
@@ -59,7 +59,7 @@ describe('Bloodhound', function() {
           { value: 'big' },
           { value: 'bigger' },
           { value: 'biggest' }
-        ]);
+        ], 'local');
       });
     });
   });
@@ -131,13 +131,13 @@ describe('Bloodhound', function() {
         { value: 'big' },
         { value: 'bigger' },
         { value: 'biggest' }
-      ]);
+      ], 'local');
 
       expect(spy2).toHaveBeenCalledWith([
         { value: 'big' },
         { value: 'bigger' },
         { value: 'biggest' }
-      ]);
+      ], 'local');
     });
 
     it('should filter data if filter is provided', function() {
@@ -163,7 +163,7 @@ describe('Bloodhound', function() {
         { value: 'BIG' },
         { value: 'BIGGER' },
         { value: 'BIGGEST' }
-      ]);
+      ], 'local');
 
       function fakeFilter(resp) {
         return [{ value: 'BIG' }, { value: 'BIGGER' }, { value: 'BIGGEST' }];
@@ -189,7 +189,7 @@ describe('Bloodhound', function() {
         { value: 'big' },
         { value: 'bigger' },
         { value: 'biggest' }
-      ]);
+      ], 'local');
 
       function fakeGet(key) {
         var val;
@@ -271,7 +271,7 @@ describe('Bloodhound', function() {
           { value: 'BIG' },
           { value: 'BIGGER' },
           { value: 'BIGGEST' }
-        ]);
+        ], 'remote');
       });
 
       function fakeFilter(resp) {
@@ -326,12 +326,12 @@ describe('Bloodhound', function() {
 
       this.bloodhound.get('dog', spy);
 
-      expect(spy).toHaveBeenCalledWith([{ value: 'dog' }]);
+      expect(spy).toHaveBeenCalledWith([{ value: 'dog' }], 'local');
 
       waitsFor(function() { return spy.callCount === 2; });
 
       runs(function() {
-        expect(spy).toHaveBeenCalledWith(fixtures.data.animals);
+        expect(spy).toHaveBeenCalledWith(fixtures.data.animals, 'remote');
       });
 
       function fakeGet(url, o, cb) {
@@ -366,11 +366,11 @@ describe('Bloodhound', function() {
         { value: 'big' },
         { value: 'bigger' },
         { value: 'biggest' }
-      ]);
+      ], 'local');
       expect(spy2).toHaveBeenCalledWith([
         { value: 'bigger' },
         { value: 'biggest' }
-      ]);
+      ], 'local');
 
       waitsFor(function() { return spy2.callCount === 2; });
 
@@ -379,7 +379,7 @@ describe('Bloodhound', function() {
           { value: 'bigger' },
           { value: 'biggest' },
           { value: 'dog' }
-        ]);
+        ], 'remote');
       });
 
       function fakeGet(url, o, cb) {
