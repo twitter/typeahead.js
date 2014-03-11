@@ -14,7 +14,9 @@ var css = {
     top: '0',
     left: '0',
     borderColor: 'transparent',
-    boxShadow: 'none'
+    boxShadow: 'none',
+    // #741: fix hint opacity issue on iOS
+    opacity: '1'
   },
   input: {
     position: 'relative',
