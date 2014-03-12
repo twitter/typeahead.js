@@ -35,9 +35,12 @@
   <body>
     <div class="container">
       <textarea class="triggered-events"></textarea>
-      <div class="typeahead-wrapper">
-        <input class="states" type="text" placeholder="states" value="Michigan">
-      </div>
+      <form action="/where" method="GET">
+        <div class="typeahead-wrapper">
+          <input class="states" name="states" type="text" placeholder="states" value="Michigan">
+          <input type="submit">
+        </div>
+      </form>
       <div class="typeahead-wrapper">
         <input class="bad-tokens" type="text" placeholder="bad tokens">
       </div>
@@ -225,16 +228,6 @@
         }
       });
 
-      $('input').on([
-        'typeahead:initialized',
-        'typeahead:initialized:err',
-        'typeahead:selected',
-        'typeahead:autocompleted',
-        'typeahead:cursorchanged',
-        'typeahead:opened',
-        'typeahead:closed'
-      ].join(' '), logToTextarea);
-
       var ltr = new Bloodhound({
         datumTokenizer: function(d) { 
           return Bloodhound.tokenizers.whitespace(d.val); 
@@ -307,14 +300,46 @@
         source: mixed.ttAdapter()
       });
 
-      function logToTextarea($e) {
-        var $textarea = $('.triggered-events'),
-            val = $textarea.val(),
-            args = [].slice.call(arguments, 1)
-            type = $e.type,
-            stringifiedArgs = window.JSON ? JSON.stringify(args) : '';
 
-        $textarea.val([val, type, stringifiedArgs, '\n'].join('\n'));
+      $('input').on([
+        'typeahead:initialized',
+        'typeahead:initialized:err',
+        'typeahead:selected',
+        'typeahead:autocompleted',
+        'typeahead:cursorchanged',
+        'typeahead:opened',
+        'typeahead:closed'
+      ].join(' '), logTypeaheadEvent);
+
+      $('form').on('submit', logSubmitEvent);
+      
+      function logSubmitEvent($e) {
+        var text; 
+
+        $e && $e.preventDefault(); 
+
+        text = JSON.stringify($(this).serializeArray()); 
+        writeToTextarea('submit', text);
+      }
+
+      function logTypeaheadEvent($e) {
+        var args, type, text;
+
+        args = [].slice.call(arguments, 1);
+        type = $e.type;
+        text = window.JSON ? JSON.stringify(args) : '';
+
+        writeToTextarea(type, text);
+      }
+
+      function writeToTextarea(/* lines */) {
+        var $textarea, val, text;
+
+        $textarea = $('.triggered-events');
+        val = $textarea.val();
+        text = [].join.call(arguments, '\n');
+
+        $textarea.val([val, text, '\n'].join('\n'));
         $textarea[0].scrollTop = $textarea[0].scrollHeight;
       }
     </script>

@@ -12,7 +12,7 @@ var Typeahead = (function() {
 
   // THOUGHT: what if datasets could dynamically be added/removed?
   function Typeahead(o) {
-    var $menu, $input, $hint, datasets;
+    var $menu, $input, $hint;
 
     o = o || {};
 
@@ -20,6 +20,7 @@ var Typeahead = (function() {
       $.error('missing input');
     }
 
+    this.isActivated = false;
     this.autoselect = !!o.autoselect;
     this.minLength = _.isNumber(o.minLength) ? o.minLength : 1;
     this.$node = buildDomStructure(o.input, o.withHint);
@@ -27,6 +28,29 @@ var Typeahead = (function() {
     $menu = this.$node.find('.tt-dropdown-menu');
     $input = this.$node.find('.tt-input');
     $hint = this.$node.find('.tt-hint');
+
+    // #705: if there's scrollable overflow, ie doesn't support
+    // blur cancellations when the scrollbar is clicked
+    //
+    // #351: preventDefault won't cancel blurs in ie <= 8
+    $input.on('blur.tt', function($e) {
+      var active, isActive, hasActive;
+
+      active = document.activeElement;
+      isActive = $menu.is(active);
+      hasActive = $menu.has(active).length > 0;
+
+      if (_.isMsie() && (isActive || hasActive)) {
+        $e.preventDefault();
+        // stop immediate in order to prevent Input#_onBlur from
+        // getting exectued
+        $e.stopImmediatePropagation();
+        _.defer(function() { $input.focus(); });
+      }
+    });
+
+    // #351: prevents input blur due to clicks within dropdown menu
+    $menu.on('mousedown.tt', function($e) { $e.preventDefault(); });
 
     this.eventBus = o.eventBus || new EventBus({ el: $input });
 
@@ -51,18 +75,7 @@ var Typeahead = (function() {
     .onSync('queryChanged', this._onQueryChanged, this)
     .onSync('whitespaceChanged', this._onWhitespaceChanged, this);
 
-    // #351: prevents input blur on menu click
-    $menu.on('mousedown.tt', function($e) {
-      if (_.isMsie() && _.isMsie() < 9) {
-        $input[0].onbeforedeactivate = function() {
-          window.event.returnValue = false;
-          $input[0].onbeforedeactivate = null;
-        };
-      }
-
-      // ie 9+ and other browsers
-      $e.preventDefault();
-    });
+    this._setLanguageDirection();
   }
 
   // instance methods
@@ -83,7 +96,6 @@ var Typeahead = (function() {
     _onCursorMoved: function onCursorMoved() {
       var datum = this.dropdown.getDatumForCursor();
 
-      this.input.clearHint();
       this.input.setInputValue(datum.value, true);
 
       this.eventBus.trigger('cursorchanged', datum.raw, datum.datasetName);
@@ -111,11 +123,13 @@ var Typeahead = (function() {
     },
 
     _onFocused: function onFocused() {
-      this.dropdown.empty();
+      this.isActivated = true;
       this.dropdown.open();
     },
 
     _onBlurred: function onBlurred() {
+      this.isActivated = false;
+      this.dropdown.empty();
       this.dropdown.close();
     },
 
@@ -145,7 +159,7 @@ var Typeahead = (function() {
       }
 
       else {
-        this._autocomplete();
+        this._autocomplete(true);
       }
     },
 
@@ -157,23 +171,21 @@ var Typeahead = (function() {
     _onUpKeyed: function onUpKeyed() {
       var query = this.input.getQuery();
 
-      if(!this.dropdown.isOpen && query.length >= this.minLength) {
-        this.dropdown.update(query);
-      }
+      this.dropdown.isEmpty && query.length >= this.minLength ?
+        this.dropdown.update(query) :
+        this.dropdown.moveCursorUp();
 
       this.dropdown.open();
-      this.dropdown.moveCursorUp();
     },
 
     _onDownKeyed: function onDownKeyed() {
       var query = this.input.getQuery();
 
-      if( !this.dropdown.isOpen && query.length >= this.minLength) {
-        this.dropdown.update(query);
-      }
+      this.dropdown.isEmpty && query.length >= this.minLength ?
+        this.dropdown.update(query) :
+        this.dropdown.moveCursorDown();
 
       this.dropdown.open();
-      this.dropdown.moveCursorDown();
     },
 
     _onLeftKeyed: function onLeftKeyed() {
@@ -185,9 +197,12 @@ var Typeahead = (function() {
     },
 
     _onQueryChanged: function onQueryChanged(e, query) {
-      this.input.clearHint();
-      this.dropdown.empty();
-      query.length >= this.minLength && this.dropdown.update(query);
+      this.input.clearHintIfInvalid();
+
+      query.length >= this.minLength ?
+        this.dropdown.update(query) :
+        this.dropdown.empty();
+
       this.dropdown.open();
       this._setLanguageDirection();
     },
@@ -208,29 +223,36 @@ var Typeahead = (function() {
     },
 
     _updateHint: function updateHint() {
-      var datum, inputValue, query, escapedQuery, frontMatchRegEx, match;
+      var datum, val, query, escapedQuery, frontMatchRegEx, match;
 
       datum = this.dropdown.getDatumForTopSuggestion();
 
       if (datum && this.dropdown.isVisible() && !this.input.hasOverflow()) {
-        inputValue = this.input.getInputValue();
-        query = Input.normalizeQuery(inputValue);
+        val = this.input.getInputValue();
+        query = Input.normalizeQuery(val);
         escapedQuery = _.escapeRegExChars(query);
 
-        frontMatchRegEx = new RegExp('^(?:' + escapedQuery + ')(.*$)', 'i');
+        // match input value, then capture trailing text
+        frontMatchRegEx = new RegExp('^(?:' + escapedQuery + ')(.+$)', 'i');
         match = frontMatchRegEx.exec(datum.value);
 
-        this.input.setHintValue(inputValue + (match ? match[1] : ''));
+        // clear hint if there's no trailing text
+        match ? this.input.setHint(val + match[1]) : this.input.clearHint();
+      }
+
+      else {
+        this.input.clearHint();
       }
     },
 
-    _autocomplete: function autocomplete() {
-      var hint, query, datum;
+    _autocomplete: function autocomplete(laxCursor) {
+      var hint, query, isCursorAtEnd, datum;
 
-      hint = this.input.getHintValue();
+      hint = this.input.getHint();
       query = this.input.getQuery();
+      isCursorAtEnd = laxCursor || this.input.isCursorAtEnd();
 
-      if (hint && query !== hint && this.input.isCursorAtEnd()) {
+      if (hint && query !== hint && isCursorAtEnd) {
         datum = this.dropdown.getDatumForTopSuggestion();
         datum && this.input.setInputValue(datum.value);
 
@@ -239,7 +261,6 @@ var Typeahead = (function() {
     },
 
     _select: function select(datum) {
-      this.input.clearHint();
       this.input.setQuery(datum.value);
       this.input.setInputValue(datum.value, true);
 
@@ -263,12 +284,21 @@ var Typeahead = (function() {
       this.dropdown.close();
     },
 
-    getQuery: function getQuery() {
-      return this.input.getQuery();
+    setVal: function setVal(val) {
+      if (this.isActivated) {
+        this.input.setInputValue(val);
+      }
+
+      else {
+        this.input.setQuery(val);
+        this.input.setInputValue(val, true);
+      }
+
+      this._setLanguageDirection();
     },
 
-    setQuery: function setQuery(val) {
-      this.input.setInputValue(val);
+    getVal: function getVal() {
+      return this.input.getQuery();
     },
 
     destroy: function destroy() {

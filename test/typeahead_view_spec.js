@@ -37,7 +37,6 @@ describe('Typeahead', function() {
       this.dropdown.trigger('suggestionClicked');
 
       expect(spy).toHaveBeenCalled();
-      expect(this.input.clearHint).toHaveBeenCalled();
       expect(this.input.setQuery).toHaveBeenCalledWith(testDatum.value);
       expect(this.input.setInputValue)
       .toHaveBeenCalledWith(testDatum.value, true);
@@ -49,12 +48,6 @@ describe('Typeahead', function() {
   describe('when dropdown triggers cursorMoved', function() {
     beforeEach(function() {
       this.dropdown.getDatumForCursor.andReturn(testDatum);
-    });
-
-    it('should clear the hint', function() {
-      this.dropdown.trigger('cursorMoved');
-
-      expect(this.input.clearHint).toHaveBeenCalled();
     });
 
     it('should update the input value', function() {
@@ -90,7 +83,7 @@ describe('Typeahead', function() {
 
       this.dropdown.trigger('cursorRemoved');
 
-      expect(this.input.setHintValue).toHaveBeenCalledWith(testDatum.value);
+      expect(this.input.setHint).toHaveBeenCalledWith(testDatum.value);
     });
   });
 
@@ -103,12 +96,15 @@ describe('Typeahead', function() {
 
       this.dropdown.trigger('datasetRendered');
 
+      // ensure it wasn't called synchronously
+      expect(this.input.setHint).not.toHaveBeenCalled();
+
       waitsFor(function() {
-        return !!this.input.setHintValue.callCount;
+        return !!this.input.setHint.callCount;
       });
 
       runs(function() {
-        expect(this.input.setHintValue).toHaveBeenCalledWith(testDatum.value);
+        expect(this.input.setHint).toHaveBeenCalledWith(testDatum.value);
       });
     });
   });
@@ -122,7 +118,7 @@ describe('Typeahead', function() {
 
       this.dropdown.trigger('opened');
 
-      expect(this.input.setHintValue).toHaveBeenCalledWith(testDatum.value);
+      expect(this.input.setHint).toHaveBeenCalledWith(testDatum.value);
     });
 
     it('should trigger typeahead:opened', function() {
@@ -155,10 +151,10 @@ describe('Typeahead', function() {
   });
 
   describe('when input triggers focused', function() {
-    it('should empty the dropdown', function() {
+    it('should activate the typeahead', function() {
       this.input.trigger('focused');
 
-      expect(this.dropdown.empty).toHaveBeenCalled();
+      expect(this.view.isActivated).toBe(true);
     });
 
     it('should open the dropdown', function() {
@@ -169,6 +165,18 @@ describe('Typeahead', function() {
   });
 
   describe('when input triggers blurred', function() {
+    it('should deactivate the typeahead', function() {
+      this.input.trigger('blurred');
+
+      expect(this.view.isActivated).toBe(false);
+    });
+
+    it('should empty the dropdown', function() {
+      this.input.trigger('blurred');
+
+      expect(this.dropdown.empty).toHaveBeenCalled();
+    });
+
     it('should close the dropdown', function() {
       this.input.trigger('blurred');
 
@@ -189,7 +197,6 @@ describe('Typeahead', function() {
       this.input.trigger('enterKeyed', $e);
 
       expect(spy).toHaveBeenCalled();
-      expect(this.input.clearHint).toHaveBeenCalled();
       expect(this.input.setQuery).toHaveBeenCalledWith(testDatum.value);
       expect(this.input.setInputValue)
       .toHaveBeenCalledWith(testDatum.value, true);
@@ -221,7 +228,6 @@ describe('Typeahead', function() {
         this.input.trigger('tabKeyed', $e);
 
         expect(spy).toHaveBeenCalled();
-        expect(this.input.clearHint).toHaveBeenCalled();
         expect(this.input.setQuery).toHaveBeenCalledWith(testDatum.value);
         expect(this.input.setInputValue)
         .toHaveBeenCalledWith(testDatum.value, true);
@@ -244,7 +250,7 @@ describe('Typeahead', function() {
         var spy;
 
         this.input.getQuery.andReturn('bi');
-        this.input.getHintValue.andReturn(testDatum.value);
+        this.input.getHint.andReturn(testDatum.value);
         this.input.isCursorAtEnd.andReturn(true);
         this.dropdown.getDatumForTopSuggestion.andReturn(testDatum);
         this.$input.on('typeahead:autocompleted', spy = jasmine.createSpy());
@@ -276,16 +282,54 @@ describe('Typeahead', function() {
       this.input.getQuery.andReturn('ghost');
     });
 
-    describe('when dropdown is closed and minLength is satisfied', function() {
+    describe('when dropdown is empty and minLength is satisfied', function() {
       beforeEach(function() {
-        this.dropdown.isOpen = false;
+        this.dropdown.isEmpty = true;
         this.view.minLength = 2;
+
+        this.input.trigger('upKeyed');
       });
 
       it('should update dropdown', function() {
-        this.input.trigger('upKeyed');
-
         expect(this.dropdown.update).toHaveBeenCalledWith('ghost');
+      });
+
+      it('should not move cursor up', function() {
+        expect(this.dropdown.moveCursorUp).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when dropdown is not empty', function() {
+      beforeEach(function() {
+        this.dropdown.isEmpty = false;
+        this.view.minLength = 2;
+
+        this.input.trigger('upKeyed');
+      });
+
+      it('should not update dropdown', function() {
+        expect(this.dropdown.update).not.toHaveBeenCalled();
+      });
+
+      it('should move cursor up', function() {
+        expect(this.dropdown.moveCursorUp).toHaveBeenCalled();
+      });
+    });
+
+    describe('when minLength is not satisfied', function() {
+      beforeEach(function() {
+        this.dropdown.isEmpty = true;
+        this.view.minLength = 10;
+
+        this.input.trigger('upKeyed');
+      });
+
+      it('should not update dropdown', function() {
+        expect(this.dropdown.update).not.toHaveBeenCalled();
+      });
+
+      it('should move cursor up', function() {
+        expect(this.dropdown.moveCursorUp).toHaveBeenCalled();
       });
     });
 
@@ -293,12 +337,6 @@ describe('Typeahead', function() {
       this.input.trigger('upKeyed');
 
       expect(this.dropdown.open).toHaveBeenCalled();
-    });
-
-    it('should move the cursor up', function() {
-      this.input.trigger('upKeyed');
-
-      expect(this.dropdown.moveCursorUp).toHaveBeenCalled();
     });
   });
 
@@ -307,16 +345,54 @@ describe('Typeahead', function() {
       this.input.getQuery.andReturn('ghost');
     });
 
-    describe('when dropdown is closed and minLength is satisfied', function() {
+    describe('when dropdown is empty and minLength is satisfied', function() {
       beforeEach(function() {
-        this.dropdown.isOpen = false;
+        this.dropdown.isEmpty = true;
         this.view.minLength = 2;
+
+        this.input.trigger('downKeyed');
       });
 
       it('should update dropdown', function() {
-        this.input.trigger('downKeyed');
-
         expect(this.dropdown.update).toHaveBeenCalledWith('ghost');
+      });
+
+      it('should not move cursor down', function() {
+        expect(this.dropdown.moveCursorDown).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when dropdown is not empty', function() {
+      beforeEach(function() {
+        this.dropdown.isEmpty = false;
+        this.view.minLength = 2;
+
+        this.input.trigger('downKeyed');
+      });
+
+      it('should not update dropdown', function() {
+        expect(this.dropdown.update).not.toHaveBeenCalled();
+      });
+
+      it('should move cursor down', function() {
+        expect(this.dropdown.moveCursorDown).toHaveBeenCalled();
+      });
+    });
+
+    describe('when minLength is not satisfied', function() {
+      beforeEach(function() {
+        this.dropdown.isEmpty = true;
+        this.view.minLength = 10;
+
+        this.input.trigger('downKeyed');
+      });
+
+      it('should not update dropdown', function() {
+        expect(this.dropdown.update).not.toHaveBeenCalled();
+      });
+
+      it('should move cursor down', function() {
+        expect(this.dropdown.moveCursorDown).toHaveBeenCalled();
       });
     });
 
@@ -324,12 +400,6 @@ describe('Typeahead', function() {
       this.input.trigger('downKeyed');
 
       expect(this.dropdown.open).toHaveBeenCalled();
-    });
-
-    it('should move the cursor down', function() {
-      this.input.trigger('downKeyed');
-
-      expect(this.dropdown.moveCursorDown).toHaveBeenCalled();
     });
   });
 
@@ -339,7 +409,7 @@ describe('Typeahead', function() {
 
       this.view.dir = 'rtl';
       this.input.getQuery.andReturn('bi');
-      this.input.getHintValue.andReturn(testDatum.value);
+      this.input.getHint.andReturn(testDatum.value);
       this.input.isCursorAtEnd.andReturn(true);
       this.dropdown.getDatumForTopSuggestion.andReturn(testDatum);
       this.$input.on('typeahead:autocompleted', spy = jasmine.createSpy());
@@ -357,7 +427,7 @@ describe('Typeahead', function() {
 
       this.view.dir = 'ltr';
       this.input.getQuery.andReturn('bi');
-      this.input.getHintValue.andReturn(testDatum.value);
+      this.input.getHint.andReturn(testDatum.value);
       this.input.isCursorAtEnd.andReturn(true);
       this.dropdown.getDatumForTopSuggestion.andReturn(testDatum);
       this.$input.on('typeahead:autocompleted', spy = jasmine.createSpy());
@@ -370,16 +440,22 @@ describe('Typeahead', function() {
   });
 
   describe('when input triggers queryChanged', function() {
-    it('should clear the hint', function() {
+    it('should clear the hint if it has become invalid', function() {
       this.input.trigger('queryChanged', testDatum.value);
 
-      expect(this.input.clearHint).toHaveBeenCalled();
+      expect(this.input.clearHintIfInvalid).toHaveBeenCalled();
     });
 
-    it('should empty dropdown', function() {
-      this.input.trigger('queryChanged', testDatum.value);
+    it('should empty dropdown if the query is empty', function() {
+      this.input.trigger('queryChanged', '');
 
       expect(this.dropdown.empty).toHaveBeenCalled();
+    });
+
+    it('should not empty dropdown if the query is non-empty', function() {
+      this.input.trigger('queryChanged', testDatum.value);
+
+      expect(this.dropdown.empty).not.toHaveBeenCalled();
     });
 
     it('should update dropdown', function() {
@@ -414,7 +490,7 @@ describe('Typeahead', function() {
 
       this.input.trigger('whitespaceChanged');
 
-      expect(this.input.setHintValue).toHaveBeenCalledWith(testDatum.value);
+      expect(this.input.setHint).toHaveBeenCalledWith(testDatum.value);
     });
 
     it('should open the dropdown', function() {
@@ -440,20 +516,28 @@ describe('Typeahead', function() {
     });
   });
 
-  describe('#getQuery', function() {
+  describe('#getVal', function() {
     it('should return the current query', function() {
       this.input.getQuery.andReturn('woah');
       this.view.close();
 
-      expect(this.view.getQuery()).toBe('woah');
+      expect(this.view.getVal()).toBe('woah');
     });
   });
 
-  describe('#getQuery', function() {
-    it('should update the input value', function() {
-      this.view.setQuery('woah');
+  describe('#setVal', function() {
+    it('should update query', function() {
+      this.view.isActivated = true;
+      this.view.setVal('woah');
 
       expect(this.input.setInputValue).toHaveBeenCalledWith('woah');
+    });
+
+    it('should update query silently if not activated', function() {
+      this.view.setVal('woah');
+
+      expect(this.input.setQuery).toHaveBeenCalledWith('woah');
+      expect(this.input.setInputValue).toHaveBeenCalledWith('woah', true);
     });
   });
 

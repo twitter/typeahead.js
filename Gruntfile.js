@@ -6,6 +6,7 @@ var semver = require('semver'),
       ],
       bloodhound: [
       'src/bloodhound/version.js',
+      'src/bloodhound/tokenizers.js',
       'src/bloodhound/lru_cache.js',
       'src/bloodhound/persistent_storage.js',
       'src/bloodhound/transport.js',

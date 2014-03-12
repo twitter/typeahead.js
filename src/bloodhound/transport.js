@@ -43,13 +43,14 @@ var Transport = (function() {
 
       // a request is already in progress, piggyback off of it
       if (jqXhr = pendingRequests[url]) {
-        jqXhr.done(done);
+        jqXhr.done(done).fail(fail);
       }
 
       // under the pending request threshold, so fire off a request
       else if (pendingRequestsCount < maxPendingRequests) {
         pendingRequestsCount++;
-        pendingRequests[url] = this._send(url, o).done(done).always(always);
+        pendingRequests[url] =
+          this._send(url, o).done(done).fail(fail).always(always);
       }
 
       // at the pending request threshold, so hang out in the on deck circle
@@ -57,10 +58,13 @@ var Transport = (function() {
         this.onDeckRequestArgs = [].slice.call(arguments, 0);
       }
 
-      // success callback
       function done(resp) {
-        cb && cb(resp);
+        cb && cb(null, resp);
         requestCache.set(url, resp);
+      }
+
+      function fail() {
+        cb && cb(true);
       }
 
       function always() {
@@ -78,7 +82,7 @@ var Transport = (function() {
     // ### public
 
     get: function(url, o, cb) {
-      var that = this, resp;
+      var resp;
 
       if (_.isFunction(o)) {
         cb = o;
@@ -88,7 +92,7 @@ var Transport = (function() {
       // in-memory cache hit
       if (resp = requestCache.get(url)) {
         // defer to stay consistent with behavior of ajax call
-        _.defer(function() { cb && cb(resp); });
+        _.defer(function() { cb && cb(null, resp); });
       }
 
       else {

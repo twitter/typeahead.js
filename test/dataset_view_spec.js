@@ -128,6 +128,16 @@ describe('Dataset', function() {
       });
     });
 
+    it('should not render suggestions if update was canceled', function() {
+      this.source.andCallFake(fakeGetWithAsyncResults);
+      this.dataset.update('woah');
+      this.dataset.cancel();
+
+      waits(100);
+
+      runs(function() { expect(this.dataset.getRoot()).toBeEmpty(); });
+    });
+
     it('should trigger rendered after suggestions are rendered', function() {
       var spy;
 
@@ -147,6 +157,17 @@ describe('Dataset', function() {
 
       this.dataset.clear();
       expect(this.dataset.getRoot()).toBeEmpty();
+    });
+
+    it('should cancel pending updates', function() {
+      var spy = spyOn(this.dataset, 'cancel');
+
+      this.source.andCallFake(fakeGetWithSyncResults);
+      this.dataset.update('woah');
+      expect(this.dataset.canceled).toBe(false);
+
+      this.dataset.clear();
+      expect(spy).toHaveBeenCalled();
     });
   });
 

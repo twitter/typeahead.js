@@ -56,7 +56,7 @@ var Dropdown = (function() {
       this._setCursor($($e.currentTarget), true);
     },
 
-    _onSuggestionMouseLeave: function onSuggestionMouseLeave($e) {
+    _onSuggestionMouseLeave: function onSuggestionMouseLeave() {
       this._removeCursor();
     },
 

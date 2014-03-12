@@ -8,6 +8,7 @@ Table of Contents
 -----------------
 
 * [Features](#features)
+* [Specification](#specification)
 * [Usage](#usage)
   * [API](#api)
   * [Options](#options)
@@ -25,6 +26,144 @@ Features
 * Works well with RTL languages and input method editors
 * Highlights query matches within the suggestion
 * Triggers custom events
+
+Specification
+-------------
+
+In an effort to take advantage of the pre-existing knowledge of typeahead.js 
+users, the behavior of the typeahead.js UI is modeled after google.com's search 
+box. Below is pseudocode that details how the UI reacts to pertinent events.
+
+**Input Control Gains Focus**
+
+```
+activate typeahead
+```
+
+**Input Control Loses Focus**
+
+```
+deactivate typeahead
+close dropdown menu
+remove hint
+clear suggestions from dropdown menu
+```
+
+**Value of the Input Control Changes**
+
+```
+IF query satisfies minLength requirement THEN
+  request suggestions for new query
+
+  IF suggestions are available THEN
+    render suggestions in dropdown menu
+    open dropdown menu 
+    update hint
+  ELSE
+    close dropdown menu 
+    clear suggestions from dropdown menu
+    remove hint
+  ENDIF
+ELSE
+  close dropdown menu 
+  clear suggestions from dropdown menu
+  remove hint
+ENDIF
+```
+
+**Up Arrow is Keyed**
+
+```
+IF dropdown menu is open THEN
+  move dropdown menu cursor up 1 suggestion
+ELSE
+  request suggestions for current query
+
+  IF suggestions are available THEN
+    render suggestions in dropdown menu
+    open dropdown menu 
+    update hint
+  ENDIF
+ENDIF
+```
+
+**Down Arrow is Keyed**
+
+```
+IF dropdown menu is open THEN
+  move dropdown menu cursor down 1 suggestion
+ELSE
+  request suggestions for current query
+
+  IF suggestions are available THEN
+    render suggestions in dropdown menu
+    open dropdown menu 
+    update hint
+  ENDIF
+ENDIF
+```
+
+**Left Arrow is Keyed**
+
+```
+IF detected query language direction is right-to-left THEN
+  IF hint is being shown THEN
+    IF text cursor is at end of query THEN
+      autocomplete query to hint
+    ENDIF
+  ENDIF
+ENDIF
+```
+
+**Right Arrow is Keyed**
+
+```
+IF detected query language direction is left-to-right THEN
+  IF hint is being shown THEN
+    IF text cursor is at the end of the query THEN
+      autocomplete query to hint
+    ENDIF
+  ENDIF
+ENDIF
+```
+
+**Tab is Keyed**
+
+```
+IF dropdown menu cursor is on suggestion THEN
+  close dropdown menu
+  update query to display key of suggestion
+  remove hint
+ELSIF hint is being shown THEN
+  autocomplete query to hint
+ENDIF
+```
+
+**Enter is Keyed**
+
+```
+IF dropdown menu cursor is on suggestion THEN
+  close dropdown menu
+  update query to display key of suggestion
+  remove hint
+  prevent default browser action e.g. form submit
+ENDIF
+```
+
+**Esc is Keyed**
+
+```
+close dropdown menu
+remove hint
+```
+
+**Suggestion is Clicked**
+
+```
+update query to display key of suggestion
+close dropdown menu
+remove hint
+```
 
 Usage
 -----
@@ -106,10 +245,6 @@ jQuery.fn._typeahead = typeahead;
 ### Options
 
 When initializing a typeahead, there are a number of options you can configure.
-
-* `autoselect` – If `true`, defaults the suggestion selection to the top 
-  suggestion when the user keys enter while the dropdown menu is open. Defaults
-  to `false`.
 
 * `highlight` – If `true`, when suggestions are rendered, pattern matches
   for the current query in text nodes will be wrapped in a `strong` element. 

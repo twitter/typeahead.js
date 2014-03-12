@@ -6,7 +6,7 @@
 
 // inspired by https://github.com/jharding/lru-cache
 
-var LruCache = (function(root, undefined) {
+var LruCache = (function() {
 
   function LruCache(maxSize) {
     this.maxSize = maxSize || 100;
@@ -86,4 +86,4 @@ var LruCache = (function(root, undefined) {
 
   return LruCache;
 
-})(this);
+})();
