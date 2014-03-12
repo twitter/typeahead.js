@@ -1,7 +1,7 @@
 /*!
- * typeahead.js 0.10.1
+ * typeahead.js 0.10.2
  * https://github.com/twitter/typeahead.js
- * Copyright 2013 Twitter, Inc. and other contributors; Licensed MIT
+ * Copyright 2013-2014 Twitter, Inc. and other contributors; Licensed MIT
  */
 
 (function($) {
@@ -120,8 +120,31 @@
         },
         noop: function() {}
     };
-    var VERSION = "0.10.1";
-    var LruCache = function(root, undefined) {
+    var VERSION = "0.10.2";
+    var tokenizers = function(root) {
+        return {
+            nonword: nonword,
+            whitespace: whitespace,
+            obj: {
+                nonword: getObjTokenizer(nonword),
+                whitespace: getObjTokenizer(whitespace)
+            }
+        };
+        function whitespace(s) {
+            return s.split(/\s+/);
+        }
+        function nonword(s) {
+            return s.split(/\W+/);
+        }
+        function getObjTokenizer(tokenizer) {
+            return function setKey(key) {
+                return function tokenize(o) {
+                    return tokenizer(o[key]);
+                };
+            };
+        }
+    }();
+    var LruCache = function() {
         function LruCache(maxSize) {
             this.maxSize = maxSize || 100;
             this.size = 0;
@@ -180,7 +203,7 @@
             this.prev = this.next = null;
         }
         return LruCache;
-    }(this);
+    }();
     var PersistentStorage = function() {
         var ls, methods;
         try {
@@ -277,16 +300,19 @@
             _get: function(url, o, cb) {
                 var that = this, jqXhr;
                 if (jqXhr = pendingRequests[url]) {
-                    jqXhr.done(done);
+                    jqXhr.done(done).fail(fail);
                 } else if (pendingRequestsCount < maxPendingRequests) {
                     pendingRequestsCount++;
-                    pendingRequests[url] = this._send(url, o).done(done).always(always);
+                    pendingRequests[url] = this._send(url, o).done(done).fail(fail).always(always);
                 } else {
                     this.onDeckRequestArgs = [].slice.call(arguments, 0);
                 }
                 function done(resp) {
-                    cb && cb(resp);
+                    cb && cb(null, resp);
                     requestCache.set(url, resp);
+                }
+                function fail() {
+                    cb && cb(true);
                 }
                 function always() {
                     pendingRequestsCount--;
@@ -298,14 +324,14 @@
                 }
             },
             get: function(url, o, cb) {
-                var that = this, resp;
+                var resp;
                 if (_.isFunction(o)) {
                     cb = o;
                     o = {};
                 }
                 if (resp = requestCache.get(url)) {
                     _.defer(function() {
-                        cb && cb(resp);
+                        cb && cb(null, resp);
                     });
                 } else {
                     this._get(url, o, cb);
@@ -340,8 +366,7 @@
             }
             this.datumTokenizer = o.datumTokenizer;
             this.queryTokenizer = o.queryTokenizer;
-            this.datums = [];
-            this.trie = newNode();
+            this.reset();
         }
         _.mixin(SearchIndex.prototype, {
             bootstrap: function bootstrap(o) {
@@ -356,7 +381,7 @@
                     id = that.datums.push(datum) - 1;
                     tokens = normalizeTokens(that.datumTokenizer(datum));
                     _.each(tokens, function(token) {
-                        var node, chars, ch, ids;
+                        var node, chars, ch;
                         node = that.trie;
                         chars = token.split("");
                         while (ch = chars.shift()) {
@@ -390,6 +415,10 @@
                 return matches ? _.map(unique(matches), function(id) {
                     return that.datums[id];
                 }) : [];
+            },
+            reset: function reset() {
+                this.datums = [];
+                this.trie = newNode();
             },
             serialize: function serialize() {
                 return {
@@ -452,11 +481,7 @@
             remote: getRemote
         };
         function getLocal(o) {
-            var local = o.local || null;
-            if (_.isFunction(local)) {
-                local = local.call(null);
-            }
-            return local;
+            return o.local || null;
         }
         function getPrefetch(o) {
             var prefetch, defaults;
@@ -516,13 +541,15 @@
             }
         }
     }();
-    var Bloodhound = window.Bloodhound = function() {
-        var keys;
+    (function(root) {
+        var old, keys;
+        old = root.Bloodhound;
         keys = {
             data: "data",
             protocol: "protocol",
             thumbprint: "thumbprint"
         };
+        root.Bloodhound = Bloodhound;
         function Bloodhound(o) {
             if (!o || !o.local && !o.prefetch && !o.remote) {
                 $.error("one of local, prefetch, or remote is required");
@@ -540,14 +567,11 @@
             });
             this.storage = this.cacheKey ? new PersistentStorage(this.cacheKey) : null;
         }
-        Bloodhound.tokenizers = {
-            whitespace: function whitespaceTokenizer(s) {
-                return s.split(/\s+/);
-            },
-            nonword: function nonwordTokenizer(s) {
-                return s.split(/\W+/);
-            }
+        Bloodhound.noConflict = function noConflict() {
+            root.Bloodhound = old;
+            return Bloodhound;
         };
+        Bloodhound.tokenizers = tokenizers;
         _.mixin(Bloodhound.prototype, {
             _loadPrefetch: function loadPrefetch(o) {
                 var that = this, serialized, deferred;
@@ -559,9 +583,8 @@
                 }
                 return deferred;
                 function handlePrefetchResponse(resp) {
-                    var filtered;
-                    filtered = o.filter ? o.filter(resp) : resp;
-                    that.add(filtered);
+                    that.clear();
+                    that.add(o.filter ? o.filter(resp) : resp);
                     that._saveToStorage(that.index.serialize(), o.thumbprint, o.ttl);
                 }
             },
@@ -571,9 +594,8 @@
                 uriEncodedQuery = encodeURIComponent(query);
                 url = this.remote.replace ? this.remote.replace(this.remote.url, query) : this.remote.url.replace(this.remote.wildcard, uriEncodedQuery);
                 return this.transport.get(url, this.remote.ajax, handleRemoteResponse);
-                function handleRemoteResponse(resp) {
-                    var filtered = that.remote.filter ? that.remote.filter(resp) : resp;
-                    cb(filtered);
+                function handleRemoteResponse(err, resp) {
+                    err ? cb([]) : cb(that.remote.filter ? that.remote.filter(resp) : resp);
                 }
             },
             _saveToStorage: function saveToStorage(data, thumbprint, ttl) {
@@ -593,30 +615,32 @@
                 isExpired = stored.thumbprint !== thumbprint || stored.protocol !== location.protocol;
                 return stored.data && !isExpired ? stored.data : null;
             },
-            initialize: function initialize() {
-                var that = this, deferred;
+            _initialize: function initialize() {
+                var that = this, local = this.local, deferred;
                 deferred = this.prefetch ? this._loadPrefetch(this.prefetch) : $.Deferred().resolve();
-                this.local && deferred.done(addLocalToIndex);
+                local && deferred.done(addLocalToIndex);
                 this.transport = this.remote ? new Transport(this.remote) : null;
-                this.initialize = function initialize() {
-                    return deferred.promise();
-                };
-                return deferred.promise();
+                return this.initPromise = deferred.promise();
                 function addLocalToIndex() {
-                    that.add(that.local);
+                    that.add(_.isFunction(local) ? local() : local);
                 }
+            },
+            initialize: function initialize(force) {
+                return !this.initPromise || force ? this._initialize() : this.initPromise;
             },
             add: function add(data) {
                 this.index.add(data);
             },
             get: function get(query, cb) {
-                var that = this, matches, cacheHit = false;
+                var that = this, matches = [], cacheHit = false;
                 matches = this.index.get(query);
                 matches = this.sorter(matches).slice(0, this.limit);
                 if (matches.length < this.limit && this.transport) {
                     cacheHit = this._getFromRemote(query, returnRemoteMatches);
                 }
-                !cacheHit && cb && cb(matches);
+                if (!cacheHit) {
+                    (matches.length > 0 || !this.transport) && cb && cb(matches);
+                }
                 function returnRemoteMatches(remoteMatches) {
                     var matchesWithBackfill = matches.slice(0);
                     _.each(remoteMatches, function(remoteMatch) {
@@ -629,6 +653,15 @@
                     });
                     cb && cb(that.sorter(matchesWithBackfill));
                 }
+            },
+            clear: function clear() {
+                this.index.reset();
+            },
+            clearPrefetchCache: function clearPrefetchCache() {
+                this.storage && this.storage.clear();
+            },
+            clearRemoteCache: function clearRemoteCache() {
+                this.transport && Transport.resetCache();
             },
             ttAdapter: function ttAdapter() {
                 return _.bind(this.get, this);
@@ -647,5 +680,5 @@
         function ignoreDuplicates() {
             return false;
         }
-    }();
+    })(this);
 })(window.jQuery);
