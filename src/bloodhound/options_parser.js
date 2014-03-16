@@ -49,6 +49,7 @@ var oParser = (function() {
     defaults = {
       url: null,
       wildcard: '%QUERY',
+      encode: true,
       replace: null,
       rateLimitBy: 'debounce',
       rateLimitWait: 300,
