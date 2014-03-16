@@ -87,7 +87,7 @@
       var that = this, url, uriEncodedQuery;
 
       query = query || '';
-      remoteQuery = this.remote.encode ? encodeURIComponent(query) : query;
+      remoteQuery = this.remote.uriEncode ? encodeURIComponent(query) : query;
 
       url = this.remote.replace ?
         this.remote.replace(this.remote.url, query) :
