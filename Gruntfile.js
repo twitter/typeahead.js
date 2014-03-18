@@ -1,6 +1,12 @@
 var semver = require('semver'),
     f = require('util').format,
     files = {
+      intro: [
+      'src/common/intro.js'
+      ],
+      outro: [
+      'src/common/outro.js'
+      ],
       common: [
       'src/common/utils.js'
       ],
@@ -42,10 +48,24 @@ module.exports = function(grunt) {
       ' */\n\n'
     ].join('\n'),
 
+    concat: {
+      bloodhound: {
+        src: [].concat(files.intro, files.common, files.bloodhound, files.outro),
+        dest: '<%= buildDir %>/bloodhound.js'
+      },
+      typeahead: {
+        src: [].concat(files.intro, files.common, files.typeahead, files.outro),
+        dest: '<%= buildDir %>/typeahead.jquery.js'
+      },
+      bundle: {
+        src: [].concat(files.intro, files.common, files.bloodhound, files.typeahead, files.outro),
+        dest: '<%= buildDir %>/typeahead.bundle.js'
+      }
+    },
+
     uglify: {
       options: {
-        banner: '<%= banner %>',
-        enclose: { 'window.jQuery': '$' }
+        banner: '<%= banner %>'
       },
       bloodhound: {
         options: {
@@ -53,7 +73,7 @@ module.exports = function(grunt) {
           beautify: true,
           compress: false
         },
-        src: files.common.concat(files.bloodhound),
+        src: '<%= buildDir %>/bloodhound.js',
         dest: '<%= buildDir %>/bloodhound.js'
       },
       bloodhoundMin: {
@@ -61,7 +81,7 @@ module.exports = function(grunt) {
           mangle: true,
           compress: true
         },
-        src: files.common.concat(files.bloodhound),
+        src: '<%= buildDir %>/bloodhound.js',
         dest: '<%= buildDir %>/bloodhound.min.js'
       },
       typeahead: {
@@ -70,7 +90,7 @@ module.exports = function(grunt) {
           beautify: true,
           compress: false
         },
-        src: files.common.concat(files.typeahead),
+        src: '<%= buildDir %>/typeahead.jquery.js',
         dest: '<%= buildDir %>/typeahead.jquery.js'
 
       },
@@ -79,7 +99,7 @@ module.exports = function(grunt) {
           mangle: true,
           compress: true
         },
-        src: files.common.concat(files.typeahead),
+        src: '<%= buildDir %>/typeahead.jquery.js',
         dest: '<%= buildDir %>/typeahead.jquery.min.js'
 
       },
@@ -89,16 +109,16 @@ module.exports = function(grunt) {
           beautify: true,
           compress: false
         },
-        src: files.common.concat(files.bloodhound, files.typeahead),
+        src: '<%= buildDir %>/typeahead.bundle.js',
         dest: '<%= buildDir %>/typeahead.bundle.js'
 
       },
-      bundlemin: {
+      bundleMin: {
         options: {
           mangle: true,
           compress: true
         },
-        src: files.common.concat(files.bloodhound, files.typeahead),
+        src: '<%= buildDir %>/typeahead.bundle.js',
         dest: '<%= buildDir %>/typeahead.bundle.min.js'
       }
     },
@@ -248,7 +268,7 @@ module.exports = function(grunt) {
   // -------
 
   grunt.registerTask('default', 'build');
-  grunt.registerTask('build', ['uglify', 'sed:version']);
+  grunt.registerTask('build', ['concat', 'uglify', 'sed:version']);
   grunt.registerTask('server', 'connect:server');
   grunt.registerTask('lint', 'jshint');
   grunt.registerTask('dev', 'parallel:dev');
