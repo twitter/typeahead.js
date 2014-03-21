@@ -246,7 +246,7 @@ When configuring `remote`, the following options are available.
 
 ### Datums
 
-Datums are JavaScript objects the hydrate the pool of possible suggestions.
+Datums are JavaScript objects that hydrate the pool of possible suggestions.
 Bloodhound doesn't expect datums to contain any specific properties as any
 operations performed on datums are done using functions defined by the user i.e.
 `datumTokenizer`, `dupDetector`, and `sorter`.
