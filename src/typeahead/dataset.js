@@ -40,15 +40,25 @@ var Dataset = (function() {
   // --------------
 
   Dataset.extractDatasetName = function extractDatasetName(el) {
-    return $(el).data(datasetKey);
+    return Dataset._extractDataAttribute(el, datasetKey);
   };
 
-  Dataset.extractValue = function extractDatum(el) {
-    return $(el).data(valueKey);
+  Dataset.extractValue = function extractValue(el) {
+    return Dataset._extractDataAttribute(el, valueKey);
   };
 
   Dataset.extractDatum = function extractDatum(el) {
-    return $(el).data(datumKey);
+    return Dataset._extractDataAttribute(el, datumKey);
+  };
+
+  Dataset._extractDataAttribute = function extractDataAttribute(el, attribute) {
+    var dataAttribute = $(el).data(attribute);
+
+    if (dataAttribute === undefined) {
+      dataAttribute = $(el).data(attribute.toLowerCase());
+    }
+
+    return dataAttribute;
   };
 
   // instance methods

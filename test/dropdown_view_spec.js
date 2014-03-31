@@ -259,6 +259,15 @@ describe('Dropdown', function() {
       expect(datum).toEqual({ value: 'one', raw: 'two' });
     });
 
+    it('should extract the datum from the suggestion element when using HTML5 data attributes', function() {
+      var $suggestion, datum;
+
+      $suggestion = $('<div data-ttValue="one" data-ttDatum="two">');
+      datum = this.view.getDatumForSuggestion($suggestion);
+
+      expect(datum).toEqual({ value: 'one', raw: 'two' });
+    });
+
     it('should return null if no element is given', function() {
       expect(this.view.getDatumForSuggestion($('notreal'))).toBeNull();
     });
