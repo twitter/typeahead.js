@@ -15,13 +15,31 @@ var tokenizers = (function(root) {
     }
   };
 
-  function whitespace(s) { return s.split(/\s+/); }
+  function toStr(s) { return (_.isUndefined(s) || s === null) ? '' : s + ''; }
 
-  function nonword(s) { return s.split(/\W+/); }
+  function whitespace(str) {
+    str = toStr(str);
+    return str ? str.split(/\s+/) : [];
+  }
+
+  function nonword(str) {
+    str = toStr(str);
+    return str ? str.split(/\W+/) : [];
+  }
 
   function getObjTokenizer(tokenizer) {
-    return function setKey(key) {
-      return function tokenize(o) { return tokenizer(o[key]); };
+    return function setKey(/* key, ... */) {
+      var args = [].slice.call(arguments, 0);
+
+      return function tokenize(o) {
+        var val, tokens = [];
+
+        _.each(args, function(k) {
+          tokens = tokens.concat(tokenizer(toStr(o[k])));
+        });
+
+        return tokens;
+      };
     };
   }
 })();
