@@ -284,7 +284,7 @@
         }
     }();
     var Transport = function() {
-        var pendingRequestsCount = 0, pendingRequests = {}, maxPendingRequests = 6, requestCache = new LruCache(10);
+        var pendingRequestsCount = 0, pendingRequests = {}, maxPendingRequests = 6, requestCache = new LruCache(10), lastUrl;
         function Transport(o) {
             o = o || {};
             this._send = o.transport ? callbackToDeferred(o.transport) : $.ajax;
@@ -298,6 +298,9 @@
         };
         _.mixin(Transport.prototype, {
             _get: function(url, o, cb) {
+                if (url !== lastUrl) {
+                    return;
+                }
                 var that = this, jqXhr;
                 if (jqXhr = pendingRequests[url]) {
                     jqXhr.done(done).fail(fail);
@@ -329,6 +332,7 @@
                     cb = o;
                     o = {};
                 }
+                lastUrl = url;
                 if (resp = requestCache.get(url)) {
                     _.defer(function() {
                         cb && cb(null, resp);
