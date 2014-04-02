@@ -8,7 +8,8 @@ var Transport = (function() {
   var pendingRequestsCount = 0,
       pendingRequests = {},
       maxPendingRequests = 6,
-      requestCache = new LruCache(10);
+      requestCache = new LruCache(10),
+      lastUrl;
 
   // constructor
   // -----------
@@ -39,6 +40,10 @@ var Transport = (function() {
     // ### private
 
     _get: function(url, o, cb) {
+      if (url !== lastUrl) {
+        return;
+      }
+
       var that = this, jqXhr;
 
       // a request is already in progress, piggyback off of it
@@ -88,6 +93,8 @@ var Transport = (function() {
         cb = o;
         o = {};
       }
+
+      lastUrl = url;
 
       // in-memory cache hit
       if (resp = requestCache.get(url)) {
