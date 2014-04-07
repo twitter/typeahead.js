@@ -59,6 +59,15 @@
       <div class="typeahead-wrapper">
         <input class="mixed" type="text" placeholder="mixed">
       </div>
+      <div class="typeahead-wrapper">
+        <input class="at-mentions" type="text" placeholder="@username">
+      </div>
+      <div class="typeahead-wrapper">
+        <textarea class="at-mentions" placeholder="@username"></textarea>
+      </div>
+      <div class="typeahead-wrapper">
+        <textarea class="name-mentions" placeholder="@First Last"></textarea>
+      </div>
     </div>
     </div>
 
@@ -300,6 +309,61 @@
         source: mixed.ttAdapter()
       });
 
+      var atMentions = new Bloodhound({
+        datumTokenizer: function(d) {
+          return Bloodhound.tokenizers.whitespace(d.val);
+        },
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        local: [
+          { val: 'Mike' },
+          { val: 'Luke' },
+          { val: 'Jake' }
+        ]
+      });
+
+      atMentions.initialize();
+
+      var atMentionsChar = '@';
+      var atMentionsRegex = '\\w*';
+      var queryRegex = new RegExp(atMentionsChar + atMentionsRegex, 'g');
+      $('.at-mentions').typeahead({
+        highlight: true,
+        triggerRegex: queryRegex,
+        triggerCharacter: atMentionsChar
+      },
+      {
+        displayKey: 'val',
+        source: atMentions.ttAdapter()
+      });
+
+      var nameMentions = new Bloodhound({
+        datumTokenizer: function(d) {
+          return d.val;
+        },
+        queryTokenizer: function (s) {
+          return s;
+        },
+        local: [
+          { val: 'Mike Jones' },
+          { val: 'Luke Karrys' },
+          { val: 'Jake Harding' }
+        ]
+      });
+
+      nameMentions.initialize();
+
+      var nameMentionsChar = '@';
+      var nameMentionsRegexStr = '\\w+\\s?\\w*';
+      var nameMentioinsRegex = new RegExp(nameMentionsChar + nameMentionsRegexStr, 'g');
+      $('.name-mentions').typeahead({
+        highlight: true,
+        triggerRegex: nameMentioinsRegex,
+        triggerCharacter: nameMentionsChar
+      },
+      {
+        displayKey: 'val',
+        source: nameMentions.ttAdapter()
+      });
 
       $('input').on([
         'typeahead:initialized',

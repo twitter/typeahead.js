@@ -62,7 +62,12 @@ var Typeahead = (function() {
     .onSync('closed', this._onClosed, this)
     .onAsync('datasetRendered', this._onDatasetRendered, this);
 
-    this.input = new Input({ input: $input, hint: $hint })
+    this.input = new Input({
+      input: $input,
+      hint: $hint,
+      triggerCharacter: o.triggerCharacter,
+      triggerRegex: o.triggerRegex
+    })
     .onSync('focused', this._onFocused, this)
     .onSync('blurred', this._onBlurred, this)
     .onSync('enterKeyed', this._onEnterKeyed, this)
@@ -223,21 +228,31 @@ var Typeahead = (function() {
     },
 
     _updateHint: function updateHint() {
-      var datum, val, query, escapedQuery, frontMatchRegEx, match;
+      var datum, val, query, escapedQuery, frontMatchRegEx, match, parsedVal, frontVal, endVal;
 
       datum = this.dropdown.getDatumForTopSuggestion();
 
       if (datum && this.dropdown.isVisible() && !this.input.hasOverflow()) {
         val = this.input.getInputValue();
+        parsedVal = this.input._parseInputForTrigger();
+        endVal = '';
+        frontVal = datum.value;
+
+        if (parsedVal) {
+          val = parsedVal.pre + parsedVal.trigger + parsedVal.completion;
+          frontVal = parsedVal.pre + parsedVal.trigger + datum.value;
+          endVal = parsedVal.post;
+        }
+
         query = Input.normalizeQuery(val);
         escapedQuery = _.escapeRegExChars(query);
 
         // match input value, then capture trailing text
         frontMatchRegEx = new RegExp('^(?:' + escapedQuery + ')(.+$)', 'i');
-        match = frontMatchRegEx.exec(datum.value);
+        match = frontMatchRegEx.exec(frontVal);
 
         // clear hint if there's no trailing text
-        match ? this.input.setHint(val + match[1]) : this.input.clearHint();
+        match && !endVal ? this.input.setHint(val + match[1]) : this.input.clearHint();
       }
 
       else {

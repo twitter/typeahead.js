@@ -29,6 +29,10 @@ var Input = (function() {
       $.error('input is missing');
     }
 
+    this.triggerRegex = o.triggerRegex;
+    this.triggerCharacter = o.triggerCharacter;
+    this.hasTrigger = !!(this.triggerRegex && this.triggerCharacter);
+
     // bound functions
     onBlur = _.bind(this._onBlur, this);
     onFocus = _.bind(this._onFocus, this);
@@ -106,6 +110,11 @@ var Input = (function() {
       this._managePreventDefault(keyName, $e);
       if (keyName && this._shouldTrigger(keyName, $e)) {
         this.trigger(keyName + 'Keyed', $e);
+        // Left and right keys can change the query if
+        // it is using a triggerCharacter
+        if (keyName === 'left' || keyName === 'right') {
+          _.defer(_.bind(this._onInput, this));
+        }
       }
     },
 
@@ -154,9 +163,15 @@ var Input = (function() {
     },
 
     _checkInputValue: function checkInputValue() {
-      var inputValue, areEquivalent, hasDifferentWhitespace;
+      var inputValue, parsedInputValue, areEquivalent, hasDifferentWhitespace;
 
       inputValue = this.getInputValue();
+      parsedInputValue = this._parseInputForTrigger();
+
+      if (this.hasTrigger) {
+        inputValue = parsedInputValue ? parsedInputValue.completion : '';
+      }
+
       areEquivalent = areQueriesEquivalent(inputValue, this.query);
       hasDifferentWhitespace = areEquivalent ?
         this.query.length !== inputValue.length : false;
@@ -168,6 +183,65 @@ var Input = (function() {
       else if (hasDifferentWhitespace) {
         this.trigger('whitespaceChanged', this.query);
       }
+    },
+
+    _findTriggerPosition: function findTriggerPosition() {
+      var inputValue, cursorPosition, index, charBeforeTrigger, substr, match;
+
+      inputValue = this.getInputValue();
+      cursorPosition = this._getCursorPosition();
+      index = inputValue.lastIndexOf(this.triggerCharacter, cursorPosition);
+
+      if (index === -1) {
+        return -1;
+      }
+
+      // Should precede with a space
+      charBeforeTrigger = inputValue.charAt(index - 1);
+      if (charBeforeTrigger && charBeforeTrigger !== ' ') {
+        return -1;
+      }
+
+      substr = inputValue.substring(index, cursorPosition);
+      match = substr.match(this.triggerRegex);
+
+      if (!match) {
+        return -1;
+      }
+
+      if (substr.length > match[0].length) {
+        return -1;
+      }
+
+      return index;
+    },
+
+    _parseInputForTrigger: function parseInputForTrigger() {
+      var triggerIndex, cursorPosition, inputValue, afterTrigger, match;
+
+      if (!this.hasTrigger) {
+        return null;
+      }
+
+      inputValue = this.getInputValue();
+      triggerIndex = this._findTriggerPosition();
+      afterTrigger = inputValue.substring(triggerIndex);
+      match = afterTrigger.match(this.triggerRegex);
+
+      if (triggerIndex === -1 || !match) {
+        return null;
+      } else {
+        return {
+          pre: inputValue.substring(0, triggerIndex),
+          trigger: this.triggerCharacter,
+          completion: match[0].substring(this.triggerCharacter.length),
+          post: inputValue.substring(triggerIndex + match[0].length)
+        };
+      }
+    },
+
+    _getCursorPosition: function getCursorPosition() {
+      return this.$input[0].selectionStart;
     },
 
     // ### public
@@ -193,14 +267,48 @@ var Input = (function() {
     },
 
     setInputValue: function setInputValue(value, silent) {
+      var inputValue, newCursorPosition, hint;
+
+      inputValue = this._parseInputForTrigger();
+
+      if (inputValue) {
+        newCursorPosition = (inputValue.pre + inputValue.trigger + value).length;
+        value = inputValue.pre + inputValue.trigger + value + inputValue.post;
+      }
+
       this.$input.val(value);
+
+      if (newCursorPosition) {
+        this.setCursorPosition(newCursorPosition);
+      }
 
       // silent prevents any additional events from being triggered
       silent ? this.clearHint() : this._checkInputValue();
     },
 
+    setCursorPosition: function setCursorPosition(pos) {
+      var input, range;
+
+      input = this.$input[0];
+
+      if (input.setSelectionRange) {
+        input.setSelectionRange(pos, pos);
+      }
+
+      else if (input.createTextRange) {
+        range = input.createTextRange();
+        range.collapse(true);
+        if (pos < 0) {
+          pos = this.getInputValue().length + pos;
+        }
+        range.moveEnd('character', pos);
+        range.moveStart('character', pos);
+        range.select();
+      }
+    },
+
     resetInputValue: function resetInputValue() {
-      this.setInputValue(this.query, true);
+      !this.hasTrigger && this.setInputValue(this.query, true);
     },
 
     getHint: function getHint() {
