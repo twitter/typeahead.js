@@ -33,7 +33,7 @@
       (this.prefetch.cacheKey || this.prefetch.url) : null;
 
     // the backing data structure used for fast pattern matching
-    this.index = new SearchIndex({
+    this.index = new (o.index || SearchIndex)({
       datumTokenizer: o.datumTokenizer,
       queryTokenizer: o.queryTokenizer
     });
