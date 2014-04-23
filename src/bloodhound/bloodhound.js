@@ -87,11 +87,11 @@
       var that = this, url, uriEncodedQuery;
 
       query = query || '';
-      uriEncodedQuery = encodeURIComponent(query);
+      remoteQuery = this.remote.uriEncode ? encodeURIComponent(query) : query;
 
       url = this.remote.replace ?
         this.remote.replace(this.remote.url, query) :
-        this.remote.url.replace(this.remote.wildcard, uriEncodedQuery);
+        this.remote.url.replace(this.remote.wildcard, remoteQuery);
 
       return this.transport.get(url, this.remote.ajax, handleRemoteResponse);
 
