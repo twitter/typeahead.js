@@ -60,6 +60,8 @@ var Typeahead = (function() {
     .onSync('cursorRemoved', this._onCursorRemoved, this)
     .onSync('opened', this._onOpened, this)
     .onSync('closed', this._onClosed, this)
+    .onSync('dropdownShown', this._onDropdownShown, this)
+    .onSync('dropdownHidden', this._onDropdownHidden, this)
     .onAsync('datasetRendered', this._onDatasetRendered, this);
 
     this.input = new Input({ input: $input, hint: $hint })
@@ -120,6 +122,14 @@ var Typeahead = (function() {
       this.input.clearHint();
 
       this.eventBus.trigger('closed');
+    },
+
+    _onDropdownShown: function onDropdownShown() {
+      this.eventBus.trigger('dropdownShown');
+    },
+
+    _onDropdownHidden: function onDropdownHidden() {
+      this.eventBus.trigger('dropdownHidden');
     },
 
     _onFocused: function onFocused() {

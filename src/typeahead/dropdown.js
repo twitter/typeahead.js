@@ -72,12 +72,16 @@ var Dropdown = (function() {
 
     _hide: function() {
       this.$menu.hide();
+
+      this.trigger('dropdownHidden');
     },
 
     _show: function() {
       // can't use jQuery#show because $menu is a span element we want
       // display: block; not dislay: inline;
       this.$menu.css('display', 'block');
+
+      this.trigger('dropdownShown');
     },
 
     _getSuggestions: function getSuggestions() {
