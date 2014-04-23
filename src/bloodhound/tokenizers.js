@@ -21,7 +21,13 @@ var tokenizers = (function(root) {
 
   function getObjTokenizer(tokenizer) {
     return function setKey(key) {
-      return function tokenize(o) { return tokenizer(o[key]); };
+      return function tokenize(o) {
+        var rtval = [];
+        _.each(tokenizer(key), function(k) { 
+          if (o[k]) rtval = rtval.concat(tokenizer(o[k]));
+          });
+        return rtval;
+      };
     };
   }
 })();
