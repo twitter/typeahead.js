@@ -171,12 +171,6 @@ describe('Typeahead', function() {
       expect(this.view.isActivated).toBe(false);
     });
 
-    it('should empty the dropdown', function() {
-      this.input.trigger('blurred');
-
-      expect(this.dropdown.empty).toHaveBeenCalled();
-    });
-
     it('should close the dropdown', function() {
       this.input.trigger('blurred');
 
