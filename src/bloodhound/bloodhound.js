@@ -69,7 +69,9 @@
       }
 
       else {
-        deferred = $.ajax(o.url, o.ajax).done(handlePrefetchResponse);
+        deferred = (o.transport) ?
+          callbackTransport(o.transport, o.url) :
+          $.ajax(o.url, o.ajax).done(handlePrefetchResponse);
       }
 
       return deferred;
@@ -81,6 +83,26 @@
 
         that._saveToStorage(that.index.serialize(), o.thumbprint, o.ttl);
       }
+
+      function callbackTransport(fn, url)  {
+        var deferred = $.Deferred();
+
+        fn(url, onSuccess, onError);
+
+        return deferred;
+
+        function onSuccess(resp) {
+          _.defer(function() {
+            handlePrefetchResponse(resp);
+            deferred.resolve(resp);
+          });
+        }
+
+        function onError(err) {
+          _.defer(function() { deferred.reject(err); });
+        }
+      }
+
     },
 
     _getFromRemote: function getFromRemote(query, cb) {
