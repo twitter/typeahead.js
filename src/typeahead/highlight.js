@@ -12,7 +12,7 @@ var highlight = (function(doc) {
         node: null,
         pattern: null,
         tagName: 'strong',
-        className: null,
+        className: 'tt-highlight',
         wordsOnly: false,
         caseSensitive: false
       };
