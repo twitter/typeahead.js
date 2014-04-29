@@ -247,8 +247,8 @@ jQuery.fn._typeahead = typeahead;
 When initializing a typeahead, there are a number of options you can configure.
 
 * `highlight` – If `true`, when suggestions are rendered, pattern matches
-  for the current query in text nodes will be wrapped in a `strong` element. 
-  Defaults to `false`.
+  for the current query in text nodes will be wrapped in a `strong` element with
+  `tt-highlight` class. Defaults to `false`.
 
 * `hint` – If `false`, the typeahead will not show a hint. Defaults to `true`.
 
