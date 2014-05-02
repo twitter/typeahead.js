@@ -1589,9 +1589,10 @@
             $wrapper = $(html.wrapper).css(css.wrapper);
             $dropdown = $(html.dropdown).css(css.dropdown);
             $hint = $input.clone().css(css.hint).css(getBackgroundStyles($input));
-            $hint.val("").removeData().addClass("tt-hint").removeAttr("id name placeholder").prop("disabled", true).attr({
+            $hint.val("").removeData().addClass("tt-hint").removeAttr("id name placeholder").attr({
                 autocomplete: "off",
-                spellcheck: "false"
+                spellcheck: "false",
+                taborder: -1
             });
             $input.data(attrsKey, {
                 dir: $input.attr("dir"),

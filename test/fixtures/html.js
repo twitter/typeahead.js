@@ -3,7 +3,7 @@ var fixtures = fixtures || {};
 fixtures.html = {
   textInput: '<input type="text">',
   input: '<input class="tt-input" type="text" autocomplete="false" spellcheck="false">',
-  hint: '<input class="tt-hint" type="text" autocomplete="false" spellcheck="false" disabled>',
+  hint: '<input class="tt-hint" type="text" autocomplete="false" spellcheck="false" taborder="-1">',
   menu: '<span class="tt-dropdown-menu"></span>',
   dataset: [
     '<div class="tt-dataset-test">',

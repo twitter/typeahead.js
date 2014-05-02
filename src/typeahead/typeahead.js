@@ -326,8 +326,7 @@ var Typeahead = (function() {
     .removeData()
     .addClass('tt-hint')
     .removeAttr('id name placeholder')
-    .prop('disabled', true)
-    .attr({ autocomplete: 'off', spellcheck: 'false' });
+    .attr({ autocomplete: 'off', spellcheck: 'false', taborder: -1 });
 
     // store the original values of the attrs that get modified
     // so modifications can be reverted on destroy
