@@ -91,7 +91,6 @@ var Input = (function() {
     // ### private
 
     _onBlur: function onBlur() {
-      this.resetInputValue();
       this.trigger('blurred');
     },
 
