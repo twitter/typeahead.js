@@ -202,6 +202,12 @@ var Typeahead = (function() {
         this.dropdown.empty();
 
       this.dropdown.open();
+
+      // focus on the first element if autoselect enabled
+      if (this.autoselect) {
+          this.dropdown.moveCursorDown();    
+      }
+
       this._setLanguageDirection();
     },
 
