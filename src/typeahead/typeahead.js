@@ -238,6 +238,9 @@ var Typeahead = (function() {
 
         // clear hint if there's no trailing text
         match ? this.input.setHint(val + match[1]) : this.input.clearHint();
+
+        // send an event, that a hint was been shown. can be used to display "hit tab to complete" tooltip.
+        this.eventBus.trigger('hinted', datum.raw);
       }
 
       else {
