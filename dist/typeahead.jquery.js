@@ -384,7 +384,6 @@
         };
         _.mixin(Input.prototype, EventEmitter, {
             _onBlur: function onBlur() {
-                this.resetInputValue();
                 this.trigger("blurred");
             },
             _onFocus: function onFocus() {
@@ -877,7 +876,6 @@
             },
             _onCursorMoved: function onCursorMoved() {
                 var datum = this.dropdown.getDatumForCursor();
-                this.input.setInputValue(datum.value, true);
                 this.eventBus.trigger("cursorchanged", datum.raw, datum.datasetName);
             },
             _onCursorRemoved: function onCursorRemoved() {
@@ -949,6 +947,9 @@
                 this.input.clearHintIfInvalid();
                 query.length >= this.minLength ? this.dropdown.update(query) : this.dropdown.empty();
                 this.dropdown.open();
+                if (this.autoselect) {
+                    this.dropdown.moveCursorDown();
+                }
                 this._setLanguageDirection();
             },
             _onWhitespaceChanged: function onWhitespaceChanged() {
@@ -990,7 +991,7 @@
             },
             _select: function select(datum) {
                 this.input.setQuery(datum.value);
-                this.input.setInputValue(datum.value, true);
+                this.input.setInputValue("", true);
                 this._setLanguageDirection();
                 this.eventBus.trigger("selected", datum.raw, datum.datasetName);
                 this.dropdown.close();

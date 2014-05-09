@@ -96,8 +96,6 @@ var Typeahead = (function() {
     _onCursorMoved: function onCursorMoved() {
       var datum = this.dropdown.getDatumForCursor();
 
-      this.input.setInputValue(datum.value, true);
-
       this.eventBus.trigger('cursorchanged', datum.raw, datum.datasetName);
     },
 
@@ -204,6 +202,12 @@ var Typeahead = (function() {
         this.dropdown.empty();
 
       this.dropdown.open();
+
+      // focus on the first element if autoselect enabled
+      if (this.autoselect) {
+        this.dropdown.moveCursorDown();
+      }
+
       this._setLanguageDirection();
     },
 
@@ -262,7 +266,7 @@ var Typeahead = (function() {
 
     _select: function select(datum) {
       this.input.setQuery(datum.value);
-      this.input.setInputValue(datum.value, true);
+      this.input.setInputValue('', true);
 
       this._setLanguageDirection();
 
