@@ -1534,6 +1534,7 @@
                     frontMatchRegEx = new RegExp("^(?:" + escapedQuery + ")(.+$)", "i");
                     match = frontMatchRegEx.exec(datum.value);
                     match ? this.input.setHint(val + match[1]) : this.input.clearHint();
+                    this.eventBus.trigger("hinted", datum.raw, datum.datasetName);
                 } else {
                     this.input.clearHint();
                 }
