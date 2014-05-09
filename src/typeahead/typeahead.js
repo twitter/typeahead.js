@@ -266,7 +266,7 @@ var Typeahead = (function() {
 
     _select: function select(datum) {
       this.input.setQuery(datum.value);
-      this.input.setInputValue(datum.value, true);
+      this.input.setInputValue('', true);
 
       this._setLanguageDirection();
 
