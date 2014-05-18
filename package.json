@@ -48,5 +48,9 @@
     "test": "./node_modules/.bin/karma start --single-run --browsers PhantomJS"
   },
   "version": "0.10.2",
-  "main": "dist/typeahead.bundle.js"
+  "main": "dist/typeahead.bundle.js",
+  "dependencies": {
+    "jsdom": "~0.10.5",
+    "jquery": "~2.1.1"
+  }
 }

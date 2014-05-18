@@ -41,6 +41,21 @@ module.exports = function(grunt) {
       ' * Copyright 2013-<%= grunt.template.today("yyyy") %> Twitter, Inc. and other contributors; Licensed MIT',
       ' */\n\n'
     ].join('\n'),
+    
+    bloodhoundBanner: [
+      'if (typeof module != "undefined" && module.exports) {',
+      '  var jsdom = require("jsdom").jsdom;',
+      '  var document = jsdom("");',
+      '  var window = document.parentWindow;',
+      '  window.jQuery = require("jquery")(window);',
+      '}\n\n'
+    ].join('\n'),
+    
+    bloodhoundFooter: [
+      '\n\nif (typeof module != "undefined" && module.exports) {',
+      '  module.exports = Bloodhound;',
+      '}'
+    ].join('\n'),
 
     uglify: {
       options: {
@@ -51,7 +66,9 @@ module.exports = function(grunt) {
         options: {
           mangle: false,
           beautify: true,
-          compress: false
+          compress: false,
+          banner: '<%= banner + bloodhoundBanner %>',
+          footer: '<%= bloodhoundFooter %>'
         },
         src: files.common.concat(files.bloodhound),
         dest: '<%= buildDir %>/bloodhound.js'
@@ -59,7 +76,9 @@ module.exports = function(grunt) {
       bloodhoundMin: {
         options: {
           mangle: true,
-          compress: true
+          compress: true,
+          banner: '<%= banner + bloodhoundBanner.replace(/\\n/g, "") %>',
+          footer: '<%= bloodhoundFooter.replace(/\\n/g, "") %>'
         },
         src: files.common.concat(files.bloodhound),
         dest: '<%= buildDir %>/bloodhound.min.js'

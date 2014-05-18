@@ -4,6 +4,13 @@
  * Copyright 2013-2014 Twitter, Inc. and other contributors; Licensed MIT
  */
 
+if (typeof module != "undefined" && module.exports) {
+  var jsdom = require("jsdom").jsdom;
+  var document = jsdom("");
+  var window = document.parentWindow;
+  window.jQuery = require("jquery")(window);
+}
+
 (function($) {
     var _ = {
         isMsie: function() {
@@ -682,3 +689,7 @@
         }
     })(this);
 })(window.jQuery);
+
+if (typeof module != "undefined" && module.exports) {
+  module.exports = Bloodhound;
+}
