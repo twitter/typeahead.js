@@ -1111,6 +1111,9 @@
             this.source = o.source;
             this.displayFn = getDisplayFn(o.display || o.displayKey);
             this.templates = getTemplates(o.templates, this.displayFn);
+            this.queryTokenizer = o.queryTokenizer || function(query) {
+                return [ query ];
+            };
             this.$el = $(html.dataset.replace("%CLASS%", this.name));
         }
         Dataset.extractDatasetName = function extractDatasetName(el) {
@@ -1149,7 +1152,7 @@
                     $suggestions.append.apply($suggestions, nodes);
                     that.highlight && highlight({
                         node: $suggestions[0],
-                        pattern: query
+                        pattern: cleanPatterns(that.queryTokenizer(query))
                     });
                     return $suggestions;
                     function getSuggestionNode(suggestion) {
@@ -1224,6 +1227,13 @@
         }
         function isValidName(str) {
             return /^[_a-zA-Z0-9-]+$/.test(str);
+        }
+        function cleanPatterns(patterns) {
+            var cleaned = [];
+            for (var i = 0; i < patterns.length; i++) {
+                if (patterns[i].length > 0) cleaned.push(patterns[i]);
+            }
+            return cleaned;
         }
     }();
     var Dropdown = function() {
