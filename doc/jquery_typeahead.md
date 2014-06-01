@@ -288,6 +288,13 @@ Datasets can be configured using the following options.
   function that transforms a suggestion object into a string. Defaults to 
   `value`.
 
+* `queryTokenzier` – A function with the signature `(query)` that transforms a
+  query into an array of string tokens, used to create proper highlighting in
+  the suggestion box. If not set it returns the query wrapped in a single
+  element array. The signature is same as the `queryTokenzier` option in
+  Bloodhound, and therefore in most cases they should be the same if Bloodhound
+  is used.
+
 * `templates` – A hash of templates to be used when rendering the dataset. Note
   a precompiled template is a function that takes a JavaScript object as its
   first argument and returns a HTML string.

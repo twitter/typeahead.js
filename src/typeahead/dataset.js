@@ -33,6 +33,8 @@ var Dataset = (function() {
 
     this.templates = getTemplates(o.templates, this.displayFn);
 
+    this.queryTokenizer = o.queryTokenizer || function(query) {return [query];}
+
     this.$el = $(html.dataset.replace('%CLASS%', this.name));
   }
 
@@ -96,7 +98,10 @@ var Dataset = (function() {
         nodes = _.map(suggestions, getSuggestionNode);
         $suggestions.append.apply($suggestions, nodes);
 
-        that.highlight && highlight({ node: $suggestions[0], pattern: query });
+        that.highlight && highlight({
+          node: $suggestions[0],
+          pattern: cleanPatterns(that.queryTokenizer(query))
+        });
 
         return $suggestions;
 
@@ -200,5 +205,14 @@ var Dataset = (function() {
   function isValidName(str) {
     // dashes, underscores, letters, and numbers
     return (/^[_a-zA-Z0-9-]+$/).test(str);
+  }
+
+  function cleanPatterns(patterns) {
+    var cleaned = [];
+    // rid of empty patterns
+    for(var i = 0; i < patterns.length; i ++) {
+      if(patterns[i].length > 0) cleaned.push(patterns[i]);
+    }
+    return cleaned;
   }
 })();
