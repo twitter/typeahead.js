@@ -633,11 +633,15 @@
             },
             get: function get(query, cb) {
                 var that = this, matches = [], cacheHit = false;
-                matches = this.index.get(query);
-                matches = this.sorter(matches).slice(0, this.limit);
-                if (matches.length < this.limit && this.transport) {
-                    cacheHit = this._getFromRemote(query, returnRemoteMatches);
+                if (query === "") {
+                    matches = this.index.serialize().datums.slice(0);
+                } else {
+                    matches = this.index.get(query);
+                    if (matches.length < this.limit && this.transport) {
+                        cacheHit = this._getFromRemote(query, returnRemoteMatches);
+                    }
                 }
+                matches = this.sorter(matches).slice(0, this.limit);
                 if (!cacheHit) {
                     (matches.length > 0 || !this.transport) && cb && cb(matches);
                 }

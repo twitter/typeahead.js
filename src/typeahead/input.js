@@ -71,6 +71,8 @@ var Input = (function() {
     // on initialization, it'll most likely be an empty string
     this.query = this.$input.val();
 
+    this.savedPlaceholder = this.$input.attr('placeholder');
+
     // helps with calculating the width of the input's value
     this.$overflowHelper = buildOverflowHelper(this.$input);
   }
@@ -260,6 +262,15 @@ var Input = (function() {
 
       return true;
     },
+
+    showPlaceholder: function() {
+      this.$input.attr('placeholder', this.savedPlaceholder);
+    },
+
+    hidePlaceholder: function() {
+      this.$input.attr('placeholder', '');
+    },
+
 
     destroy: function destroy() {
       this.$hint.off('.tt');

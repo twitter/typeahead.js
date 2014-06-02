@@ -26,6 +26,7 @@ var Dataset = (function() {
     this.query = null;
 
     this.highlight = !!o.highlight;
+    this.minLength = o.minLength;
     this.name = o.name || _.getUniqueId();
 
     this.source = o.source;
@@ -146,7 +147,7 @@ var Dataset = (function() {
       function render(suggestions) {
         // if the update has been canceled or if the query has changed
         // do not render the suggestions as they've become outdated
-        if (!that.canceled && query === that.query) {
+        if (!that.canceled && (query === that.query||  (that.minLength === 0 && query === ''))) {
           that._render(query, suggestions);
         }
       }
