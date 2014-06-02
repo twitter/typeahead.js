@@ -18,7 +18,8 @@ describe('Typeahead', function() {
     this.view = new Typeahead({
       input: this.$input,
       withHint: true,
-      datasets: {}
+      datasets: {},
+      minLength: 1
     });
 
     this.input = this.view.input;
@@ -161,6 +162,40 @@ describe('Typeahead', function() {
       this.input.trigger('focused');
 
       expect(this.dropdown.open).toHaveBeenCalled();
+    });
+
+    describe('if minLength is 0', function() {
+      beforeEach(function() {
+        this.view.minLength = 0;
+      });
+
+      it('should clear the hint', function() {
+        this.input.trigger('focused');
+
+        expect(this.input.clearHint).toHaveBeenCalled();
+      });
+
+      it('should update dropdown', function() {
+        this.input.trigger('focused');
+
+        expect(this.dropdown.update).toHaveBeenCalled();
+      });
+
+      it('should set the language direction', function() {
+        this.input.getLanguageDirection.andReturn('rtl');
+
+        this.input.trigger('focused');
+
+        expect(this.view.dir).toBe('rtl');
+        expect(this.view.$node).toHaveCss({ direction: 'rtl' });
+        expect(this.dropdown.setLanguageDirection).toHaveBeenCalledWith('rtl');
+      });
+
+      it('should hide the placeholder text', function() {
+        this.input.trigger('focused');
+
+        expect(this.input.hidePlaceholder).toHaveBeenCalled();
+      });
     });
   });
 

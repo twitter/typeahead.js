@@ -23,18 +23,21 @@
       return this.each(attach);
 
       function attach() {
-        var $input = $(this), eventBus, typeahead;
+        var $input = $(this),
+        minLength = _.isNumber(o.minLength) ? o.minLength : 1,
+        eventBus, typeahead;
 
         _.each(datasets, function(d) {
           // HACK: force highlight as a top-level config
           d.highlight = !!o.highlight;
+          d.minLength = minLength;
         });
 
         typeahead = new Typeahead({
           input: $input,
           eventBus: eventBus = new EventBus({ el: $input }),
           withHint: _.isUndefined(o.hint) ? true : !!o.hint,
-          minLength: o.minLength,
+          minLength: minLength,
           autoselect: o.autoselect,
           datasets: datasets
         });
