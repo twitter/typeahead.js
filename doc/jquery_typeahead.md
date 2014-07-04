@@ -309,6 +309,10 @@ Datasets can be configured using the following options.
   context. Defaults to the value of `displayKey` wrapped in a `p` tag i.e. 
   `<p>{{value}}</p>`.
 
+  * `suggestionWrapper` – Used to render the wrapper of a single suggestion. If set, this has to be a 
+  precompiled template. The associated suggestion object will serve as the 
+  context. Defaults currently (maybe subject to change) to `<div class="tt-suggestion"></div>`
+
 ### Custom Events
 
 The typeahead component triggers the following custom events.
@@ -349,7 +353,10 @@ come from the provided templates detailed [here](#datasets).
       {{{header}}}
       <span class="tt-suggestions">
         {{#suggestions}}
-          <div class="tt-suggestion">{{{suggestion}}}</div>
+           {{#suggestionWrapper}}
+              <!-- suggestionWrapper defaults to <div class="tt-suggestion"></div> -->
+              {{{suggestion}}}
+           {{/suggestionWrapper}}
         {{/suggestions}}
         {{^suggestions}}
           {{{empty}}}

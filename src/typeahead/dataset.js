@@ -103,7 +103,7 @@ var Dataset = (function() {
         function getSuggestionNode(suggestion) {
           var $el;
 
-          $el = $(html.suggestion)
+          $el = $(that.templates.suggestionWrapper(suggestion))
           .append(that.templates.suggestion(suggestion))
           .data(datasetKey, that.name)
           .data(valueKey, that.displayFn(suggestion))
@@ -189,7 +189,8 @@ var Dataset = (function() {
       empty: templates.empty && _.templatify(templates.empty),
       header: templates.header && _.templatify(templates.header),
       footer: templates.footer && _.templatify(templates.footer),
-      suggestion: templates.suggestion || suggestionTemplate
+      suggestion: templates.suggestion || suggestionTemplate,
+      suggestionWrapper: templates.suggestionWrapper || _.templatify(html.suggestion)
     };
 
     function suggestionTemplate(context) {

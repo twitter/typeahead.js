@@ -593,7 +593,7 @@
                     return $suggestions;
                     function getSuggestionNode(suggestion) {
                         var $el;
-                        $el = $(html.suggestion).append(that.templates.suggestion(suggestion)).data(datasetKey, that.name).data(valueKey, that.displayFn(suggestion)).data(datumKey, suggestion);
+                        $el = $(that.templates.suggestionWrapper(suggestion)).append(that.templates.suggestion(suggestion)).data(datasetKey, that.name).data(valueKey, that.displayFn(suggestion)).data(datumKey, suggestion);
                         $el.children().each(function() {
                             $(this).css(css.suggestionChild);
                         });
@@ -655,7 +655,8 @@
                 empty: templates.empty && _.templatify(templates.empty),
                 header: templates.header && _.templatify(templates.header),
                 footer: templates.footer && _.templatify(templates.footer),
-                suggestion: templates.suggestion || suggestionTemplate
+                suggestion: templates.suggestion || suggestionTemplate,
+                suggestionWrapper: templates.suggestionWrapper || _.templatify(html.suggestion)
             };
             function suggestionTemplate(context) {
                 return "<p>" + displayFn(context) + "</p>";
