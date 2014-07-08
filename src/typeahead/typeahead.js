@@ -325,7 +325,7 @@ var Typeahead = (function() {
     .val('')
     .removeData()
     .addClass('tt-hint')
-    .removeAttr('id name placeholder')
+    .removeAttr('id name placeholder required')
     .prop('disabled', true)
     .attr({ autocomplete: 'off', spellcheck: 'false' });
 
