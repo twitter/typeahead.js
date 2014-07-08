@@ -81,6 +81,16 @@ describe('PersistentStorage', function() {
   });
 
   describe('#clear', function() {
+    it('should work with namespaces that contain regex characters', function() {
+      engine = new PersistentStorage('ns?()');
+      engine.set('key1', 'val1');
+      engine.set('key2', 'val2');
+      engine.clear();
+
+      expect(engine.get('key1')).toEqual(undefined);
+      expect(engine.get('key2')).toEqual(undefined);
+    });
+
     it('should remove all keys that exist in namespace of engine', function() {
       engine.set('key1', 'val1');
       engine.set('key2', 'val2');
