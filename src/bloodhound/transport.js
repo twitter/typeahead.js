@@ -9,6 +9,7 @@ var Transport = (function() {
       pendingRequests = {},
       maxPendingRequests = 6,
       requestCache = new LruCache(10),
+      cancelled = false,
       lastUrl;
 
   // constructor
@@ -40,11 +41,11 @@ var Transport = (function() {
     // ### private
 
     _get: function(url, o, cb) {
-      if (url !== lastUrl) {
-        return;
-      }
-
       var that = this, jqXhr;
+
+      // #149: don't make a network request if there has been a cancellation
+      // or if the url doesn't match the last url Transport#get was invoked with
+      if (cancelled || url !== lastUrl) { return; }
 
       // a request is already in progress, piggyback off of it
       if (jqXhr = pendingRequests[url]) {
@@ -94,6 +95,7 @@ var Transport = (function() {
         o = {};
       }
 
+      cancelled = false;
       lastUrl = url;
 
       // in-memory cache hit
@@ -108,6 +110,10 @@ var Transport = (function() {
 
       // return bool indicating whether or not a cache hit occurred
       return !!resp;
+    },
+
+    cancel: function() {
+      cancelled = true;
     }
   });
 
