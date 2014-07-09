@@ -8,7 +8,7 @@ var Transport = (function() {
   var pendingRequestsCount = 0,
       pendingRequests = {},
       maxPendingRequests = 6,
-      requestCache = new LruCache(10),
+      sharedCache = new LruCache(10),
       cancelled = false,
       lastUrl;
 
@@ -20,6 +20,9 @@ var Transport = (function() {
 
     this._send = o.transport ? callbackToDeferred(o.transport) : $.ajax;
     this._get = o.rateLimiter ? o.rateLimiter(this._get) : this._get;
+
+    // eh, should this even exist? relying on the browser's cache may be enough
+    this._cache = o.cache === false ? new LruCache(0) : sharedCache;
   }
 
   // static methods
@@ -29,8 +32,8 @@ var Transport = (function() {
     maxPendingRequests = num;
   };
 
-  Transport.resetCache = function clearCache() {
-    requestCache = new LruCache(10);
+  Transport.resetCache = function resetCache() {
+    sharedCache.reset();
   };
 
   // instance methods
@@ -66,7 +69,7 @@ var Transport = (function() {
 
       function done(resp) {
         cb && cb(null, resp);
-        requestCache.set(url, resp);
+        that._cache.set(url, resp);
       }
 
       function fail() {
@@ -99,7 +102,7 @@ var Transport = (function() {
       lastUrl = url;
 
       // in-memory cache hit
-      if (resp = requestCache.get(url)) {
+      if (resp = this._cache.get(url)) {
         // defer to stay consistent with behavior of ajax call
         _.defer(function() { cb && cb(null, resp); });
       }

@@ -98,6 +98,17 @@ describe('Transport', function() {
     expect(spy2).toHaveBeenCalledWith(null, fixtures.ajaxResps.ok1.parsed);
   });
 
+  it('should not cache requests if cache option is false', function() {
+    this.transport = new Transport({ cache: false });
+
+    this.transport.get('/test1', $.noop);
+    mostRecentAjaxRequest().response(fixtures.ajaxResps.ok);
+    this.transport.get('/test1', $.noop);
+    mostRecentAjaxRequest().response(fixtures.ajaxResps.ok);
+
+    expect(ajaxRequests.length).toBe(2);
+  });
+
   it('should prevent dog pile', function() {
     var spy1 = jasmine.createSpy(), spy2 = jasmine.createSpy();
 
