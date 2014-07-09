@@ -287,6 +287,9 @@ var Typeahead = (function() {
     },
 
     setVal: function setVal(val) {
+      // expect val to be a string, so be safe, and coerce
+      val = _.toStr(val);
+
       if (this.isActivated) {
         this.input.setInputValue(val);
       }

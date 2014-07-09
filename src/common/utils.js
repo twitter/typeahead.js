@@ -33,6 +33,10 @@ var _ = (function() {
 
     isUndefined: function(obj) { return typeof obj === 'undefined'; },
 
+    toStr: function toStr(s) {
+      return (_.isUndefined(s) || s === null) ? '' : s + '';
+    },
+
     bind: $.proxy,
 
     each: function(collection, cb) {
