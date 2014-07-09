@@ -5,6 +5,8 @@
  */
 
 var Input = (function() {
+  'use strict';
+
   var specialKeyCodeMap;
 
   specialKeyCodeMap = {

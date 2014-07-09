@@ -7,6 +7,8 @@
 // inspired by https://github.com/jharding/boomerang
 
 var EventEmitter = (function() {
+  'use strict';
+
   var splitter = /\s+/, nextTick = getNextTick();
 
   return {

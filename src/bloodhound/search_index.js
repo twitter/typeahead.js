@@ -5,6 +5,7 @@
  */
 
 var SearchIndex = (function() {
+  'use strict';
 
   // constructor
   // -----------

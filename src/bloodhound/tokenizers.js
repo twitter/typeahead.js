@@ -5,6 +5,7 @@
  */
 
 var tokenizers = (function(root) {
+  'use strict';
 
   return {
     nonword: nonword,

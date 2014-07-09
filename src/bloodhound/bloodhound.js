@@ -5,6 +5,8 @@
  */
 
 (function(root) {
+  'use strict';
+
   var old, keys;
 
   old = root.Bloodhound;

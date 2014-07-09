@@ -7,6 +7,7 @@
 // inspired by https://github.com/jharding/lru-cache
 
 var LruCache = (function() {
+  'use strict';
 
   function LruCache(maxSize) {
     this.maxSize = _.isNumber(maxSize) ? maxSize : 100;

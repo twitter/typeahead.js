@@ -5,6 +5,8 @@
  */
 
 var Typeahead = (function() {
+  'use strict';
+
   var attrsKey = 'ttAttrs';
 
   // constructor

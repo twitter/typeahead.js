@@ -7,6 +7,7 @@
 // inspired by https://github.com/jharding/bearhug
 
 var highlight = (function(doc) {
+  'use strict';
 
   var defaults = {
         node: null,

@@ -5,6 +5,8 @@
  */
 
 var PersistentStorage = (function() {
+  'use strict';
+
   var ls, methods;
 
   try {

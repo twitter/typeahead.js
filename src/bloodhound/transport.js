@@ -5,6 +5,8 @@
  */
 
 var Transport = (function() {
+  'use strict';
+
   var pendingRequestsCount = 0,
       pendingRequests = {},
       maxPendingRequests = 6,

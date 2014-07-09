@@ -5,6 +5,8 @@
  */
 
 (function() {
+  'use strict';
+
   var old, typeaheadKey, methods;
 
   old = $.fn.typeahead;

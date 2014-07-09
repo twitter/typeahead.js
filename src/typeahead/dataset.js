@@ -5,6 +5,8 @@
  */
 
 var Dataset = (function() {
+  'use strict';
+
   var datasetKey = 'ttDataset', valueKey = 'ttValue', datumKey = 'ttDatum';
 
   // constructor

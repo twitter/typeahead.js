@@ -5,6 +5,7 @@
  */
 
 var oParser = (function() {
+  'use strict';
 
   return {
     local: getLocal,
