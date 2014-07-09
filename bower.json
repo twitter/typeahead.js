@@ -3,7 +3,7 @@
   "version": "0.10.2",
   "main": "dist/typeahead.bundle.js",
   "dependencies": {
-    "jquery": ">=1.7"
+    "jquery": "~1.7"
   },
   "devDependencies": {
     "jasmine-ajax": "~1.3.1",
