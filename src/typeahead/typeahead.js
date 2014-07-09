@@ -25,7 +25,7 @@ var Typeahead = (function() {
     this.isActivated = false;
     this.autoselect = !!o.autoselect;
     this.minLength = _.isNumber(o.minLength) ? o.minLength : 1;
-    this.$node = buildDomStructure(o.input, o.withHint);
+    this.$node = buildDom(o.input, o.withHint);
 
     $menu = this.$node.find('.tt-dropdown-menu');
     $input = this.$node.find('.tt-input');
@@ -318,7 +318,7 @@ var Typeahead = (function() {
 
   return Typeahead;
 
-  function buildDomStructure(input, withHint) {
+  function buildDom(input, withHint) {
     var $input, $wrapper, $dropdown, $hint;
 
     $input = $(input);
@@ -331,8 +331,8 @@ var Typeahead = (function() {
     .removeData()
     .addClass('tt-hint')
     .removeAttr('id name placeholder required')
-    .prop('disabled', true)
-    .attr({ autocomplete: 'off', spellcheck: 'false' });
+    .prop('readonly', true)
+    .attr({ autocomplete: 'off', spellcheck: 'false', tabindex: -1 });
 
     // store the original values of the attrs that get modified
     // so modifications can be reverted on destroy
