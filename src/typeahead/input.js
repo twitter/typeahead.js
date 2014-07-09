@@ -161,8 +161,10 @@ var Input = (function() {
       hasDifferentWhitespace = areEquivalent ?
         this.query.length !== inputValue.length : false;
 
+      this.query = inputValue;
+
       if (!areEquivalent) {
-        this.trigger('queryChanged', this.query = inputValue);
+        this.trigger('queryChanged', this.query);
       }
 
       else if (hasDifferentWhitespace) {
