@@ -98,7 +98,11 @@ var Dataset = (function() {
         nodes = _.map(suggestions, getSuggestionNode);
         $suggestions.append.apply($suggestions, nodes);
 
-        that.highlight && highlight({ node: $suggestions[0], pattern: query });
+        that.highlight && highlight({
+          className: 'tt-highlight',
+          node: $suggestions[0],
+          pattern: query
+        });
 
         return $suggestions;
 
