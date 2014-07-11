@@ -117,7 +117,7 @@ module.exports = function(grunt) {
         jshintrc: '.jshintrc'
       },
       src: 'src/**/*.js',
-      test: ['test/*_spec.js'],
+      test: ['test/*_spec.js', 'test/integration/test.js'],
       gruntfile: ['Gruntfile.js']
     },
 
@@ -163,17 +163,13 @@ module.exports = function(grunt) {
 
     connect: {
       server: {
-        options: {
-          port: 8888, keepalive: true
-        }
+        options: { port: 8888, keepalive: true }
       }
     },
 
-    parallel: {
-      dev: [
-        { grunt: true, args: ['server'] },
-        { grunt: true, args: ['watch'] }
-      ]
+    concurrent: {
+      options: { logConcurrentOutput: true },
+      dev: ['server', 'watch']
     },
 
     step: {
@@ -251,7 +247,7 @@ module.exports = function(grunt) {
   grunt.registerTask('build', ['uglify', 'sed:version']);
   grunt.registerTask('server', 'connect:server');
   grunt.registerTask('lint', 'jshint');
-  grunt.registerTask('dev', 'parallel:dev');
+  grunt.registerTask('dev', 'concurrent:dev');
 
   // load tasks
   // ----------
@@ -259,7 +255,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-sed');
   grunt.loadNpmTasks('grunt-exec');
   grunt.loadNpmTasks('grunt-step');
-  grunt.loadNpmTasks('grunt-parallel');
+  grunt.loadNpmTasks('grunt-concurrent');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-uglify');
