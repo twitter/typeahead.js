@@ -39,6 +39,8 @@ var Dropdown = (function() {
       that.$menu.append(dataset.getRoot());
       dataset.onSync('rendered', that._onRendered, that);
     });
+
+    function initializeDataset(oDataset) { return new Dataset(oDataset); }
   }
 
   // instance methods
@@ -235,11 +237,4 @@ var Dropdown = (function() {
   });
 
   return Dropdown;
-
-  // helper functions
-  // ----------------
-
-  function initializeDataset(oDataset) {
-    return new Dataset(oDataset);
-  }
 })();

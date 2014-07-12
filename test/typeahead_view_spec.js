@@ -16,8 +16,9 @@ describe('Typeahead', function() {
     testDatum = fixtures.data.simple[0];
 
     this.view = new Typeahead({
+      hint: $(fixtures.html.hint),
+      menu: $(fixtures.html.menu),
       input: this.$input,
-      withHint: true,
       datasets: {}
     });
 
@@ -552,12 +553,6 @@ describe('Typeahead', function() {
       this.view.destroy();
 
       expect(this.dropdown.destroy).toHaveBeenCalled();
-    });
-
-    it('should null out its reference to the wrapper element', function() {
-      this.view.destroy();
-
-      expect(this.view.$node).toBeNull();
     });
 
     it('should revert DOM changes', function() {

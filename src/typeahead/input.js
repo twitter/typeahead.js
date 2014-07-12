@@ -268,6 +268,7 @@ var Input = (function() {
     destroy: function destroy() {
       this.$hint.off('.tt');
       this.$input.off('.tt');
+      this.$overflowHelper.remove();
 
       this.$hint = this.$input = this.$overflowHelper = null;
     }

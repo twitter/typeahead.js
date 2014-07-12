@@ -18,18 +18,17 @@ var Typeahead = (function() {
 
     o = o || {};
 
-    if (!o.input) {
-      $.error('missing input');
+    if (!o.input || !o.menu) {
+      $.error('missing input or menu');
     }
+
+    $hint = o.hint;
+    $menu = o.menu;
+    $input  = o.input;
 
     this.isActivated = false;
     this.autoselect = !!o.autoselect;
     this.minLength = _.isNumber(o.minLength) ? o.minLength : 1;
-    this.$node = buildDom(o.input, o.withHint);
-
-    $menu = this.$node.find('.tt-dropdown-menu');
-    $input = this.$node.find('.tt-input');
-    $hint = this.$node.find('.tt-hint');
 
     // #705: if there's scrollable overflow, ie doesn't support
     // blur cancellations when the scrollbar is clicked
@@ -219,7 +218,7 @@ var Typeahead = (function() {
 
       if (this.dir !== (dir = this.input.getLanguageDirection())) {
         this.dir = dir;
-        this.$node.css('direction', dir);
+        // TODO: this.$node.css('direction', dir);
         this.dropdown.setLanguageDirection(dir);
       }
     },
@@ -309,83 +308,8 @@ var Typeahead = (function() {
     destroy: function destroy() {
       this.input.destroy();
       this.dropdown.destroy();
-
-      destroyDomStructure(this.$node);
-
-      this.$node = null;
     }
   });
 
   return Typeahead;
-
-  function buildDom(input, withHint) {
-    var $input, $wrapper, $dropdown, $hint;
-
-    $input = $(input);
-    $wrapper = $(html.wrapper).css(css.wrapper);
-    $dropdown = $(html.dropdown).css(css.dropdown);
-    $hint = $input.clone().css(css.hint).css(getBackgroundStyles($input));
-
-    $hint
-    .val('')
-    .removeData()
-    .addClass('tt-hint')
-    .removeAttr('id name placeholder required')
-    .prop('readonly', true)
-    .attr({ autocomplete: 'off', spellcheck: 'false', tabindex: -1 });
-
-    // store the original values of the attrs that get modified
-    // so modifications can be reverted on destroy
-    $input.data(attrsKey, {
-      dir: $input.attr('dir'),
-      autocomplete: $input.attr('autocomplete'),
-      spellcheck: $input.attr('spellcheck'),
-      style: $input.attr('style')
-    });
-
-    $input
-    .addClass('tt-input')
-    .attr({ autocomplete: 'off', spellcheck: false })
-    .css(withHint ? css.input : css.inputWithNoHint);
-
-    // ie7 does not like it when dir is set to auto
-    try { !$input.attr('dir') && $input.attr('dir', 'auto'); } catch (e) {}
-
-    return $input
-    .wrap($wrapper)
-    .parent()
-    .prepend(withHint ? $hint : null)
-    .append($dropdown);
-  }
-
-  function getBackgroundStyles($el) {
-    return {
-      backgroundAttachment: $el.css('background-attachment'),
-      backgroundClip: $el.css('background-clip'),
-      backgroundColor: $el.css('background-color'),
-      backgroundImage: $el.css('background-image'),
-      backgroundOrigin: $el.css('background-origin'),
-      backgroundPosition: $el.css('background-position'),
-      backgroundRepeat: $el.css('background-repeat'),
-      backgroundSize: $el.css('background-size')
-    };
-  }
-
-  function destroyDomStructure($node) {
-    var $input = $node.find('.tt-input');
-
-    // need to remove attrs that weren't previously defined and
-    // revert attrs that originally had a value
-    _.each($input.data(attrsKey), function(val, key) {
-      _.isUndefined(val) ? $input.removeAttr(key) : $input.attr(key, val);
-    });
-
-    $input
-    .detach()
-    .removeData(attrsKey)
-    .removeClass('tt-input')
-    .insertAfter($node);
-
-    $node.remove();
-  }
 })();
