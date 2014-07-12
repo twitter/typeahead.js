@@ -1,127 +1,134 @@
 /*!
- * typeahead.js 0.10.2
+ * typeahead.js 0.10.3
  * https://github.com/twitter/typeahead.js
  * Copyright 2013-2014 Twitter, Inc. and other contributors; Licensed MIT
  */
 
 (function($) {
-    var _ = {
-        isMsie: function() {
-            return /(msie|trident)/i.test(navigator.userAgent) ? navigator.userAgent.match(/(msie |rv:)(\d+(.\d+)?)/i)[2] : false;
-        },
-        isBlankString: function(str) {
-            return !str || /^\s*$/.test(str);
-        },
-        escapeRegExChars: function(str) {
-            return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-        },
-        isString: function(obj) {
-            return typeof obj === "string";
-        },
-        isNumber: function(obj) {
-            return typeof obj === "number";
-        },
-        isArray: $.isArray,
-        isFunction: $.isFunction,
-        isObject: $.isPlainObject,
-        isUndefined: function(obj) {
-            return typeof obj === "undefined";
-        },
-        bind: $.proxy,
-        each: function(collection, cb) {
-            $.each(collection, reverseArgs);
-            function reverseArgs(index, value) {
-                return cb(value, index);
-            }
-        },
-        map: $.map,
-        filter: $.grep,
-        every: function(obj, test) {
-            var result = true;
-            if (!obj) {
-                return result;
-            }
-            $.each(obj, function(key, val) {
-                if (!(result = test.call(null, val, key, obj))) {
-                    return false;
+    var _ = function() {
+        "use strict";
+        return {
+            isMsie: function() {
+                return /(msie|trident)/i.test(navigator.userAgent) ? navigator.userAgent.match(/(msie |rv:)(\d+(.\d+)?)/i)[2] : false;
+            },
+            isBlankString: function(str) {
+                return !str || /^\s*$/.test(str);
+            },
+            escapeRegExChars: function(str) {
+                return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+            },
+            isString: function(obj) {
+                return typeof obj === "string";
+            },
+            isNumber: function(obj) {
+                return typeof obj === "number";
+            },
+            isArray: $.isArray,
+            isFunction: $.isFunction,
+            isObject: $.isPlainObject,
+            isUndefined: function(obj) {
+                return typeof obj === "undefined";
+            },
+            toStr: function toStr(s) {
+                return _.isUndefined(s) || s === null ? "" : s + "";
+            },
+            bind: $.proxy,
+            each: function(collection, cb) {
+                $.each(collection, reverseArgs);
+                function reverseArgs(index, value) {
+                    return cb(value, index);
                 }
-            });
-            return !!result;
-        },
-        some: function(obj, test) {
-            var result = false;
-            if (!obj) {
-                return result;
-            }
-            $.each(obj, function(key, val) {
-                if (result = test.call(null, val, key, obj)) {
-                    return false;
+            },
+            map: $.map,
+            filter: $.grep,
+            every: function(obj, test) {
+                var result = true;
+                if (!obj) {
+                    return result;
                 }
-            });
-            return !!result;
-        },
-        mixin: $.extend,
-        getUniqueId: function() {
-            var counter = 0;
-            return function() {
-                return counter++;
-            };
-        }(),
-        templatify: function templatify(obj) {
-            return $.isFunction(obj) ? obj : template;
-            function template() {
-                return String(obj);
-            }
-        },
-        defer: function(fn) {
-            setTimeout(fn, 0);
-        },
-        debounce: function(func, wait, immediate) {
-            var timeout, result;
-            return function() {
-                var context = this, args = arguments, later, callNow;
-                later = function() {
-                    timeout = null;
-                    if (!immediate) {
+                $.each(obj, function(key, val) {
+                    if (!(result = test.call(null, val, key, obj))) {
+                        return false;
+                    }
+                });
+                return !!result;
+            },
+            some: function(obj, test) {
+                var result = false;
+                if (!obj) {
+                    return result;
+                }
+                $.each(obj, function(key, val) {
+                    if (result = test.call(null, val, key, obj)) {
+                        return false;
+                    }
+                });
+                return !!result;
+            },
+            mixin: $.extend,
+            getUniqueId: function() {
+                var counter = 0;
+                return function() {
+                    return counter++;
+                };
+            }(),
+            templatify: function templatify(obj) {
+                return $.isFunction(obj) ? obj : template;
+                function template() {
+                    return String(obj);
+                }
+            },
+            defer: function(fn) {
+                setTimeout(fn, 0);
+            },
+            debounce: function(func, wait, immediate) {
+                var timeout, result;
+                return function() {
+                    var context = this, args = arguments, later, callNow;
+                    later = function() {
+                        timeout = null;
+                        if (!immediate) {
+                            result = func.apply(context, args);
+                        }
+                    };
+                    callNow = immediate && !timeout;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                    if (callNow) {
                         result = func.apply(context, args);
                     }
+                    return result;
                 };
-                callNow = immediate && !timeout;
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-                if (callNow) {
-                    result = func.apply(context, args);
-                }
-                return result;
-            };
-        },
-        throttle: function(func, wait) {
-            var context, args, timeout, result, previous, later;
-            previous = 0;
-            later = function() {
-                previous = new Date();
-                timeout = null;
-                result = func.apply(context, args);
-            };
-            return function() {
-                var now = new Date(), remaining = wait - (now - previous);
-                context = this;
-                args = arguments;
-                if (remaining <= 0) {
-                    clearTimeout(timeout);
+            },
+            throttle: function(func, wait) {
+                var context, args, timeout, result, previous, later;
+                previous = 0;
+                later = function() {
+                    previous = new Date();
                     timeout = null;
-                    previous = now;
                     result = func.apply(context, args);
-                } else if (!timeout) {
-                    timeout = setTimeout(later, remaining);
-                }
-                return result;
-            };
-        },
-        noop: function() {}
-    };
-    var VERSION = "0.10.2";
-    var tokenizers = function(root) {
+                };
+                return function() {
+                    var now = new Date(), remaining = wait - (now - previous);
+                    context = this;
+                    args = arguments;
+                    if (remaining <= 0) {
+                        clearTimeout(timeout);
+                        timeout = null;
+                        previous = now;
+                        result = func.apply(context, args);
+                    } else if (!timeout) {
+                        timeout = setTimeout(later, remaining);
+                    }
+                    return result;
+                };
+            },
+            noop: function() {}
+        };
+    }();
+    var VERSION = "0.10.3";
+    var tokenizers = function() {
+        "use strict";
         return {
             nonword: nonword,
             whitespace: whitespace,
@@ -130,26 +137,35 @@
                 whitespace: getObjTokenizer(whitespace)
             }
         };
-        function whitespace(s) {
-            return s.split(/\s+/);
+        function whitespace(str) {
+            str = _.toStr(str);
+            return str ? str.split(/\s+/) : [];
         }
-        function nonword(s) {
-            return s.split(/\W+/);
+        function nonword(str) {
+            str = _.toStr(str);
+            return str ? str.split(/\W+/) : [];
         }
         function getObjTokenizer(tokenizer) {
-            return function setKey(key) {
+            return function setKey() {
+                var args = [].slice.call(arguments, 0);
                 return function tokenize(o) {
-                    return tokenizer(o[key]);
+                    var tokens = [];
+                    _.each(args, function(k) {
+                        tokens = tokens.concat(tokenizer(_.toStr(o[k])));
+                    });
+                    return tokens;
                 };
             };
         }
     }();
     var LruCache = function() {
+        "use strict";
         function LruCache(maxSize) {
-            this.maxSize = maxSize || 100;
-            this.size = 0;
-            this.hash = {};
-            this.list = new List();
+            this.maxSize = _.isNumber(maxSize) ? maxSize : 100;
+            this.reset();
+            if (this.maxSize <= 0) {
+                this.set = this.get = $.noop;
+            }
         }
         _.mixin(LruCache.prototype, {
             set: function set(key, val) {
@@ -174,6 +190,11 @@
                     this.list.moveToFront(node);
                     return node.val;
                 }
+            },
+            reset: function reset() {
+                this.size = 0;
+                this.hash = {};
+                this.list = new List();
             }
         });
         function List() {
@@ -205,6 +226,7 @@
         return LruCache;
     }();
     var PersistentStorage = function() {
+        "use strict";
         var ls, methods;
         try {
             ls = window.localStorage;
@@ -216,7 +238,7 @@
         function PersistentStorage(namespace) {
             this.prefix = [ "__", namespace, "__" ].join("");
             this.ttlKey = "__ttl__";
-            this.keyMatcher = new RegExp("^" + this.prefix);
+            this.keyMatcher = new RegExp("^" + _.escapeRegExChars(this.prefix));
         }
         if (ls && window.JSON) {
             methods = {
@@ -284,21 +306,26 @@
         }
     }();
     var Transport = function() {
-        var pendingRequestsCount = 0, pendingRequests = {}, maxPendingRequests = 6, requestCache = new LruCache(10);
+        "use strict";
+        var pendingRequestsCount = 0, pendingRequests = {}, maxPendingRequests = 6, sharedCache = new LruCache(10), cancelled = false, lastUrl;
         function Transport(o) {
             o = o || {};
             this._send = o.transport ? callbackToDeferred(o.transport) : $.ajax;
             this._get = o.rateLimiter ? o.rateLimiter(this._get) : this._get;
+            this._cache = o.cache === false ? new LruCache(0) : sharedCache;
         }
         Transport.setMaxPendingRequests = function setMaxPendingRequests(num) {
             maxPendingRequests = num;
         };
-        Transport.resetCache = function clearCache() {
-            requestCache = new LruCache(10);
+        Transport.resetCache = function resetCache() {
+            sharedCache.reset();
         };
         _.mixin(Transport.prototype, {
             _get: function(url, o, cb) {
                 var that = this, jqXhr;
+                if (cancelled || url !== lastUrl) {
+                    return;
+                }
                 if (jqXhr = pendingRequests[url]) {
                     jqXhr.done(done).fail(fail);
                 } else if (pendingRequestsCount < maxPendingRequests) {
@@ -309,7 +336,7 @@
                 }
                 function done(resp) {
                     cb && cb(null, resp);
-                    requestCache.set(url, resp);
+                    that._cache.set(url, resp);
                 }
                 function fail() {
                     cb && cb(true);
@@ -329,7 +356,9 @@
                     cb = o;
                     o = {};
                 }
-                if (resp = requestCache.get(url)) {
+                cancelled = false;
+                lastUrl = url;
+                if (resp = this._cache.get(url)) {
                     _.defer(function() {
                         cb && cb(null, resp);
                     });
@@ -337,6 +366,9 @@
                     this._get(url, o, cb);
                 }
                 return !!resp;
+            },
+            cancel: function() {
+                cancelled = true;
             }
         });
         return Transport;
@@ -359,6 +391,7 @@
         }
     }();
     var SearchIndex = function() {
+        "use strict";
         function SearchIndex(o) {
             o = o || {};
             if (!o.datumTokenizer || !o.queryTokenizer) {
@@ -445,7 +478,7 @@
         }
         function unique(array) {
             var seen = {}, uniques = [];
-            for (var i = 0; i < array.length; i++) {
+            for (var i = 0, len = array.length; i < len; i++) {
                 if (!seen[array[i]]) {
                     seen[array[i]] = true;
                     uniques.push(array[i]);
@@ -457,7 +490,8 @@
             var ai = 0, bi = 0, intersection = [];
             arrayA = arrayA.sort(compare);
             arrayB = arrayB.sort(compare);
-            while (ai < arrayA.length && bi < arrayB.length) {
+            var lenArrayA = arrayA.length, lenArrayB = arrayB.length;
+            while (ai < lenArrayA && bi < lenArrayB) {
                 if (arrayA[ai] < arrayB[bi]) {
                     ai++;
                 } else if (arrayA[ai] > arrayB[bi]) {
@@ -475,6 +509,7 @@
         }
     }();
     var oParser = function() {
+        "use strict";
         return {
             local: getLocal,
             prefetch: getPrefetch,
@@ -508,6 +543,7 @@
             var remote, defaults;
             defaults = {
                 url: null,
+                cache: true,
                 wildcard: "%QUERY",
                 replace: null,
                 rateLimitBy: "debounce",
@@ -542,6 +578,7 @@
         }
     }();
     (function(root) {
+        "use strict";
         var old, keys;
         old = root.Bloodhound;
         keys = {
@@ -590,6 +627,9 @@
             },
             _getFromRemote: function getFromRemote(query, cb) {
                 var that = this, url, uriEncodedQuery;
+                if (!this.transport) {
+                    return;
+                }
                 query = query || "";
                 uriEncodedQuery = encodeURIComponent(query);
                 url = this.remote.replace ? this.remote.replace(this.remote.url, query) : this.remote.url.replace(this.remote.wildcard, uriEncodedQuery);
@@ -597,6 +637,9 @@
                 function handleRemoteResponse(err, resp) {
                     err ? cb([]) : cb(that.remote.filter ? that.remote.filter(resp) : resp);
                 }
+            },
+            _cancelLastRemoteRequest: function cancelLastRemoteRequest() {
+                this.transport && this.transport.cancel();
             },
             _saveToStorage: function saveToStorage(data, thumbprint, ttl) {
                 if (this.storage) {
@@ -635,9 +678,7 @@
                 var that = this, matches = [], cacheHit = false;
                 matches = this.index.get(query);
                 matches = this.sorter(matches).slice(0, this.limit);
-                if (matches.length < this.limit && this.transport) {
-                    cacheHit = this._getFromRemote(query, returnRemoteMatches);
-                }
+                matches.length < this.limit ? cacheHit = this._getFromRemote(query, returnRemoteMatches) : this._cancelLastRemoteRequest();
                 if (!cacheHit) {
                     (matches.length > 0 || !this.transport) && cb && cb(matches);
                 }
