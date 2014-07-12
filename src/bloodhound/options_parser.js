@@ -5,6 +5,7 @@
  */
 
 var oParser = (function() {
+  'use strict';
 
   return {
     local: getLocal,
@@ -48,6 +49,7 @@ var oParser = (function() {
 
     defaults = {
       url: null,
+      cache: true,
       wildcard: '%QUERY',
       replace: null,
       rateLimitBy: 'debounce',

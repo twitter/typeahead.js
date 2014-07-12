@@ -7,6 +7,8 @@
 // inspired by https://github.com/jharding/boomerang
 
 var EventEmitter = (function() {
+  'use strict';
+
   var splitter = /\s+/, nextTick = getNextTick();
 
   return {
@@ -80,7 +82,7 @@ var EventEmitter = (function() {
     function flush() {
       var cancelled;
 
-      for (var i = 0; !cancelled && i < callbacks.length; i += 1) {
+      for (var i = 0, len = callbacks.length; !cancelled && i < len; i += 1) {
         // only cancel if the callback explicitly returns false
         cancelled = callbacks[i].apply(context, args) === false;
       }

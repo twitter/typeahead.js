@@ -5,6 +5,8 @@
  */
 
 (function(root) {
+  'use strict';
+
   var old, keys;
 
   old = root.Bloodhound;
@@ -86,6 +88,8 @@
     _getFromRemote: function getFromRemote(query, cb) {
       var that = this, url, uriEncodedQuery;
 
+      if (!this.transport) { return; }
+
       query = query || '';
       uriEncodedQuery = encodeURIComponent(query);
 
@@ -98,6 +102,11 @@
       function handleRemoteResponse(err, resp) {
         err ? cb([]) : cb(that.remote.filter ? that.remote.filter(resp) : resp);
       }
+    },
+
+    _cancelLastRemoteRequest: function cancelLastRemoteRequest() {
+      // #149: prevents outdated rate-limited requests from being sent
+      this.transport && this.transport.cancel();
     },
 
     _saveToStorage: function saveToStorage(data, thumbprint, ttl) {
@@ -160,9 +169,9 @@
       matches = this.index.get(query);
       matches = this.sorter(matches).slice(0, this.limit);
 
-      if (matches.length < this.limit && this.transport) {
-        cacheHit = this._getFromRemote(query, returnRemoteMatches);
-      }
+      matches.length < this.limit ?
+        (cacheHit = this._getFromRemote(query, returnRemoteMatches)) :
+        this._cancelLastRemoteRequest();
 
       // if a cache hit occurred, skip rendering local matches
       // because the rendering of local/remote matches is already

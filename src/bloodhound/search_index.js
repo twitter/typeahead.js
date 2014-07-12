@@ -5,6 +5,7 @@
  */
 
 var SearchIndex = (function() {
+  'use strict';
 
   // constructor
   // -----------
@@ -127,7 +128,7 @@ var SearchIndex = (function() {
   function unique(array) {
     var seen = {}, uniques = [];
 
-    for (var i = 0; i < array.length; i++) {
+    for (var i = 0, len = array.length; i < len; i++) {
       if (!seen[array[i]]) {
         seen[array[i]] = true;
         uniques.push(array[i]);
@@ -143,7 +144,9 @@ var SearchIndex = (function() {
     arrayA = arrayA.sort(compare);
     arrayB = arrayB.sort(compare);
 
-    while (ai < arrayA.length && bi < arrayB.length) {
+    var lenArrayA = arrayA.length, lenArrayB = arrayB.length;
+
+    while (ai < lenArrayA && bi < lenArrayB) {
       if (arrayA[ai] < arrayB[bi]) {
         ai++;
       }

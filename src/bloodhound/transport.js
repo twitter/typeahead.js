@@ -5,10 +5,14 @@
  */
 
 var Transport = (function() {
+  'use strict';
+
   var pendingRequestsCount = 0,
       pendingRequests = {},
       maxPendingRequests = 6,
-      requestCache = new LruCache(10);
+      sharedCache = new LruCache(10),
+      cancelled = false,
+      lastUrl;
 
   // constructor
   // -----------
@@ -18,6 +22,9 @@ var Transport = (function() {
 
     this._send = o.transport ? callbackToDeferred(o.transport) : $.ajax;
     this._get = o.rateLimiter ? o.rateLimiter(this._get) : this._get;
+
+    // eh, should this even exist? relying on the browser's cache may be enough
+    this._cache = o.cache === false ? new LruCache(0) : sharedCache;
   }
 
   // static methods
@@ -27,8 +34,8 @@ var Transport = (function() {
     maxPendingRequests = num;
   };
 
-  Transport.resetCache = function clearCache() {
-    requestCache = new LruCache(10);
+  Transport.resetCache = function resetCache() {
+    sharedCache.reset();
   };
 
   // instance methods
@@ -40,6 +47,10 @@ var Transport = (function() {
 
     _get: function(url, o, cb) {
       var that = this, jqXhr;
+
+      // #149: don't make a network request if there has been a cancellation
+      // or if the url doesn't match the last url Transport#get was invoked with
+      if (cancelled || url !== lastUrl) { return; }
 
       // a request is already in progress, piggyback off of it
       if (jqXhr = pendingRequests[url]) {
@@ -60,7 +71,7 @@ var Transport = (function() {
 
       function done(resp) {
         cb && cb(null, resp);
-        requestCache.set(url, resp);
+        that._cache.set(url, resp);
       }
 
       function fail() {
@@ -89,8 +100,11 @@ var Transport = (function() {
         o = {};
       }
 
+      cancelled = false;
+      lastUrl = url;
+
       // in-memory cache hit
-      if (resp = requestCache.get(url)) {
+      if (resp = this._cache.get(url)) {
         // defer to stay consistent with behavior of ajax call
         _.defer(function() { cb && cb(null, resp); });
       }
@@ -101,6 +115,10 @@ var Transport = (function() {
 
       // return bool indicating whether or not a cache hit occurred
       return !!resp;
+    },
+
+    cancel: function() {
+      cancelled = true;
     }
   });
 

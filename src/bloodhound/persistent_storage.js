@@ -5,6 +5,8 @@
  */
 
 var PersistentStorage = (function() {
+  'use strict';
+
   var ls, methods;
 
   try {
@@ -24,7 +26,7 @@ var PersistentStorage = (function() {
   function PersistentStorage(namespace) {
     this.prefix = ['__', namespace, '__'].join('');
     this.ttlKey = '__ttl__';
-    this.keyMatcher = new RegExp('^' + this.prefix);
+    this.keyMatcher = new RegExp('^' + _.escapeRegExChars(this.prefix));
   }
 
   // instance methods

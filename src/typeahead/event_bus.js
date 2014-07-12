@@ -5,6 +5,8 @@
  */
 
 var EventBus = (function() {
+  'use strict';
+
   var namespace = 'typeahead:';
 
   // constructor

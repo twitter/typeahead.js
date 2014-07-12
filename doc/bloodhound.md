@@ -187,6 +187,11 @@ Prefetched data is fetched and processed on initialization. If the browser
 supports local storage, the processed data will be cached there to 
 prevent additional network requests on subsequent page loads.
 
+**WARNING:** While it's possible to get away with it for smaller data sets, 
+prefetched data isn't meant to contain entire data sets. Rather, it should act 
+as a first-level cache for suggestions. If don't keep this warning in mind, 
+you run the risk of hitting [local storage limits].
+
 When configuring `prefetch`, the following options are available.
 
 * `url` – A URL to a JSON file containing an array of datums. **Required.**
@@ -208,6 +213,7 @@ When configuring `prefetch`, the following options are available.
 
 <!-- section links -->
 
+[local storage limits]: http://stackoverflow.com/a/2989317
 [ajax settings object]:http://api.jquery.com/jQuery.ajax/#jQuery-ajax-settings
 
 ### Remote

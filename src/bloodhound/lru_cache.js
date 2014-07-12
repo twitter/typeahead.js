@@ -7,12 +7,16 @@
 // inspired by https://github.com/jharding/lru-cache
 
 var LruCache = (function() {
+  'use strict';
 
   function LruCache(maxSize) {
-    this.maxSize = maxSize || 100;
-    this.size = 0;
-    this.hash = {};
-    this.list = new List();
+    this.maxSize = _.isNumber(maxSize) ? maxSize : 100;
+    this.reset();
+
+    // if max size is less than 0, provide a noop cache
+    if (this.maxSize <= 0) {
+      this.set = this.get = $.noop;
+    }
   }
 
   _.mixin(LruCache.prototype, {
@@ -49,6 +53,12 @@ var LruCache = (function() {
         this.list.moveToFront(node);
         return node.val;
       }
+    },
+
+    reset: function reset() {
+      this.size = 0;
+      this.hash = {};
+      this.list = new List();
     }
   });
 

@@ -5,6 +5,8 @@
  */
 
 (function() {
+  'use strict';
+
   var old, typeaheadKey, methods;
 
   old = $.fn.typeahead;
@@ -106,8 +108,13 @@
   };
 
   $.fn.typeahead = function(method) {
-    if (methods[method]) {
-      return methods[method].apply(this, [].slice.call(arguments, 1));
+    var tts;
+
+    // methods that should only act on intialized typeaheads
+    if (methods[method] && method !== 'initialize') {
+      // filter out non-typeahead inputs
+      tts = this.filter(function() { return !!$(this).data(typeaheadKey); });
+      return methods[method].apply(tts, [].slice.call(arguments, 1));
     }
 
     else {

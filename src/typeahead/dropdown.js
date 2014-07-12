@@ -5,6 +5,7 @@
  */
 
 var Dropdown = (function() {
+  'use strict';
 
   // constructor
   // -----------

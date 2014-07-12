@@ -4,7 +4,8 @@
  * Copyright 2013-2014 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var tokenizers = (function(root) {
+var tokenizers = (function() {
+  'use strict';
 
   return {
     nonword: nonword,
@@ -15,13 +16,29 @@ var tokenizers = (function(root) {
     }
   };
 
-  function whitespace(s) { return s.split(/\s+/); }
+  function whitespace(str) {
+    str = _.toStr(str);
+    return str ? str.split(/\s+/) : [];
+  }
 
-  function nonword(s) { return s.split(/\W+/); }
+  function nonword(str) {
+    str = _.toStr(str);
+    return str ? str.split(/\W+/) : [];
+  }
 
   function getObjTokenizer(tokenizer) {
-    return function setKey(key) {
-      return function tokenize(o) { return tokenizer(o[key]); };
+    return function setKey(/* key, ... */) {
+      var args = [].slice.call(arguments, 0);
+
+      return function tokenize(o) {
+        var tokens = [];
+
+        _.each(args, function(k) {
+          tokens = tokens.concat(tokenizer(_.toStr(o[k])));
+        });
+
+        return tokens;
+      };
     };
   }
 })();

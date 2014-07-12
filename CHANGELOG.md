@@ -15,6 +15,19 @@ For more information on semantic versioning, please visit http://semver.org/.
 
 ---
 
+### 0.10.3 July 10, 2014
+
+**Bug fixes**
+
+* `Bloodhound#clearPrefecthCache` now works with cache keys that contain regex 
+  characters. [#771]
+* Prevent outdated network requests from being sent. [#809]
+* Add support to object tokenizers for multiple property tokenization. [#811]
+* Fix broken `jQuery#typeahead('val')` method. [#815]
+* Remove `disabled` attribute from the hint input control. [#839]
+* Add `tt-highlight` class to highlighted text. [#833]
+* Handle non-string types that are passed to `jQuery#typeahead('val', val)`. [#881]
+
 ### 0.10.2 March 10, 2014
 
 * Prevent flickering of dropdown menu when requesting remote suggestions. [#718]
@@ -135,6 +148,13 @@ work for them with a custom implementation.
 
 [0.10.0 milestone]: https://github.com/twitter/typeahead.js/issues?milestone=8&page=1&state=closed
 
+[#881]: https://github.com/twitter/typeahead.js/pull/881
+[#839]: https://github.com/twitter/typeahead.js/pull/839
+[#833]: https://github.com/twitter/typeahead.js/pull/833
+[#815]: https://github.com/twitter/typeahead.js/pull/815
+[#811]: https://github.com/twitter/typeahead.js/pull/811
+[#809]: https://github.com/twitter/typeahead.js/pull/809
+[#771]: https://github.com/twitter/typeahead.js/pull/771
 [#754]: https://github.com/twitter/typeahead.js/pull/754
 [#742]: https://github.com/twitter/typeahead.js/pull/742
 [#718]: https://github.com/twitter/typeahead.js/pull/718
