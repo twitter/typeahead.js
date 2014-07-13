@@ -159,7 +159,7 @@ options you can configure.
 
 * `limit` – The max number of suggestions to return from `Bloodhound#get`. If 
   not reached, the data source will attempt to backfill the suggestions from 
-  `remote`.
+  `remote`. Defaults to `5`.
 
 * `dupDetector` – If set, this is expected to be a function with the signature 
   `(remoteMatch, localMatch)` that returns `true` if the datums are duplicates or 
