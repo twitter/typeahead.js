@@ -17,7 +17,7 @@ var Dataset = (function() {
   // constructor
   // -----------
 
-  function Dataset(o) {
+  function Dataset(o, www) {
     o = o || {};
     o.templates = o.templates || {};
 
@@ -29,6 +29,8 @@ var Dataset = (function() {
       $.error('invalid dataset name: ' + o.name);
     }
 
+    www.mixin(this);
+
     // tracks the last query the dataset was updated for
     this.query = null;
 
@@ -37,10 +39,9 @@ var Dataset = (function() {
 
     this.source = o.source;
     this.displayFn = getDisplayFn(o.display || o.displayKey);
-
     this.templates = getTemplates(o.templates, this.displayFn);
 
-    this.$el = $(html.dataset.replace('%CLASS%', this.name));
+    this.$el = $(this.html.dataset.replace('%CLASS%', this.name));
   }
 
   // static methods
@@ -62,24 +63,24 @@ var Dataset = (function() {
 
     // ### private
 
-    _render: function render(query, suggestions) {
+    _render: function render(query, results) {
       if (!this.$el) { return; }
 
-      var that = this, hasSuggestions;
+      var that = this, hasResults;
 
       this.$el.empty();
-      hasSuggestions = suggestions && suggestions.length;
+      hasResults = results && results.length;
 
-      if (!hasSuggestions && this.templates.empty) {
+      if (!hasResults && this.templates.empty) {
         this.$el
         .html(getEmptyHtml())
         .prepend(that.templates.header ? getHeaderHtml() : null)
         .append(that.templates.footer ? getFooterHtml() : null);
       }
 
-      else if (hasSuggestions) {
+      else if (hasResults) {
         this.$el
-        .html(getSuggestionsHtml())
+        .html(getResultsHtml())
         .prepend(that.templates.header ? getHeaderHtml() : null)
         .append(that.templates.footer ? getFooterHtml() : null);
       }
@@ -90,49 +91,45 @@ var Dataset = (function() {
         return that.templates.empty({ query: query, isEmpty: true });
       }
 
-      function getSuggestionsHtml() {
-        var $suggestions, nodes;
+      function getResultsHtml() {
+        var fragment, nodes;
 
-        $suggestions = $(html.suggestions).css(css.suggestions);
+        fragment = document.createDocumentFragment();
+        nodes = _.map(results, getResultNode);
 
-        // jQuery#append doesn't support arrays as the first argument
-        // until version 1.8, see http://bugs.jquery.com/ticket/11231
-        nodes = _.map(suggestions, getSuggestionNode);
-        $suggestions.append.apply($suggestions, nodes);
+        _.each(nodes, function(n) { fragment.appendChild(n); });
 
         that.highlight && highlight({
-          className: 'tt-highlight',
-          node: $suggestions[0],
+          className: that.classNames.highlight,
+          node: fragment,
           pattern: query
         });
 
-        return $suggestions;
+        return fragment;
 
-        function getSuggestionNode(suggestion) {
+        function getResultNode(result) {
           var $el;
 
-          $el = $(html.suggestion)
-          .append(that.templates.suggestion(suggestion))
-          .data(keys.val, that.displayFn(suggestion))
-          .data(keys.obj, suggestion);
+          $el = $(that.html.result)
+          .append(that.templates.result(result))
+          .data(keys.val, that.displayFn(result))
+          .data(keys.obj, result);
 
-          $el.children().each(function() { $(this).css(css.suggestionChild); });
-
-          return $el;
+          return $el[0];
         }
       }
 
       function getHeaderHtml() {
         return that.templates.header({
           query: query,
-          isEmpty: !hasSuggestions
+          isEmpty: !hasResults
         });
       }
 
       function getFooterHtml() {
         return that.templates.footer({
           query: query,
-          isEmpty: !hasSuggestions
+          isEmpty: !hasResults
         });
       }
     },
@@ -150,11 +147,11 @@ var Dataset = (function() {
       this.canceled = false;
       this.source(query, render);
 
-      function render(suggestions) {
+      function render(results) {
         // if the update has been canceled or if the query has changed
-        // do not render the suggestions as they've become outdated
+        // do not render the results as they've become outdated
         if (!that.canceled && query === that.query) {
-          that._render(query, suggestions);
+          that._render(query, results);
         }
       }
     },
@@ -196,10 +193,10 @@ var Dataset = (function() {
       empty: templates.empty && _.templatify(templates.empty),
       header: templates.header && _.templatify(templates.header),
       footer: templates.footer && _.templatify(templates.footer),
-      suggestion: templates.suggestion || suggestionTemplate
+      result: templates.result || resultTemplate
     };
 
-    function suggestionTemplate(context) {
+    function resultTemplate(context) {
       return '<p>' + displayFn(context) + '</p>';
     }
   }

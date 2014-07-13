@@ -7,8 +7,8 @@
 var CustomResults = (function() {
   'use strict';
 
-  function CustomResults(o) {
-    Results.call(this, o);
+  function CustomResults(o, www) {
+    Results.apply(this, [].slice.call(arguments, 0));
   }
 
   _.mixin(CustomResults.prototype, Results.prototype, {

@@ -15,8 +15,7 @@ var semver = require('semver'),
       'src/bloodhound/bloodhound.js'
       ],
       typeahead: [
-      'src/typeahead/html.js',
-      'src/typeahead/css.js',
+      'src/typeahead/www.js',
       'src/typeahead/event_bus.js',
       'src/typeahead/event_emitter.js',
       'src/typeahead/highlight.js',

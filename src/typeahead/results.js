@@ -10,9 +10,9 @@ var Results = (function() {
   // constructor
   // -----------
 
-  function Results(o) {
-    var that = this, onSuggestionClick, onSuggestionMouseEnter,
-        onSuggestionMouseLeave;
+  function Results(o, www) {
+    var that = this, onSelectableClick, onSelectableMouseEnter,
+        onSelectableMouseLeave;
 
     o = o || {};
 
@@ -20,26 +20,28 @@ var Results = (function() {
       $.error('node is required');
     }
 
+    www.mixin(this);
+
     // the latest query the results was updated for
     this.query = null;
     this.datasets = _.map(o.datasets, initializeDataset);
 
     // bound functions
-    onSuggestionClick = _.bind(this._onSuggestionClick, this);
-    onSuggestionMouseEnter = _.bind(this._onSuggestionMouseEnter, this);
-    onSuggestionMouseLeave = _.bind(this._onSuggestionMouseLeave, this);
+    onSelectableClick = _.bind(this._onSelectableClick, this);
+    onSelectableMouseEnter = _.bind(this._onSelectableMouseEnter, this);
+    onSelectableMouseLeave = _.bind(this._onSelectableMouseLeave, this);
 
     this.$node = $(o.node)
-    .on('click.tt', '.tt-selectable', onSuggestionClick)
-    .on('mouseenter.tt', '.tt-selectable', onSuggestionMouseEnter)
-    .on('mouseleave.tt', '.tt-selectable', onSuggestionMouseLeave);
+    .on('click.tt', this.selectors.selectable, onSelectableClick)
+    .on('mouseenter.tt', this.selectors.selectable, onSelectableMouseEnter)
+    .on('mouseleave.tt', this.selectors.selectable, onSelectableMouseLeave);
 
     _.each(this.datasets, function(dataset) {
       that.$node.append(dataset.getRoot());
       dataset.onSync('rendered', that._onRendered, that);
     });
 
-    function initializeDataset(oDataset) { return new Dataset(oDataset); }
+    function initializeDataset(oDataset) { return new Dataset(oDataset, www); }
   }
 
   // instance methods
@@ -49,16 +51,16 @@ var Results = (function() {
 
     // ### private
 
-    _onSuggestionClick: function onSuggestionClick($e) {
-      this.trigger('suggestionClicked', $($e.currentTarget));
+    _onSelectableClick: function onSelectableClick($e) {
+      this.trigger('selectableClicked', $($e.currentTarget));
     },
 
-    _onSuggestionMouseEnter: function onSuggestionMouseEnter($e) {
+    _onSelectableMouseEnter: function onSelectableMouseEnter($e) {
       this._removeCursor();
       this._setCursor($($e.currentTarget), true);
     },
 
-    _onSuggestionMouseLeave: function onSuggestionMouseLeave() {
+    _onSelectableMouseLeave: function onSelectableMouseLeave() {
       this._removeCursor();
     },
 
@@ -66,13 +68,13 @@ var Results = (function() {
       var isEmpty = _.every(this.datasets, isDatasetEmpty);
 
       if (isEmpty) {
-        this.$node.addClass('tt-empty');
+        this.$node.addClass(this.classNames.empty);
         this._hide();
       }
 
       else {
-        this.$node.removeClass('tt-empty');
-        this.$node.hasClass('tt-activated') && this._show();
+        this.$node.removeClass(this.classNames.empty);
+        this.$node.hasClass(this.classNames.activated) && this._show();
       }
 
       this.trigger('datasetRendered');
@@ -80,12 +82,12 @@ var Results = (function() {
       function isDatasetEmpty(dataset) { return dataset.isEmpty(); }
     },
 
-    _getSuggestions: function getSuggestions() {
-      return this.$node.find('.tt-selectable');
+    _getSelectables: function getSelectables() {
+      return this.$node.find(this.selectors.selectable);
     },
 
     _setCursor: function setCursor($el, silent) {
-      $el.first().addClass('tt-cursor');
+      $el.first().addClass(this.classNames.cursor);
 
       !silent && this.trigger('cursorMoved');
     },
@@ -93,21 +95,21 @@ var Results = (function() {
     _removeCursor: function _removeCursor() {
       var selectable = this.getActiveSelectable();
 
-      selectable && selectable.removeClass('tt-cursor');
+      selectable && selectable.removeClass(this.classNames.cursor);
     },
 
     _moveCursor: function moveCursor(increment) {
-      var $suggestions, $oldCursor, oldCursorIndex, newCursorIndex, $newCursor;
+      var $selectables, $oldCursor, oldCursorIndex, newCursorIndex, $newCursor;
 
       $oldCursor = this.getActiveSelectable();
-      $suggestions = this._getSuggestions();
+      $selectables = this._getSelectables();
 
       this._removeCursor();
 
       // shifting before and after modulo to deal with -1 index
-      oldCursorIndex = $oldCursor ? $suggestions.index($oldCursor) : -1;
+      oldCursorIndex = $oldCursor ? $selectables.index($oldCursor) : -1;
       newCursorIndex = oldCursorIndex + increment;
-      newCursorIndex = (newCursorIndex + 1) % ($suggestions.length + 1) - 1;
+      newCursorIndex = (newCursorIndex + 1) % ($selectables.length + 1) - 1;
 
       if (newCursorIndex === -1) {
         this.trigger('cursorRemoved');
@@ -115,10 +117,10 @@ var Results = (function() {
       }
 
       else if (newCursorIndex < -1) {
-        newCursorIndex = $suggestions.length - 1;
+        newCursorIndex = $selectables.length - 1;
       }
 
-      this._setCursor($newCursor = $suggestions.eq(newCursorIndex));
+      this._setCursor($newCursor = $selectables.eq(newCursorIndex));
 
       // in the case of scrollable overflow
       // make sure the cursor is visible in the node
@@ -157,18 +159,19 @@ var Results = (function() {
     // ### public
 
     activate: function activate() {
-      this.$node.addClass('tt-activated');
-      !this.$node.hasClass('tt-empty') && this._show();
+      this.$node.addClass(this.classNames.activated);
+      !this.$node.hasClass(this.classNames.empty) && this._show();
     },
 
     deactivate: function deactivate() {
-      this.$node.removeClass('tt-activated');
+      this.$node.removeClass(this.classNames.activated);
       this._removeCursor();
       this._hide();
     },
 
     setLanguageDirection: function setLanguageDirection(dir) {
-      this.$node.css(dir === 'ltr' ? css.ltr : css.rtl);
+      this.$node.attr('dir', dir);
+      this.$node.css(dir === 'ltr' ? this.css.ltr : this.css.rtl);
     },
 
     moveCursorUp: function moveCursorUp() {
@@ -184,13 +187,13 @@ var Results = (function() {
     },
 
     getActiveSelectable: function getActiveSelectable() {
-      var $selectable = this._getSuggestions().filter('.tt-cursor').first();
+      var $selectable = this._getSelectables().filter(this.selectors.cursor).first();
 
       return $selectable.length ? $selectable : null;
     },
 
     getTopSelectable: function getTopSelectable() {
-      var $selectable = this._getSuggestions().first();
+      var $selectable = this._getSelectables().first();
 
       return $selectable.length ? $selectable : null;
     },
@@ -213,7 +216,7 @@ var Results = (function() {
       _.each(this.datasets, clearDataset);
 
       this.query = null;
-      this.$node.addClass('tt-empty');
+      this.$node.addClass(this.classNames.empty);
 
       function clearDataset(dataset) { dataset.clear(); }
     },

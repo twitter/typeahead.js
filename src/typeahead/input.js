@@ -22,7 +22,7 @@ var Input = (function() {
   // constructor
   // -----------
 
-  function Input(o) {
+  function Input(o, www) {
     var that = this, onBlur, onFocus, onKeydown, onInput;
 
     o = o || {};
@@ -36,6 +36,8 @@ var Input = (function() {
     onFocus = _.bind(this._onFocus, this);
     onKeydown = _.bind(this._onKeydown, this);
     onInput = _.bind(this._onInput, this);
+
+    www.mixin(this);
 
     this.$hint = $(o.hint);
     this.$input = $(o.input)
@@ -232,6 +234,10 @@ var Input = (function() {
 
     getLanguageDirection: function getLanguageDirection() {
       return (this.$input.css('direction') || 'ltr').toLowerCase();
+    },
+
+    setHintLanguageDirection: function setHintLanguageDirection(dir) {
+      this.$hint.attr('dir', dir);
     },
 
     hasFocus: function hasFocus() {

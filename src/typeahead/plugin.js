@@ -23,9 +23,12 @@
     // function(o, dataset, dataset, ...)
     // function(o, [dataset, dataset, ...])
     initialize: function initialize(o, datasets) {
+      var www;
+
       datasets = _.isArray(datasets) ? datasets : [].slice.call(arguments, 1);
 
       o = o || {};
+      www = WWW(o.classNames);
 
       return this.each(attach);
 
@@ -37,7 +40,7 @@
           d.highlight = !!o.highlight;
         });
 
-        $hintAndResults = buildDom($input, o.hint, o.results);
+        $hintAndResults = buildDom($input, o.hint, o.results, www);
 
         typeahead = new Typeahead({
           $input: $input,
@@ -45,8 +48,8 @@
           results: $hintAndResults.results,
           minLength: o.minLength,
           autoselect: o.autoselect,
-          datasets: datasets
-        });
+          datasets: datasets,
+        }, www);
 
         $input.data(keys.typeahead, typeahead);
       }
@@ -138,29 +141,29 @@
   // helper methods
   // --------------
 
-  function buildDom($input, oHint, oResults) {
+  function buildDom($input, oHint, oResults, www) {
     var $wrapper, $hint, $results, oobHint, oobResults;
 
-    $wrapper = $(html.wrapper);
-    $hint = $(oHint).first();
-    $results = $(oResults).first();
+    $wrapper = $(www.html.wrapper);
+    $hint = isDom(oHint) ? $(oHint).first() : null;
+    $results = isDom(oResults) ? $(oResults).first() : null;
 
-    oobHint = oHint !== false && $hint.length === 0;
-    oobResults = oResults !== false && $results.length === 0;
+    oobHint = oHint !== false && !$hint;
+    oobResults = oResults !== false && !$results;
 
     // track whether the hint and results are out-of-box so in the case destroy
     // is called we can do a proper revert of the changes that've been made
     $input.data(keys.oobHint, oobHint).data(keys.oobResults, oobResults);
 
-    oobHint && ($hint = buildHintFromInput($input));
-    oobResults && ($results = $(html.results).css(css.results));
+    oobHint && ($hint = buildHintFromInput($input, www));
+    oobResults && ($results = $(www.html.results).css(www.css.results));
 
     $input = prepInput($input);
 
     // only apply out-of-box css if necessary
     if (oobHint || oobResults) {
-      $wrapper.css(css.wrapper);
-      $input.css(oobHint ? css.input : css.inputWithNoHint);
+      $wrapper.css(www.css.wrapper);
+      $input.css(oobHint ? www.css.input : www.css.inputWithNoHint);
     }
 
     $input
@@ -173,14 +176,16 @@
       hint: { custom: !oobHint, $el: $hint },
       results: { custom: !oobResults, $el: $results }
     };
+
+    function isDom(obj) { return _.isJQuery(obj) || _.isElement(obj); }
   }
 
 
-  function buildHintFromInput($input) {
+  function buildHintFromInput($input, www) {
     return $input.clone()
     .addClass('tt-hint')
     .removeData()
-    .css(css.hint)
+    .css(www.css.hint)
     .css(getBackgroundStyles($input))
     .prop('readonly', true)
     .removeAttr('id name placeholder required')

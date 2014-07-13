@@ -11,26 +11,26 @@ var Typeahead = (function() {
   // -----------
 
   // THOUGHT: what if datasets could dynamically be added/removed?
-  function Typeahead(o) {
-    var $results, $input, $hint, RConstructor;
+  function Typeahead(o, www) {
+    var $results, $input, $hint, Res;
 
     o = o || {};
+    o.hint = o.hint || {};
+    o.results = o.results || {};
 
-    if (!o.$input) {
-      $.error('missing input');
+    if (!o.$input || !o.results.$el) {
+      $.error('missing input or results element');
     }
 
+    $input  = o.$input;
     $hint = o.hint.$el;
     $results = o.results.$el;
-    $input  = o.$input;
+
+    www.mixin(this);
 
     this.autoselect = !!o.autoselect;
     this.minLength = _.isNumber(o.minLength) ? o.minLength : 1;
-    this.eventBus = o.eventBus || new EventBus({ el: $input });
-
-    // the result constructor used is determined by whether the
-    // results element was provided or created
-    RConstructor = o.hint.custom ? CustomResults : Results;
+    this.eventBus = new EventBus({ el: $input });
 
     // #705: if there's scrollable overflow, ie doesn't support
     // blur cancellations when the scrollbar is clicked
@@ -55,13 +55,17 @@ var Typeahead = (function() {
     // #351: prevents input blur due to clicks within results
     $results.on('mousedown.tt', function($e) { $e.preventDefault(); });
 
-    this.results = new RConstructor({ node: $results, datasets: o.datasets })
-    .onSync('suggestionClicked', this._onSuggestionClicked, this)
+    // the result constructor used is determined by whether the
+    // results element was provided or created
+    Res = o.hint.custom ? CustomResults : Results;
+
+    this.results = new Res({ node: $results, datasets: o.datasets }, www)
+    .onSync('selectableClicked', this._onSelectableClicked, this)
     .onSync('cursorMoved', this._onCursorMoved, this)
     .onSync('cursorRemoved', this._onCursorRemoved, this)
     .onAsync('datasetRendered', this._onDatasetRendered, this);
 
-    this.input = new Input({ input: $input, hint: $hint })
+    this.input = new Input({ input: $input, hint: $hint }, www)
     .onSync('focused', this._onFocused, this)
     .onSync('blurred', this._onBlurred, this)
     .onSync('enterKeyed', this._onEnterKeyed, this)
@@ -84,7 +88,7 @@ var Typeahead = (function() {
 
     // ### private
 
-    _onSuggestionClicked: function onSuggestionClicked(type, $el) {
+    _onSelectableClicked: function onSelectableClicked(type, $el) {
       this._select($el);
     },
 
@@ -189,8 +193,8 @@ var Typeahead = (function() {
 
       if (this.dir !== (dir = this.input.getLanguageDirection())) {
         this.dir = dir;
-        // TODO: this.$node.css('direction', dir);
         this.results.setLanguageDirection(dir);
+        this.input.setHintLanguageDirection(dir);
       }
     },
 
@@ -248,7 +252,7 @@ var Typeahead = (function() {
         this.eventBus.trigger('selected', data.obj);
 
         // #118: allow click event to bubble up to the body before removing
-        // the suggestions otherwise we break event delegation
+        // the selectables otherwise we break event delegation
         _.defer(_.bind(this.results.deactivate, this.results));
       }
     },
