@@ -30,7 +30,7 @@ var css = (function() {
       position: 'relative',
       verticalAlign: 'top'
     },
-    dropdown: {
+    results: {
       position: 'absolute',
       top: '100%',
       left: '0',

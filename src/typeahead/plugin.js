@@ -15,7 +15,7 @@
     typeahead: 'ttTypeahead',
     attrs: 'ttAttrs',
     oobHint: 'ttOobHint',
-    oobMenu: 'ttOobMenu'
+    oobResults: 'ttOobResults'
   };
 
   methods = {
@@ -30,20 +30,19 @@
       return this.each(attach);
 
       function attach() {
-        var $input = $(this), $elements, eventBus, typeahead;
+        var $input = $(this), $hintAndResults, typeahead;
 
         _.each(datasets, function(d) {
           // HACK: force highlight as a top-level config
           d.highlight = !!o.highlight;
         });
 
-        $elements = buildDom($input, o.hint, o.menu);
+        $hintAndResults = buildDom($input, o.hint, o.results);
 
         typeahead = new Typeahead({
-          hint: $elements.hint,
-          menu: $elements.menu,
-          input: $input,
-          eventBus: eventBus = new EventBus({ el: $input }),
+          $input: $input,
+          hint: $hintAndResults.hint,
+          results: $hintAndResults.results,
           minLength: o.minLength,
           autoselect: o.autoselect,
           datasets: datasets
@@ -139,27 +138,27 @@
   // helper methods
   // --------------
 
-  function buildDom($input, oHint, oMenu) {
-    var $wrapper, $hint, $menu, oobHint, oobMenu;
+  function buildDom($input, oHint, oResults) {
+    var $wrapper, $hint, $results, oobHint, oobResults;
 
     $wrapper = $(html.wrapper);
     $hint = $(oHint).first();
-    $menu = $(oMenu).first();
+    $results = $(oResults).first();
 
     oobHint = oHint !== false && $hint.length === 0;
-    oobMenu = oMenu !== false && $menu.length === 0;
+    oobResults = oResults !== false && $results.length === 0;
 
-    // track whether the hint and menu are out-of-box so in the case destroy
+    // track whether the hint and results are out-of-box so in the case destroy
     // is called we can do a proper revert of the changes that've been made
-    $input.data(keys.oobHint, oobHint).data(keys.oobMenu, oobMenu);
+    $input.data(keys.oobHint, oobHint).data(keys.oobResults, oobResults);
 
     oobHint && ($hint = buildHintFromInput($input));
-    oobMenu && ($menu = $(html.dropdown).css(css.dropdown));
+    oobResults && ($results = $(html.results).css(css.results));
 
     $input = prepInput($input);
 
     // only apply out-of-box css if necessary
-    if (oobHint || oobMenu) {
+    if (oobHint || oobResults) {
       $wrapper.css(css.wrapper);
       $input.css(oobHint ? css.input : css.inputWithNoHint);
     }
@@ -168,9 +167,12 @@
     .wrap($wrapper)
     .parent()
     .prepend(oobHint ? $hint : null)
-    .append(oobMenu ? $menu : null);
+    .append(oobResults ? $results : null);
 
-    return { wrapper: $wrapper, input: $input, hint: $hint, menu: $menu };
+    return {
+      hint: { custom: !oobHint, $el: $hint },
+      results: { custom: !oobResults, $el: $results }
+    };
   }
 
 

@@ -10,7 +10,7 @@ var Dataset = (function() {
   var keys;
 
   keys = {
-    val: 'tt-selectable-value',
+    val: 'tt-selectable-display',
     obj: 'tt-selectable-object'
   };
 
@@ -50,10 +50,10 @@ var Dataset = (function() {
     var $el = $(el);
 
     return {
-      val: $el.data(keys.val),
-      obj: $el.data(keys.obj)
+      val: $el.data(keys.val) || '',
+      obj: $el.data(keys.obj) || null
     };
-  }
+  };
 
   // instance methods
   // ----------------

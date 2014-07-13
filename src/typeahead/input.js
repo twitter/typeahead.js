@@ -234,6 +234,10 @@ var Input = (function() {
       return (this.$input.css('direction') || 'ltr').toLowerCase();
     },
 
+    hasFocus: function hasFocus() {
+      return this.$input.is(':focus');
+    },
+
     hasOverflow: function hasOverflow() {
       // 2 is arbitrary, just picking a small number to handle edge cases
       var constraint = this.$input.width() - 2;

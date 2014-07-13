@@ -4,25 +4,24 @@
  * Copyright 2013-2014 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var Dropdown = (function() {
+var Results = (function() {
   'use strict';
 
   // constructor
   // -----------
 
-  function Dropdown(o) {
+  function Results(o) {
     var that = this, onSuggestionClick, onSuggestionMouseEnter,
         onSuggestionMouseLeave;
 
     o = o || {};
 
-    if (!o.menu) {
-      $.error('menu is required');
+    if (!o.node) {
+      $.error('node is required');
     }
 
-    this.isOpen = false;
-    this.isEmpty = true;
-
+    // the latest query the results was updated for
+    this.query = null;
     this.datasets = _.map(o.datasets, initializeDataset);
 
     // bound functions
@@ -30,13 +29,13 @@ var Dropdown = (function() {
     onSuggestionMouseEnter = _.bind(this._onSuggestionMouseEnter, this);
     onSuggestionMouseLeave = _.bind(this._onSuggestionMouseLeave, this);
 
-    this.$menu = $(o.menu)
+    this.$node = $(o.node)
     .on('click.tt', '.tt-selectable', onSuggestionClick)
     .on('mouseenter.tt', '.tt-selectable', onSuggestionMouseEnter)
     .on('mouseleave.tt', '.tt-selectable', onSuggestionMouseLeave);
 
     _.each(this.datasets, function(dataset) {
-      that.$menu.append(dataset.getRoot());
+      that.$node.append(dataset.getRoot());
       dataset.onSync('rendered', that._onRendered, that);
     });
 
@@ -46,7 +45,7 @@ var Dropdown = (function() {
   // instance methods
   // ----------------
 
-  _.mixin(Dropdown.prototype, EventEmitter, {
+  _.mixin(Results.prototype, EventEmitter, {
 
     // ### private
 
@@ -64,28 +63,25 @@ var Dropdown = (function() {
     },
 
     _onRendered: function onRendered() {
-      this.isEmpty = _.every(this.datasets, isDatasetEmpty);
+      var isEmpty = _.every(this.datasets, isDatasetEmpty);
 
-      this.isEmpty ? this._hide() : (this.isOpen && this._show());
+      if (isEmpty) {
+        this.$node.addClass('tt-empty');
+        this._hide();
+      }
+
+      else {
+        this.$node.removeClass('tt-empty');
+        this.$node.hasClass('tt-activated') && this._show();
+      }
 
       this.trigger('datasetRendered');
 
       function isDatasetEmpty(dataset) { return dataset.isEmpty(); }
     },
 
-    _hide: function() {
-      this.$menu.hide();
-    },
-
-    _show: function() {
-      // TODO: custom elements
-      // can't use jQuery#show because $menu is a span element we want
-      // display: block; not dislay: inline;
-      this.$menu.css('display', 'block');
-    },
-
     _getSuggestions: function getSuggestions() {
-      return this.$menu.find('.tt-selectable');
+      return this.$node.find('.tt-selectable');
     },
 
     _setCursor: function setCursor($el, silent) {
@@ -94,14 +90,14 @@ var Dropdown = (function() {
       !silent && this.trigger('cursorMoved');
     },
 
-    _removeCursor: function removeCursor() {
-      this.getActiveSelectable().removeClass('tt-cursor');
+    _removeCursor: function _removeCursor() {
+      var selectable = this.getActiveSelectable();
+
+      selectable && selectable.removeClass('tt-cursor');
     },
 
     _moveCursor: function moveCursor(increment) {
-      var $suggestions, $oldCursor, newCursorIndex, $newCursor;
-
-      if (!this.isOpen) { return; }
+      var $suggestions, $oldCursor, oldCursorIndex, newCursorIndex, $newCursor;
 
       $oldCursor = this.getActiveSelectable();
       $suggestions = this._getSuggestions();
@@ -109,12 +105,12 @@ var Dropdown = (function() {
       this._removeCursor();
 
       // shifting before and after modulo to deal with -1 index
-      newCursorIndex = $suggestions.index($oldCursor) + increment;
+      oldCursorIndex = $oldCursor ? $suggestions.index($oldCursor) : -1;
+      newCursorIndex = oldCursorIndex + increment;
       newCursorIndex = (newCursorIndex + 1) % ($suggestions.length + 1) - 1;
 
       if (newCursorIndex === -1) {
         this.trigger('cursorRemoved');
-
         return;
       }
 
@@ -125,54 +121,54 @@ var Dropdown = (function() {
       this._setCursor($newCursor = $suggestions.eq(newCursorIndex));
 
       // in the case of scrollable overflow
-      // make sure the cursor is visible in the menu
+      // make sure the cursor is visible in the node
       this._ensureVisible($newCursor);
     },
 
     _ensureVisible: function ensureVisible($el) {
-      var elTop, elBottom, menuScrollTop, menuHeight;
+      var elTop, elBottom, nodeScrollTop, nodeHeight;
 
       elTop = $el.position().top;
       elBottom = elTop + $el.outerHeight(true);
-      menuScrollTop = this.$menu.scrollTop();
-      menuHeight = this.$menu.height() +
-        parseInt(this.$menu.css('paddingTop'), 10) +
-        parseInt(this.$menu.css('paddingBottom'), 10);
+      nodeScrollTop = this.$node.scrollTop();
+      nodeHeight = this.$node.height() +
+        parseInt(this.$node.css('paddingTop'), 10) +
+        parseInt(this.$node.css('paddingBottom'), 10);
 
       if (elTop < 0) {
-        this.$menu.scrollTop(menuScrollTop + elTop);
+        this.$node.scrollTop(nodeScrollTop + elTop);
       }
 
-      else if (menuHeight < elBottom) {
-        this.$menu.scrollTop(menuScrollTop + (elBottom - menuHeight));
+      else if (nodeHeight < elBottom) {
+        this.$node.scrollTop(nodeScrollTop + (elBottom - nodeHeight));
       }
+    },
+
+   _hide: function() {
+      this.$node.hide();
+    },
+
+    _show: function() {
+      // can't use jQuery#show because $node is a span element we want
+      // display: block; not dislay: inline;
+      this.$node.css('display', 'block');
     },
 
     // ### public
 
-    close: function close() {
-      if (this.isOpen) {
-        this.isOpen = false;
-
-        this._removeCursor();
-        this._hide();
-
-        this.trigger('closed');
-      }
+    activate: function activate() {
+      this.$node.addClass('tt-activated');
+      !this.$node.hasClass('tt-empty') && this._show();
     },
 
-    open: function open() {
-      if (!this.isOpen) {
-        this.isOpen = true;
-
-        !this.isEmpty && this._show();
-
-        this.trigger('opened');
-      }
+    deactivate: function deactivate() {
+      this.$node.removeClass('tt-activated');
+      this._removeCursor();
+      this._hide();
     },
 
     setLanguageDirection: function setLanguageDirection(dir) {
-      this.$menu.css(dir === 'ltr' ? css.ltr : css.rtl);
+      this.$node.css(dir === 'ltr' ? css.ltr : css.rtl);
     },
 
     moveCursorUp: function moveCursorUp() {
@@ -184,38 +180,48 @@ var Dropdown = (function() {
     },
 
     getDataFromSelectable: function getDataFromSelectable($el) {
-      return $el.length ? Dataset.extractData($el) : null;
+      return ($el && $el.length) ? Dataset.extractData($el) : null;
     },
 
     getActiveSelectable: function getActiveSelectable() {
-      return this.$menu.find('.tt-cursor').first();
+      var $selectable = this._getSuggestions().filter('.tt-cursor').first();
+
+      return $selectable.length ? $selectable : null;
     },
 
     getTopSelectable: function getTopSelectable() {
-      return this._getSuggestions().first();
+      var $selectable = this._getSuggestions().first();
+
+      return $selectable.length ? $selectable : null;
     },
 
     update: function update(query) {
-      _.each(this.datasets, updateDataset);
+      var isValidUpdate = query !== this.query;
+
+      // don't update if the query hasn't changed
+      if (isValidUpdate) {
+        this.query = query;
+        _.each(this.datasets, updateDataset);
+      }
+
+      return isValidUpdate;
 
       function updateDataset(dataset) { dataset.update(query); }
     },
 
     empty: function empty() {
       _.each(this.datasets, clearDataset);
-      this.isEmpty = true;
+
+      this.query = null;
+      this.$node.addClass('tt-empty');
 
       function clearDataset(dataset) { dataset.clear(); }
     },
 
-    isVisible: function isVisible() {
-      return this.isOpen && !this.isEmpty;
-    },
-
     destroy: function destroy() {
-      this.$menu.off('.tt');
+      this.$node.off('.tt');
 
-      this.$menu = null;
+      this.$node = null;
 
       _.each(this.datasets, destroyDataset);
 
@@ -223,5 +229,5 @@ var Dropdown = (function() {
     }
   });
 
-  return Dropdown;
+  return Results;
 })();
