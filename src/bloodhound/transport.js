@@ -10,15 +10,16 @@ var Transport = (function() {
   var pendingRequestsCount = 0,
       pendingRequests = {},
       maxPendingRequests = 6,
-      sharedCache = new LruCache(10),
-      cancelled = false,
-      lastUrl;
+      sharedCache = new LruCache(10);
 
   // constructor
   // -----------
 
   function Transport(o) {
     o = o || {};
+
+    this.cancelled = false;
+    this.lastUrl = null;
 
     this._send = o.transport ? callbackToDeferred(o.transport) : $.ajax;
     this._get = o.rateLimiter ? o.rateLimiter(this._get) : this._get;
@@ -50,7 +51,7 @@ var Transport = (function() {
 
       // #149: don't make a network request if there has been a cancellation
       // or if the url doesn't match the last url Transport#get was invoked with
-      if (cancelled || url !== lastUrl) { return; }
+      if (this.cancelled || url !== this.lastUrl) { return; }
 
       // a request is already in progress, piggyback off of it
       if (jqXhr = pendingRequests[url]) {
@@ -100,8 +101,8 @@ var Transport = (function() {
         o = {};
       }
 
-      cancelled = false;
-      lastUrl = url;
+      this.cancelled = false;
+      this.lastUrl = url;
 
       // in-memory cache hit
       if (resp = this._cache.get(url)) {
@@ -118,7 +119,7 @@ var Transport = (function() {
     },
 
     cancel: function() {
-      cancelled = true;
+      this.cancelled = true;
     }
   });
 
