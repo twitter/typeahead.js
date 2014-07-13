@@ -31,9 +31,9 @@ var Dropdown = (function() {
     onSuggestionMouseLeave = _.bind(this._onSuggestionMouseLeave, this);
 
     this.$menu = $(o.menu)
-    .on('click.tt', '.tt-suggestion', onSuggestionClick)
-    .on('mouseenter.tt', '.tt-suggestion', onSuggestionMouseEnter)
-    .on('mouseleave.tt', '.tt-suggestion', onSuggestionMouseLeave);
+    .on('click.tt', '.tt-selectable', onSuggestionClick)
+    .on('mouseenter.tt', '.tt-selectable', onSuggestionMouseEnter)
+    .on('mouseleave.tt', '.tt-selectable', onSuggestionMouseLeave);
 
     _.each(this.datasets, function(dataset) {
       that.$menu.append(dataset.getRoot());
@@ -78,17 +78,14 @@ var Dropdown = (function() {
     },
 
     _show: function() {
+      // TODO: custom elements
       // can't use jQuery#show because $menu is a span element we want
       // display: block; not dislay: inline;
       this.$menu.css('display', 'block');
     },
 
     _getSuggestions: function getSuggestions() {
-      return this.$menu.find('.tt-suggestion');
-    },
-
-    _getCursor: function getCursor() {
-      return this.$menu.find('.tt-cursor').first();
+      return this.$menu.find('.tt-selectable');
     },
 
     _setCursor: function setCursor($el, silent) {
@@ -98,7 +95,7 @@ var Dropdown = (function() {
     },
 
     _removeCursor: function removeCursor() {
-      this._getCursor().removeClass('tt-cursor');
+      this.getActiveSelectable().removeClass('tt-cursor');
     },
 
     _moveCursor: function moveCursor(increment) {
@@ -106,7 +103,7 @@ var Dropdown = (function() {
 
       if (!this.isOpen) { return; }
 
-      $oldCursor = this._getCursor();
+      $oldCursor = this.getActiveSelectable();
       $suggestions = this._getSuggestions();
 
       this._removeCursor();
@@ -186,26 +183,16 @@ var Dropdown = (function() {
       this._moveCursor(+1);
     },
 
-    getDatumForSuggestion: function getDatumForSuggestion($el) {
-      var datum = null;
-
-      if ($el.length) {
-        datum = {
-          raw: Dataset.extractDatum($el),
-          value: Dataset.extractValue($el),
-          datasetName: Dataset.extractDatasetName($el)
-        };
-      }
-
-      return datum;
+    getDataFromSelectable: function getDataFromSelectable($el) {
+      return $el.length ? Dataset.extractData($el) : null;
     },
 
-    getDatumForCursor: function getDatumForCursor() {
-      return this.getDatumForSuggestion(this._getCursor().first());
+    getActiveSelectable: function getActiveSelectable() {
+      return this.$menu.find('.tt-cursor').first();
     },
 
-    getDatumForTopSuggestion: function getDatumForTopSuggestion() {
-      return this.getDatumForSuggestion(this._getSuggestions().first());
+    getTopSelectable: function getTopSelectable() {
+      return this._getSuggestions().first();
     },
 
     update: function update(query) {

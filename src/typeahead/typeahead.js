@@ -87,19 +87,18 @@ var Typeahead = (function() {
     // ### private
 
     _onSuggestionClicked: function onSuggestionClicked(type, $el) {
-      var datum;
-
-      if (datum = this.dropdown.getDatumForSuggestion($el)) {
-        this._select(datum);
-      }
+      this._select($el);
     },
 
     _onCursorMoved: function onCursorMoved() {
-      var datum = this.dropdown.getDatumForCursor();
+      var selectable, data;
 
-      this.input.setInputValue(datum.value, true);
+      selectable = this.dropdown.getActiveSelectable();
+      data = this.dropdown.getDataFromSelectable(selectable);
 
-      this.eventBus.trigger('cursorchanged', datum.raw, datum.datasetName);
+      this.input.setInputValue(data.val, true);
+
+      this.eventBus.trigger('cursorchanged', data.obj);
     },
 
     _onCursorRemoved: function onCursorRemoved() {
@@ -125,37 +124,34 @@ var Typeahead = (function() {
 
     _onFocused: function onFocused() {
       this.isActivated = true;
-      this.dropdown.open();
+      this.dropdown.open(); // TODO: activate
     },
 
     _onBlurred: function onBlurred() {
       this.isActivated = false;
-      this.dropdown.empty();
-      this.dropdown.close();
+      this.dropdown.empty(); // TODO: tt-suggestion tt-suggestion-always
+      this.dropdown.close(); // TODO: deactivate
     },
 
     _onEnterKeyed: function onEnterKeyed(type, $e) {
-      var cursorDatum, topSuggestionDatum;
+      var activeSelectable, topSelectable;
 
-      cursorDatum = this.dropdown.getDatumForCursor();
-      topSuggestionDatum = this.dropdown.getDatumForTopSuggestion();
-
-      if (cursorDatum) {
-        this._select(cursorDatum);
+      if (activeSelectable = this.dropdown.getActiveSelectable()) {
+        this._select(activeSelectable);
         $e.preventDefault();
       }
 
-      else if (this.autoselect && topSuggestionDatum) {
-        this._select(topSuggestionDatum);
+      else if (this.autoselect && (topSelectable = this.dropdown.getTopSelectable())) {
+        this._select(topSelectable);
         $e.preventDefault();
       }
     },
 
     _onTabKeyed: function onTabKeyed(type, $e) {
-      var datum;
+      var selectable;
 
-      if (datum = this.dropdown.getDatumForCursor()) {
-        this._select(datum);
+      if (selectable = this.dropdown.getActiveSelectable()) {
+        this._select(selectable);
         $e.preventDefault();
       }
 
@@ -165,7 +161,7 @@ var Typeahead = (function() {
     },
 
     _onEscKeyed: function onEscKeyed() {
-      this.dropdown.close();
+      this.dropdown.close(); // TODO: deactivate
       this.input.resetInputValue();
     },
 
@@ -176,7 +172,7 @@ var Typeahead = (function() {
         this.dropdown.update(query) :
         this.dropdown.moveCursorUp();
 
-      this.dropdown.open();
+      this.dropdown.open(); // TODO: activate
     },
 
     _onDownKeyed: function onDownKeyed() {
@@ -224,18 +220,19 @@ var Typeahead = (function() {
     },
 
     _updateHint: function updateHint() {
-      var datum, val, query, escapedQuery, frontMatchRegEx, match;
+      var selectable, data, val, query, escapedQuery, frontMatchRegEx, match;
 
-      datum = this.dropdown.getDatumForTopSuggestion();
+      selectable = this.dropdown.getTopSelectable();
+      data = this.dropdown.getDataFromSelectable(selectable);
 
-      if (datum && this.dropdown.isVisible() && !this.input.hasOverflow()) {
+      if (data && this.dropdown.isVisible() && !this.input.hasOverflow()) {
         val = this.input.getInputValue();
         query = Input.normalizeQuery(val);
         escapedQuery = _.escapeRegExChars(query);
 
         // match input value, then capture trailing text
         frontMatchRegEx = new RegExp('^(?:' + escapedQuery + ')(.+$)', 'i');
-        match = frontMatchRegEx.exec(datum.value);
+        match = frontMatchRegEx.exec(data.val);
 
         // clear hint if there's no trailing text
         match ? this.input.setHint(val + match[1]) : this.input.clearHint();
@@ -247,27 +244,30 @@ var Typeahead = (function() {
     },
 
     _autocomplete: function autocomplete(laxCursor) {
-      var hint, query, isCursorAtEnd, datum;
+      var hint, query, isCursorAtEnd, selectable, data;
 
       hint = this.input.getHint();
       query = this.input.getQuery();
       isCursorAtEnd = laxCursor || this.input.isCursorAtEnd();
 
       if (hint && query !== hint && isCursorAtEnd) {
-        datum = this.dropdown.getDatumForTopSuggestion();
-        datum && this.input.setInputValue(datum.value);
+        selectable = this.dropdown.getTopSelectable();
+        data = this.dropdown.getDataFromSelectable(selectable);
+        data && this.input.setInputValue(data.val);
 
-        this.eventBus.trigger('autocompleted', datum.raw, datum.datasetName);
+        this.eventBus.trigger('autocompleted', data.obj);
       }
     },
 
-    _select: function select(datum) {
-      this.input.setQuery(datum.value);
-      this.input.setInputValue(datum.value, true);
+    _select: function select(selectable) {
+      var data = this.dropdown.getDataFromSelectable(selectable);
+
+      this.input.setQuery(data.val);
+      this.input.setInputValue(data.val, true);
 
       this._setLanguageDirection();
 
-      this.eventBus.trigger('selected', datum.raw, datum.datasetName);
+      this.eventBus.trigger('selected', data.obj);
       this.dropdown.close();
 
       // #118: allow click event to bubble up to the body before removing

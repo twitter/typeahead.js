@@ -7,7 +7,12 @@
 var Dataset = (function() {
   'use strict';
 
-  var datasetKey = 'ttDataset', valueKey = 'ttValue', datumKey = 'ttDatum';
+  var keys;
+
+  keys = {
+    val: 'tt-selectable-value',
+    obj: 'tt-selectable-object'
+  };
 
   // constructor
   // -----------
@@ -41,17 +46,14 @@ var Dataset = (function() {
   // static methods
   // --------------
 
-  Dataset.extractDatasetName = function extractDatasetName(el) {
-    return $(el).data(datasetKey);
-  };
+  Dataset.extractData = function extractData(el) {
+    var $el = $(el);
 
-  Dataset.extractValue = function extractDatum(el) {
-    return $(el).data(valueKey);
-  };
-
-  Dataset.extractDatum = function extractDatum(el) {
-    return $(el).data(datumKey);
-  };
+    return {
+      val: $el.data(keys.val),
+      obj: $el.data(keys.obj)
+    };
+  }
 
   // instance methods
   // ----------------
@@ -111,9 +113,8 @@ var Dataset = (function() {
 
           $el = $(html.suggestion)
           .append(that.templates.suggestion(suggestion))
-          .data(datasetKey, that.name)
-          .data(valueKey, that.displayFn(suggestion))
-          .data(datumKey, suggestion);
+          .data(keys.val, that.displayFn(suggestion))
+          .data(keys.obj, suggestion);
 
           $el.children().each(function() { $(this).css(css.suggestionChild); });
 
