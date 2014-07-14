@@ -28,6 +28,7 @@ files = [
   'src/typeahead/input.js',
   'src/typeahead/dataset.js',
   'src/typeahead/results.js',
+  'src/typeahead/default_results.js',
   'src/typeahead/typeahead.js',
   'src/typeahead/plugin.js',
   JASMINE,

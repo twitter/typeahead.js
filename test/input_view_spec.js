@@ -23,7 +23,7 @@ describe('Input', function() {
     this.$input = $fixture.find('.tt-input');
     this.$hint = $fixture.find('.tt-hint');
 
-    this.view = new Input({ input: this.$input, hint: this.$hint }, www);
+    this.view = new Input({ input: this.$input, hint: this.$hint }, www).bind();
   });
 
   it('should throw an error if no input is provided', function() {

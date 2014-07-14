@@ -12,60 +12,39 @@ var Typeahead = (function() {
 
   // THOUGHT: what if datasets could dynamically be added/removed?
   function Typeahead(o, www) {
-    var $results, $input, $hint, Res;
-
     o = o || {};
-    o.hint = o.hint || {};
-    o.results = o.results || {};
 
-    if (!o.$input || !o.results.$el) {
-      $.error('missing input or results element');
+    if (!o.input) {
+      $.error('missing input');
     }
 
-    $input  = o.$input;
-    $hint = o.hint.$el;
-    $results = o.results.$el;
+    if (!o.results) {
+      $.error('missing results');
+    }
+
+    if (!o.eventBus) {
+      $.error('missing event bus');
+    }
 
     www.mixin(this);
 
+    this.eventBus = o.eventBus;
     this.autoselect = !!o.autoselect;
     this.minLength = _.isNumber(o.minLength) ? o.minLength : 1;
-    this.eventBus = new EventBus({ el: $input });
 
-    // #705: if there's scrollable overflow, ie doesn't support
-    // blur cancellations when the scrollbar is clicked
-    //
-    // #351: preventDefault won't cancel blurs in ie <= 8
-    $input.on('blur.tt', function($e) {
-      var active, isActive, hasActive;
+    this.input = o.input;
+    this.results = o.results;
 
-      active = document.activeElement;
-      isActive = $results.is(active);
-      hasActive = $results.has(active).length > 0;
+    this._hacks();
+    this._setLanguageDirection();
 
-      if (_.isMsie() && (isActive || hasActive)) {
-        $e.preventDefault();
-        // stop immediate in order to prevent Input#_onBlur from
-        // getting exectued
-        $e.stopImmediatePropagation();
-        _.defer(function() { $input.focus(); });
-      }
-    });
-
-    // #351: prevents input blur due to clicks within results
-    $results.on('mousedown.tt', function($e) { $e.preventDefault(); });
-
-    // the result constructor used is determined by whether the
-    // results element was provided or created
-    Res = o.hint.custom ? CustomResults : Results;
-
-    this.results = new Res({ node: $results, datasets: o.datasets }, www)
+    this.results.bind()
     .onSync('selectableClicked', this._onSelectableClicked, this)
     .onSync('cursorMoved', this._onCursorMoved, this)
     .onSync('cursorRemoved', this._onCursorRemoved, this)
     .onAsync('datasetRendered', this._onDatasetRendered, this);
 
-    this.input = new Input({ input: $input, hint: $hint }, www)
+    this.input.bind()
     .onSync('focused', this._onFocused, this)
     .onSync('blurred', this._onBlurred, this)
     .onSync('enterKeyed', this._onEnterKeyed, this)
@@ -77,8 +56,6 @@ var Typeahead = (function() {
     .onSync('rightKeyed', this._onRightKeyed, this)
     .onSync('queryChanged', this._onQueryChanged, this)
     .onSync('whitespaceChanged', this._onWhitespaceChanged, this);
-
-    this._setLanguageDirection();
   }
 
   // instance methods
@@ -87,6 +64,38 @@ var Typeahead = (function() {
   _.mixin(Typeahead.prototype, {
 
     // ### private
+
+    // here's where hacks get applied and we don't feel bad about it
+    _hacks: function hacks() {
+      var $input, $results;
+
+      // these default values are to make testing easier
+      $input = this.input.$input || $('<div>');
+      $results = this.results.$node || $('<div>');
+
+      // #705: if there's scrollable overflow, ie doesn't support
+      // blur cancellations when the scrollbar is clicked
+      //
+      // #351: preventDefault won't cancel blurs in ie <= 8
+      $input.on('blur.tt', function($e) {
+        var active, isActive, hasActive;
+
+        active = document.activeElement;
+        isActive = $results.is(active);
+        hasActive = $results.has(active).length > 0;
+
+        if (_.isMsie() && (isActive || hasActive)) {
+          $e.preventDefault();
+          // stop immediate in order to prevent Input#_onBlur from
+          // getting exectued
+          $e.stopImmediatePropagation();
+          _.defer(function() { $input.focus(); });
+        }
+      });
+
+      // #351: prevents input blur due to clicks within results
+      $results.on('mousedown.tt', function($e) { $e.preventDefault(); });
+    },
 
     _onSelectableClicked: function onSelectableClicked(type, $el) {
       this.select($el);

@@ -11,8 +11,7 @@ var Results = (function() {
   // -----------
 
   function Results(o, www) {
-    var that = this, onSelectableClick, onSelectableMouseEnter,
-        onSelectableMouseLeave;
+    var that = this;
 
     o = o || {};
 
@@ -22,23 +21,14 @@ var Results = (function() {
 
     www.mixin(this);
 
+    this.$node = $(o.node);
+
     // the latest query the results was updated for
     this.query = null;
     this.datasets = _.map(o.datasets, initializeDataset);
 
-    // bound functions
-    onSelectableClick = _.bind(this._onSelectableClick, this);
-    onSelectableMouseEnter = _.bind(this._onSelectableMouseEnter, this);
-    onSelectableMouseLeave = _.bind(this._onSelectableMouseLeave, this);
-
-    this.$node = $(o.node)
-    .on('click.tt', this.selectors.selectable, onSelectableClick)
-    .on('mouseenter.tt', this.selectors.selectable, onSelectableMouseEnter)
-    .on('mouseleave.tt', this.selectors.selectable, onSelectableMouseLeave);
-
     _.each(this.datasets, function(dataset) {
       that.$node.append(dataset.getRoot());
-      dataset.onSync('rendered', that._onRendered, that);
     });
 
     function initializeDataset(oDataset) { return new Dataset(oDataset, www); }
@@ -67,15 +57,9 @@ var Results = (function() {
     _onRendered: function onRendered() {
       var isEmpty = _.every(this.datasets, isDatasetEmpty);
 
-      if (isEmpty) {
-        this.$node.addClass(this.classes.empty);
-        this._hide();
-      }
-
-      else {
+      isEmpty ?
+        this.$node.addClass(this.classes.empty) :
         this.$node.removeClass(this.classes.empty);
-        this.$node.hasClass(this.classes.activated) && this._show();
-      }
 
       this.trigger('datasetRendered');
 
@@ -146,33 +130,40 @@ var Results = (function() {
       }
     },
 
-   _hide: function() {
-      this.$node.hide();
-    },
-
-    _show: function() {
-      // can't use jQuery#show because $node is a span element we want
-      // display: block; not dislay: inline;
-      this.$node.css('display', 'block');
-    },
-
     // ### public
+
+    bind: function() {
+    var that = this, onSelectableClick, onSelectableMouseEnter,
+        onSelectableMouseLeave;
+
+      // bound functions
+      onSelectableClick = _.bind(this._onSelectableClick, this);
+      onSelectableMouseEnter = _.bind(this._onSelectableMouseEnter, this);
+      onSelectableMouseLeave = _.bind(this._onSelectableMouseLeave, this);
+
+      this.$node
+      .on('click.tt', this.selectors.selectable, onSelectableClick)
+      .on('mouseenter.tt', this.selectors.selectable, onSelectableMouseEnter)
+      .on('mouseleave.tt', this.selectors.selectable, onSelectableMouseLeave);
+
+      _.each(this.datasets, function(dataset) {
+        dataset.onSync('rendered', that._onRendered, that);
+      });
+
+      return this;
+    },
 
     activate: function activate() {
       this.$node.addClass(this.classes.activated);
-      !this.$node.hasClass(this.classes.empty) && this._show();
     },
 
     deactivate: function deactivate() {
       this.$node.removeClass(this.classes.activated);
       this._removeCursor();
-      this._hide();
     },
 
     setLanguageDirection: function setLanguageDirection(dir) {
       this.$node.attr('dir', dir);
-      // TODO: not for custom elements
-      this.$node.css(dir === 'ltr' ? this.css.ltr : this.css.rtl);
     },
 
     moveCursorUp: function moveCursorUp() {

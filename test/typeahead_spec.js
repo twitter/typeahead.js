@@ -18,10 +18,9 @@ describe('Typeahead', function() {
     testData = { val: 'foo bar', obj: 'fiz' };
 
     this.view = new Typeahead({
-      hint: { custom: false, $el: $('input') },
-      results: { custom: false, $el: $('div') },
-      $input: this.$input,
-      datasets: {}
+      input: new Input(),
+      results: new Results(),
+      eventBus: new EventBus({ el: this.$input })
     }, www);
 
     this.input = this.view.input;

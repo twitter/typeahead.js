@@ -13,9 +13,7 @@
 
   keys = {
     typeahead: 'ttTypeahead',
-    attrs: 'ttAttrs',
-    oobHint: 'ttOobHint',
-    oobResults: 'ttOobResults'
+    attrs: 'ttAttrs'
   };
 
   methods = {
@@ -33,49 +31,56 @@
       return this.each(attach);
 
       function attach() {
-        var $input = $(this), $hintAndResults, typeahead;
+        var $input, $wrapper, $hint, $results, defaultHint, defaultResults,
+            eventBus, input, results, typeahead, ResultsConstructor;
 
-        _.each(datasets, function(d) {
-          // HACK: force highlight as a top-level config
-          d.highlight = !!o.highlight;
-        });
+        // highlight is a top-level config that needs to get inherited
+        // from all of the datasets
+        _.each(datasets, function(d) { d.highlight = !!o.highlight; });
 
-        $hintAndResults = buildDom($input, o.hint, o.results, www);
+        $input = $(this);
+        $wrapper = $(www.html.wrapper);
+        $hint = isDom(o.hint) ? $(o.hint).first() : null;
+        $results = isDom(o.results) ? $(o.results).first() : null;
+
+        defaultHint = o.hint !== false && !$hint;
+        defaultResults = o.results !== false && !$results;
+
+        defaultHint && ($hint = buildHintFromInput($input, www));
+        defaultResults && ($results = $(www.html.results).css(www.css.results));
+
+        $input = prepInput($input);
+
+        // only apply out-of-box css if necessary
+        if (defaultHint || defaultResults) {
+          $wrapper.css(www.css.wrapper);
+          $input.css(defaultHint ? www.css.input : www.css.inputWithNoHint);
+        }
+
+        $input
+        .wrap($wrapper)
+        .parent()
+        .prepend(defaultHint ? $hint : null)
+        .append(defaultResults ? $results : null);
+
+        ResultsConstructor = defaultResults ? DefaultResults : Results;
+
+        eventBus = new EventBus({ el: $input });
+        input = new Input({ hint: $hint, input: $input, }, www);
+        results = new ResultsConstructor({
+          node: $results,
+          datasets: datasets
+        }, www);
 
         typeahead = new Typeahead({
-          $input: $input,
-          hint: $hintAndResults.hint,
-          results: $hintAndResults.results,
           minLength: o.minLength,
           autoselect: o.autoselect,
-          datasets: datasets,
+          input: input,
+          results: results,
+          eventBus: eventBus
         }, www);
 
         $input.data(keys.typeahead, typeahead);
-      }
-    },
-
-    open: function open() {
-      return this.each(openTypeahead);
-
-      function openTypeahead() {
-        var $input = $(this), typeahead;
-
-        if (typeahead = $input.data(keys.typeahead)) {
-          typeahead.open();
-        }
-      }
-    },
-
-    close: function close() {
-      return this.each(closeTypeahead);
-
-      function closeTypeahead() {
-        var $input = $(this), typeahead;
-
-        if (typeahead = $input.data(keys.typeahead)) {
-          typeahead.close();
-        }
       }
     },
 
@@ -141,46 +146,6 @@
   // helper methods
   // --------------
 
-  function buildDom($input, oHint, oResults, www) {
-    var $wrapper, $hint, $results, oobHint, oobResults;
-
-    $wrapper = $(www.html.wrapper);
-    $hint = isDom(oHint) ? $(oHint).first() : null;
-    $results = isDom(oResults) ? $(oResults).first() : null;
-
-    oobHint = oHint !== false && !$hint;
-    oobResults = oResults !== false && !$results;
-
-    // track whether the hint and results are out-of-box so in the case destroy
-    // is called we can do a proper revert of the changes that've been made
-    $input.data(keys.oobHint, oobHint).data(keys.oobResults, oobResults);
-
-    oobHint && ($hint = buildHintFromInput($input, www));
-    oobResults && ($results = $(www.html.results).css(www.css.results));
-
-    $input = prepInput($input);
-
-    // only apply out-of-box css if necessary
-    if (oobHint || oobResults) {
-      $wrapper.css(www.css.wrapper);
-      $input.css(oobHint ? www.css.input : www.css.inputWithNoHint);
-    }
-
-    $input
-    .wrap($wrapper)
-    .parent()
-    .prepend(oobHint ? $hint : null)
-    .append(oobResults ? $results : null);
-
-    return {
-      hint: { custom: !oobHint, $el: $hint },
-      results: { custom: !oobResults, $el: $results }
-    };
-
-    function isDom(obj) { return _.isJQuery(obj) || _.isElement(obj); }
-  }
-
-
   function buildHintFromInput($input, www) {
     return $input.clone()
     .addClass('tt-hint')
@@ -242,4 +207,6 @@
 
     $wrapper.remove();
   }
+
+  function isDom(obj) { return _.isJQuery(obj) || _.isElement(obj); }
 })();
