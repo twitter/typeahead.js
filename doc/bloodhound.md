@@ -167,7 +167,7 @@ options you can configure.
 
 * `sorter` – A [compare function] used to sort matched datums for a given query.
 
-* `local` – An array of [datums](#datum) or a function that returns an array of
+* `local` – An array of [datums](#datums) or a function that returns an array of
   datums.
 
 * `prefetch` – Can be a URL to a JSON file containing an array of datums or, if 
