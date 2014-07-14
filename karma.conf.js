@@ -37,7 +37,7 @@ files = [
   'bower_components/jasmine-jquery/lib/jasmine-jquery.js',
   'bower_components/jasmine-ajax/lib/mock-ajax.js',
   'test/helpers/**/*',
-  'test/*_spec.js'
+  'test/**/*_spec.js'
 ];
 
 
