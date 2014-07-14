@@ -15,7 +15,7 @@ For more information on semantic versioning, please visit http://semver.org/.
 
 ---
 
-### 0.10.3 July 10, 2014
+### 0.10.4 July 13, 2014
 
 **Hotfix**
 
@@ -26,7 +26,7 @@ For more information on semantic versioning, please visit http://semver.org/.
 
 **Bug fixes**
 
-* `Bloodhound#clearPrefecthCache` now works with cache keys that contain regex 
+* `Bloodhound#clearPrefetchCache` now works with cache keys that contain regex 
   characters. [#771]
 * Prevent outdated network requests from being sent. [#809]
 * Add support to object tokenizers for multiple property tokenization. [#811]
