@@ -17,6 +17,13 @@ For more information on semantic versioning, please visit http://semver.org/.
 
 ### 0.10.3 July 10, 2014
 
+**Hotfix**
+
+* Fix regression that breaks Bloodhound instances when more than 1 instance is
+  relying on remote data. [#899]
+
+### 0.10.3 July 10, 2014
+
 **Bug fixes**
 
 * `Bloodhound#clearPrefecthCache` now works with cache keys that contain regex 
@@ -148,6 +155,7 @@ work for them with a custom implementation.
 
 [0.10.0 milestone]: https://github.com/twitter/typeahead.js/issues?milestone=8&page=1&state=closed
 
+[#899]: https://github.com/twitter/typeahead.js/pull/899
 [#881]: https://github.com/twitter/typeahead.js/pull/881
 [#839]: https://github.com/twitter/typeahead.js/pull/839
 [#833]: https://github.com/twitter/typeahead.js/pull/833
