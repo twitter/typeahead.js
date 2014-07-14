@@ -68,13 +68,13 @@ var Results = (function() {
       var isEmpty = _.every(this.datasets, isDatasetEmpty);
 
       if (isEmpty) {
-        this.$node.addClass(this.classNames.empty);
+        this.$node.addClass(this.classes.empty);
         this._hide();
       }
 
       else {
-        this.$node.removeClass(this.classNames.empty);
-        this.$node.hasClass(this.classNames.activated) && this._show();
+        this.$node.removeClass(this.classes.empty);
+        this.$node.hasClass(this.classes.activated) && this._show();
       }
 
       this.trigger('datasetRendered');
@@ -87,7 +87,7 @@ var Results = (function() {
     },
 
     _setCursor: function setCursor($el, silent) {
-      $el.first().addClass(this.classNames.cursor);
+      $el.first().addClass(this.classes.cursor);
 
       !silent && this.trigger('cursorMoved');
     },
@@ -95,7 +95,7 @@ var Results = (function() {
     _removeCursor: function _removeCursor() {
       var selectable = this.getActiveSelectable();
 
-      selectable && selectable.removeClass(this.classNames.cursor);
+      selectable && selectable.removeClass(this.classes.cursor);
     },
 
     _moveCursor: function moveCursor(increment) {
@@ -159,18 +159,19 @@ var Results = (function() {
     // ### public
 
     activate: function activate() {
-      this.$node.addClass(this.classNames.activated);
-      !this.$node.hasClass(this.classNames.empty) && this._show();
+      this.$node.addClass(this.classes.activated);
+      !this.$node.hasClass(this.classes.empty) && this._show();
     },
 
     deactivate: function deactivate() {
-      this.$node.removeClass(this.classNames.activated);
+      this.$node.removeClass(this.classes.activated);
       this._removeCursor();
       this._hide();
     },
 
     setLanguageDirection: function setLanguageDirection(dir) {
       this.$node.attr('dir', dir);
+      // TODO: not for custom elements
       this.$node.css(dir === 'ltr' ? this.css.ltr : this.css.rtl);
     },
 
@@ -216,7 +217,7 @@ var Results = (function() {
       _.each(this.datasets, clearDataset);
 
       this.query = null;
-      this.$node.addClass(this.classNames.empty);
+      this.$node.addClass(this.classes.empty);
 
       function clearDataset(dataset) { dataset.clear(); }
     },

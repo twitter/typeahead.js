@@ -100,7 +100,7 @@ var Dataset = (function() {
         _.each(nodes, function(n) { fragment.appendChild(n); });
 
         that.highlight && highlight({
-          className: that.classNames.highlight,
+          className: that.classes.highlight,
           node: fragment,
           pattern: query
         });

@@ -1,29 +1,31 @@
 describe('Dataset', function() {
+  var www = WWW();
 
   beforeEach(function() {
     this.dataset = new Dataset({
       name: 'test',
       source: this.source = jasmine.createSpy('source')
-    });
+    }, www);
   });
 
   it('should throw an error if source is missing', function() {
     expect(noSource).toThrow();
 
-    function noSource() { new Dataset(); }
+    function noSource() { new Dataset({}, www); }
   });
 
   it('should throw an error if the name is not a valid class name', function() {
     expect(fn).toThrow();
 
     function fn() {
-      var d = new Dataset({ name: 'a space', source: $.noop });
+      var d = new Dataset({ name: 'a space', source: $.noop }, www);
     }
   });
 
   describe('#getRoot', function() {
     it('should return the root element', function() {
-      expect(this.dataset.getRoot()).toBe('div.tt-dataset-test');
+      var sel = 'div' + www.selectors.dataset + www.selectors.dataset + '-test';
+      expect(this.dataset.getRoot()).toBe(sel);
     });
   });
 
@@ -42,7 +44,7 @@ describe('Dataset', function() {
         name: 'test',
         display: function(o) { return o.display; },
         source: this.source = jasmine.createSpy('source')
-      });
+      }, www);
 
       this.source.andCallFake(fakeGetForDisplayFn);
       this.dataset.update('woah');
@@ -58,7 +60,7 @@ describe('Dataset', function() {
         templates: {
           empty: '<h2>empty</h2>'
         }
-      });
+      }, www);
 
       this.source.andCallFake(fakeGetWithSyncEmptyResults);
       this.dataset.update('woah');
@@ -72,7 +74,7 @@ describe('Dataset', function() {
         templates: {
           header: '<h2>header</h2>'
         }
-      });
+      }, www);
 
       this.source.andCallFake(fakeGetWithSyncResults);
       this.dataset.update('woah');
@@ -86,7 +88,7 @@ describe('Dataset', function() {
         templates: {
           footer: function(c) { return '<p>' + c.query + '</p>'; }
         }
-      });
+      }, www);
 
       this.source.andCallFake(fakeGetWithSyncResults);
       this.dataset.update('woah');
@@ -101,7 +103,7 @@ describe('Dataset', function() {
           header: '<h2>header</h2>',
           footer: '<h2>footer</h2>'
         }
-      });
+      }, www);
 
       this.source.andCallFake(fakeGetWithSyncEmptyResults);
       this.dataset.update('woah');

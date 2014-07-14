@@ -89,7 +89,7 @@ var Typeahead = (function() {
     // ### private
 
     _onSelectableClicked: function onSelectableClicked(type, $el) {
-      this._select($el);
+      this.select($el);
     },
 
     _onCursorMoved: function onCursorMoved() {
@@ -128,12 +128,12 @@ var Typeahead = (function() {
       var activeSelectable, topSelectable;
 
       if (activeSelectable = this.results.getActiveSelectable()) {
-        this._select(activeSelectable);
+        this.select(activeSelectable);
         $e.preventDefault();
       }
 
       else if (this.autoselect && (topSelectable = this.results.getTopSelectable())) {
-        this._select(topSelectable);
+        this.select(topSelectable);
         $e.preventDefault();
       }
     },
@@ -142,7 +142,7 @@ var Typeahead = (function() {
       var selectable;
 
       if (selectable = this.results.getActiveSelectable()) {
-        this._select(selectable);
+        this.select(selectable);
         $e.preventDefault();
       }
 
@@ -240,23 +240,6 @@ var Typeahead = (function() {
       }
     },
 
-    _select: function select(selectable) {
-      var data = this.results.getDataFromSelectable(selectable);
-
-      if (data) {
-        this.input.setQuery(data.val);
-        this.input.setInputValue(data.val, true);
-
-        this._setLanguageDirection();
-
-        this.eventBus.trigger('selected', data.obj);
-
-        // #118: allow click event to bubble up to the body before removing
-        // the selectables otherwise we break event delegation
-        _.defer(_.bind(this.results.deactivate, this.results));
-      }
-    },
-
     _moveCursor: function moveCursor(dir) {
       var query = this.input.getQuery(), updateAccepted = false, method;
 
@@ -297,6 +280,24 @@ var Typeahead = (function() {
     getVal: function getVal() {
       return this.input.getQuery();
     },
+
+    select: function select(selectable) {
+      var data = this.results.getDataFromSelectable(selectable);
+
+      if (data) {
+        this.input.setQuery(data.val);
+        this.input.setInputValue(data.val, true);
+
+        this._setLanguageDirection();
+
+        this.eventBus.trigger('selected', data.obj);
+
+        // #118: allow click event to bubble up to the body before removing
+        // the selectables otherwise we break event delegation
+        _.defer(_.bind(this.results.deactivate, this.results));
+      }
+    },
+
 
     destroy: function destroy() {
       this.input.destroy();

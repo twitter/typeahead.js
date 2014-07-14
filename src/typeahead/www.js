@@ -24,22 +24,22 @@ var WWW = (function() {
   return build;
 
   function build(o) {
-    var www, classNames;
+    var www, classes;
 
-    classNames = _.mixin({}, defaultClassNames, o);
+    classes = _.mixin({}, defaultClassNames, o);
 
     www = {
       css: buildCss(),
-      html: buildHtml(classNames),
-      selectors: buildSelectors(classNames),
-      classNames: classNames
+      classes: classes,
+      html: buildHtml(classes),
+      selectors: buildSelectors(classes)
     };
 
     return {
       css: www.css,
       html: www.html,
+      classes: www.classes,
       selectors: www.selectors,
-      classNames: www.classNames,
       mixin: function(o) { _.mixin(o, www); }
     };
   }
@@ -56,9 +56,9 @@ var WWW = (function() {
     function _j() { return [].slice.call(arguments, 0).join(' '); }
   }
 
-  function buildSelectors(classNames) {
+  function buildSelectors(classes) {
     var selectors = {};
-    _.each(classNames, function(v, k) { selectors[k] = '.' + v; });
+    _.each(classes, function(v, k) { selectors[k] = '.' + v; });
 
     return selectors;
   }
