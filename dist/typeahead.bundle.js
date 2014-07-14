@@ -1,5 +1,5 @@
 /*!
- * typeahead.js 0.10.3
+ * typeahead.js 0.10.4
  * https://github.com/twitter/typeahead.js
  * Copyright 2013-2014 Twitter, Inc. and other contributors; Licensed MIT
  */
@@ -126,7 +126,7 @@
             noop: function() {}
         };
     }();
-    var VERSION = "0.10.3";
+    var VERSION = "0.10.4";
     var tokenizers = function() {
         "use strict";
         return {
@@ -307,9 +307,11 @@
     }();
     var Transport = function() {
         "use strict";
-        var pendingRequestsCount = 0, pendingRequests = {}, maxPendingRequests = 6, sharedCache = new LruCache(10), cancelled = false, lastUrl;
+        var pendingRequestsCount = 0, pendingRequests = {}, maxPendingRequests = 6, sharedCache = new LruCache(10);
         function Transport(o) {
             o = o || {};
+            this.cancelled = false;
+            this.lastUrl = null;
             this._send = o.transport ? callbackToDeferred(o.transport) : $.ajax;
             this._get = o.rateLimiter ? o.rateLimiter(this._get) : this._get;
             this._cache = o.cache === false ? new LruCache(0) : sharedCache;
@@ -323,7 +325,7 @@
         _.mixin(Transport.prototype, {
             _get: function(url, o, cb) {
                 var that = this, jqXhr;
-                if (cancelled || url !== lastUrl) {
+                if (this.cancelled || url !== this.lastUrl) {
                     return;
                 }
                 if (jqXhr = pendingRequests[url]) {
@@ -356,8 +358,8 @@
                     cb = o;
                     o = {};
                 }
-                cancelled = false;
-                lastUrl = url;
+                this.cancelled = false;
+                this.lastUrl = url;
                 if (resp = this._cache.get(url)) {
                     _.defer(function() {
                         cb && cb(null, resp);
@@ -368,7 +370,7 @@
                 return !!resp;
             },
             cancel: function() {
-                cancelled = true;
+                this.cancelled = true;
             }
         });
         return Transport;
