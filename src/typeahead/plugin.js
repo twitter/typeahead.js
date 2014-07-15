@@ -12,8 +12,9 @@
   old = $.fn.typeahead;
 
   keys = {
-    typeahead: 'ttTypeahead',
-    attrs: 'ttAttrs'
+    www: 'tt-www',
+    attrs: 'tt-attrs',
+    typeahead: 'tt-typeahead'
   };
 
   methods = {
@@ -51,17 +52,17 @@
 
         $input = prepInput($input);
 
-        // only apply out-of-box css if necessary
+        // only apply inline styles and make dom changes if necessary
         if (defaultHint || defaultResults) {
           $wrapper.css(www.css.wrapper);
           $input.css(defaultHint ? www.css.input : www.css.inputWithNoHint);
-        }
 
-        $input
-        .wrap($wrapper)
-        .parent()
-        .prepend(defaultHint ? $hint : null)
-        .append(defaultResults ? $results : null);
+          $input
+          .wrap($wrapper)
+          .parent()
+          .prepend(defaultHint ? $hint : null)
+          .append(defaultResults ? $results : null);
+        }
 
         ResultsConstructor = defaultResults ? DefaultResults : Results;
 
@@ -80,6 +81,7 @@
           eventBus: eventBus
         }, www);
 
+        $input.data(keys.www, www);
         $input.data(keys.typeahead, typeahead);
       }
     },
@@ -117,7 +119,6 @@
         if (typeahead = $input.data(keys.typeahead)) {
           revert($input);
           typeahead.destroy();
-          $input.removeData(keys.typeahead);
         }
       }
     }
@@ -191,7 +192,10 @@
   }
 
   function revert($input) {
-    var $wrapper = $input.parent();
+    var www, $wrapper;
+
+    www = $input.data(keys.www);
+    $wrapper = $input.parent().filter(www.selectors.wrapper);
 
     // need to remove attrs that weren't previously defined and
     // revert attrs that originally had a value
@@ -200,12 +204,15 @@
     });
 
     $input
-    .detach()
-    .removeData(keys.attrs)
-    .removeClass('tt-input')
-    .insertAfter($wrapper);
+    .removeData(keys.typeahead)
+    .removeData(keys.www)
+    .removeData(keys.attr)
+    .removeClass(www.classes.input);
 
-    $wrapper.remove();
+    if ($wrapper.length) {
+      $input.detach().insertAfter($wrapper);
+      $wrapper.remove();
+    }
   }
 
   function isDom(obj) { return _.isJQuery(obj) || _.isElement(obj); }
