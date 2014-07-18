@@ -257,6 +257,13 @@ describe('Input', function() {
       expect(this.view.getInputValue()).toBe('cheese');
     });
 
+    it('should trigger the "change" event on the input', function() {
+      var spy;
+      this.$input.on('change', spy = jasmine.createSpy());
+      this.view.setInputValue('sandwiches');
+      expect(spy).toHaveBeenCalled();
+    });
+
     it('should trigger {query|whitespace}Changed when applicable', function() {
       var spy1, spy2;
 
