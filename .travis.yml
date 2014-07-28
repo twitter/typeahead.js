@@ -13,8 +13,8 @@ env:
   - TEST_SUITE=integration BROWSER='internet explorer:9'
   - TEST_SUITE=integration BROWSER='internet explorer:10'
   - TEST_SUITE=integration BROWSER='internet explorer:11'
-  #- TEST_SUITE=integration BROWSER='opera:11'
-  #- TEST_SUITE=integration BROWSER='opera:12'
+  - TEST_SUITE=integration BROWSER='opera:11'
+  - TEST_SUITE=integration BROWSER='opera:12'
   - TEST_SUITE=integration BROWSER='chrome'
   global: 
   - secure: VY4J2ERfrMEin++f4+UDDtTMWLuE3jaYAVchRxfO2c6PQUYgR+SW4SMekz855U/BuptMtiVMR2UUoNGMgOSKIFkIXpPfHhx47G5a541v0WNjXfQ2qzivXAWaXNK3l3C58z4dKxgPWsFY9JtMVCddJd2vQieAILto8D8G09p7bpo=
@@ -24,8 +24,7 @@ node_js:
 before_script: 
 - npm install -g grunt-cli@0.1.13
 - npm install -g node-static@0.7.3
-# until https://github.com/bower/bower/pull/1403 is merged
-- npm install -g git://github.com/jharding/bower.git
+- npm install -g bower@1.3.8
 - bower install
 - grunt build
 script: test/ci
