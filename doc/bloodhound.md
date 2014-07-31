@@ -223,6 +223,8 @@ Remote data is only used when the data provided by `local` and `prefetch` is
 insufficient. In order to prevent an obscene number of requests being made to
 the remote endpoint, requests are rate-limited.
 
+By default, `remote` uses `jQuery.ajax` to process remote requests.
+
 When configuring `remote`, the following options are available.
 
 * `url` – A URL to make requests to when the data provided by `local` and 
@@ -247,7 +249,7 @@ When configuring `remote`, the following options are available.
 
 * `ajax` – The [ajax settings object] passed to `jQuery.ajax`.
 
-* `transport` – A function with the signature `transport(url, options, onSuccess, onError)` that processes the remote request. Expected to pass the response body to the onSuccess callback, or the error object to onError if the request failed. See the [remote transport example](#transport).
+* `transport` – A function with the signature `transport(url, options, onSuccess, onError)` that processes the remote request. Overrides the default transport of `jQuery.ajax`. Expected to pass the response body to the onSuccess callback, or the error object to onError if the request failed. See the [remote transport example](#transport).
 
 
 
@@ -285,9 +287,11 @@ tokens...
 
 ### Transport
 
-It's possible to implement your own transport for the [remote options hash](#remote).
+You may wish to use a remote transport other than `jQuery.ajax`.
 
-The following example re-implements the Jquery $.ajax deferral.
+Do so by implementing the `transport` option from the [remote options hash](#remote).
+
+The following example re-implements the Jquery $.ajax deferral for the sake of simplicity.
 
 ```javascript
 var engine = new Bloodhound({
