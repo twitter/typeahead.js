@@ -16,6 +16,7 @@ Table of Contents
   * [Remote](#remote)
   * [Datums](#datums)
   * [Tokens](#tokens)
+  * [Transport](#transport)
 
 Features
 --------
@@ -224,7 +225,7 @@ the remote endpoint, requests are rate-limited.
 
 When configuring `remote`, the following options are available.
 
-* `url` – A URL to make requests to when when the data provided by `local` and 
+* `url` – A URL to make requests to when the data provided by `local` and 
   `prefetch` is insufficient. **Required.**
 
 * `wildcard` - The pattern in `url` that will be replaced with the user's query 
@@ -245,6 +246,10 @@ When configuring `remote`, the following options are available.
   array of datums.
 
 * `ajax` – The [ajax settings object] passed to `jQuery.ajax`.
+
+* `transport` – A function with the signature `transport(url, options, onSuccess, onError)` that processes the remote request. Expected to pass the response body to the onSuccess callback, or the error object to onError if the request failed. See the [remote transport example](#transport).
+
+
 
 <!-- section links -->
 
@@ -277,3 +282,32 @@ tokens...
 * `typehead.js`
 * `autoco`
 * `java type`
+
+### Transport
+
+It's possible to implement your own transport for the [remote options hash](#remote).
+
+The following example re-implements the Jquery $.ajax deferral.
+
+```javascript
+var engine = new Bloodhound({
+    remote: {
+        transport: function (url, options, onSuccess, onError) {
+            
+            // Here's where you'd do your custom remote lookup.
+            $.ajax(url, options).done(done).fail(fail).always(always);
+
+            function done(data, textStatus, request) {
+                onSuccess(data); // Notify Bloodhound on success
+            }
+
+            function fail(request, textStatus, errorThrown) {
+                onError(errorThrown); // Notify Bloodhound on error
+            }
+
+            function always() {
+            }
+        }
+    }
+});
+```
