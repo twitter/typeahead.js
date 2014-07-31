@@ -11,7 +11,7 @@ preprocessors = {
 
 // list of files / patterns to load in the browser
 files = [
-  'bower_components/jquery/jquery.js',
+  'bower_components/jquery-1.7/jquery.js',
   'src/common/utils.js',
   'src/bloodhound/version.js',
   'src/bloodhound/tokenizers.js',
