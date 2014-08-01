@@ -240,6 +240,9 @@ var Typeahead = (function() {
 
         // clear hint if there's no trailing text
         match ? this.input.setHint(val + match[1]) : this.input.clearHint();
+
+	//trigger match
+	match ? this.eventBus.trigger("match", val + match[1]) : null;
       }
 
       else {
