@@ -334,6 +334,8 @@ The typeahead component triggers the following custom events.
   be invoked with 3 arguments: the jQuery event object, the suggestion object, 
   and the name of the dataset the suggestion belongs to. 
 
+* `typeahead:match` – Triggered when a match is found or changed. The event handler will be invoked with 2 arguments: the jQuery event object and current suggestion in the input field.
+
 All custom events are triggered on the element initialized as a typeahead.
 
 ### Look and Feel

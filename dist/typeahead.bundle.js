@@ -1593,6 +1593,7 @@
                     frontMatchRegEx = new RegExp("^(?:" + escapedQuery + ")(.+$)", "i");
                     match = frontMatchRegEx.exec(datum.value);
                     match ? this.input.setHint(val + match[1]) : this.input.clearHint();
+                    match ? this.eventBus.trigger("match", val + match[1]) : null;
                 } else {
                     this.input.clearHint();
                 }
