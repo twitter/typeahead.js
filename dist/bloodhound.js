@@ -455,6 +455,9 @@
                 this.datums = [];
                 this.trie = newNode();
             },
+            all: function all() {
+                return this.datums.slice(0);
+            },
             serialize: function serialize() {
                 return {
                     datums: this.datums,
@@ -678,9 +681,15 @@
             },
             get: function get(query, cb) {
                 var that = this, matches = [], cacheHit = false;
-                matches = this.index.get(query);
+                if (query === "") {
+                    matches = this.index.all();
+                } else {
+                    matches = this.index.get(query);
+                    if (matches.length < this.limit && this.transport) {
+                        cacheHit = this._getFromRemote(query, returnRemoteMatches);
+                    }
+                }
                 matches = this.sorter(matches).slice(0, this.limit);
-                matches.length < this.limit ? cacheHit = this._getFromRemote(query, returnRemoteMatches) : this._cancelLastRemoteRequest();
                 if (!cacheHit) {
                     (matches.length > 0 || !this.transport) && cb && cb(matches);
                 }
