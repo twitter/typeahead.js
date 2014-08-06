@@ -25,7 +25,7 @@ var Typeahead = (function() {
     this.isActivated = false;
     this.autoselect = !!o.autoselect;
     this.minLength = o.minLength;
-    this.$node = buildDomStructure(o.input, o.withHint);
+    this.$node = buildDom(o.input, o.withHint);
 
     $menu = this.$node.find('.tt-dropdown-menu');
     $input = this.$node.find('.tt-input');
