@@ -24,8 +24,8 @@ var Typeahead = (function() {
 
     this.isActivated = false;
     this.autoselect = !!o.autoselect;
-    this.minLength = _.isNumber(o.minLength) ? o.minLength : 1;
-    this.$node = buildDom(o.input, o.withHint);
+    this.minLength = o.minLength;
+    this.$node = buildDomStructure(o.input, o.withHint);
 
     $menu = this.$node.find('.tt-dropdown-menu');
     $input = this.$node.find('.tt-input');
@@ -113,6 +113,11 @@ var Typeahead = (function() {
     },
 
     _onOpened: function onOpened() {
+      // If minLength is 0, we need to update the dropdown so if it is opened
+      // we can show default suggestions
+      if (this.minLength === 0 && this.input.getQuery() === '') {
+        this.dropdown.update('');
+      }
       this._updateHint();
 
       this.eventBus.trigger('opened');
@@ -120,12 +125,24 @@ var Typeahead = (function() {
 
     _onClosed: function onClosed() {
       this.input.clearHint();
+      this.input.showPlaceholder();
 
       this.eventBus.trigger('closed');
     },
 
     _onFocused: function onFocused() {
+      var query;
       this.isActivated = true;
+      this.dropdown.empty();
+
+      if (this.minLength === 0) {
+        query = this.input.getQuery();
+
+        this.input.clearHint();
+
+        this.dropdown.update(query);
+        this._setLanguageDirection();
+      }
       this.dropdown.open();
     },
 
@@ -200,6 +217,7 @@ var Typeahead = (function() {
 
     _onQueryChanged: function onQueryChanged(e, query) {
       this.input.clearHintIfInvalid();
+      this.input.showPlaceholder();
 
       query.length >= this.minLength ?
         this.dropdown.update(query) :
@@ -241,9 +259,10 @@ var Typeahead = (function() {
         // clear hint if there's no trailing text
         match ? this.input.setHint(val + match[1]) : this.input.clearHint();
       }
-
       else {
         this.input.clearHint();
+        this.input.hidePlaceholder();
+        this.input.setHint(val + (match ? match[1] : ''));
       }
     },
 
