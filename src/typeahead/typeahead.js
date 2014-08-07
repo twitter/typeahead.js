@@ -7,64 +7,44 @@
 var Typeahead = (function() {
   'use strict';
 
-  var attrsKey = 'ttAttrs';
-
   // constructor
   // -----------
 
   // THOUGHT: what if datasets could dynamically be added/removed?
-  function Typeahead(o) {
-    var $menu, $input, $hint;
-
+  function Typeahead(o, www) {
     o = o || {};
 
     if (!o.input) {
       $.error('missing input');
     }
 
-    this.isActivated = false;
+    if (!o.results) {
+      $.error('missing results');
+    }
+
+    if (!o.eventBus) {
+      $.error('missing event bus');
+    }
+
+    www.mixin(this);
+
+    this.eventBus = o.eventBus;
     this.autoselect = !!o.autoselect;
     this.minLength = _.isNumber(o.minLength) ? o.minLength : 1;
-    this.$node = buildDom(o.input, o.withHint);
 
-    $menu = this.$node.find('.tt-dropdown-menu');
-    $input = this.$node.find('.tt-input');
-    $hint = this.$node.find('.tt-hint');
+    this.input = o.input;
+    this.results = o.results;
 
-    // #705: if there's scrollable overflow, ie doesn't support
-    // blur cancellations when the scrollbar is clicked
-    //
-    // #351: preventDefault won't cancel blurs in ie <= 8
-    $input.on('blur.tt', function($e) {
-      var active, isActive, hasActive;
+    this._hacks();
+    this._setLanguageDirection();
 
-      active = document.activeElement;
-      isActive = $menu.is(active);
-      hasActive = $menu.has(active).length > 0;
-
-      if (_.isMsie() && (isActive || hasActive)) {
-        $e.preventDefault();
-        // stop immediate in order to prevent Input#_onBlur from
-        // getting exectued
-        $e.stopImmediatePropagation();
-        _.defer(function() { $input.focus(); });
-      }
-    });
-
-    // #351: prevents input blur due to clicks within dropdown menu
-    $menu.on('mousedown.tt', function($e) { $e.preventDefault(); });
-
-    this.eventBus = o.eventBus || new EventBus({ el: $input });
-
-    this.dropdown = new Dropdown({ menu: $menu, datasets: o.datasets })
-    .onSync('suggestionClicked', this._onSuggestionClicked, this)
+    this.results.bind()
+    .onSync('selectableClicked', this._onSelectableClicked, this)
     .onSync('cursorMoved', this._onCursorMoved, this)
     .onSync('cursorRemoved', this._onCursorRemoved, this)
-    .onSync('opened', this._onOpened, this)
-    .onSync('closed', this._onClosed, this)
     .onAsync('datasetRendered', this._onDatasetRendered, this);
 
-    this.input = new Input({ input: $input, hint: $hint })
+    this.input.bind()
     .onSync('focused', this._onFocused, this)
     .onSync('blurred', this._onBlurred, this)
     .onSync('enterKeyed', this._onEnterKeyed, this)
@@ -76,8 +56,6 @@ var Typeahead = (function() {
     .onSync('rightKeyed', this._onRightKeyed, this)
     .onSync('queryChanged', this._onQueryChanged, this)
     .onSync('whitespaceChanged', this._onWhitespaceChanged, this);
-
-    this._setLanguageDirection();
   }
 
   // instance methods
@@ -87,76 +65,93 @@ var Typeahead = (function() {
 
     // ### private
 
-    _onSuggestionClicked: function onSuggestionClicked(type, $el) {
-      var datum;
+    // here's where hacks get applied and we don't feel bad about it
+    _hacks: function hacks() {
+      var $input, $results;
 
-      if (datum = this.dropdown.getDatumForSuggestion($el)) {
-        this._select(datum);
-      }
+      // these default values are to make testing easier
+      $input = this.input.$input || $('<div>');
+      $results = this.results.$node || $('<div>');
+
+      // #705: if there's scrollable overflow, ie doesn't support
+      // blur cancellations when the scrollbar is clicked
+      //
+      // #351: preventDefault won't cancel blurs in ie <= 8
+      $input.on('blur.tt', function($e) {
+        var active, isActive, hasActive;
+
+        active = document.activeElement;
+        isActive = $results.is(active);
+        hasActive = $results.has(active).length > 0;
+
+        if (_.isMsie() && (isActive || hasActive)) {
+          $e.preventDefault();
+          // stop immediate in order to prevent Input#_onBlur from
+          // getting exectued
+          $e.stopImmediatePropagation();
+          _.defer(function() { $input.focus(); });
+        }
+      });
+
+      // #351: prevents input blur due to clicks within results
+      $results.on('mousedown.tt', function($e) { $e.preventDefault(); });
+    },
+
+    _onSelectableClicked: function onSelectableClicked(type, $el) {
+      this.select($el);
     },
 
     _onCursorMoved: function onCursorMoved() {
-      var datum = this.dropdown.getDatumForCursor();
+      var selectable, data;
 
-      this.input.setInputValue(datum.value, true);
+      selectable = this.results.getActiveSelectable();
+      data = this.results.getDataFromSelectable(selectable);
 
-      this.eventBus.trigger('cursorchanged', datum.raw, datum.datasetName);
+      // TODO: what if data is null?
+      this.input.setInputValue(data.val, true);
+
+      this.eventBus.trigger('cursorchanged', data.obj);
     },
 
     _onCursorRemoved: function onCursorRemoved() {
       this.input.resetInputValue();
       this._updateHint();
+      // TODO: cursoroff?
     },
 
     _onDatasetRendered: function onDatasetRendered() {
       this._updateHint();
     },
 
-    _onOpened: function onOpened() {
-      this._updateHint();
-
-      this.eventBus.trigger('opened');
-    },
-
-    _onClosed: function onClosed() {
-      this.input.clearHint();
-
-      this.eventBus.trigger('closed');
-    },
-
     _onFocused: function onFocused() {
-      this.isActivated = true;
-      this.dropdown.open();
+      this.results.activate();
+      this.results.update(this.input.getQuery());
     },
 
     _onBlurred: function onBlurred() {
-      this.isActivated = false;
-      this.dropdown.empty();
-      this.dropdown.close();
+      this.results.deactivate();
+      this.input.resetInputValue();
     },
 
     _onEnterKeyed: function onEnterKeyed(type, $e) {
-      var cursorDatum, topSuggestionDatum;
+      var activeSelectable, topSelectable;
 
-      cursorDatum = this.dropdown.getDatumForCursor();
-      topSuggestionDatum = this.dropdown.getDatumForTopSuggestion();
-
-      if (cursorDatum) {
-        this._select(cursorDatum);
+      if (activeSelectable = this.results.getActiveSelectable()) {
+        this.select(activeSelectable);
         $e.preventDefault();
       }
 
-      else if (this.autoselect && topSuggestionDatum) {
-        this._select(topSuggestionDatum);
+      else if (this.autoselect && (topSelectable = this.results.getTopSelectable())) {
+        this.select(topSelectable);
         $e.preventDefault();
       }
     },
 
     _onTabKeyed: function onTabKeyed(type, $e) {
-      var datum;
+      var selectable;
 
-      if (datum = this.dropdown.getDatumForCursor()) {
-        this._select(datum);
+      if (selectable = this.results.getActiveSelectable()) {
+        this.select(selectable);
         $e.preventDefault();
       }
 
@@ -166,28 +161,16 @@ var Typeahead = (function() {
     },
 
     _onEscKeyed: function onEscKeyed() {
-      this.dropdown.close();
+      this.results.deactivate();
       this.input.resetInputValue();
     },
 
     _onUpKeyed: function onUpKeyed() {
-      var query = this.input.getQuery();
-
-      this.dropdown.isEmpty && query.length >= this.minLength ?
-        this.dropdown.update(query) :
-        this.dropdown.moveCursorUp();
-
-      this.dropdown.open();
+      this._moveCursor('up');
     },
 
     _onDownKeyed: function onDownKeyed() {
-      var query = this.input.getQuery();
-
-      this.dropdown.isEmpty && query.length >= this.minLength ?
-        this.dropdown.update(query) :
-        this.dropdown.moveCursorDown();
-
-      this.dropdown.open();
+      this._moveCursor('down');
     },
 
     _onLeftKeyed: function onLeftKeyed() {
@@ -199,19 +182,19 @@ var Typeahead = (function() {
     },
 
     _onQueryChanged: function onQueryChanged(e, query) {
+      this.results.activate();
       this.input.clearHintIfInvalid();
 
       query.length >= this.minLength ?
-        this.dropdown.update(query) :
-        this.dropdown.empty();
+        this.results.update(query) :
+        this.results.empty();
 
-      this.dropdown.open();
       this._setLanguageDirection();
     },
 
     _onWhitespaceChanged: function onWhitespaceChanged() {
+      this.results.activate();
       this._updateHint();
-      this.dropdown.open();
     },
 
     _setLanguageDirection: function setLanguageDirection() {
@@ -219,24 +202,25 @@ var Typeahead = (function() {
 
       if (this.dir !== (dir = this.input.getLanguageDirection())) {
         this.dir = dir;
-        this.$node.css('direction', dir);
-        this.dropdown.setLanguageDirection(dir);
+        this.results.setLanguageDirection(dir);
+        this.input.setHintLanguageDirection(dir);
       }
     },
 
     _updateHint: function updateHint() {
-      var datum, val, query, escapedQuery, frontMatchRegEx, match;
+      var selectable, data, val, query, escapedQuery, frontMatchRegEx, match;
 
-      datum = this.dropdown.getDatumForTopSuggestion();
+      selectable = this.results.getTopSelectable();
+      data = this.results.getDataFromSelectable(selectable);
 
-      if (datum && this.dropdown.isVisible() && !this.input.hasOverflow()) {
+      if (data && this._isActivated() && !this.input.hasOverflow()) {
         val = this.input.getInputValue();
         query = Input.normalizeQuery(val);
         escapedQuery = _.escapeRegExChars(query);
 
         // match input value, then capture trailing text
         frontMatchRegEx = new RegExp('^(?:' + escapedQuery + ')(.+$)', 'i');
-        match = frontMatchRegEx.exec(datum.value);
+        match = frontMatchRegEx.exec(data.val);
 
         // clear hint if there's no trailing text
         match ? this.input.setHint(val + match[1]) : this.input.clearHint();
@@ -248,49 +232,49 @@ var Typeahead = (function() {
     },
 
     _autocomplete: function autocomplete(laxCursor) {
-      var hint, query, isCursorAtEnd, datum;
+      var hint, query, isCursorAtEnd, selectable, data;
 
       hint = this.input.getHint();
       query = this.input.getQuery();
       isCursorAtEnd = laxCursor || this.input.isCursorAtEnd();
 
       if (hint && query !== hint && isCursorAtEnd) {
-        datum = this.dropdown.getDatumForTopSuggestion();
-        datum && this.input.setInputValue(datum.value);
+        selectable = this.results.getTopSelectable();
+        data = this.results.getDataFromSelectable(selectable);
 
-        this.eventBus.trigger('autocompleted', datum.raw, datum.datasetName);
+        if (data) {
+          this.input.setInputValue(data.val);
+          this.eventBus.trigger('autocompleted', data.obj);
+        }
       }
     },
 
-    _select: function select(datum) {
-      this.input.setQuery(datum.value);
-      this.input.setInputValue(datum.value, true);
+    _moveCursor: function moveCursor(dir) {
+      var query = this.input.getQuery(), updateAccepted = false, method;
 
-      this._setLanguageDirection();
+      this.results.activate();
+       method = 'moveCursor' + dir.charAt(0).toUpperCase() + dir.slice(1);
 
-      this.eventBus.trigger('selected', datum.raw, datum.datasetName);
-      this.dropdown.close();
+      query.length >= this.minLength ?
+        (updateAccepted = this.results.update(query)):
+        this.results.empty();
 
-      // #118: allow click event to bubble up to the body before removing
-      // the suggestions otherwise we break event delegation
-      _.defer(_.bind(this.dropdown.empty, this.dropdown));
+      // only attempt to move the cursor when an update did/will not happen
+      // this prevents unwanted cursor movement
+      !updateAccepted && this.results[method]();
+    },
+
+    _isActivated: function isActivated() {
+      return this.input.hasFocus();
     },
 
     // ### public
-
-    open: function open() {
-      this.dropdown.open();
-    },
-
-    close: function close() {
-      this.dropdown.close();
-    },
 
     setVal: function setVal(val) {
       // expect val to be a string, so be safe, and coerce
       val = _.toStr(val);
 
-      if (this.isActivated) {
+      if (this._isActivated()) {
         this.input.setInputValue(val);
       }
 
@@ -306,86 +290,29 @@ var Typeahead = (function() {
       return this.input.getQuery();
     },
 
+    select: function select(selectable) {
+      var data = this.results.getDataFromSelectable(selectable);
+
+      if (data) {
+        this.input.setQuery(data.val);
+        this.input.setInputValue(data.val, true);
+
+        this._setLanguageDirection();
+
+        this.eventBus.trigger('selected', data.obj);
+
+        // #118: allow click event to bubble up to the body before removing
+        // the selectables otherwise we break event delegation
+        _.defer(_.bind(this.results.deactivate, this.results));
+      }
+    },
+
+
     destroy: function destroy() {
       this.input.destroy();
-      this.dropdown.destroy();
-
-      destroyDomStructure(this.$node);
-
-      this.$node = null;
+      this.results.destroy();
     }
   });
 
   return Typeahead;
-
-  function buildDom(input, withHint) {
-    var $input, $wrapper, $dropdown, $hint;
-
-    $input = $(input);
-    $wrapper = $(html.wrapper).css(css.wrapper);
-    $dropdown = $(html.dropdown).css(css.dropdown);
-    $hint = $input.clone().css(css.hint).css(getBackgroundStyles($input));
-
-    $hint
-    .val('')
-    .removeData()
-    .addClass('tt-hint')
-    .removeAttr('id name placeholder required')
-    .prop('readonly', true)
-    .attr({ autocomplete: 'off', spellcheck: 'false', tabindex: -1 });
-
-    // store the original values of the attrs that get modified
-    // so modifications can be reverted on destroy
-    $input.data(attrsKey, {
-      dir: $input.attr('dir'),
-      autocomplete: $input.attr('autocomplete'),
-      spellcheck: $input.attr('spellcheck'),
-      style: $input.attr('style')
-    });
-
-    $input
-    .addClass('tt-input')
-    .attr({ autocomplete: 'off', spellcheck: false })
-    .css(withHint ? css.input : css.inputWithNoHint);
-
-    // ie7 does not like it when dir is set to auto
-    try { !$input.attr('dir') && $input.attr('dir', 'auto'); } catch (e) {}
-
-    return $input
-    .wrap($wrapper)
-    .parent()
-    .prepend(withHint ? $hint : null)
-    .append($dropdown);
-  }
-
-  function getBackgroundStyles($el) {
-    return {
-      backgroundAttachment: $el.css('background-attachment'),
-      backgroundClip: $el.css('background-clip'),
-      backgroundColor: $el.css('background-color'),
-      backgroundImage: $el.css('background-image'),
-      backgroundOrigin: $el.css('background-origin'),
-      backgroundPosition: $el.css('background-position'),
-      backgroundRepeat: $el.css('background-repeat'),
-      backgroundSize: $el.css('background-size')
-    };
-  }
-
-  function destroyDomStructure($node) {
-    var $input = $node.find('.tt-input');
-
-    // need to remove attrs that weren't previously defined and
-    // revert attrs that originally had a value
-    _.each($input.data(attrsKey), function(val, key) {
-      _.isUndefined(val) ? $input.removeAttr(key) : $input.attr(key, val);
-    });
-
-    $input
-    .detach()
-    .removeData(attrsKey)
-    .removeClass('tt-input')
-    .insertAfter($node);
-
-    $node.remove();
-  }
 })();

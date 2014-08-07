@@ -1,5 +1,5 @@
 describe('Input', function() {
-  var KEYS;
+  var KEYS, www;
 
    KEYS = {
     enter: 13,
@@ -12,6 +12,8 @@ describe('Input', function() {
     normal: 65 // "A" key
   };
 
+  www = WWW();
+
   beforeEach(function() {
     var $fixture;
 
@@ -21,13 +23,13 @@ describe('Input', function() {
     this.$input = $fixture.find('.tt-input');
     this.$hint = $fixture.find('.tt-hint');
 
-    this.view = new Input({ input: this.$input, hint: this.$hint });
+    this.view = new Input({ input: this.$input, hint: this.$hint }, www).bind();
   });
 
-  it('should throw an error if no hint and/or input is provided', function() {
+  it('should throw an error if no input is provided', function() {
     expect(noInput).toThrow();
 
-    function noInput() { new Input({ hint: '.hint' }); }
+    function noInput() { new Input({}, www); }
   });
 
   describe('when the blur DOM event is triggered', function() {

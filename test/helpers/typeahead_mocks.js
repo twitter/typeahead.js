@@ -8,7 +8,7 @@
     'SearchIndex',
     'Input',
     'Dataset',
-    'Dropdown'
+    'Results'
     ];
 
   for (var i = 0; i < components.length; i++) {
@@ -54,6 +54,11 @@
       for (var key in instance) {
         if (typeof instance[key] === 'function') {
           spyOn(instance, key);
+
+          // special case for some components
+          if (key === 'bind') {
+            instance[key].andCallFake(function() { return this; });
+          }
         }
       }
 

@@ -22,26 +22,24 @@ var Input = (function() {
   // constructor
   // -----------
 
-  function Input(o) {
-    var that = this, onBlur, onFocus, onKeydown, onInput;
-
+  function Input(o, www) {
     o = o || {};
 
     if (!o.input) {
       $.error('input is missing');
     }
 
-    // bound functions
-    onBlur = _.bind(this._onBlur, this);
-    onFocus = _.bind(this._onFocus, this);
-    onKeydown = _.bind(this._onKeydown, this);
-    onInput = _.bind(this._onInput, this);
+    www.mixin(this);
 
     this.$hint = $(o.hint);
-    this.$input = $(o.input)
-    .on('blur.tt', onBlur)
-    .on('focus.tt', onFocus)
-    .on('keydown.tt', onKeydown);
+    this.$input = $(o.input);
+
+    // the query defaults to whatever the value of the input is
+    // on initialization, it'll most likely be an empty string
+    this.query = this.$input.val();
+
+    // helps with calculating the width of the input's value
+    this.$overflowHelper = buildOverflowHelper(this.$input);
 
     // if no hint, noop all the hint related functions
     if (this.$hint.length === 0) {
@@ -50,31 +48,6 @@ var Input = (function() {
       this.clearHint =
       this.clearHintIfInvalid = _.noop;
     }
-
-    // ie7 and ie8 don't support the input event
-    // ie9 doesn't fire the input event when characters are removed
-    // not sure if ie10 is compatible
-    if (!_.isMsie()) {
-      this.$input.on('input.tt', onInput);
-    }
-
-    else {
-      this.$input.on('keydown.tt keypress.tt cut.tt paste.tt', function($e) {
-        // if a special key triggered this, ignore it
-        if (specialKeyCodeMap[$e.which || $e.keyCode]) { return; }
-
-        // give the browser a chance to update the value of the input
-        // before checking to see if the query changed
-        _.defer(_.bind(that._onInput, that, $e));
-      });
-    }
-
-    // the query defaults to whatever the value of the input is
-    // on initialization, it'll most likely be an empty string
-    this.query = this.$input.val();
-
-    // helps with calculating the width of the input's value
-    this.$overflowHelper = buildOverflowHelper(this.$input);
   }
 
   // static methods
@@ -176,6 +149,41 @@ var Input = (function() {
 
     // ### public
 
+    bind: function() {
+      var that = this, onBlur, onFocus, onKeydown, onInput;
+
+      // bound functions
+      onBlur = _.bind(this._onBlur, this);
+      onFocus = _.bind(this._onFocus, this);
+      onKeydown = _.bind(this._onKeydown, this);
+      onInput = _.bind(this._onInput, this);
+
+      this.$input
+      .on('blur.tt', onBlur)
+      .on('focus.tt', onFocus)
+      .on('keydown.tt', onKeydown);
+
+      // ie7 and ie8 don't support the input event
+      // ie9 doesn't fire the input event when characters are removed
+      // not sure if ie10 is compatible
+      if (!_.isMsie()) {
+        this.$input.on('input.tt', onInput);
+      }
+
+      else {
+        this.$input.on('keydown.tt keypress.tt cut.tt paste.tt', function($e) {
+          // if a special key triggered this, ignore it
+          if (specialKeyCodeMap[$e.which || $e.keyCode]) { return; }
+
+          // give the browser a chance to update the value of the input
+          // before checking to see if the query changed
+          _.defer(_.bind(that._onInput, that, $e));
+        });
+      }
+
+      return this;
+    },
+
     focus: function focus() {
       this.$input.focus();
     },
@@ -234,6 +242,14 @@ var Input = (function() {
       return (this.$input.css('direction') || 'ltr').toLowerCase();
     },
 
+    setHintLanguageDirection: function setHintLanguageDirection(dir) {
+      this.$hint.attr('dir', dir);
+    },
+
+    hasFocus: function hasFocus() {
+      return this.$input.is(':focus');
+    },
+
     hasOverflow: function hasOverflow() {
       // 2 is arbitrary, just picking a small number to handle edge cases
       var constraint = this.$input.width() - 2;
@@ -268,6 +284,7 @@ var Input = (function() {
     destroy: function destroy() {
       this.$hint.off('.tt');
       this.$input.off('.tt');
+      this.$overflowHelper.remove();
 
       this.$hint = this.$input = this.$overflowHelper = null;
     }
