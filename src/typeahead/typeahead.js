@@ -116,7 +116,7 @@ var Typeahead = (function() {
     _onCursorRemoved: function onCursorRemoved() {
       this.input.resetInputValue();
       this._updateHint();
-      // TODO: cursoroff?
+      this.eventBus.trigger('cursoroff');
     },
 
     _onDatasetRendered: function onDatasetRendered() {

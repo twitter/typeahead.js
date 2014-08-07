@@ -81,6 +81,16 @@ describe('Typeahead', function() {
 
       expect(this.input.setHint).toHaveBeenCalledWith(testData.val);
     });
+
+    it('should trigger cursoroff', function() {
+      var spy;
+
+      this.$input.on('typeahead:cursoroff', spy = jasmine.createSpy());
+
+      this.results.trigger('cursorRemoved');
+
+      expect(spy).toHaveBeenCalled();
+    });
   });
 
   describe('when results triggers datasetRendered', function() {
