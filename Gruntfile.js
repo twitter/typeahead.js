@@ -15,14 +15,14 @@ var semver = require('semver'),
       'src/bloodhound/bloodhound.js'
       ],
       typeahead: [
-      'src/typeahead/html.js',
-      'src/typeahead/css.js',
+      'src/typeahead/www.js',
       'src/typeahead/event_bus.js',
       'src/typeahead/event_emitter.js',
       'src/typeahead/highlight.js',
       'src/typeahead/input.js',
       'src/typeahead/dataset.js',
-      'src/typeahead/dropdown.js',
+      'src/typeahead/results.js',
+      'src/typeahead/default_results.js',
       'src/typeahead/typeahead.js',
       'src/typeahead/plugin.js'
       ]
@@ -247,7 +247,7 @@ module.exports = function(grunt) {
   grunt.registerTask('build', ['uglify', 'sed:version']);
   grunt.registerTask('server', 'connect:server');
   grunt.registerTask('lint', 'jshint');
-  grunt.registerTask('dev', 'concurrent:dev');
+  grunt.registerTask('dev', ['build', 'concurrent:dev']);
 
   // load tasks
   // ----------
