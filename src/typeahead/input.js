@@ -198,6 +198,7 @@ var Input = (function() {
 
     setInputValue: function setInputValue(value, silent) {
       this.$input.val(value);
+      this.$input.trigger('change');
 
       // silent prevents any additional events from being triggered
       silent ? this.clearHint() : this._checkInputValue();
