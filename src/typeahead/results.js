@@ -61,44 +61,9 @@ var Results = (function() {
       return this.$node.find(this.selectors.selectable);
     },
 
-    _setCursor: function setCursor($el) {
-      $el.first().addClass(this.classes.cursor);
-      this.trigger('cursorMoved');
-    },
-
     _removeCursor: function _removeCursor() {
       var selectable = this.getActiveSelectable();
-
       selectable && selectable.removeClass(this.classes.cursor);
-    },
-
-    _moveCursor: function moveCursor(increment) {
-      var $selectables, $oldCursor, oldCursorIndex, newCursorIndex, $newCursor;
-
-      $oldCursor = this.getActiveSelectable();
-      $selectables = this._getSelectables();
-
-      this._removeCursor();
-
-      // shifting before and after modulo to deal with -1 index
-      oldCursorIndex = $oldCursor ? $selectables.index($oldCursor) : -1;
-      newCursorIndex = oldCursorIndex + increment;
-      newCursorIndex = (newCursorIndex + 1) % ($selectables.length + 1) - 1;
-
-      if (newCursorIndex === -1) {
-        this.trigger('cursorRemoved');
-        return;
-      }
-
-      else if (newCursorIndex < -1) {
-        newCursorIndex = $selectables.length - 1;
-      }
-
-      this._setCursor($newCursor = $selectables.eq(newCursorIndex));
-
-      // in the case of scrollable overflow
-      // make sure the cursor is visible in the node
-      this._ensureVisible($newCursor);
     },
 
     _ensureVisible: function ensureVisible($el) {
@@ -148,12 +113,33 @@ var Results = (function() {
       this.$node.attr('dir', dir);
     },
 
-    moveCursorUp: function moveCursorUp() {
-      this._moveCursor(-1);
+    selectableRelativeToCursor: function selectableRelativeToCursor(delta) {
+      var $selectables, $oldCursor, oldIndex, newIndex;
+
+      $oldCursor = this.getActiveSelectable();
+      $selectables = this._getSelectables();
+
+      // shifting before and after modulo to deal with -1 index
+      oldIndex = $oldCursor ? $selectables.index($oldCursor) : -1;
+      newIndex = oldIndex + delta;
+      newIndex = (newIndex + 1) % ($selectables.length + 1) - 1;
+
+      // wrap new index if less than -1
+      newIndex = newIndex < -1 ? $selectables.length - 1 : newIndex;
+
+      return newIndex === -1 ? null : $selectables.eq(newIndex);
     },
 
-    moveCursorDown: function moveCursorDown() {
-      this._moveCursor(+1);
+    setCursor: function setCursor($selectable) {
+      this._removeCursor();
+
+      if ($selectable = $selectable && $selectable.first()) {
+        $selectable.addClass(this.classes.cursor);
+
+        // in the case of scrollable overflow
+        // make sure the cursor is visible in the node
+        this._ensureVisible($selectable);
+      }
     },
 
     getDataFromSelectable: function getDataFromSelectable($el) {

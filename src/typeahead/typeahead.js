@@ -40,8 +40,6 @@ var Typeahead = (function() {
 
     this.results.bind()
     .onSync('selectableClicked', this._onSelectableClicked, this)
-    .onSync('cursorMoved', this._onCursorMoved, this)
-    .onSync('cursorRemoved', this._onCursorRemoved, this)
     .onAsync('datasetRendered', this._onDatasetRendered, this);
 
     this.input.bind()
@@ -101,24 +99,6 @@ var Typeahead = (function() {
       this.select($el);
     },
 
-    _onCursorMoved: function onCursorMoved() {
-      var selectable, data;
-
-      selectable = this.results.getActiveSelectable();
-      data = this.results.getDataFromSelectable(selectable);
-
-      // TODO: what if data is null?
-      this.input.setInputValue(data.val, true);
-
-      this.eventBus.trigger('cursorchanged', data.obj);
-    },
-
-    _onCursorRemoved: function onCursorRemoved() {
-      this.input.resetInputValue();
-      this._updateHint();
-      this.eventBus.trigger('cursoroff');
-    },
-
     _onDatasetRendered: function onDatasetRendered() {
       this._updateHint();
     },
@@ -166,11 +146,11 @@ var Typeahead = (function() {
     },
 
     _onUpKeyed: function onUpKeyed() {
-      this._moveCursor('up');
+      this._moveCursor(-1);
     },
 
     _onDownKeyed: function onDownKeyed() {
-      this._moveCursor('down');
+      this._moveCursor(+1);
     },
 
     _onLeftKeyed: function onLeftKeyed() {
@@ -249,19 +229,36 @@ var Typeahead = (function() {
       }
     },
 
-    _moveCursor: function moveCursor(dir) {
-      var query = this.input.getQuery(), updateAccepted = false, method;
+    _moveCursor: function moveCursor(delta) {
+      var query, candidate, data, payload, cancelMove;
+
+      query = this.input.getQuery();
+      candidate = this.results.selectableRelativeToCursor(delta);
+      data = this.results.getDataFromSelectable(candidate);
+      payload = data ? data.obj : null;
 
       this.results.activate();
-       method = 'moveCursor' + dir.charAt(0).toUpperCase() + dir.slice(1);
 
-      query.length >= this.minLength ?
-        (updateAccepted = this.results.update(query)):
-        this.results.empty();
+      // update will return true when it's a new query and new results
+      // need to be fetched – in this case we don't want to move the cursor
+      cancelMove = query.length >= this.minLength && this.results.update(query);
 
-      // only attempt to move the cursor when an update did/will not happen
-      // this prevents unwanted cursor movement
-      !updateAccepted && this.results[method]();
+      if (!cancelMove && !this.eventBus.trigger('cursorchange', payload)) {
+        this.results.setCursor(candidate);
+
+        // cursor moved to different selectable
+        if (data) {
+          this.input.setInputValue(data.val, true);
+        }
+
+        // cursor moved off of selectables, back to input
+        else {
+          this.input.resetInputValue();
+          this._updateHint();
+        }
+
+        this.eventBus.trigger('cursorchanged', payload);
+      }
     },
 
     _isActivated: function isActivated() {

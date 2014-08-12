@@ -38,61 +38,6 @@ describe('Typeahead', function() {
     });
   });
 
-  describe('when results triggers cursorMoved', function() {
-    it('should update the input value', function() {
-      this.results.getActiveSelectable.andReturn($('<fiz>'));
-      this.results.getDataFromSelectable.andReturn(testData);
-
-      this.results.trigger('cursorMoved');
-
-      expect(this.input.setInputValue).toHaveBeenCalledWith(testData.val, true);
-    });
-
-    it('should trigger cursorchanged', function() {
-      var spy;
-
-      this.results.getActiveSelectable.andReturn($('<fiz>'));
-      this.results.getDataFromSelectable.andReturn(testData);
-
-      this.$input.on('typeahead:cursorchanged', spy = jasmine.createSpy());
-
-      this.results.trigger('cursorMoved');
-
-      expect(spy).toHaveBeenCalled();
-    });
-  });
-
-  describe('when results triggers cursorRemoved', function() {
-    it('should reset the input value', function() {
-      this.results.trigger('cursorRemoved');
-
-      expect(this.input.resetInputValue).toHaveBeenCalled();
-    });
-
-    it('should update the hint', function() {
-      this.input.hasFocus.andReturn(true);
-      this.input.hasOverflow.andReturn(false);
-      this.results.getTopSelectable.andReturn($('<fiz>'));
-      this.results.getDataFromSelectable.andReturn(testData);
-
-      this.input.getInputValue.andReturn(testData.val.slice(0, 2));
-
-      this.results.trigger('cursorRemoved');
-
-      expect(this.input.setHint).toHaveBeenCalledWith(testData.val);
-    });
-
-    it('should trigger cursoroff', function() {
-      var spy;
-
-      this.$input.on('typeahead:cursoroff', spy = jasmine.createSpy());
-
-      this.results.trigger('cursorRemoved');
-
-      expect(spy).toHaveBeenCalled();
-    });
-  });
-
   describe('when results triggers datasetRendered', function() {
     it('should update the hint asynchronously', function() {
       this.input.hasFocus.andReturn(true);
@@ -233,7 +178,7 @@ describe('Typeahead', function() {
       expect(this.view.select).not.toHaveBeenCalledWith($el);
     });
 
-    it('should not prevent default if no active selectale ', function() {
+    it('should not prevent default if no active selectale', function() {
       var $el, $e;
       spyOn(this.view, 'select');
 
@@ -246,19 +191,7 @@ describe('Typeahead', function() {
     });
 
     it('should autocomplete', function() {
-      var spy;
-
-      this.input.getQuery.andReturn('bi');
-      this.input.getHint.andReturn(testData.val);
-      this.input.isCursorAtEnd.andReturn(true);
-      this.results.getTopSelectable.andReturn($('<bah>'));
-      this.results.getDataFromSelectable.andReturn(testData);
-      this.$input.on('typeahead:autocompleted', spy = jasmine.createSpy());
-
-      this.input.trigger('tabKeyed');
-
-      expect(this.input.setInputValue).toHaveBeenCalledWith(testData.val);
-      expect(spy).toHaveBeenCalled();
+      assertAutocomplete.call(this, 'tabKeyed');
     });
   });
 
@@ -280,39 +213,15 @@ describe('Typeahead', function() {
 
   describe('when input triggers leftKeyed', function() {
     it('should autocomplete if language is rtl', function() {
-      var spy;
-
       this.view.dir = 'rtl';
-      this.input.getQuery.andReturn('bi');
-      this.input.getHint.andReturn(testData.val);
-      this.input.isCursorAtEnd.andReturn(true);
-      this.results.getTopSelectable.andReturn($('<bah>'));
-      this.results.getDataFromSelectable.andReturn(testData);
-      this.$input.on('typeahead:autocompleted', spy = jasmine.createSpy());
-
-      this.input.trigger('leftKeyed');
-
-      expect(this.input.setInputValue).toHaveBeenCalledWith(testData.val);
-      expect(spy).toHaveBeenCalled();
+      assertAutocomplete.call(this, 'leftKeyed');
     });
   });
 
   describe('when input triggers rightKeyed', function() {
     it('should autocomplete if language is ltr', function() {
-      var spy;
-
       this.view.dir = 'ltr';
-      this.input.getQuery.andReturn('bi');
-      this.input.getHint.andReturn(testData.val);
-      this.input.isCursorAtEnd.andReturn(true);
-      this.results.getTopSelectable.andReturn($('<bah>'));
-      this.results.getDataFromSelectable.andReturn(testData);
-      this.$input.on('typeahead:autocompleted', spy = jasmine.createSpy());
-
-      this.input.trigger('rightKeyed');
-
-      expect(this.input.setInputValue).toHaveBeenCalledWith(testData.val);
-      expect(spy).toHaveBeenCalled();
+      assertAutocomplete.call(this, 'rightKeyed');
     });
   });
 
@@ -407,6 +316,32 @@ describe('Typeahead', function() {
       expect(spy).not.toHaveBeenCalled();
     });
 
+    it('should trigger select', function() {
+      var spy;
+
+      this.results.getDataFromSelectable.andReturn(testData);
+      this.$input.on('typeahead:select', spy = jasmine.createSpy());
+
+      this.view.select($('<bah>'));
+
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should cancel if select is prevented', function() {
+      var spy1, spy2;
+
+      spy1 = jasmine.createSpy().andCallFake(prevent);
+      spy2 = jasmine.createSpy();
+
+      this.results.getDataFromSelectable.andReturn(testData);
+      this.$input.on('typeahead:select', spy1).on('typeahead:selected', spy2);
+
+      this.view.select($('<bah>'));
+
+      expect(spy1).toHaveBeenCalled();
+      expect(spy2).not.toHaveBeenCalled();
+    });
+
     it('should update input value', function() {
       this.results.getDataFromSelectable.andReturn(testData);
 
@@ -424,6 +359,17 @@ describe('Typeahead', function() {
 
       expect(this.view.dir).toBe('rtl');
       expect(this.results.setLanguageDirection).toHaveBeenCalledWith('rtl');
+    });
+
+    it('should trigger selected', function() {
+      var spy;
+
+      this.results.getDataFromSelectable.andReturn(testData);
+      this.$input.on('typeahead:selected', spy = jasmine.createSpy());
+
+      this.view.select($('<bah>'));
+
+      expect(spy).toHaveBeenCalled();
     });
 
     it('should deactive results asynchronously', function() {
@@ -448,56 +394,135 @@ describe('Typeahead', function() {
       expect(this.results.destroy).toHaveBeenCalled();
     });
   });
-});
 
-function moveCursorTests(dir) {
-  var eventName, methodName;
+  function moveCursorTests(dir) {
+    var eventName, delta;
 
-  eventName = dir + 'Keyed';
-  methodName = 'moveCursor' + dir.charAt(0).toUpperCase() + dir.slice(1);
+    eventName = dir + 'Keyed';
+    delta = dir === 'up' ? -1 : +1;
 
-  return function() {
-    beforeEach(function() {
-      this.input.getQuery.andReturn('fiz');
-    });
+    return function() {
+      beforeEach(function() {
+        this.input.getQuery.andReturn('fiz');
+      });
 
-    it('should activate results', function() {
-      this.input.trigger(eventName);
-      expect(this.results.activate).toHaveBeenCalled();
-    });
-
-    it('should empty results if minLength is not satisfied', function() {
-        this.view.minLength = 100;
+      it('should activate results', function() {
         this.input.trigger(eventName);
 
-        expect(this.results.empty).toHaveBeenCalled();
-    });
+        expect(this.results.activate).toHaveBeenCalled();
+      });
 
-    it('should move cursor if minLength is not satisfied', function() {
-        this.view.minLength = 100;
-        this.input.trigger(eventName);
-
-        expect(this.results[methodName]).toHaveBeenCalled();
-    });
-
-    it('should update results if minLength is satisfied', function() {
+      it('should update results if minLength is satisfied', function() {
         this.input.trigger(eventName);
 
         expect(this.results.update).toHaveBeenCalledWith('fiz');
-    });
+      });
 
-    it('should move cursor if invalid update', function() {
+      it('should move cursor if minLength is not satisfied', function() {
+        this.view.minLength = 100;
+        this.results.update.andReturn(true);
+
+        this.input.trigger(eventName);
+
+        expect(this.results.setCursor).toHaveBeenCalled();
+      });
+
+      it('should move cursor if invalid update', function() {
         this.results.update.andReturn(false);
         this.input.trigger(eventName);
 
-        expect(this.results[methodName]).toHaveBeenCalled();
-    });
+        expect(this.results.setCursor).toHaveBeenCalled();
+      });
 
-    it('should not move cursor if valid update', function() {
+      it('should not move cursor if valid update', function() {
         this.results.update.andReturn(true);
+
         this.input.trigger(eventName);
 
-        expect(this.results[methodName]).not.toHaveBeenCalled();
-    });
-  };
-}
+        expect(this.results.setCursor).not.toHaveBeenCalled();
+      });
+
+      it('should trigger cursorchange before setting cursor', function() {
+        var spy = jasmine.createSpy();
+
+        this.$input.on('typeahead:cursorchange', spy);
+
+        this.input.trigger(eventName);
+
+        expect(spy).toHaveBeenCalled();
+      });
+
+      it('should cancel if cursorchange is prevented', function() {
+        var spy = jasmine.createSpy().andCallFake(prevent);
+
+        this.$input.on('typeahead:cursorchange', spy);
+
+        this.input.trigger(eventName);
+
+        expect(this.results.setCursor).not.toHaveBeenCalled();
+      });
+
+      it('should update the input value if moved to selectable', function() {
+        this.results.selectableRelativeToCursor.andReturn($('<fiz>'));
+        this.results.getDataFromSelectable.andReturn(testData);
+
+        this.input.trigger(eventName);
+
+        expect(this.input.setInputValue).toHaveBeenCalledWith(testData.val, true);
+      });
+
+      it('should reset the input value if moved to input', function() {
+        this.input.trigger(eventName);
+
+        expect(this.input.resetInputValue).toHaveBeenCalled();
+      });
+
+      it('should update the hint', function() {
+        this.input.hasFocus.andReturn(true);
+        this.input.hasOverflow.andReturn(false);
+        this.results.getTopSelectable.andReturn($('<fiz>'));
+        this.results.getDataFromSelectable.andCallFake(fake);
+        this.input.getInputValue.andReturn(testData.val.slice(0, 2));
+
+        this.input.trigger(eventName);
+
+        expect(this.input.setHint).toHaveBeenCalledWith(testData.val);
+
+        function fake($el) {
+          return ($el && $el.prop('tagName') === 'FIZ') ? testData : null;
+        }
+      });
+
+      it('should trigger cursorchanged after setting cursor', function() {
+        var spy = jasmine.createSpy();
+
+        this.$input.on('typeahead:cursorchanged', spy);
+
+        this.input.trigger(eventName);
+
+        expect(spy).toHaveBeenCalled();
+      });
+    };
+  }
+
+  function assertAutocomplete(eventName) {
+    var spy1, spy2;
+
+    this.input.getQuery.andReturn('bi');
+    this.input.getHint.andReturn(testData.val);
+    this.input.isCursorAtEnd.andReturn(true);
+    this.results.getTopSelectable.andReturn($('<bah>'));
+    this.results.getDataFromSelectable.andReturn(testData);
+    this.$input.on('typeahead:autocomplete', spy1 = jasmine.createSpy());
+    this.$input.on('typeahead:autocompleted', spy2 = jasmine.createSpy());
+
+    this.input.trigger(eventName);
+
+    expect(this.input.setInputValue).toHaveBeenCalledWith(testData.val);
+    expect(spy1).toHaveBeenCalled();
+    expect(spy2).toHaveBeenCalled();
+  }
+
+  function prevent($e) { $e.preventDefault(); }
+});
+

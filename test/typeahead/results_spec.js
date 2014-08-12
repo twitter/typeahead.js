@@ -83,7 +83,7 @@ describe('Results', function() {
       var $selectable;
 
       $selectable = this.view._getSelectables().first();
-      this.view._setCursor($selectable);
+      this.view.setCursor($selectable);
 
       expect($selectable).toHaveClass(www.classes.cursor);
 
@@ -103,67 +103,66 @@ describe('Results', function() {
     });
   });
 
-  describe('#moveCursorUp', function() {
-    it('should move the cursor up', function() {
+  describe('#selectableRelativeToCursor', function() {
+    it('should return selectable delta spots away from cursor', function() {
       var $first, $second;
 
       $first = this.view._getSelectables().eq(0);
       $second = this.view._getSelectables().eq(1);
 
-      this.view._setCursor($second);
-      this.view.moveCursorUp();
-      expect(this.view.getActiveSelectable()).toBe($first);
+      this.view.setCursor($first);
+      expect(this.view.selectableRelativeToCursor(+1)).toBe($second);
     });
 
-    it('should move cursor to bottom if cursor is not present', function() {
-      var $bottom;
+    it('should support negative deltas', function() {
+      var $first, $second;
 
-      $bottom = this.view._getSelectables().eq(-1);
+      $first = this.view._getSelectables().eq(0);
+      $second = this.view._getSelectables().eq(1);
 
-      this.view.moveCursorUp();
-      expect(this.view.getActiveSelectable()).toBe($bottom);
+      this.view.setCursor($second);
+      expect(this.view.selectableRelativeToCursor(-1)).toBe($first);
     });
 
-    it('should remove cursor if already at top', function() {
+    it('should wrap', function() {
+      var $expected, $actual;
+
+      $expected = this.view._getSelectables().eq(-1);
+      $actual = this.view.selectableRelativeToCursor(-1);
+
+      expect($actual).toBe($expected);
+    });
+
+    it('should return null if delta lands on input', function() {
       var $first;
 
       $first = this.view._getSelectables().eq(0);
 
-      this.view._setCursor($first);
-      this.view.moveCursorUp();
-      expect(this.view.getActiveSelectable()).toBeNull();
+      this.view.setCursor($first);
+      expect(this.view.selectableRelativeToCursor(-1)).toBeNull();
     });
   });
 
-  describe('#moveCursorDown', function() {
-    it('should move the cursor down', function() {
-      var $first, $second;
+  describe('#setCursor', function() {
+    it('should remove cursor if null is passed in', function() {
+      var $selectable;
 
-      $first = this.view._getSelectables().eq(0);
-      $second = this.view._getSelectables().eq(1);
+      $selectable = this.view._getSelectables().eq(0);
+      this.view.setCursor($selectable);
+      expect(this.view.getActiveSelectable()).toBe($selectable);
 
-      this.view._setCursor($first);
-      this.view.moveCursorDown();
-      expect(this.view.getActiveSelectable()).toBe($second);
-    });
-
-    it('should move cursor to top if cursor is not present', function() {
-      var $first;
-
-      $first = this.view._getSelectables().eq(0);
-
-      this.view.moveCursorDown();
-      expect(this.view.getActiveSelectable()).toBe($first);
-    });
-
-    it('should remove cursor if already at bottom', function() {
-      var $bottom;
-
-      $bottom = this.view._getSelectables().eq(-1);
-
-      this.view._setCursor($bottom);
-      this.view.moveCursorDown();
+      this.view.setCursor(null);
       expect(this.view.getActiveSelectable()).toBeNull();
+    });
+
+    it('should move cursor to passed in selectable', function() {
+      var $selectable;
+
+      $selectable = this.view._getSelectables().eq(0);
+
+      expect(this.view.getActiveSelectable()).toBeNull();
+      this.view.setCursor($selectable);
+      expect(this.view.getActiveSelectable()).toBe($selectable);
     });
   });
 
@@ -191,7 +190,7 @@ describe('Results', function() {
       var $first;
 
       $first = this.view._getSelectables().eq(0);
-      this.view._setCursor($first);
+      this.view.setCursor($first);
 
       expect(this.view.getActiveSelectable()).toBe($first);
     });
