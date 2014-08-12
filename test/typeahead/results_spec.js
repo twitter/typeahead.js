@@ -33,52 +33,6 @@ describe('Results', function() {
     });
   });
 
-  describe('when mouseenter is triggered on a selectable', function() {
-    it('should remove pre-existing cursor', function() {
-      var $first, $last;
-
-      $first = this.$node.find(www.selectors.selectable).first();
-      $last = this.$node.find(www.selectors.selectable).last();
-
-      $first.addClass(www.classes.cursor);
-      $last.mouseenter();
-
-      expect($first).not.toHaveClass(www.classes.cursor);
-      expect($last).toHaveClass(www.classes.cursor);
-    });
-
-    it('should set the cursor', function() {
-      var $selectable;
-
-      $selectable = this.$node.find(www.selectors.selectable).first();
-      $selectable.mouseenter();
-
-      expect($selectable).toHaveClass(www.classes.cursor);
-    });
-
-    it('should not trigger cursorMoved', function() {
-      var spy, $selectable;
-
-      this.view.onSync('cursorMoved', spy = jasmine.createSpy());
-
-      $selectable = this.$node.find(www.selectors.selectable).first();
-      $selectable.mouseenter();
-
-      expect(spy).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('when mouseleave is triggered on a selectable', function() {
-    it('should remove the cursor', function() {
-      var $selectable;
-
-      $selectable = this.$node.find(www.selectors.selectable).first();
-      $selectable.mouseenter().mouseleave();
-
-      expect($selectable).not.toHaveClass(www.classes.cursor);
-    });
-  });
-
   describe('when rendered is triggered on a dataset', function() {
     it('should add empty class to node if empty', function() {
       this.dataset.isEmpty.andReturn(true);

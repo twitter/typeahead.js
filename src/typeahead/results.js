@@ -45,15 +45,6 @@ var Results = (function() {
       this.trigger('selectableClicked', $($e.currentTarget));
     },
 
-    _onSelectableMouseEnter: function onSelectableMouseEnter($e) {
-      this._removeCursor();
-      this._setCursor($($e.currentTarget), true);
-    },
-
-    _onSelectableMouseLeave: function onSelectableMouseLeave() {
-      this._removeCursor();
-    },
-
     _onRendered: function onRendered() {
       var isEmpty = _.every(this.datasets, isDatasetEmpty);
 
@@ -70,10 +61,9 @@ var Results = (function() {
       return this.$node.find(this.selectors.selectable);
     },
 
-    _setCursor: function setCursor($el, silent) {
+    _setCursor: function setCursor($el) {
       $el.first().addClass(this.classes.cursor);
-
-      !silent && this.trigger('cursorMoved');
+      this.trigger('cursorMoved');
     },
 
     _removeCursor: function _removeCursor() {
@@ -133,18 +123,10 @@ var Results = (function() {
     // ### public
 
     bind: function() {
-    var that = this, onSelectableClick, onSelectableMouseEnter,
-        onSelectableMouseLeave;
+    var that = this, onSelectableClick;
 
-      // bound functions
       onSelectableClick = _.bind(this._onSelectableClick, this);
-      onSelectableMouseEnter = _.bind(this._onSelectableMouseEnter, this);
-      onSelectableMouseLeave = _.bind(this._onSelectableMouseLeave, this);
-
-      this.$node
-      .on('click.tt', this.selectors.selectable, onSelectableClick)
-      .on('mouseenter.tt', this.selectors.selectable, onSelectableMouseEnter)
-      .on('mouseleave.tt', this.selectors.selectable, onSelectableMouseLeave);
+      this.$node.on('click.tt', this.selectors.selectable, onSelectableClick);
 
       _.each(this.datasets, function(dataset) {
         dataset.onSync('rendered', that._onRendered, that);
