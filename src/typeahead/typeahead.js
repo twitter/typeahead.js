@@ -242,7 +242,7 @@ var Typeahead = (function() {
         selectable = this.results.getTopSelectable();
         data = this.results.getDataFromSelectable(selectable);
 
-        if (data) {
+        if (data && !this.eventBus.trigger('autocomplete', data.obj)) {
           this.input.setInputValue(data.val);
           this.eventBus.trigger('autocompleted', data.obj);
         }
@@ -293,7 +293,7 @@ var Typeahead = (function() {
     select: function select(selectable) {
       var data = this.results.getDataFromSelectable(selectable);
 
-      if (data) {
+      if (data && !this.eventBus.trigger('select', data.obj)) {
         this.input.setQuery(data.val);
         this.input.setInputValue(data.val, true);
 
