@@ -29,7 +29,6 @@ var Typeahead = (function() {
     www.mixin(this);
 
     this.eventBus = o.eventBus;
-    this.autoselect = !!o.autoselect;
     this.minLength = _.isNumber(o.minLength) ? o.minLength : 1;
 
     this.input = o.input;
@@ -118,11 +117,6 @@ var Typeahead = (function() {
 
       if (activeSelectable = this.results.getActiveSelectable()) {
         this.select(activeSelectable);
-        $e.preventDefault();
-      }
-
-      else if (this.autoselect && (topSelectable = this.results.getTopSelectable())) {
-        this.select(topSelectable);
         $e.preventDefault();
       }
     },

@@ -74,11 +74,10 @@
         }, www);
 
         typeahead = new Typeahead({
-          minLength: o.minLength,
-          autoselect: o.autoselect,
           input: input,
           results: results,
-          eventBus: eventBus
+          eventBus: eventBus,
+          minLength: o.minLength
         }, www);
 
         $input.data(keys.www, www);
