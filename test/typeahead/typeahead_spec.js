@@ -508,14 +508,13 @@ describe('Typeahead', function() {
     var spy1, spy2;
 
     this.input.getQuery.andReturn('bi');
-    this.input.getHint.andReturn(testData.val);
     this.input.isCursorAtEnd.andReturn(true);
     this.results.getTopSelectable.andReturn($('<bah>'));
     this.results.getDataFromSelectable.andReturn(testData);
     this.$input.on('typeahead:autocomplete', spy1 = jasmine.createSpy());
     this.$input.on('typeahead:autocompleted', spy2 = jasmine.createSpy());
 
-    this.input.trigger(eventName);
+    this.input.trigger(eventName, $.Event('blah'));
 
     expect(this.input.setInputValue).toHaveBeenCalledWith(testData.val);
     expect(spy1).toHaveBeenCalled();

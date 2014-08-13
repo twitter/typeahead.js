@@ -92,15 +92,6 @@ var Input = (function() {
       var preventDefault, hintValue, inputValue;
 
       switch (keyName) {
-        case 'tab':
-          hintValue = this.getHint();
-          inputValue = this.getInputValue();
-
-          preventDefault = hintValue &&
-            hintValue !== inputValue &&
-            !withModifier($e);
-          break;
-
         case 'up':
         case 'down':
           preventDefault = !withModifier($e);

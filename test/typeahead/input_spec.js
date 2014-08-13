@@ -81,17 +81,6 @@ describe('Input', function() {
 
       expect(spy).not.toHaveBeenCalled();
     });
-
-    it('should prevent default behavior if there is a hint', function() {
-      var $e;
-
-      this.view.setHint('good');
-      this.view.setInputValue('goo');
-
-      $e = simulateKeyEvent(this.$input, 'keydown', KEYS.tab);
-
-      expect($e.preventDefault).toHaveBeenCalled();
-    });
   });
 
   describe('when the keydown DOM event is triggered by esc', function() {

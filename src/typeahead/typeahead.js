@@ -135,8 +135,8 @@ var Typeahead = (function() {
         $e.preventDefault();
       }
 
-      else {
-        this._autocomplete(true);
+      else if (selectable = this.results.getTopSelectable()) {
+        this._autocomplete(selectable) && $e.preventDefault();
       }
     },
 
@@ -154,11 +154,15 @@ var Typeahead = (function() {
     },
 
     _onLeftKeyed: function onLeftKeyed() {
-      this.dir === 'rtl' && this._autocomplete();
+      if (this.dir === 'rtl' && this.input.isCursorAtEnd()) {
+        this._autocomplete(this.results.getTopSelectable());
+      }
     },
 
     _onRightKeyed: function onRightKeyed() {
-      this.dir === 'ltr' && this._autocomplete();
+      if (this.dir === 'ltr' && this.input.isCursorAtEnd()) {
+        this._autocomplete(this.results.getTopSelectable());
+      }
     },
 
     _onQueryChanged: function onQueryChanged(e, query) {
@@ -211,21 +215,19 @@ var Typeahead = (function() {
       }
     },
 
-    _autocomplete: function autocomplete(laxCursor) {
-      var hint, query, isCursorAtEnd, selectable, data;
+    _autocomplete: function autocomplete(selectable) {
+      var query, data, isValid;
 
-      hint = this.input.getHint();
       query = this.input.getQuery();
-      isCursorAtEnd = laxCursor || this.input.isCursorAtEnd();
+      data = this.results.getDataFromSelectable(selectable);
+      isValid = data && query !== data.val;
 
-      if (hint && query !== hint && isCursorAtEnd) {
-        selectable = this.results.getTopSelectable();
-        data = this.results.getDataFromSelectable(selectable);
+      if (isValid && !this.eventBus.trigger('autocomplete', data.obj)) {
+        this.input.setInputValue(data.val);
+        this.eventBus.trigger('autocompleted', data.obj);
 
-        if (data && !this.eventBus.trigger('autocomplete', data.obj)) {
-          this.input.setInputValue(data.val);
-          this.eventBus.trigger('autocompleted', data.obj);
-        }
+        // return true if autocompletion succeeded
+        return true;
       }
     },
 
