@@ -6,7 +6,7 @@
 basePath = '';
 
 preprocessors = {
-'src/**/*.js': 'coverage'
+  'src/**/*.js': 'coverage'
 };
 
 // list of files / patterns to load in the browser
@@ -21,14 +21,14 @@ files = [
   'src/bloodhound/search_index.js',
   'src/bloodhound/options_parser.js',
   'src/bloodhound/bloodhound.js',
-  'src/typeahead/html.js',
-  'src/typeahead/css.js',
+  'src/typeahead/www.js',
   'src/typeahead/event_bus.js',
   'src/typeahead/event_emitter.js',
   'src/typeahead/highlight.js',
   'src/typeahead/input.js',
   'src/typeahead/dataset.js',
-  'src/typeahead/dropdown.js',
+  'src/typeahead/results.js',
+  'src/typeahead/default_results.js',
   'src/typeahead/typeahead.js',
   'src/typeahead/plugin.js',
   JASMINE,
@@ -37,7 +37,7 @@ files = [
   'bower_components/jasmine-jquery/lib/jasmine-jquery.js',
   'bower_components/jasmine-ajax/lib/mock-ajax.js',
   'test/helpers/**/*',
-  'test/*_spec.js'
+  'test/**/*_spec.js'
 ];
 
 
