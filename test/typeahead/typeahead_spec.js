@@ -372,12 +372,11 @@ describe('Typeahead', function() {
       expect(spy).toHaveBeenCalled();
     });
 
-    it('should deactive results asynchronously', function() {
+    it('should deactive results', function() {
       this.results.getDataFromSelectable.andReturn(testData);
 
       this.view.select($('<bah>'));
-
-      waitsFor(function() { return !!this.results.deactivate.callCount; });
+      expect(this.results.deactivate).toHaveBeenCalled();
     });
   });
 

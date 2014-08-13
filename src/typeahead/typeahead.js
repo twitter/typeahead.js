@@ -295,12 +295,9 @@ var Typeahead = (function() {
         this.input.setInputValue(data.val, true);
 
         this._setLanguageDirection();
+        this.results.deactivate();
 
         this.eventBus.trigger('selected', data.obj);
-
-        // #118: allow click event to bubble up to the body before removing
-        // the selectables otherwise we break event delegation
-        _.defer(_.bind(this.results.deactivate, this.results));
       }
     },
 
