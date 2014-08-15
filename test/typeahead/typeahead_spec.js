@@ -725,6 +725,29 @@ describe('Typeahead', function() {
     });
   });
 
+  describe('#isEnabled', function() {
+    it('should returned enabled status', function() {
+      this.view.enable();
+      expect(this.view.isEnabled()).toBe(true);
+      this.view.disable();
+      expect(this.view.isEnabled()).toBe(false);
+    });
+  });
+
+  describe('#enable', function() {
+    it('should set enabled to true', function() {
+      this.view.enable();
+      expect(this.view.isEnabled()).toBe(true);
+    });
+  });
+
+  describe('#disable', function() {
+    it('should set enabled to false', function() {
+      this.view.disable();
+      expect(this.view.isEnabled()).toBe(false);
+    });
+  });
+
   describe('#activate', function() {
     describe('when active', function() {
       beforeEach(function() {
@@ -740,8 +763,24 @@ describe('Typeahead', function() {
       });
     });
 
-    describe('when idle', function() {
+    describe('when idle and disabled', function() {
       beforeEach(function() {
+        this.view.disable();
+        this.view.activate();
+      });
+
+      it('should do nothing', function() {
+        var spy = jasmine.createSpy();
+
+        this.$input.on('typeahead:beforeactive', spy);
+        this.view.activate();
+        expect(spy).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when idle and enabled', function() {
+      beforeEach(function() {
+        this.view.enable();
         this.view.deactivate();
       });
 

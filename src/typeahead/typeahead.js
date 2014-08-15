@@ -38,6 +38,8 @@ var Typeahead = (function() {
     this.input = o.input;
     this.results = o.results;
 
+    this.enabled = true;
+
     // activate the typeahead on init if the input has focus
     this.active = false;
     this.input.hasFocus() && this.activate();
@@ -223,14 +225,26 @@ var Typeahead = (function() {
 
     // ### public
 
+    isEnabled: function isEnabled() {
+      return this.enabled;
+    },
+
+    enable: function enable() {
+      this.enabled = true;
+    },
+
+    disable: function disable() {
+      this.enabled = false;
+    },
+
     isActive: function isActive() {
       return this.active;
     },
 
     activate: function activate() {
-      var canceled = false;
+      var canceled = false, eligible = this.isEnabled() && !this.isActive();
 
-      if (!this.active && !(canceled = this.eventBus.before('active'))) {
+      if (eligible && !(canceled = this.eventBus.before('active'))) {
         this.active = true;
         this.eventBus.trigger('active');
       }
@@ -241,7 +255,7 @@ var Typeahead = (function() {
     deactivate: function deactivate() {
       var canceled = false;
 
-      if (this.active && !(canceled = this.eventBus.before('idle'))) {
+      if (this.isActive() && !(canceled = this.eventBus.before('idle'))) {
         this.active = false;
         this.close();
         this.eventBus.trigger('idle');
