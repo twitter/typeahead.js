@@ -53,6 +53,14 @@ describe('Input', function() {
   });
 
   describe('when the focus DOM event is triggered', function() {
+    it('should update queryWhenFocused', function() {
+      this.view.setQuery('hi');
+      this.$input.focus();
+      expect(this.view.hasQueryChangedSinceLastFocus()).toBe(false);
+      this.view.setQuery('bye');
+      expect(this.view.hasQueryChangedSinceLastFocus()).toBe(true);
+    });
+
     it('should trigger focused', function() {
       var spy;
 
@@ -289,6 +297,21 @@ describe('Input', function() {
       spyOn(this.view, 'clearHintIfInvalid');
       simulateInputEvent(this.$input);
       expect(this.view.clearHintIfInvalid).toHaveBeenCalled();
+    });
+  });
+
+  describe('#hasQueryChangedSinceLastFocus', function() {
+    it('should return true if the query has changed since focus', function() {
+      this.view.setQuery('hi');
+      this.$input.focus();
+      this.view.setQuery('bye');
+      expect(this.view.hasQueryChangedSinceLastFocus()).toBe(true);
+    });
+
+    it('should return false if the query has not changed since focus', function() {
+      this.view.setQuery('hi');
+      this.$input.focus();
+      expect(this.view.hasQueryChangedSinceLastFocus()).toBe(false);
     });
   });
 

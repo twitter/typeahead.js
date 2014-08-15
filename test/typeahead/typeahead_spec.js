@@ -150,11 +150,33 @@ describe('Typeahead', function() {
     });
   });
 
-  describe('when input triggers blurred', function() {
+  describe('on blurred', function() {
     var eventName;
 
     beforeEach(function() {
       eventName = 'blurred';
+    });
+
+    it('should trigger typeahead:change if query changed since focus', function() {
+      var spy = jasmine.createSpy();
+
+      this.input.hasQueryChangedSinceLastFocus.andReturn(true);
+      this.$input.on('typeahead:change', spy);
+
+      this.input.trigger(eventName);
+
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should not trigger typeahead:change if query has not changed since focus', function() {
+      var spy = jasmine.createSpy();
+
+      this.input.hasQueryChangedSinceLastFocus.andReturn(false);
+      this.$input.on('typeahead:change', spy);
+
+      this.input.trigger(eventName);
+
+      expect(spy).not.toHaveBeenCalled();
     });
 
     describe('when active', function() {

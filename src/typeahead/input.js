@@ -38,6 +38,9 @@ var Input = (function() {
     // on initialization, it'll most likely be an empty string
     this.query = this.$input.val();
 
+    // for tracking when a change event should be triggered
+    this.queryWhenFocused = this.hasFocus() ? this.query : null;
+
     // helps with calculating the width of the input's value
     this.$overflowHelper = buildOverflowHelper(this.$input);
 
@@ -71,6 +74,7 @@ var Input = (function() {
     },
 
     _onFocus: function onFocus() {
+      this.queryWhenFocused = this.query;
       this.trigger('focused');
     },
 
@@ -207,6 +211,10 @@ var Input = (function() {
     setQuery: function setQuery(val, silent) {
       this.setInputValue(val);
       this._setQuery(val, silent);
+    },
+
+    hasQueryChangedSinceLastFocus: function hasQueryChangedSinceLastFocus() {
+      return this.query !== this.queryWhenFocused;
     },
 
     getInputValue: function getInputValue() {

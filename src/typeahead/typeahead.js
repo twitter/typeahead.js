@@ -135,7 +135,9 @@ var Typeahead = (function() {
     },
 
     _onBlurred: function onBlurred() {
-      // noop
+      if (this.input.hasQueryChangedSinceLastFocus()) {
+        this.eventBus.trigger('change', this.input.getQuery());
+      }
     },
 
     _onEnterKeyed: function onEnterKeyed(type, $e) {
