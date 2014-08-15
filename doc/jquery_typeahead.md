@@ -378,6 +378,7 @@ var engine = new Bloodhound({ /* options */ });
 engine.initialize();
 
 $('.typeahead').typeahead(null, {
+  displayKey: myDisplayKey // if not set, will default to 'value',
   source: engine.ttAdapter()
 });
 ```
