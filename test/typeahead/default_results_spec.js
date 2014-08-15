@@ -26,7 +26,7 @@ describe('DefaultResults', function() {
       expect(this.$node).not.toBeVisible();
     });
 
-    it('should not show results if not activated', function() {
+    it('should not show results if not open', function() {
       this.dataset.isEmpty.andReturn(false);
 
       this.view._hide();
@@ -35,30 +35,30 @@ describe('DefaultResults', function() {
       expect(this.$node).not.toBeVisible();
     });
 
-    it('should show results if not empty and activated', function() {
+    it('should show results if not empty and open', function() {
       this.dataset.isEmpty.andReturn(false);
 
       this.view._hide();
-      this.view.activate();
+      this.view.open();
       this.dataset.trigger('rendered');
 
       expect(this.$node).toBeVisible();
     });
   });
 
-  describe('#activate', function() {
+  describe('#open', function() {
     it('should show results if not empty', function() {
       this.$node.removeClass(www.classes.empty);
-      this.view.activate();
+      this.view.open();
 
       expect(this.$node).toBeVisible();
     });
   });
 
-  describe('#deactivate', function() {
+  describe('#close', function() {
     it('should hide results', function() {
       this.view._show();
-      this.view.deactivate();
+      this.view.close();
 
       expect(this.$node).not.toBeVisible();
     });

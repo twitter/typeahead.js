@@ -16,7 +16,7 @@ var WWW = (function() {
     result: 'tt-result',
     selectable: 'tt-selectable',
     empty: 'tt-empty',
-    activated: 'tt-activated',
+    open: 'tt-open',
     cursor: 'tt-cursor',
     highlight: 'tt-highlight'
   };

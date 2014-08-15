@@ -35,7 +35,7 @@ describe('Input', function() {
   describe('when the blur DOM event is triggered', function() {
     it('should reset the input value', function() {
       this.view.setQuery('wine');
-      this.view.setInputValue('cheese', true);
+      this.view.setInputValue('cheese');
 
       this.$input.blur();
 
@@ -178,7 +178,7 @@ describe('Input', function() {
   describe('when the input DOM event is triggered', function() {
     it('should update query', function() {
       this.view.setQuery('wine');
-      this.view.setInputValue('cheese', true);
+      this.view.setInputValue('cheese');
 
       simulateInputEvent(this.$input);
 
@@ -189,7 +189,7 @@ describe('Input', function() {
       var spy;
 
       this.view.setQuery('wine');
-      this.view.setInputValue('cheese', true);
+      this.view.setInputValue('cheese');
       this.view.onSync('queryChanged', spy = jasmine.createSpy());
 
       simulateInputEvent(this.$input);
@@ -197,15 +197,34 @@ describe('Input', function() {
       expect(spy).toHaveBeenCalled();
     });
 
-    it('should trigger whitespaceChagned if whitespace changed', function() {
+    it('should trigger whitespaceChanged if whitespace changed', function() {
       var spy;
 
       this.view.setQuery('wine  bar');
-      this.view.setInputValue('wine bar', true);
+      this.view.setInputValue('wine bar');
       this.view.onSync('whitespaceChanged', spy = jasmine.createSpy());
 
       simulateInputEvent(this.$input);
 
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should clear hint if invalid', function() {
+      spyOn(this.view, 'clearHintIfInvalid');
+      simulateInputEvent(this.$input);
+      expect(this.view.clearHintIfInvalid).toHaveBeenCalled();
+    });
+
+    it('should check lang direction', function() {
+      var spy;
+
+      this.$input.css('direction', 'rtl');
+      this.view.onSync('langDirChanged', spy = jasmine.createSpy());
+
+      simulateInputEvent(this.$input);
+
+      expect(this.view.dir).toBe('rtl');
+      expect(this.$hint).toHaveAttr('dir', 'rtl');
       expect(spy).toHaveBeenCalled();
     });
   });
@@ -228,10 +247,48 @@ describe('Input', function() {
     });
   });
 
-  describe('#getQuery/#setQuery', function() {
-    it('should act as getter/setter to the query property', function() {
+  describe('#getQuery', function() {
+    it('should act as getter to the query property', function() {
       this.view.setQuery('mouse');
       expect(this.view.getQuery()).toBe('mouse');
+    });
+  });
+
+  describe('#setQuery', function() {
+    it('should act as setter to the query property', function() {
+      this.view.setQuery('mouse');
+      expect(this.view.getQuery()).toBe('mouse');
+    });
+
+    it('should update input value', function() {
+      this.view.setQuery('mouse');
+      expect(this.view.getInputValue()).toBe('mouse');
+    });
+
+    it('should trigger queryChanged if the query changed', function() {
+      var spy;
+
+      this.view.setQuery('wine');
+      this.view.onSync('queryChanged', spy = jasmine.createSpy());
+      this.view.setQuery('cheese');
+
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should trigger whitespaceChanged if whitespace changed', function() {
+      var spy;
+
+      this.view.setQuery('wine   bar');
+      this.view.onSync('whitespaceChanged', spy = jasmine.createSpy());
+      this.view.setQuery('wine bar');
+
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should clear hint if invalid', function() {
+      spyOn(this.view, 'clearHintIfInvalid');
+      simulateInputEvent(this.$input);
+      expect(this.view.clearHintIfInvalid).toHaveBeenCalled();
     });
   });
 
@@ -248,19 +305,23 @@ describe('Input', function() {
       expect(this.view.getInputValue()).toBe('cheese');
     });
 
-    it('should trigger {query|whitespace}Changed when applicable', function() {
-      var spy1, spy2;
-
-      this.view.onSync('queryChanged', spy1 = jasmine.createSpy());
-      this.view.onSync('whitespaceChanged', spy2 = jasmine.createSpy());
-
+    it('should clear hint if invalid', function() {
+      spyOn(this.view, 'clearHintIfInvalid');
       this.view.setInputValue('cheese head');
-      expect(spy1).toHaveBeenCalled();
-      expect(spy2).not.toHaveBeenCalled();
+      expect(this.view.clearHintIfInvalid).toHaveBeenCalled();
+    });
 
-      this.view.setInputValue('cheese  head');
-      expect(spy1.callCount).toBe(1);
-      expect(spy2).toHaveBeenCalled();
+    it('should check lang direction', function() {
+      var spy;
+
+      this.$input.css('direction', 'rtl');
+      this.view.onSync('langDirChanged', spy = jasmine.createSpy());
+
+      simulateInputEvent(this.$input);
+
+      expect(this.view.dir).toBe('rtl');
+      expect(this.$hint).toHaveAttr('dir', 'rtl');
+      expect(spy).toHaveBeenCalled();
     });
   });
 
@@ -274,7 +335,7 @@ describe('Input', function() {
   describe('#resetInputValue', function() {
     it('should reset input value to last query', function() {
       this.view.setQuery('cheese');
-      this.view.setInputValue('wine', true);
+      this.view.setInputValue('wine');
 
       this.view.resetInputValue();
       expect(this.view.getInputValue()).toBe('cheese');
@@ -292,7 +353,7 @@ describe('Input', function() {
 
   describe('#clearHintIfInvalid', function() {
     it('should clear hint if input value is empty string', function() {
-      this.view.setInputValue('', true);
+      this.view.setInputValue('');
       this.view.setHint('cheese');
       this.view.clearHintIfInvalid();
 
@@ -300,7 +361,7 @@ describe('Input', function() {
     });
 
     it('should clear hint if input value is not prefix of input', function() {
-      this.view.setInputValue('milk', true);
+      this.view.setInputValue('milk');
       this.view.setHint('cheese');
       this.view.clearHintIfInvalid();
 
@@ -309,7 +370,7 @@ describe('Input', function() {
 
     it('should clear hint if overflow exists', function() {
       spyOn(this.view, 'hasOverflow').andReturn(true);
-      this.view.setInputValue('che', true);
+      this.view.setInputValue('che');
       this.view.setHint('cheese');
       this.view.clearHintIfInvalid();
 
@@ -317,21 +378,11 @@ describe('Input', function() {
     });
 
     it('should not clear hint if input value is prefix of input', function() {
-      this.view.setInputValue('che', true);
+      this.view.setInputValue('che');
       this.view.setHint('cheese');
       this.view.clearHintIfInvalid();
 
       expect(this.view.getHint()).toBe('cheese');
-    });
-  });
-
-  describe('#getLanguageDirection', function() {
-    it('should return the language direction of the input', function() {
-      this.$input.css('direction', 'ltr');
-      expect(this.view.getLanguageDirection()).toBe('ltr');
-
-      this.$input.css('direction', 'rtl');
-      expect(this.view.getLanguageDirection()).toBe('rtl');
     });
   });
 

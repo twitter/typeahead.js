@@ -63,7 +63,7 @@ var Input = (function() {
 
   _.mixin(Input.prototype, EventEmitter, {
 
-    // ### private
+    // ### event handlers
 
     _onBlur: function onBlur() {
       this.resetInputValue();
@@ -85,8 +85,12 @@ var Input = (function() {
     },
 
     _onInput: function onInput() {
-      this._checkInputValue();
+      this._setQuery(this.getInputValue());
+      this.clearHintIfInvalid();
+      this._checkLanguageDirection();
     },
+
+    // ### private
 
     _managePreventDefault: function managePreventDefault(keyName, $e) {
       var preventDefault, hintValue, inputValue;
@@ -119,21 +123,30 @@ var Input = (function() {
       return trigger;
     },
 
-    _checkInputValue: function checkInputValue() {
-      var inputValue, areEquivalent, hasDifferentWhitespace;
+    _checkLanguageDirection: function checkLanguageDirection() {
+      var dir = (this.$input.css('direction') || 'ltr').toLowerCase();
 
-      inputValue = this.getInputValue();
-      areEquivalent = areQueriesEquivalent(inputValue, this.query);
+      if (this.dir !== dir) {
+        this.dir = dir;
+        this.$hint.attr('dir', dir);
+        this.trigger('langDirChanged', dir);
+      }
+    },
+
+    _setQuery: function setQuery(val, silent) {
+      var areEquivalent, hasDifferentWhitespace;
+
+      areEquivalent = areQueriesEquivalent(val, this.query);
       hasDifferentWhitespace = areEquivalent ?
-        this.query.length !== inputValue.length : false;
+        this.query.length !== val.length : false;
 
-      this.query = inputValue;
+      this.query = val;
 
-      if (!areEquivalent) {
+      if (!silent && !areEquivalent) {
         this.trigger('queryChanged', this.query);
       }
 
-      else if (hasDifferentWhitespace) {
+      else if (!silent && hasDifferentWhitespace) {
         this.trigger('whitespaceChanged', this.query);
       }
     },
@@ -142,6 +155,10 @@ var Input = (function() {
 
     bind: function() {
       var that = this, onBlur, onFocus, onKeydown, onInput;
+
+      // parent will be listening for langDirChanged event by now
+      // so get the initial lang and bubble it up
+      this._checkLanguageDirection();
 
       // bound functions
       onBlur = _.bind(this._onBlur, this);
@@ -187,23 +204,23 @@ var Input = (function() {
       return this.query;
     },
 
-    setQuery: function setQuery(query) {
-      this.query = query;
+    setQuery: function setQuery(val, silent) {
+      this.setInputValue(val);
+      this._setQuery(val, silent);
     },
 
     getInputValue: function getInputValue() {
       return this.$input.val();
     },
 
-    setInputValue: function setInputValue(value, silent) {
+    setInputValue: function setInputValue(value) {
       this.$input.val(value);
-
-      // silent prevents any additional events from being triggered
-      silent ? this.clearHint() : this._checkInputValue();
+      this.clearHintIfInvalid();
+      this._checkLanguageDirection();
     },
 
     resetInputValue: function resetInputValue() {
-      this.setInputValue(this.query, true);
+      this.setInputValue(this.query);
     },
 
     getHint: function getHint() {
@@ -227,14 +244,6 @@ var Input = (function() {
       isValid = val !== '' && valIsPrefixOfHint && !this.hasOverflow();
 
       !isValid && this.clearHint();
-    },
-
-    getLanguageDirection: function getLanguageDirection() {
-      return (this.$input.css('direction') || 'ltr').toLowerCase();
-    },
-
-    setHintLanguageDirection: function setHintLanguageDirection(dir) {
-      this.$hint.attr('dir', dir);
     },
 
     hasFocus: function hasFocus() {

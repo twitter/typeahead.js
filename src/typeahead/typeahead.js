@@ -12,6 +12,10 @@ var Typeahead = (function() {
 
   // THOUGHT: what if datasets could dynamically be added/removed?
   function Typeahead(o, www) {
+    var onSelectableClicked, onDatasetRendered, onFocused, onBlurred,
+        onEnterKeyed, onTabKeyed, onEscKeyed, onUpKeyed, onDownKeyed,
+        onLeftKeyed, onRightKeyed, onQueryChanged, onWhitespaceChanged;
+
     o = o || {};
 
     if (!o.input) {
@@ -34,33 +38,53 @@ var Typeahead = (function() {
     this.input = o.input;
     this.results = o.results;
 
+    // activate the typeahead on init if the input has focus
+    this.active = false;
+    this.input.hasFocus() && this.activate();
+
     this._hacks();
-    this._setLanguageDirection();
+
+    // composed event handlers for results
+    onSelectableClicked = c(this, 'isActive', '_onSelectableClicked');
+    onDatasetRendered = c(this, 'isActive', '_onDatasetRendered');
 
     this.results.bind()
-    .onSync('selectableClicked', this._onSelectableClicked, this)
-    .onAsync('datasetRendered', this._onDatasetRendered, this);
+    .onSync('selectableClicked', onSelectableClicked, this)
+    // TODO: why is this async, i forgot :(
+    .onAsync('datasetRendered', onDatasetRendered, this);
+
+    // composed event handlers for input
+    onFocused = c(this, 'activate', 'open', '_onFocused');
+    onBlurred = c(this, 'deactivate', '_onBlurred');
+    onEnterKeyed = c(this, 'isActive', 'isOpen', '_onEnterKeyed');
+    onTabKeyed = c(this, 'isActive', 'isOpen', '_onTabKeyed');
+    onEscKeyed = c(this, 'isActive', '_onEscKeyed');
+    onUpKeyed = c(this, 'isActive', 'open', '_onUpKeyed');
+    onDownKeyed = c(this, 'isActive', 'open', '_onDownKeyed');
+    onLeftKeyed = c(this, 'isActive', 'isOpen', '_onLeftKeyed');
+    onRightKeyed = c(this, 'isActive', 'isOpen', '_onRightKeyed');
+    onQueryChanged = c(this, 'isActive', 'open', '_onQueryChanged');
+    onWhitespaceChanged = c(this, 'isActive', 'open', '_onWhitespaceChanged');
 
     this.input.bind()
-    .onSync('focused', this._onFocused, this)
-    .onSync('blurred', this._onBlurred, this)
-    .onSync('enterKeyed', this._onEnterKeyed, this)
-    .onSync('tabKeyed', this._onTabKeyed, this)
-    .onSync('escKeyed', this._onEscKeyed, this)
-    .onSync('upKeyed', this._onUpKeyed, this)
-    .onSync('downKeyed', this._onDownKeyed, this)
-    .onSync('leftKeyed', this._onLeftKeyed, this)
-    .onSync('rightKeyed', this._onRightKeyed, this)
-    .onSync('queryChanged', this._onQueryChanged, this)
-    .onSync('whitespaceChanged', this._onWhitespaceChanged, this);
+    .onSync('focused', onFocused, this)
+    .onSync('blurred', onBlurred, this)
+    .onSync('enterKeyed', onEnterKeyed, this)
+    .onSync('tabKeyed', onTabKeyed, this)
+    .onSync('escKeyed', onEscKeyed, this)
+    .onSync('upKeyed', onUpKeyed, this)
+    .onSync('downKeyed', onDownKeyed, this)
+    .onSync('leftKeyed', onLeftKeyed, this)
+    .onSync('rightKeyed', onRightKeyed, this)
+    .onSync('queryChanged', onQueryChanged, this)
+    .onSync('whitespaceChanged', onWhitespaceChanged, this)
+    .onSync('langDirChanged', this._onLangDirChanged, this);
   }
 
   // instance methods
   // ----------------
 
   _.mixin(Typeahead.prototype, {
-
-    // ### private
 
     // here's where hacks get applied and we don't feel bad about it
     _hacks: function hacks() {
@@ -94,6 +118,8 @@ var Typeahead = (function() {
       $results.on('mousedown.tt', function($e) { $e.preventDefault(); });
     },
 
+    // ### event handlers
+
     _onSelectableClicked: function onSelectableClicked(type, $el) {
       this.select($el);
     },
@@ -103,13 +129,11 @@ var Typeahead = (function() {
     },
 
     _onFocused: function onFocused() {
-      this.results.activate();
       this.results.update(this.input.getQuery());
     },
 
     _onBlurred: function onBlurred() {
-      this.results.deactivate();
-      this.input.resetInputValue();
+      // noop
     },
 
     _onEnterKeyed: function onEnterKeyed(type, $e) {
@@ -130,60 +154,52 @@ var Typeahead = (function() {
       }
 
       else if (selectable = this.results.getTopSelectable()) {
-        this._autocomplete(selectable) && $e.preventDefault();
+        this.autocomplete(selectable) && $e.preventDefault();
       }
     },
 
     _onEscKeyed: function onEscKeyed() {
-      this.results.deactivate();
-      this.input.resetInputValue();
+      this.close();
     },
 
     _onUpKeyed: function onUpKeyed() {
-      this._moveCursor(-1);
+      this.moveCursor(-1);
     },
 
     _onDownKeyed: function onDownKeyed() {
-      this._moveCursor(+1);
+      this.moveCursor(+1);
     },
 
     _onLeftKeyed: function onLeftKeyed() {
       if (this.dir === 'rtl' && this.input.isCursorAtEnd()) {
-        this._autocomplete(this.results.getTopSelectable());
+        this.autocomplete(this.results.getTopSelectable());
       }
     },
 
     _onRightKeyed: function onRightKeyed() {
       if (this.dir === 'ltr' && this.input.isCursorAtEnd()) {
-        this._autocomplete(this.results.getTopSelectable());
+        this.autocomplete(this.results.getTopSelectable());
       }
     },
 
     _onQueryChanged: function onQueryChanged(e, query) {
-      this.results.activate();
-      this.input.clearHintIfInvalid();
-
       query.length >= this.minLength ?
         this.results.update(query) :
         this.results.empty();
-
-      this._setLanguageDirection();
     },
 
     _onWhitespaceChanged: function onWhitespaceChanged() {
-      this.results.activate();
       this._updateHint();
     },
 
-    _setLanguageDirection: function setLanguageDirection() {
-      var dir;
-
-      if (this.dir !== (dir = this.input.getLanguageDirection())) {
+    _onLangDirChanged: function onLangDirChanged(e, dir) {
+      if (this.dir !== dir) {
         this.dir = dir;
         this.results.setLanguageDirection(dir);
-        this.input.setHintLanguageDirection(dir);
       }
     },
+
+    // ### private
 
     _updateHint: function updateHint() {
       var selectable, data, val, query, escapedQuery, frontMatchRegEx, match;
@@ -191,7 +207,7 @@ var Typeahead = (function() {
       selectable = this.results.getTopSelectable();
       data = this.results.getDataFromSelectable(selectable);
 
-      if (data && this._isActivated() && !this.input.hasOverflow()) {
+      if (data && !this.input.hasOverflow()) {
         val = this.input.getInputValue();
         query = Input.normalizeQuery(val);
         escapedQuery = _.escapeRegExChars(query);
@@ -201,82 +217,64 @@ var Typeahead = (function() {
         match = frontMatchRegEx.exec(data.val);
 
         // clear hint if there's no trailing text
-        match ? this.input.setHint(val + match[1]) : this.input.clearHint();
+        match && this.input.setHint(val + match[1]);
       }
-
-      else {
-        this.input.clearHint();
-      }
-    },
-
-    _autocomplete: function autocomplete(selectable) {
-      var query, data, isValid;
-
-      query = this.input.getQuery();
-      data = this.results.getDataFromSelectable(selectable);
-      isValid = data && query !== data.val;
-
-      if (isValid && !this.eventBus.trigger('autocomplete', data.obj)) {
-        this.input.setInputValue(data.val);
-        this.eventBus.trigger('autocompleted', data.obj);
-
-        // return true if autocompletion succeeded
-        return true;
-      }
-    },
-
-    _moveCursor: function moveCursor(delta) {
-      var query, candidate, data, payload, cancelMove;
-
-      query = this.input.getQuery();
-      candidate = this.results.selectableRelativeToCursor(delta);
-      data = this.results.getDataFromSelectable(candidate);
-      payload = data ? data.obj : null;
-
-      this.results.activate();
-
-      // update will return true when it's a new query and new results
-      // need to be fetched – in this case we don't want to move the cursor
-      cancelMove = query.length >= this.minLength && this.results.update(query);
-
-      if (!cancelMove && !this.eventBus.trigger('cursorchange', payload)) {
-        this.results.setCursor(candidate);
-
-        // cursor moved to different selectable
-        if (data) {
-          this.input.setInputValue(data.val, true);
-        }
-
-        // cursor moved off of selectables, back to input
-        else {
-          this.input.resetInputValue();
-          this._updateHint();
-        }
-
-        this.eventBus.trigger('cursorchanged', payload);
-      }
-    },
-
-    _isActivated: function isActivated() {
-      return this.input.hasFocus();
     },
 
     // ### public
 
+    isActive: function isActive() {
+      return this.active;
+    },
+
+    activate: function activate() {
+      var canceled = false;
+
+      if (!this.active && !(canceled = this.eventBus.before('active'))) {
+        this.active = true;
+        this.eventBus.trigger('active');
+      }
+
+      return !canceled;
+    },
+
+    deactivate: function deactivate() {
+      var canceled = false;
+
+      if (this.active && !(canceled = this.eventBus.before('idle'))) {
+        this.active = false;
+        this.close();
+        this.eventBus.trigger('idle');
+      }
+
+      return !canceled;
+    },
+
+    isOpen: function isOpen() {
+      return this.results.isOpen();
+    },
+
+    open: function open() {
+      if (!this.isOpen() && !this.eventBus.before('open')) {
+        this.results.open();
+        this.eventBus.trigger('open');
+      }
+
+      return this.isOpen();
+    },
+
+    close: function close() {
+      if (this.isOpen() && !this.eventBus.before('close')) {
+        this.results.close();
+        this.input.resetInputValue();
+        this.eventBus.trigger('close');
+      }
+      return !this.isOpen();
+    },
+
     setVal: function setVal(val) {
       // expect val to be a string, so be safe, and coerce
-      val = _.toStr(val);
-
-      if (this._isActivated()) {
-        this.input.setInputValue(val);
-      }
-
-      else {
-        this.input.setQuery(val);
-        this.input.setInputValue(val, true);
-      }
-
-      this._setLanguageDirection();
+      this.input.setQuery(_.toStr(val));
     },
 
     getVal: function getVal() {
@@ -286,17 +284,65 @@ var Typeahead = (function() {
     select: function select(selectable) {
       var data = this.results.getDataFromSelectable(selectable);
 
-      if (data && !this.eventBus.trigger('select', data.obj)) {
-        this.input.setQuery(data.val);
-        this.input.setInputValue(data.val, true);
+      if (data && !this.eventBus.before('select', data.obj)) {
+        this.input.setQuery(data.val, true);
+        this.close();
 
-        this._setLanguageDirection();
-        this.results.deactivate();
+        this.eventBus.trigger('select', data.obj);
 
-        this.eventBus.trigger('selected', data.obj);
+        // return true if move succeeded
+        return true;
       }
     },
 
+    autocomplete: function autocomplete(selectable) {
+      var query, data, isValid;
+
+      query = this.input.getQuery();
+      data = this.results.getDataFromSelectable(selectable);
+      isValid = data && query !== data.val;
+
+      if (isValid && !this.eventBus.before('autocomplete', data.obj)) {
+        this.input.setQuery(data.val);
+        this.eventBus.trigger('autocompleted', data.obj);
+
+        // return true if autocompletion succeeded
+        return true;
+      }
+    },
+
+    moveCursor: function moveCursor(delta) {
+      var query, candidate, data, payload, cancelMove;
+
+      query = this.input.getQuery();
+      candidate = this.results.selectableRelativeToCursor(delta);
+      data = this.results.getDataFromSelectable(candidate);
+      payload = data ? data.obj : null;
+
+      // update will return true when it's a new query and new results
+      // need to be fetched – in this case we don't want to move the cursor
+      cancelMove = query.length >= this.minLength && this.results.update(query);
+
+      if (!cancelMove && !this.eventBus.before('cursorchange', payload)) {
+        this.results.setCursor(candidate);
+
+        // cursor moved to different selectable
+        if (data) {
+          this.input.setInputValue(data.val);
+        }
+
+        // cursor moved off of selectables, back to input
+        else {
+          this.input.resetInputValue();
+          this._updateHint();
+        }
+
+        this.eventBus.trigger('cursorchanged', payload);
+
+        // return true if move succeeded
+        return true;
+      }
+    },
 
     destroy: function destroy() {
       this.input.destroy();
@@ -305,4 +351,19 @@ var Typeahead = (function() {
   });
 
   return Typeahead;
+
+  // helper functions
+  // ----------------
+
+  function c(ctx) {
+    var methods = [].slice.call(arguments, 1);
+
+    return function() {
+      var args = [].slice.call(arguments);
+
+      _.each(methods, function(method) {
+        return ctx[method].apply(ctx, args);
+      });
+    };
+  }
 })();

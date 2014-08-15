@@ -39,7 +39,7 @@ var Results = (function() {
 
   _.mixin(Results.prototype, EventEmitter, {
 
-    // ### private
+    // ### event handlers
 
     _onSelectableClick: function onSelectableClick($e) {
       this.trigger('selectableClicked', $($e.currentTarget));
@@ -56,6 +56,8 @@ var Results = (function() {
 
       function isDatasetEmpty(dataset) { return dataset.isEmpty(); }
     },
+
+    // ### private
 
     _getSelectables: function getSelectables() {
       return this.$node.find(this.selectors.selectable);
@@ -100,12 +102,16 @@ var Results = (function() {
       return this;
     },
 
-    activate: function activate() {
-      this.$node.addClass(this.classes.activated);
+    isOpen: function isOpen() {
+      return this.$node.hasClass(this.classes.open);
     },
 
-    deactivate: function deactivate() {
-      this.$node.removeClass(this.classes.activated);
+    open: function open() {
+      this.$node.addClass(this.classes.open);
+    },
+
+    close: function close() {
+      this.$node.removeClass(this.classes.open);
       this._removeCursor();
     },
 

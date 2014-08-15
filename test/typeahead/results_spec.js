@@ -62,21 +62,21 @@ describe('Results', function() {
     });
   });
 
-  describe('#activate', function() {
-    it('should add activated class to node', function() {
-      this.$node.removeClass(www.classes.activated);
-      this.view.activate();
+  describe('#open', function() {
+    it('should add open class to node', function() {
+      this.$node.removeClass(www.classes.open);
+      this.view.open();
 
-      expect(this.$node).toHaveClass(www.classes.activated);
+      expect(this.$node).toHaveClass(www.classes.open);
     });
   });
 
-  describe('#deactivate', function() {
-    it('should remove activated class to node', function() {
-      this.$node.addClass(www.classes.activated);
-      this.view.deactivate();
+  describe('#close', function() {
+    it('should remove open class to node', function() {
+      this.$node.addClass(www.classes.open);
+      this.view.close();
 
-      expect(this.$node).not.toHaveClass(www.classes.activated);
+      expect(this.$node).not.toHaveClass(www.classes.open);
     });
 
     it('should remove cursor', function() {
@@ -87,7 +87,7 @@ describe('Results', function() {
 
       expect($selectable).toHaveClass(www.classes.cursor);
 
-      this.view.deactivate();
+      this.view.close();
 
       expect($selectable).not.toHaveClass(www.classes.cursor);
     });
