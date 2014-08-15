@@ -599,6 +599,8 @@
             this.local = oParser.local(o);
             this.prefetch = oParser.prefetch(o);
             this.remote = oParser.remote(o);
+            this.onNetworkStart = o.onNetworkStart;
+            this.onNetworkEnd = o.onNetworkEnd;
             this.cacheKey = this.prefetch ? this.prefetch.cacheKey || this.prefetch.url : null;
             this.index = new SearchIndex({
                 datumTokenizer: o.datumTokenizer,
@@ -619,9 +621,15 @@
                     deferred = $.Deferred().resolve();
                 } else {
                     deferred = $.ajax(o.url, o.ajax).done(handlePrefetchResponse);
+                    if (this.onNetworkStart) {
+                        this.onNetworkStart(query);
+                    }
                 }
                 return deferred;
                 function handlePrefetchResponse(resp) {
+                    if (that.onNetworkEnd) {
+                        that.onNetworkEnd(query);
+                    }
                     that.clear();
                     that.add(o.filter ? o.filter(resp) : resp);
                     that._saveToStorage(that.index.serialize(), o.thumbprint, o.ttl);
@@ -635,8 +643,14 @@
                 query = query || "";
                 uriEncodedQuery = encodeURIComponent(query);
                 url = this.remote.replace ? this.remote.replace(this.remote.url, query) : this.remote.url.replace(this.remote.wildcard, uriEncodedQuery);
+                if (this.onNetworkStart) {
+                    this.onNetworkStart(query);
+                }
                 return this.transport.get(url, this.remote.ajax, handleRemoteResponse);
                 function handleRemoteResponse(err, resp) {
+                    if (that.onNetworkEnd) {
+                        that.onNetworkEnd(query);
+                    }
                     err ? cb([]) : cb(that.remote.filter ? that.remote.filter(resp) : resp);
                 }
             },
