@@ -52,8 +52,7 @@ var Typeahead = (function() {
 
     this.results.bind()
     .onSync('selectableClicked', onSelectableClicked, this)
-    // TODO: why is this async, i forgot :(
-    .onAsync('datasetRendered', onDatasetRendered, this);
+    .onSync('datasetRendered', onDatasetRendered, this);
 
     // composed event handlers for input
     onFocused = c(this, 'activate', 'open', '_onFocused');
@@ -144,8 +143,7 @@ var Typeahead = (function() {
       var $selectable;
 
       if ($selectable = this.results.getActiveSelectable()) {
-        this.select($selectable);
-        $e.preventDefault();
+        this.select($selectable) && $e.preventDefault();
       }
     },
 
@@ -153,8 +151,7 @@ var Typeahead = (function() {
       var $selectable;
 
       if ($selectable = this.results.getActiveSelectable()) {
-        this.select($selectable);
-        $e.preventDefault();
+        this.select($selectable) && $e.preventDefault();
       }
 
       else if ($selectable = this.results.getTopSelectable()) {

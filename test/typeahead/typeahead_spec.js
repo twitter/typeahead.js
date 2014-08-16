@@ -84,27 +84,15 @@ describe('Typeahead', function() {
         this.view.activate();
       });
 
-      // TODO: async to sync?
-      it('should update the hint asynchronously', function() {
-        this.input.hasFocus.andReturn(true);
+      it('should update the hint', function() {
         this.input.hasOverflow.andReturn(false);
         this.results.getTopSelectable.andReturn($('<fiz>'));
         this.results.getSelectableData.andReturn(testData);
-
         this.input.getInputValue.andReturn(testData.val.slice(0, 2));
 
         this.results.trigger(eventName);
 
-        // ensure it wasn't called synchronously
-        expect(this.input.setHint).not.toHaveBeenCalled();
-
-        waitsFor(function() {
-          return !!this.input.setHint.callCount;
-        });
-
-        runs(function() {
-          expect(this.input.setHint).toHaveBeenCalledWith(testData.val);
-        });
+        expect(this.input.setHint).toHaveBeenCalled();
       });
     });
   });
@@ -246,7 +234,7 @@ describe('Typeahead', function() {
         var $el;
 
         $el = $('<bah>');
-        spyOn(this.view, 'select');
+        spyOn(this.view, 'select').andReturn(true);
         this.results.getActiveSelectable.andReturn($el);
 
         this.input.trigger(eventName, payload);
@@ -265,11 +253,23 @@ describe('Typeahead', function() {
         expect(this.view.select).not.toHaveBeenCalledWith($el);
       });
 
-      it('should not prevent default if no active selectale ', function() {
+      it('should not prevent default if no active selectale', function() {
         var $el;
 
-        spyOn(this.view, 'select');
+        spyOn(this.view, 'select').andReturn(true);
         $el = $('<bah>');
+
+        this.input.trigger(eventName, payload);
+
+        expect(payload.preventDefault).not.toHaveBeenCalled();
+      });
+
+      it('should not prevent default if selection of active selectable fails', function() {
+        var $el;
+
+        $el = $('<bah>');
+        spyOn(this.view, 'select').andReturn(false);
+        this.results.getActiveSelectable.andReturn($el);
 
         this.input.trigger(eventName, payload);
 
@@ -329,11 +329,11 @@ describe('Typeahead', function() {
         expect(this.view.select).toHaveBeenCalledWith($el);
       });
 
-      it('should prevent default if active selectale ', function() {
+      it('should prevent default if active selectale', function() {
         var $el;
 
         $el = $('<bah>');
-        spyOn(this.view, 'select');
+        spyOn(this.view, 'select').andReturn(true);
         this.results.getActiveSelectable.andReturn($el);
 
         this.input.trigger(eventName, payload);
@@ -357,6 +357,18 @@ describe('Typeahead', function() {
 
         $el = $('<bah>');
         spyOn(this.view, 'select');
+
+        this.input.trigger(eventName, payload);
+
+        expect(payload.preventDefault).not.toHaveBeenCalled();
+      });
+
+      it('should not prevent default if selection of active selectable fails', function() {
+        var $el;
+
+        $el = $('<bah>');
+        spyOn(this.view, 'select').andReturn(false);
+        this.results.getActiveSelectable.andReturn($el);
 
         this.input.trigger(eventName, payload);
 
