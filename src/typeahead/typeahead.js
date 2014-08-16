@@ -244,26 +244,43 @@ var Typeahead = (function() {
     },
 
     activate: function activate() {
-      var canceled = false, eligible = this.isEnabled() && !this.isActive();
-
-      if (eligible && !(canceled = this.eventBus.before('active'))) {
-        this.active = true;
-        this.eventBus.trigger('active');
+      // already active
+      if (this.isActive()) {
+        return true;
       }
 
-      return !canceled;
+      // unable to activate either due to the typeahead being disabled
+      // or due to the active event being prevented
+      else if (!this.isEnabled() || this.eventBus.before('active')) {
+        return false;
+      }
+
+      // activate
+      else {
+        this.active = true;
+        this.eventBus.trigger('active');
+        return true;
+      }
     },
 
     deactivate: function deactivate() {
-      var canceled = false;
+      // already idle
+      if (!this.isActive()) {
+        return true;
+      }
 
-      if (this.isActive() && !(canceled = this.eventBus.before('idle'))) {
+      // unable to deactivate due to the idle event being prevented
+      else if (this.eventBus.before('idle')) {
+        return false;
+      }
+
+      // deactivate
+      else {
         this.active = false;
         this.close();
         this.eventBus.trigger('idle');
+        return true;
       }
-
-      return !canceled;
     },
 
     isOpen: function isOpen() {
@@ -306,9 +323,11 @@ var Typeahead = (function() {
 
         this.eventBus.trigger('select', data.obj);
 
-        // return true if move succeeded
+        // return true if selection succeeded
         return true;
       }
+
+      return false;
     },
 
     autocomplete: function autocomplete(selectable) {
@@ -325,6 +344,8 @@ var Typeahead = (function() {
         // return true if autocompletion succeeded
         return true;
       }
+
+      return false;
     },
 
     moveCursor: function moveCursor(delta) {
@@ -358,6 +379,8 @@ var Typeahead = (function() {
         // return true if move succeeded
         return true;
       }
+
+      return false;
     },
 
     destroy: function destroy() {

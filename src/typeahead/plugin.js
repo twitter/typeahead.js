@@ -87,41 +87,101 @@
       }
     },
 
+    isEnabled: function isEnabled() {
+      var enabled;
+
+      ttEach(this.first(), function(t) { enabled = t.isEnabled(); });
+      return enabled;
+    },
+
+    enable: function enable() {
+      ttEach(this, function(t) { t.enable(); });
+      return this;
+    },
+
+    disable: function disable() {
+      ttEach(this, function(t) { t.disable(); });
+      return this;
+    },
+
+    isActive: function isActive() {
+      var active;
+
+      ttEach(this.first(), function(t) { active = t.isActive(); });
+      return active;
+    },
+
+    activate: function activate() {
+      ttEach(this, function(t) { t.activate(); });
+      return this;
+    },
+
+    deactivate: function deactivate() {
+      ttEach(this, function(t) { t.deactivate(); });
+      return this;
+    },
+
+    isOpen: function isOpen() {
+      var open;
+
+      ttEach(this.first(), function(t) { open = t.isOpen(); });
+      return open;
+    },
+
+    open: function open() {
+      ttEach(this, function(t) { t.open(); });
+      return this;
+    },
+
+    close: function close() {
+      ttEach(this, function(t) { t.close(); });
+      return this;
+    },
+
+    select: function select(el) {
+      var success = false, $el = $(el);
+
+      ttEach(this.first(), function(t) { success = t.select($el); });
+      return success;
+    },
+
+    autocomplete: function autocomplete(el) {
+      var success = false, $el = $(el);
+
+      ttEach(this.first(), function(t) { success = t.autocomplete($el); });
+      return success;
+    },
+
+    moveCursor: function moveCursoe(delta) {
+      var success = false;
+
+      ttEach(this.first(), function(t) { success = t.moveCursor(delta); });
+      return success;
+    },
+
+    // mirror jQuery#val functionality: reads opearte on first match,
+    // write operates on all matches
     val: function val(newVal) {
-      // mirror jQuery#val functionality: reads opearte on first match,
-      // write operates on all matches
-      return !arguments.length ? getVal(this.first()) : this.each(setVal);
+      var query;
 
-      function setVal() {
-        var $input = $(this), typeahead;
-
-        if (typeahead = $input.data(keys.typeahead)) {
-          typeahead.setVal(newVal);
-        }
+      if (!arguments.length) {
+        ttEach(this.first(), function(t) { query = t.getVal(); });
+        return query;
       }
 
-      function getVal($input) {
-        var typeahead, query;
-
-        if (typeahead = $input.data(keys.typeahead)) {
-          query = typeahead.getVal();
-        }
-
-        return query;
+      else {
+        ttEach(this, function(t) { t.setVal(newVal); });
+        return this;
       }
     },
 
     destroy: function destroy() {
-      return this.each(unattach);
+      ttEach(this, function(typeahead, $input) {
+        revert($input);
+        typeahead.destroy();
+      });
 
-      function unattach() {
-        var $input = $(this), typeahead;
-
-        if (typeahead = $input.data(keys.typeahead)) {
-          revert($input);
-          typeahead.destroy();
-        }
-      }
+      return this;
     }
   };
 
@@ -129,10 +189,8 @@
     var tts;
 
     // methods that should only act on intialized typeaheads
-    if (methods[method] && method !== 'initialize') {
-      // filter out non-typeahead inputs
-      tts = this.filter(function() { return !!$(this).data(keys.typeahead); });
-      return methods[method].apply(tts, [].slice.call(arguments, 1));
+    if (methods[method]) {
+      return methods[method].apply(this, [].slice.call(arguments, 1));
     }
 
     else {
@@ -147,6 +205,14 @@
 
   // helper methods
   // --------------
+
+  function ttEach($els, fn) {
+    $els.each(function() {
+      var $input = $(this), typeahead;
+
+      (typeahead = $input.data(keys.typeahead)) && fn(typeahead, $input);
+    });
+  }
 
   function buildHintFromInput($input, www) {
     return $input.clone()

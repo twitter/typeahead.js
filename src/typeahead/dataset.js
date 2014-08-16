@@ -50,10 +50,14 @@ var Dataset = (function() {
   Dataset.extractData = function extractData(el) {
     var $el = $(el);
 
-    return {
-      val: $el.data(keys.val) || '',
-      obj: $el.data(keys.obj) || null
-    };
+    if ($el.data(keys.obj)) {
+      return {
+        val: $el.data(keys.val) || '',
+        obj: $el.data(keys.obj) || null
+      };
+    }
+
+    return null;
   };
 
   // instance methods
