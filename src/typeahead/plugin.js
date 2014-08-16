@@ -51,7 +51,7 @@
         defaultResults && ($results = $(www.html.results).css(www.css.results));
 
         // hint should be empty on init
-        $hint.val('');
+        $hint && $hint.val('');
         $input = prepInput($input);
 
         // only apply inline styles and make dom changes if necessary
