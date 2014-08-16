@@ -186,8 +186,6 @@
   };
 
   $.fn.typeahead = function(method) {
-    var tts;
-
     // methods that should only act on intialized typeaheads
     if (methods[method]) {
       return methods[method].apply(this, [].slice.call(arguments, 1));

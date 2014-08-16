@@ -89,7 +89,7 @@ describe('Typeahead', function() {
         this.input.hasFocus.andReturn(true);
         this.input.hasOverflow.andReturn(false);
         this.results.getTopSelectable.andReturn($('<fiz>'));
-        this.results.getDataFromSelectable.andReturn(testData);
+        this.results.getSelectableData.andReturn(testData);
 
         this.input.getInputValue.andReturn(testData.val.slice(0, 2));
 
@@ -697,7 +697,7 @@ describe('Typeahead', function() {
         this.input.hasFocus.andReturn(true);
         this.input.hasOverflow.andReturn(false);
         this.results.getTopSelectable.andReturn($('<fiz>'));
-        this.results.getDataFromSelectable.andReturn(testData);
+        this.results.getSelectableData.andReturn(testData);
 
         this.input.getInputValue.andReturn(testData.val.slice(0, 2));
 
@@ -1057,7 +1057,7 @@ describe('Typeahead', function() {
     it('should do nothing if element is not a selectable', function() {
       var spy;
 
-      this.results.getDataFromSelectable.andReturn(null);
+      this.results.getSelectableData.andReturn(null);
       this.$input.on('typeahead:beforeselect', spy = jasmine.createSpy());
 
       this.view.select($('<bah>'));
@@ -1068,7 +1068,7 @@ describe('Typeahead', function() {
     it('should trigger typeahead:beforeselect', function() {
       var spy;
 
-      this.results.getDataFromSelectable.andReturn(testData);
+      this.results.getSelectableData.andReturn(testData);
       this.$input.on('typeahead:beforeselect', spy = jasmine.createSpy());
 
       this.view.select($('<bah>'));
@@ -1082,7 +1082,7 @@ describe('Typeahead', function() {
       spy1 = jasmine.createSpy().andCallFake(prevent);
       spy2 = jasmine.createSpy();
 
-      this.results.getDataFromSelectable.andReturn(testData);
+      this.results.getSelectableData.andReturn(testData);
       this.$input.on('typeahead:beforeselect', spy1).on('typeahead:select', spy2);
 
       this.view.select($('<bah>'));
@@ -1092,7 +1092,7 @@ describe('Typeahead', function() {
     });
 
     it('should update query', function() {
-      this.results.getDataFromSelectable.andReturn(testData);
+      this.results.getSelectableData.andReturn(testData);
       this.view.select($('<bah>'));
       expect(this.input.setQuery).toHaveBeenCalledWith(testData.val, true);
     });
@@ -1100,7 +1100,7 @@ describe('Typeahead', function() {
     it('should trigger typeahead:select', function() {
       var spy;
 
-      this.results.getDataFromSelectable.andReturn(testData);
+      this.results.getSelectableData.andReturn(testData);
       this.$input.on('typeahead:select', spy = jasmine.createSpy());
 
       this.view.select($('<bah>'));
@@ -1110,7 +1110,7 @@ describe('Typeahead', function() {
 
     it('should close', function() {
       spyOn(this.view, 'close');
-      this.results.getDataFromSelectable.andReturn(testData);
+      this.results.getSelectableData.andReturn(testData);
 
       this.view.select($('<bah>'));
 
@@ -1123,7 +1123,7 @@ describe('Typeahead', function() {
       var spy;
 
       this.input.getQuery.andReturn(testData.val);
-      this.results.getDataFromSelectable.andReturn(testData);
+      this.results.getSelectableData.andReturn(testData);
       this.$input.on('typeahead:beforeautocomplete', spy = jasmine.createSpy());
 
       this.view.autocomplete($('<bah>'));
@@ -1134,7 +1134,7 @@ describe('Typeahead', function() {
     it('should trigger typeahead:beforeautocomplete', function() {
       var spy;
 
-      this.results.getDataFromSelectable.andReturn(testData);
+      this.results.getSelectableData.andReturn(testData);
       this.$input.on('typeahead:beforeautocomplete', spy = jasmine.createSpy());
 
       this.view.autocomplete($('<bah>'));
@@ -1149,7 +1149,7 @@ describe('Typeahead', function() {
       spy2 = jasmine.createSpy();
       this.$input.on('typeahead:beforeautocomplete', spy1);
       this.$input.on('typeahead:autocompleted', spy2);
-      this.results.getDataFromSelectable.andReturn(testData);
+      this.results.getSelectableData.andReturn(testData);
 
       this.view.autocomplete($('<bah>'));
 
@@ -1158,7 +1158,7 @@ describe('Typeahead', function() {
     });
 
     it('should update the query', function() {
-      this.results.getDataFromSelectable.andReturn(testData);
+      this.results.getSelectableData.andReturn(testData);
       this.view.autocomplete($('<bah>'));
       expect(this.input.setQuery).toHaveBeenCalledWith(testData.val);
     });
@@ -1166,7 +1166,7 @@ describe('Typeahead', function() {
     it('should trigger typeahead:autocompleted', function() {
       var spy;
 
-      this.results.getDataFromSelectable.andReturn(testData);
+      this.results.getSelectableData.andReturn(testData);
       this.$input.on('typeahead:autocompleted', spy = jasmine.createSpy());
 
       this.view.autocomplete($('<bah>'));
@@ -1231,7 +1231,7 @@ describe('Typeahead', function() {
     });
 
     it('should update the input value if moved to selectable', function() {
-      this.results.getDataFromSelectable.andReturn(testData);
+      this.results.getSelectableData.andReturn(testData);
       this.view.moveCursor(1)
       expect(this.input.setInputValue).toHaveBeenCalledWith(testData.val);
     });
@@ -1244,7 +1244,7 @@ describe('Typeahead', function() {
     it('should update the hint', function() {
       this.input.hasOverflow.andReturn(false);
       this.results.getTopSelectable.andReturn($('<fiz>'));
-      this.results.getDataFromSelectable.andCallFake(fake);
+      this.results.getSelectableData.andCallFake(fake);
       this.input.getInputValue.andReturn(testData.val.slice(0, 1));
 
       this.view.moveCursor(1)

@@ -64,8 +64,8 @@ var Results = (function() {
     },
 
     _removeCursor: function _removeCursor() {
-      var selectable = this.getActiveSelectable();
-      selectable && selectable.removeClass(this.classes.cursor);
+      var $selectable = this.getActiveSelectable();
+      $selectable && $selectable.removeClass(this.classes.cursor);
     },
 
     _ensureVisible: function ensureVisible($el) {
@@ -148,7 +148,7 @@ var Results = (function() {
       }
     },
 
-    getDataFromSelectable: function getDataFromSelectable($el) {
+    getSelectableData: function getSelectableData($el) {
       return ($el && $el.length) ? Dataset.extractData($el) : null;
     },
 

@@ -166,7 +166,7 @@ describe('Results', function() {
     });
   });
 
-  describe('#getDataFromSelectable', function() {
+  describe('#getSelectableData', function() {
     it('should extract the data from the selectable element', function() {
       var $selectable, datum;
 
@@ -175,13 +175,13 @@ describe('Results', function() {
         'tt-selectable-object': 'two'
       });
 
-      data = this.view.getDataFromSelectable($selectable);
+      data = this.view.getSelectableData($selectable);
 
       expect(data).toEqual({ val: 'one', obj: 'two' });
     });
 
     it('should return null if no element is given', function() {
-      expect(this.view.getDataFromSelectable($('notreal'))).toBeNull();
+      expect(this.view.getSelectableData($('notreal'))).toBeNull();
     });
   });
 

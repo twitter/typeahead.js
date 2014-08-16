@@ -97,7 +97,7 @@ var Input = (function() {
     // ### private
 
     _managePreventDefault: function managePreventDefault(keyName, $e) {
-      var preventDefault, hintValue, inputValue;
+      var preventDefault;
 
       switch (keyName) {
         case 'up':

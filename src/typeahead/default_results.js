@@ -9,7 +9,7 @@ var DefaultResults = (function() {
 
   var s = Results.prototype;
 
-  function DefaultResults(o, www) {
+  function DefaultResults() {
     Results.apply(this, [].slice.call(arguments, 0));
   }
 

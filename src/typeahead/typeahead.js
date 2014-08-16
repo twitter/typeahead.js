@@ -141,24 +141,24 @@ var Typeahead = (function() {
     },
 
     _onEnterKeyed: function onEnterKeyed(type, $e) {
-      var activeSelectable, topSelectable;
+      var $selectable;
 
-      if (activeSelectable = this.results.getActiveSelectable()) {
-        this.select(activeSelectable);
+      if ($selectable = this.results.getActiveSelectable()) {
+        this.select($selectable);
         $e.preventDefault();
       }
     },
 
     _onTabKeyed: function onTabKeyed(type, $e) {
-      var selectable;
+      var $selectable;
 
-      if (selectable = this.results.getActiveSelectable()) {
-        this.select(selectable);
+      if ($selectable = this.results.getActiveSelectable()) {
+        this.select($selectable);
         $e.preventDefault();
       }
 
-      else if (selectable = this.results.getTopSelectable()) {
-        this.autocomplete(selectable) && $e.preventDefault();
+      else if ($selectable = this.results.getTopSelectable()) {
+        this.autocomplete($selectable) && $e.preventDefault();
       }
     },
 
@@ -206,10 +206,10 @@ var Typeahead = (function() {
     // ### private
 
     _updateHint: function updateHint() {
-      var selectable, data, val, query, escapedQuery, frontMatchRegEx, match;
+      var $selectable, data, val, query, escapedQuery, frontMatchRegEx, match;
 
-      selectable = this.results.getTopSelectable();
-      data = this.results.getDataFromSelectable(selectable);
+      $selectable = this.results.getTopSelectable();
+      data = this.results.getSelectableData($selectable);
 
       if (data && !this.input.hasOverflow()) {
         val = this.input.getInputValue();
@@ -314,8 +314,8 @@ var Typeahead = (function() {
       return this.input.getQuery();
     },
 
-    select: function select(selectable) {
-      var data = this.results.getDataFromSelectable(selectable);
+    select: function select($selectable) {
+      var data = this.results.getSelectableData($selectable);
 
       if (data && !this.eventBus.before('select', data.obj)) {
         this.input.setQuery(data.val, true);
@@ -330,11 +330,11 @@ var Typeahead = (function() {
       return false;
     },
 
-    autocomplete: function autocomplete(selectable) {
+    autocomplete: function autocomplete($selectable) {
       var query, data, isValid;
 
       query = this.input.getQuery();
-      data = this.results.getDataFromSelectable(selectable);
+      data = this.results.getSelectableData($selectable);
       isValid = data && query !== data.val;
 
       if (isValid && !this.eventBus.before('autocomplete', data.obj)) {
@@ -349,11 +349,11 @@ var Typeahead = (function() {
     },
 
     moveCursor: function moveCursor(delta) {
-      var query, candidate, data, payload, cancelMove;
+      var query, $candidate, data, payload, cancelMove;
 
       query = this.input.getQuery();
-      candidate = this.results.selectableRelativeToCursor(delta);
-      data = this.results.getDataFromSelectable(candidate);
+      $candidate = this.results.selectableRelativeToCursor(delta);
+      data = this.results.getSelectableData($candidate);
       payload = data ? data.obj : null;
 
       // update will return true when it's a new query and new results
@@ -361,7 +361,7 @@ var Typeahead = (function() {
       cancelMove = query.length >= this.minLength && this.results.update(query);
 
       if (!cancelMove && !this.eventBus.before('cursorchange', payload)) {
-        this.results.setCursor(candidate);
+        this.results.setCursor($candidate);
 
         // cursor moved to different selectable
         if (data) {
