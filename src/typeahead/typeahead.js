@@ -146,7 +146,7 @@ var Typeahead = (function() {
     },
 
     _onFocused: function onFocused() {
-      this.results.update(this.input.getQuery());
+      this._minLengthMet() && this.results.update(this.input.getQuery());
     },
 
     _onBlurred: function onBlurred() {
@@ -200,7 +200,7 @@ var Typeahead = (function() {
     },
 
     _onQueryChanged: function onQueryChanged(e, query) {
-      query.length >= this.minLength ?
+      this._minLengthMet(query) ?
         this.results.update(query) :
         this.results.empty();
     },
@@ -217,6 +217,12 @@ var Typeahead = (function() {
     },
 
     // ### private
+
+    _minLengthMet: function minLengthMet(query) {
+      query = _.isString(query) ? query : (this.input.getQuery() || '');
+
+      return query.length >= this.minLength;
+    },
 
     _updateHint: function updateHint() {
       var $selectable, data, val, query, escapedQuery, frontMatchRegEx, match;
@@ -371,7 +377,7 @@ var Typeahead = (function() {
 
       // update will return true when it's a new query and new results
       // need to be fetched – in this case we don't want to move the cursor
-      cancelMove = query.length >= this.minLength && this.results.update(query);
+      cancelMove = this._minLengthMet() && this.results.update(query);
 
       if (!cancelMove && !this.eventBus.before('cursorchange', payload)) {
         this.results.setCursor($candidate);

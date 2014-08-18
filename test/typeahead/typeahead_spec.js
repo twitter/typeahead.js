@@ -186,10 +186,17 @@ describe('Typeahead', function() {
         expect(this.results.open).toHaveBeenCalled();
       });
 
-      it('should update results for current query', function() {
+      it('should update results for query if minLength met', function() {
         this.input.getQuery.andReturn('bar');
         this.input.trigger(eventName);
         expect(this.results.update).toHaveBeenCalledWith('bar');
+      });
+
+      it('should not update results for query if minLength not met', function() {
+        this.view.minLength = 1;
+        this.input.getQuery.andReturn('');
+        this.input.trigger(eventName);
+        expect(this.results.update).not.toHaveBeenCalled();
       });
     });
   });

@@ -205,7 +205,7 @@ var Input = (function() {
     },
 
     getQuery: function getQuery() {
-      return this.query;
+      return this.query || '';
     },
 
     setQuery: function setQuery(val, silent) {
