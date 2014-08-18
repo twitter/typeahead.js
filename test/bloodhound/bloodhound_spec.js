@@ -104,6 +104,20 @@ describe('Bloodhound', function() {
     });
   });
 
+  describe('#all', function() {
+    it('should return all local results', function() {
+      this.bloodhound = new Bloodhound({
+        datumTokenizer: datumTokenizer,
+        queryTokenizer: queryTokenizer,
+        local: fixtures.data.simple
+      });
+
+      this.bloodhound.initialize();
+
+      expect(this.bloodhound.all()).toEqual(fixtures.data.simple);
+    });
+  });
+
   describe('local', function() {
     describe('when local is an array', function() {
       beforeEach(function() {

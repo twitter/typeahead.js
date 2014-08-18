@@ -45,6 +45,10 @@ describe('SearchIndex', function() {
     expect(this.searchIndex.get('wtf')).toEqual([]);
   });
 
+  it('#all should return all datums', function() {
+    expect(this.searchIndex.all()).toEqual(fixtures.data.simple);
+  });
+
   it('#reset should empty the search index', function() {
     this.searchIndex.reset();
     expect(this.searchIndex.datums).toEqual([]);

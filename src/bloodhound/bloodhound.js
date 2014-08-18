@@ -197,6 +197,10 @@
       }
     },
 
+    all: function all() {
+      return this.index.all();
+    },
+
     clear: function clear() {
       this.index.reset();
     },
