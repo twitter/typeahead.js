@@ -4,16 +4,13 @@
  * Copyright 2013-2014 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-(function(root) {
+var Bloodhound = (function() {
   'use strict';
 
   var old, keys;
 
-  old = root.Bloodhound;
+  old = window && window.Bloodhound;
   keys = { data: 'data', protocol: 'protocol', thumbprint: 'thumbprint' };
-
-  // add Bloodhoud to global context
-  root.Bloodhound = Bloodhound;
 
   // constructor
   // -----------
@@ -48,7 +45,7 @@
   // --------------
 
   Bloodhound.noConflict = function noConflict() {
-    root.Bloodhound = old;
+    window && (window.Bloodhound = old);
     return Bloodhound;
   };
 

@@ -5,6 +5,8 @@
 _SpecRunner.html
 test/coverage
 
+dist_temp
+
 node_modules
 npm-debug.log
 
