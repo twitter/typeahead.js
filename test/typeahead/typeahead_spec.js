@@ -60,6 +60,54 @@ describe('Typeahead', function() {
     });
   });
 
+  describe('on asyncRequested', function() {
+    var eventName;
+
+    beforeEach(function() {
+      eventName = 'asyncRequested';
+    });
+
+    it('should trigger typeahead:asyncrequest', function() {
+        var spy = jasmine.createSpy();
+
+        this.$input.on('typeahead:asyncrequest', spy);
+        this.results.trigger(eventName);
+        expect(spy).toHaveBeenCalled();
+    });
+  });
+
+  describe('on asyncCanceled', function() {
+    var eventName;
+
+    beforeEach(function() {
+      eventName = 'asyncCanceled';
+    });
+
+    it('should trigger typeahead:asynccancel', function() {
+        var spy = jasmine.createSpy();
+
+        this.$input.on('typeahead:asynccancel', spy);
+        this.results.trigger(eventName);
+        expect(spy).toHaveBeenCalled();
+    });
+  });
+
+  describe('on asyncReceived', function() {
+    var eventName;
+
+    beforeEach(function() {
+      eventName = 'asyncReceived';
+    });
+
+    it('should trigger typeahead:asyncreceive', function() {
+        var spy = jasmine.createSpy();
+
+        this.$input.on('typeahead:asyncreceive', spy);
+        this.results.trigger(eventName);
+        expect(spy).toHaveBeenCalled();
+    });
+  });
+
   describe('on datasetRendered', function() {
     var eventName;
 

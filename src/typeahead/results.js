@@ -57,6 +57,10 @@ var Results = (function() {
       function isDatasetEmpty(dataset) { return dataset.isEmpty(); }
     },
 
+    _propagate: function propagate() {
+      this.trigger.apply(this, arguments);
+    },
+
     // ### private
 
     _getSelectables: function getSelectables() {
@@ -96,7 +100,11 @@ var Results = (function() {
       this.$node.on('click.tt', this.selectors.selectable, onSelectableClick);
 
       _.each(this.datasets, function(dataset) {
-        dataset.onSync('rendered', that._onRendered, that);
+        dataset
+        .onSync('asyncRequested', that._propagate, that)
+        .onSync('asyncCanceled', that._propagate, that)
+        .onSync('asyncReceived', that._propagate, that)
+        .onSync('rendered', that._onRendered, that);
       });
 
       return this;

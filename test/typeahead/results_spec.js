@@ -62,6 +62,39 @@ describe('Results', function() {
     });
   });
 
+  describe('when asyncRequested is triggered on a dataset', function() {
+    it('should propagate event', function() {
+      var spy = jasmine.createSpy();
+
+      this.dataset.onSync('asyncRequested', spy);
+      this.dataset.trigger('asyncRequested');
+
+      expect(spy).toHaveBeenCalled();
+    });
+  });
+
+  describe('when asyncCanceled is triggered on a dataset', function() {
+    it('should propagate event', function() {
+      var spy = jasmine.createSpy();
+
+      this.dataset.onSync('asyncCanceled', spy);
+      this.dataset.trigger('asyncCanceled');
+
+      expect(spy).toHaveBeenCalled();
+    });
+  });
+
+  describe('when asyncReceieved is triggered on a dataset', function() {
+    it('should propagate event', function() {
+      var spy = jasmine.createSpy();
+
+      this.dataset.onSync('asyncReceived', spy);
+      this.dataset.trigger('asyncReceived');
+
+      expect(spy).toHaveBeenCalled();
+    });
+  });
+
   describe('#open', function() {
     it('should add open class to node', function() {
       this.$node.removeClass(www.classes.open);

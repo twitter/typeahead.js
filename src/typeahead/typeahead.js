@@ -52,6 +52,9 @@ var Typeahead = (function() {
 
     this.results.bind()
     .onSync('selectableClicked', onSelectableClicked, this)
+    .onSync('asyncRequested', this._onAsyncRequested, this)
+    .onSync('asyncCanceled', this._onAsyncCanceled, this)
+    .onSync('asyncReceived', this._onAsyncReceived, this)
     .onSync('datasetRendered', onDatasetRendered, this);
 
     // composed event handlers for input
@@ -127,7 +130,19 @@ var Typeahead = (function() {
 
     _onDatasetRendered: function onDatasetRendered(type, dataset, results, async) {
       this._updateHint();
-      this.eventBus.trigger('render', dataset, results, async);
+      this.eventBus.trigger('render', results, async, dataset);
+    },
+
+    _onAsyncRequested: function onAsyncRequested(type, dataset, query) {
+      this.eventBus.trigger('asyncrequest', query, dataset);
+    },
+
+    _onAsyncCanceled: function onAsyncCanceled(type, dataset, query) {
+      this.eventBus.trigger('asynccancel', query, dataset);
+    },
+
+    _onAsyncReceived: function onAsyncReceived(type, dataset, query) {
+      this.eventBus.trigger('asyncreceive', query, dataset);
     },
 
     _onFocused: function onFocused() {
