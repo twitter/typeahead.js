@@ -84,7 +84,7 @@ var Dataset = (function() {
         // TODO: render empty temlate
       }
 
-      this.trigger('rendered', this.name, results);
+      this.trigger('rendered', this.name, results, false);
     },
 
     _append: function append(query, results) {
@@ -99,7 +99,7 @@ var Dataset = (function() {
         // TODO: render empty temlate
       }
 
-      this.trigger('rendered', this.name, results);
+      this.trigger('rendered', this.name, results, true);
     },
 
     _getResultsHtml: function getResultsHtml(query, results) {

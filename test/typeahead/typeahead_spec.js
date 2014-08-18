@@ -94,6 +94,14 @@ describe('Typeahead', function() {
 
         expect(this.input.setHint).toHaveBeenCalled();
       });
+
+      it('should trigger typeahead:render', function() {
+        var spy = jasmine.createSpy();
+
+        this.$input.on('typeahead:render', spy);
+        this.results.trigger(eventName);
+        expect(spy).toHaveBeenCalled();
+      });
     });
   });
 

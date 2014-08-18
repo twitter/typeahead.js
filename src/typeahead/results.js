@@ -45,14 +45,14 @@ var Results = (function() {
       this.trigger('selectableClicked', $($e.currentTarget));
     },
 
-    _onRendered: function onRendered() {
+    _onRendered: function onRendered(type, dataset, results, async) {
       var isEmpty = _.every(this.datasets, isDatasetEmpty);
 
       isEmpty ?
         this.$node.addClass(this.classes.empty) :
         this.$node.removeClass(this.classes.empty);
 
-      this.trigger('datasetRendered');
+      this.trigger('datasetRendered', dataset, results, async);
 
       function isDatasetEmpty(dataset) { return dataset.isEmpty(); }
     },

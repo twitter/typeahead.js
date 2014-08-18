@@ -125,8 +125,9 @@ var Typeahead = (function() {
       this.select($el);
     },
 
-    _onDatasetRendered: function onDatasetRendered() {
+    _onDatasetRendered: function onDatasetRendered(type, dataset, results, async) {
       this._updateHint();
+      this.eventBus.trigger('render', dataset, results, async);
     },
 
     _onFocused: function onFocused() {
