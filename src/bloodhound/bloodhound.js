@@ -85,18 +85,28 @@
     },
 
     _getFromRemote: function getFromRemote(query, cb) {
-      var that = this, url, uriEncodedQuery;
+      var that = this, url, uriEncodedQuery, ajax;
 
       if (!this.transport || !cb) { return; }
 
       query = query || '';
       uriEncodedQuery = encodeURIComponent(query);
+      ajax = _.clone(this.remote.ajax);
 
-      url = this.remote.replace ?
-        this.remote.replace(this.remote.url, query) :
-        this.remote.url.replace(this.remote.wildcard, uriEncodedQuery);
+      if (this.remote.before) {
+        ajax = this.remote.before(this.remote.url, query, ajax);
+      }
 
-      return this.transport.get(url, this.remote.ajax, handleRemoteResponse);
+      else if (this.remote.replace) {
+        url = this.remote.replace(this.remote.url, query);
+      }
+
+      else {
+        url = this.remote.url.replace(this.remote.wildcard, uriEncodedQuery);
+      }
+
+      ajax.url = url || ajax.url || this.remote.url;
+      return this.transport.get(ajax, handleRemoteResponse);
 
       function handleRemoteResponse(err, resp) {
         err ? cb([]) : cb(that.remote.filter ? that.remote.filter(resp) : resp);

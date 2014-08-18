@@ -44,14 +44,13 @@ describe('Transport', function() {
 
     expect(cbSpy).toHaveBeenCalledWith(null, resp.parsed);
     expect(sendSpy).toHaveBeenCalledWith(
-      '/test',
-      {},
+      { url: '/test' },
       jasmine.any(Function),
       jasmine.any(Function)
     );
 
     // send must be async
-    function send(url, o, onSuccess, onError) { onSuccess(resp.parsed); }
+    function send(o, onSuccess, onError) { onSuccess(resp.parsed); }
   });
 
   it('should respect maxPendingRequests configuration', function() {

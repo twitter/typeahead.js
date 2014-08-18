@@ -84,6 +84,8 @@ var _ = (function() {
 
     mixin: $.extend,
 
+    clone: function(obj) { return $.extend(true, {}, obj); },
+
     getUniqueId: (function() {
       var counter = 0;
       return function() { return counter++; };

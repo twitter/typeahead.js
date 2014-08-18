@@ -19,7 +19,7 @@ var Transport = (function() {
     o = o || {};
 
     this.cancelled = false;
-    this.lastUrl = null;
+    this.lastReq = null;
 
     this._send = o.transport ? callbackToDeferred(o.transport) : $.ajax;
     this._get = o.rateLimiter ? o.rateLimiter(this._get) : this._get;
@@ -46,23 +46,30 @@ var Transport = (function() {
 
     // ### private
 
-    _get: function(url, o, cb) {
-      var that = this, jqXhr;
+    _fingerprint: function fingerprint(o) {
+      o = o || {};
+      return o.url + o.type + $.param(o.data || {});
+    },
+
+    _get: function(o, cb) {
+      var that = this, fingerprint, jqXhr;
+
+      fingerprint = this._fingerprint(o);
 
       // #149: don't make a network request if there has been a cancellation
       // or if the url doesn't match the last url Transport#get was invoked with
-      if (this.cancelled || url !== this.lastUrl) { return; }
+      if (this.cancelled || fingerprint !== this.lastReq) { return; }
 
       // a request is already in progress, piggyback off of it
-      if (jqXhr = pendingRequests[url]) {
+      if (jqXhr = pendingRequests[fingerprint]) {
         jqXhr.done(done).fail(fail);
       }
 
       // under the pending request threshold, so fire off a request
       else if (pendingRequestsCount < maxPendingRequests) {
         pendingRequestsCount++;
-        pendingRequests[url] =
-          this._send(url, o).done(done).fail(fail).always(always);
+        pendingRequests[fingerprint] =
+          this._send(o).done(done).fail(fail).always(always);
       }
 
       // at the pending request threshold, so hang out in the on deck circle
@@ -72,7 +79,7 @@ var Transport = (function() {
 
       function done(resp) {
         cb && cb(null, resp);
-        that._cache.set(url, resp);
+        that._cache.set(fingerprint, resp);
       }
 
       function fail() {
@@ -81,7 +88,7 @@ var Transport = (function() {
 
       function always() {
         pendingRequestsCount--;
-        delete pendingRequests[url];
+        delete pendingRequests[fingerprint];
 
         // ensures request is always made for the last query
         if (that.onDeckRequestArgs) {
@@ -93,25 +100,23 @@ var Transport = (function() {
 
     // ### public
 
-    get: function(url, o, cb) {
-      var resp;
+    get: function(o, cb) {
+      var resp, fingerprint;
 
-      if (_.isFunction(o)) {
-        cb = o;
-        o = {};
-      }
+      o = _.isString(o) ? { url: o } : (o || {});
+      fingerprint = this._fingerprint(o);
 
       this.cancelled = false;
-      this.lastUrl = url;
+      this.lastReq = fingerprint;
 
       // in-memory cache hit
-      if (resp = this._cache.get(url)) {
+      if (resp = this._cache.get(fingerprint)) {
         // defer to stay consistent with behavior of ajax call
         _.defer(function() { cb && cb(null, resp); });
       }
 
       else {
-        this._get(url, o, cb);
+        this._get(o, cb);
       }
 
       // return bool indicating whether or not a cache hit occurred
@@ -129,10 +134,10 @@ var Transport = (function() {
   // ----------------
 
   function callbackToDeferred(fn) {
-    return function customSendWrapper(url, o) {
+    return function customSendWrapper(o) {
       var deferred = $.Deferred();
 
-      fn(url, o, onSuccess, onError);
+      fn(o, onSuccess, onError);
 
       return deferred;
 

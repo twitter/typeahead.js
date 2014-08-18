@@ -312,6 +312,26 @@ describe('Bloodhound', function() {
   });
 
   describe('remote', function() {
+    it('should respect before transform', function() {
+      this.bloodhound = new Bloodhound({
+        datumTokenizer: datumTokenizer,
+        queryTokenizer: queryTokenizer,
+        remote: {
+          url: '/test?q=%QUERY',
+          before: function(ajax) { return { url: '/foo' }; }
+        }
+      });
+
+      this.bloodhound.initialize();
+
+      this.bloodhound.get('one two', $.noop);
+
+      expect(this.bloodhound.transport.get).toHaveBeenCalledWith(
+        { url: '/foo' },
+        jasmine.any(Function)
+      );
+    });
+
     it('should perform query substitution on the provided url', function() {
       this.bloodhound1 = new Bloodhound({
         datumTokenizer: datumTokenizer,
@@ -323,7 +343,7 @@ describe('Bloodhound', function() {
         queryTokenizer: queryTokenizer,
         remote: {
           url: '/test?q=%QUERY',
-          replace: function(str, query) {return str.replace('%QUERY', query);  }
+          replace: function(str, q) { return str.replace('%QUERY', q);  }
         }
       });
 
@@ -334,14 +354,12 @@ describe('Bloodhound', function() {
       this.bloodhound2.get('one two', $.noop);
 
       expect(this.bloodhound1.transport.get).toHaveBeenCalledWith(
-        '/test?q=one%20two',
-        { type: 'GET', dataType: 'json' },
+        { url: '/test?q=one%20two', type: 'GET', dataType: 'json' },
         jasmine.any(Function)
       );
 
       expect(this.bloodhound2.transport.get).toHaveBeenCalledWith(
-        '/test?q=one two',
-        { type: 'GET', dataType: 'json' },
+        { url: '/test?q=one two', type: 'GET', dataType: 'json' },
         jasmine.any(Function)
       );
     });
@@ -378,7 +396,7 @@ describe('Bloodhound', function() {
         return [{ value: 'BIG' }, { value: 'BIGGER' }, { value: 'BIGGEST' }];
       }
 
-      function fakeGet(url, o, cb) {
+      function fakeGet(o, cb) {
         cb(null, fixtures.data.simple);
       }
     });
@@ -403,7 +421,7 @@ describe('Bloodhound', function() {
 
         expect(spy.callCount).toBe(1);
 
-        function fakeGetWithCacheHit(url, o, cb) {
+        function fakeGetWithCacheHit(o, cb) {
           cb(null, fixtures.data.animals);
           return true;
         }
@@ -430,14 +448,14 @@ describe('Bloodhound', function() {
 
         expect(spy.callCount).toBe(1);
 
-        function fakeGetWithCacheMiss(url, o, cb) {
+        function fakeGetWithCacheMiss(o, cb) {
           cb(null, fixtures.data.animals);
           return false;
         }
       });
     });
 
-    it('should should treat failures as empty suggestion sets', function() {
+    it('should treat failures as empty suggestion sets', function() {
       var spy = jasmine.createSpy();
 
       this.bloodhound = new Bloodhound({
@@ -452,7 +470,7 @@ describe('Bloodhound', function() {
 
       expect(spy).toHaveBeenCalledWith([]);
 
-      function fakeGet(url, o, cb) { cb(true); }
+      function fakeGet(o, cb) { cb(true); }
     });
   });
 
@@ -480,7 +498,7 @@ describe('Bloodhound', function() {
         expect(spy).toHaveBeenCalledWith([{ value: 'cat' }, { value: 'moose' }]);
       });
 
-      function fakeGet(url, o, cb) {
+      function fakeGet(o, cb) {
         setTimeout(function() { cb(null, fixtures.data.animals); }, 0);
       }
     });
@@ -520,7 +538,7 @@ describe('Bloodhound', function() {
         expect(spy2).toHaveBeenCalledWith(fixtures.data.animals);
       });
 
-      function fakeGet(url, o, cb) {
+      function fakeGet(o, cb) {
         setTimeout(function() { cb(null, fixtures.data.animals); }, 0);
       }
     });
