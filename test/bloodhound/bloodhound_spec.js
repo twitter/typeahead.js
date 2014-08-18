@@ -449,7 +449,6 @@ describe('Bloodhound', function() {
       spy = jasmine.createSpy();
 
       this.bloodhound = new Bloodhound({
-        limit: 6,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         dupDetector: function(d1, d2) { return d1.value === d2.value; },
@@ -472,7 +471,6 @@ describe('Bloodhound', function() {
       }
     });
 
-    /* TODO
     it('remote should backfill local/prefetch', function() {
       var spy1, spy2;
 
@@ -480,47 +478,38 @@ describe('Bloodhound', function() {
       spy2 = jasmine.createSpy();
 
       this.bloodhound = new Bloodhound({
-        limit: 3,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         local: fixtures.data.simple,
-        remote: { url: '/test?q=%QUERY' }
+        remote: { url: '/test?q=%QUERY', under: 3 }
       });
       this.bloodhound.initialize();
 
       this.bloodhound.transport.get.andCallFake(fakeGet);
 
-      this.bloodhound.get('big', spy1);
       this.bloodhound.get('bigg', spy2);
 
-      expect(spy1.callCount).toBe(1);
-      expect(spy2.callCount).toBe(1);
-
-      expect(spy1).toHaveBeenCalledWith([
+      expect(this.bloodhound.get('big', spy1)).toEqual([
         { value: 'big' },
         { value: 'bigger' },
         { value: 'biggest' }
       ]);
-      expect(spy2).toHaveBeenCalledWith([
+      expect(this.bloodhound.get('bigg', spy2)).toEqual([
         { value: 'bigger' },
         { value: 'biggest' }
       ]);
 
-      waitsFor(function() { return spy2.callCount === 2; });
+      waits(100);
 
       runs(function() {
-        expect(spy2).toHaveBeenCalledWith([
-          { value: 'bigger' },
-          { value: 'biggest' },
-          { value: 'dog' }
-        ]);
+        expect(spy1).not.toHaveBeenCalled();
+        expect(spy2).toHaveBeenCalledWith(fixtures.data.animals);
       });
 
       function fakeGet(url, o, cb) {
         setTimeout(function() { cb(null, fixtures.data.animals); }, 0);
       }
     });
-    */
   });
 
   // helper functions

@@ -50,6 +50,7 @@ var oParser = (function() {
     defaults = {
       url: null,
       cache: true,
+      under: 5, // TODO: think of a better name for this
       wildcard: '%QUERY',
       replace: null,
       rateLimitBy: 'debounce',

@@ -23,7 +23,6 @@
       $.error('one of local, prefetch, or remote is required');
     }
 
-    this.limit = o.limit || 5;
     this.sorter = getSorter(o.sorter);
     this.dupDetector = o.dupDetector || ignoreDuplicates;
 
@@ -168,12 +167,17 @@
 
       local = this.sorter(this.index.get(query));
 
-      local.length < this.limit ?
-        this._getFromRemote(query, processRemote) :
-        this._cancelLastRemoteRequest();
+      if (this.remote) {
+        local.length < this.remote.under ?
+          this._getFromRemote(query, processRemote) :
+          this._cancelLastRemoteRequest();
 
-      // return a copy to guarantee no changes within this scope
-      return local.slice();
+        // return a copy to guarantee no changes within this scope
+        // as this array will get used when processing the remote results
+        return local.slice();
+      }
+
+      return local;
 
       function processRemote(remote) {
         var nonDuplicates = [];
