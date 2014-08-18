@@ -107,10 +107,12 @@ var Dataset = (function() {
 
       fragment = document.createDocumentFragment();
       _.each(results, function getResultNode(result) {
-        var $el;
+        var $el, context;
+
+        context = that._injectQuery(query, result);
 
         $el = $(that.html.result)
-        .append(that.templates.result(result))
+        .append(that.templates.result(context))
         .data(keys.val, that.displayFn(result))
         .data(keys.obj, result);
 
@@ -124,6 +126,10 @@ var Dataset = (function() {
       });
 
       return fragment;
+    },
+
+    _injectQuery: function injectQuery(query, obj) {
+      return _.isObject(obj) ? _.mixin({ _query: query }, obj) : obj;
     },
 
     // ### public
