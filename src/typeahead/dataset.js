@@ -35,11 +35,12 @@ var Dataset = (function() {
     this.name = o.name || _.getUniqueId();
 
     this.source = o.source;
+    this.limit = o.limit || 5;
     this.displayFn = getDisplayFn(o.display || o.displayKey);
     this.templates = getTemplates(o.templates, this.displayFn);
 
     // TODO: comment
-    this.expectAsyncResults = this.source.length > 1;
+    this.expectAsync = this.source.length > 1;
 
     this.$el = $(this.html.dataset.replace('%CLASS%', this.name));
   }
@@ -75,11 +76,11 @@ var Dataset = (function() {
         this.$el.html(this._getResultsHtml(query, results));
       }
 
-      else if (this.expectAsyncResults && this.templates.pending) {
+      else if (this.expectAsync && this.templates.pending) {
         // TODO: render pending temlate
       }
 
-      else if (!this.expectAsyncResults && this.templates.notFound) {
+      else if (!this.expectAsync && this.templates.notFound) {
         // TODO: render empty temlate
       }
 
@@ -132,7 +133,7 @@ var Dataset = (function() {
     },
 
     update: function update(query) {
-      var that = this, canceled = false, results;
+      var that = this, canceled = false, results, atLimit;
 
       // cancel possible pending update
       this.cancel();
@@ -140,21 +141,25 @@ var Dataset = (function() {
       this.cancel = function cancel() {
         canceled = true;
         that.cancel = $.noop;
-        that.expectAsyncResults && that.trigger('asyncCanceled', query);
+        that.expectAsync && that.trigger('asyncCanceled', query);
       };
 
-      results = this.source(query, append);
+      results = (this.source(query, append) || []).slice(0, this.limit);
+      atLimit = results.length >= this.limit;
+
       this._overwrite(query, results);
 
-      this.expectAsyncResults && this.trigger('asyncRequested', query);
+      if (!atLimit && this.expectAsync) {
+        this.trigger('asyncRequested', query);
+      }
 
       function append(results) {
         // if the update has been canceled or if the query has changed
         // do not render the results as they've become outdated
-        if (!canceled) {
+        if (!canceled && !atLimit) {
           that.cancel = $.noop;
           that._append(query, results);
-          that.expectAsyncResults && that.trigger('asyncReceived', query);
+          that.expectAsync && that.trigger('asyncReceived', query);
         }
       }
     },

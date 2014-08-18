@@ -51,6 +51,16 @@ describe('Dataset', function() {
       expect(this.dataset.getRoot()).toContainText('three');
     });
 
+    it('should respect limit option', function() {
+      this.dataset.limit = 2;
+      this.source.andReturn(mockResults);
+      this.dataset.update('woah');
+
+      expect(this.dataset.getRoot()).toContainText('one');
+      expect(this.dataset.getRoot()).toContainText('two');
+      expect(this.dataset.getRoot()).not.toContainText('three');
+    });
+
     it('should allow custom display functions', function() {
       this.dataset = new Dataset({
         name: 'test',
@@ -64,6 +74,147 @@ describe('Dataset', function() {
       expect(this.dataset.getRoot()).toContainText('4');
       expect(this.dataset.getRoot()).toContainText('5');
       expect(this.dataset.getRoot()).toContainText('6');
+    });
+
+    it('should trigger asyncRequested when needing/expecting backfill', function() {
+      var spy = jasmine.createSpy();
+
+      this.dataset.expectAsync = true;
+      this.dataset.onSync('asyncRequested', spy);
+      this.source.andCallFake(fakeGetWithAsyncResults);
+
+      this.dataset.update('woah');
+
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should not trigger asyncRequested when not expecting backfill', function() {
+      var spy = jasmine.createSpy();
+
+      this.dataset.expectAsync = false;
+      this.dataset.onSync('asyncRequested', spy);
+      this.source.andCallFake(fakeGetWithAsyncResults);
+
+      this.dataset.update('woah');
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('should not trigger asyncRequested when not expecting backfill', function() {
+      var spy = jasmine.createSpy();
+
+      this.dataset.limit = 2;
+      this.dataset.expectAsync = true;
+      this.dataset.onSync('asyncRequested', spy);
+      this.source.andCallFake(fakeGetWithAsyncResults);
+
+      this.dataset.update('woah');
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('should trigger asyncCanceled when pending aysnc results are canceled', function() {
+      var spy = jasmine.createSpy();
+
+      this.dataset.expectAsync = true;
+      this.dataset.onSync('asyncCanceled', spy);
+      this.source.andCallFake(fakeGetWithAsyncResults);
+
+      this.dataset.update('woah');
+      this.dataset.cancel();
+
+      waits(100);
+
+      runs(function() {
+        expect(spy).toHaveBeenCalled();
+      });
+    });
+
+    it('should not trigger asyncCanceled when cancel happens after update', function() {
+      var spy = jasmine.createSpy();
+
+      this.dataset.expectAsync = true;
+      this.dataset.onSync('asyncCanceled', spy);
+      this.source.andCallFake(fakeGetWithAsyncResults);
+
+      this.dataset.update('woah');
+
+      waits(100);
+
+      runs(function() {
+        this.dataset.cancel();
+        expect(spy).not.toHaveBeenCalled();
+      });
+    });
+
+    it('should trigger asyncReceived when aysnc results are received', function() {
+      var spy = jasmine.createSpy();
+
+      this.dataset.expectAsync = true;
+      this.dataset.onSync('asyncReceived', spy);
+      this.source.andCallFake(fakeGetWithAsyncResults);
+
+      this.dataset.update('woah');
+
+      waits(100);
+
+      runs(function() {
+        expect(spy).toHaveBeenCalled();
+      });
+    });
+
+    it('should not trigger asyncReceived if canceled', function() {
+      var spy = jasmine.createSpy();
+
+      this.dataset.expectAsync = true;
+      this.dataset.onSync('asyncReceived', spy);
+      this.source.andCallFake(fakeGetWithAsyncResults);
+
+      this.dataset.update('woah');
+      this.dataset.cancel();
+
+      waits(100);
+
+      runs(function() {
+        expect(spy).not.toHaveBeenCalled();
+      });
+    });
+
+    it('should not modify sync results when async results are added', function() {
+      var $test;
+
+      this.dataset.expectAsync = true;
+      this.source.andCallFake(fakeGetWithAsyncResults);
+
+      this.dataset.update('woah');
+      $test = this.dataset.getRoot().find('.tt-result').first();
+      $test.addClass('test');
+
+      waits(100);
+
+      runs(function() {
+        expect($test).toHaveClass('test');
+      });
+    });
+
+    it('should cancel pending async results', function() {
+      var spy1 = jasmine.createSpy(), spy2 = jasmine.createSpy();
+
+      this.dataset.expectAsync = true;
+      this.dataset.onSync('asyncCanceled', spy1);
+      this.dataset.onSync('asyncReceived', spy2);
+      this.source.andCallFake(fakeGetWithAsyncResults);
+
+
+      this.dataset.update('woah');
+      this.dataset.update('woah again');
+
+      waits(100);
+
+      runs(function() {
+        expect(spy1.callCount).toBe(1);
+        expect(spy2.callCount).toBe(1);
+      });
     });
 
     /*
