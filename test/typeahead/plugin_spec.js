@@ -10,8 +10,7 @@ describe('$plugin', function() {
 
     this.$input.typeahead(null, {
       displayKey: 'v',
-      source: function(q, cb) { cb([{ v: '1' }, { v: '2' }, { v: '3' }]);
-      }
+      source: function(q) { return [{ v: '1' }, { v: '2' }, { v: '3' }]; }
     });
   });
 

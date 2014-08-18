@@ -88,7 +88,7 @@
     _getFromRemote: function getFromRemote(query, cb) {
       var that = this, url, uriEncodedQuery;
 
-      if (!this.transport) { return; }
+      if (!this.transport || !cb) { return; }
 
       query = query || '';
       uriEncodedQuery = encodeURIComponent(query);
@@ -163,43 +163,33 @@
       this.index.add(data);
     },
 
-    get: function get(query, cb) {
-      var that = this, matches = [], cacheHit = false;
+    get: function get(query, backfill) {
+      var that = this, local;
 
-      matches = this.index.get(query);
-      matches = this.sorter(matches).slice(0, this.limit);
+      local = this.sorter(this.index.get(query));
 
-      matches.length < this.limit ?
-        (cacheHit = this._getFromRemote(query, returnRemoteMatches)) :
+      local.length < this.limit ?
+        this._getFromRemote(query, processRemote) :
         this._cancelLastRemoteRequest();
 
-      // if a cache hit occurred, skip rendering local matches
-      // because the rendering of local/remote matches is already
-      // in the event loop
-      if (!cacheHit) {
-        // only render if there are some local suggestions or we're
-        // going to the network to backfill
-        (matches.length > 0 || !this.transport) && cb && cb(matches);
-      }
+      // return a copy to guarantee no changes within this scope
+      return local.slice();
 
-      function returnRemoteMatches(remoteMatches) {
-        var matchesWithBackfill = matches.slice(0);
+      function processRemote(remote) {
+        var nonDuplicates = [];
 
-        _.each(remoteMatches, function(remoteMatch) {
+        _.each(remote, function(r) {
           var isDuplicate;
 
           // checks for duplicates
-          isDuplicate = _.some(matchesWithBackfill, function(match) {
-            return that.dupDetector(remoteMatch, match);
+          isDuplicate = _.some(local, function(l) {
+            return that.dupDetector(r, l);
           });
 
-          !isDuplicate && matchesWithBackfill.push(remoteMatch);
-
-          // if we're at the limit, we no longer need to process
-          // the remote results and can break out of the each loop
-          return matchesWithBackfill.length < that.limit;
+          !isDuplicate && nonDuplicates.push(r);
         });
-        cb && cb(that.sorter(matchesWithBackfill));
+
+        backfill && backfill(nonDuplicates);
       }
     },
 
@@ -215,7 +205,19 @@
       this.transport && Transport.resetCache();
     },
 
-    ttAdapter: function ttAdapter() { return _.bind(this.get, this); }
+    ttAdapter: function ttAdapter() {
+      var that = this;
+
+      return this.transport ? withBackfill : withoutBackfill;
+
+      function withBackfill(query, backfill) {
+        return that.get(query, backfill);
+      }
+
+      function withoutBackfill(query) {
+        return that.get(query);
+      }
+    }
   });
 
   return Bloodhound;

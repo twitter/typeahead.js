@@ -31,15 +31,15 @@ var Dataset = (function() {
 
     www.mixin(this);
 
-    // tracks the last query the dataset was updated for
-    this.query = null;
-
     this.highlight = !!o.highlight;
     this.name = o.name || _.getUniqueId();
 
     this.source = o.source;
     this.displayFn = getDisplayFn(o.display || o.displayKey);
     this.templates = getTemplates(o.templates, this.displayFn);
+
+    // TODO: comment
+    this.expectAsyncResults = this.source.length > 1;
 
     this.$el = $(this.html.dataset.replace('%CLASS%', this.name));
   }
@@ -67,75 +67,62 @@ var Dataset = (function() {
 
     // ### private
 
-    _render: function render(query, results) {
-      if (!this.$el) { return; }
-
-      var that = this, hasResults;
-
+    _overwrite: function overwrite(query, results) {
       this.$el.empty();
-      hasResults = results && results.length;
+      results = results || [];
 
-      if (!hasResults && this.templates.empty) {
-        this.$el
-        .html(getEmptyHtml())
-        .prepend(that.templates.header ? getHeaderHtml() : null)
-        .append(that.templates.footer ? getFooterHtml() : null);
+      if (results.length) {
+        this.$el.html(this._getResultsHtml(query, results));
       }
 
-      else if (hasResults) {
-        this.$el
-        .html(getResultsHtml())
-        .prepend(that.templates.header ? getHeaderHtml() : null)
-        .append(that.templates.footer ? getFooterHtml() : null);
+      else if (this.expectAsyncResults && this.templates.pending) {
+        // TODO: render pending temlate
       }
 
-      this.trigger('rendered');
-
-      function getEmptyHtml() {
-        return that.templates.empty({ query: query, isEmpty: true });
+      else if (!this.expectAsyncResults && this.templates.notFound) {
+        // TODO: render empty temlate
       }
 
-      function getResultsHtml() {
-        var fragment, nodes;
+      this.trigger('rendered', this.name, results);
+    },
 
-        fragment = document.createDocumentFragment();
-        nodes = _.map(results, getResultNode);
+    _append: function append(query, results) {
+      results = results || [];
 
-        _.each(nodes, function(n) { fragment.appendChild(n); });
-
-        that.highlight && highlight({
-          className: that.classes.highlight,
-          node: fragment,
-          pattern: query
-        });
-
-        return fragment;
-
-        function getResultNode(result) {
-          var $el;
-
-          $el = $(that.html.result)
-          .append(that.templates.result(result))
-          .data(keys.val, that.displayFn(result))
-          .data(keys.obj, result);
-
-          return $el[0];
-        }
+      // TODO: remove pending template if shown
+      if (results.length) {
+        this.$el.append(this._getResultsHtml(query, results));
       }
 
-      function getHeaderHtml() {
-        return that.templates.header({
-          query: query,
-          isEmpty: !hasResults
-        });
+      else if (this.templates.notFound) {
+        // TODO: render empty temlate
       }
 
-      function getFooterHtml() {
-        return that.templates.footer({
-          query: query,
-          isEmpty: !hasResults
-        });
-      }
+      this.trigger('rendered', this.name, results);
+    },
+
+    _getResultsHtml: function getResultsHtml(query, results) {
+      var that = this, fragment;
+
+      fragment = document.createDocumentFragment();
+      _.each(results, function getResultNode(result) {
+        var $el;
+
+        $el = $(that.html.result)
+        .append(that.templates.result(result))
+        .data(keys.val, that.displayFn(result))
+        .data(keys.obj, result);
+
+        fragment.appendChild($el[0]);
+      });
+
+      this.highlight && highlight({
+        className: this.classes.highlight,
+        node: fragment,
+        pattern: query
+      });
+
+      return fragment;
     },
 
     // ### public
@@ -145,24 +132,35 @@ var Dataset = (function() {
     },
 
     update: function update(query) {
-      var that = this;
+      var that = this, canceled = false, results;
 
-      this.query = query;
-      this.canceled = false;
-      this.source(query, render);
+      // cancel possible pending update
+      this.cancel();
 
-      function render(results) {
+      this.cancel = function cancel() {
+        canceled = true;
+        that.cancel = $.noop;
+        that.expectAsyncResults && that.trigger('asyncCanceled', query);
+      };
+
+      results = this.source(query, append);
+      this._overwrite(query, results);
+
+      this.expectAsyncResults && this.trigger('asyncRequested', query);
+
+      function append(results) {
         // if the update has been canceled or if the query has changed
         // do not render the results as they've become outdated
-        if (!that.canceled && query === that.query) {
-          that._render(query, results);
+        if (!canceled) {
+          that.cancel = $.noop;
+          that._append(query, results);
+          that.expectAsyncResults && that.trigger('asyncReceived', query);
         }
       }
     },
 
-    cancel: function cancel() {
-      this.canceled = true;
-    },
+    // cancel function gets set in #update
+    cancel: $.noop,
 
     clear: function clear() {
       this.cancel();
