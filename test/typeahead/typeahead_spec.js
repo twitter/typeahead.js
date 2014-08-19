@@ -1223,7 +1223,7 @@ describe('Typeahead', function() {
       spy1 = jasmine.createSpy().andCallFake(prevent);
       spy2 = jasmine.createSpy();
       this.$input.on('typeahead:beforeautocomplete', spy1);
-      this.$input.on('typeahead:autocompleted', spy2);
+      this.$input.on('typeahead:autocomplete', spy2);
       this.results.getSelectableData.andReturn(testData);
 
       this.view.autocomplete($('<bah>'));
@@ -1238,11 +1238,11 @@ describe('Typeahead', function() {
       expect(this.input.setQuery).toHaveBeenCalledWith(testData.val);
     });
 
-    it('should trigger typeahead:autocompleted', function() {
+    it('should trigger typeahead:autocomplete', function() {
       var spy;
 
       this.results.getSelectableData.andReturn(testData);
-      this.$input.on('typeahead:autocompleted', spy = jasmine.createSpy());
+      this.$input.on('typeahead:autocomplete', spy = jasmine.createSpy());
 
       this.view.autocomplete($('<bah>'));
 

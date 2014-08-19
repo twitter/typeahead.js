@@ -8,14 +8,12 @@ Table of Contents
 -----------------
 
 * [Features](#features)
-* [Specification](#specification)
 * [Usage](#usage)
   * [API](#api)
   * [Options](#options)
   * [Datasets](#datasets)
   * [Custom Events](#custom-events)
   * [Look and Feel](#look-and-feel)
-* [Bloodhound Integration](#bloodhound-integration)
 
 Features
 --------
@@ -25,145 +23,7 @@ Features
 * Supports custom templates to allow for UI flexibility
 * Works well with RTL languages and input method editors
 * Highlights query matches within the suggestion
-* Triggers custom events
-
-Specification
--------------
-
-In an effort to take advantage of the pre-existing knowledge of typeahead.js 
-users, the behavior of the typeahead.js UI is modeled after google.com's search 
-box. Below is pseudocode that details how the UI reacts to pertinent events.
-
-**Input Control Gains Focus**
-
-```
-activate typeahead
-```
-
-**Input Control Loses Focus**
-
-```
-deactivate typeahead
-close dropdown menu
-remove hint
-clear suggestions from dropdown menu
-```
-
-**Value of the Input Control Changes**
-
-```
-IF query satisfies minLength requirement THEN
-  request suggestions for new query
-
-  IF suggestions are available THEN
-    render suggestions in dropdown menu
-    open dropdown menu 
-    update hint
-  ELSE
-    close dropdown menu 
-    clear suggestions from dropdown menu
-    remove hint
-  ENDIF
-ELSE
-  close dropdown menu 
-  clear suggestions from dropdown menu
-  remove hint
-ENDIF
-```
-
-**Up Arrow is Keyed**
-
-```
-IF dropdown menu is open THEN
-  move dropdown menu cursor up 1 suggestion
-ELSE
-  request suggestions for current query
-
-  IF suggestions are available THEN
-    render suggestions in dropdown menu
-    open dropdown menu 
-    update hint
-  ENDIF
-ENDIF
-```
-
-**Down Arrow is Keyed**
-
-```
-IF dropdown menu is open THEN
-  move dropdown menu cursor down 1 suggestion
-ELSE
-  request suggestions for current query
-
-  IF suggestions are available THEN
-    render suggestions in dropdown menu
-    open dropdown menu 
-    update hint
-  ENDIF
-ENDIF
-```
-
-**Left Arrow is Keyed**
-
-```
-IF detected query language direction is right-to-left THEN
-  IF hint is being shown THEN
-    IF text cursor is at end of query THEN
-      autocomplete query to hint
-    ENDIF
-  ENDIF
-ENDIF
-```
-
-**Right Arrow is Keyed**
-
-```
-IF detected query language direction is left-to-right THEN
-  IF hint is being shown THEN
-    IF text cursor is at the end of the query THEN
-      autocomplete query to hint
-    ENDIF
-  ENDIF
-ENDIF
-```
-
-**Tab is Keyed**
-
-```
-IF dropdown menu cursor is on suggestion THEN
-  close dropdown menu
-  update query to display key of suggestion
-  remove hint
-ELSIF hint is being shown THEN
-  autocomplete query to hint
-ENDIF
-```
-
-**Enter is Keyed**
-
-```
-IF dropdown menu cursor is on suggestion THEN
-  close dropdown menu
-  update query to display key of suggestion
-  remove hint
-  prevent default browser action e.g. form submit
-ENDIF
-```
-
-**Esc is Keyed**
-
-```
-close dropdown menu
-remove hint
-```
-
-**Suggestion is Clicked**
-
-```
-update query to display key of suggestion
-close dropdown menu
-remove hint
-```
+* Triggers custom events to encourage extensibility
 
 Usage
 -----
@@ -189,19 +49,65 @@ $('.typeahead').typeahead({
 });
 ```
 
-#### jQuery#typeahead('destroy')
+#### jQuery#typeahead('isEnabled')
 
-Removes typeahead functionality and reverts the `input` element back to its 
-original state.
+Returns `true` if the typeahead is enabled, `false` if it is disabled. Note that
+a typeahead can only be disabled through the usage of 
+`jQuery#typeahead('disable')`.
 
 ```javascript
-$('.typeahead').typeahead('destroy');
+var isEnabled = $('.typeahead').typeahead('isEnabled');
+```
+#### jQuery#typeahead('enable')
+
+Enables the typeahead which means the typeahead can become active. Out of the 
+box, typeaheads are enabled.
+
+```javascript
+$('.typeahead').typeahead('enable');
+```
+
+#### jQuery#typeahead('disable')
+
+Disables the typeahead which means the typeahead **cannot** become active.
+
+```javascript
+$('.typeahead').typeahead('disable');
+```
+
+#### jQuery#typeahead('activate')
+
+Normally a typehead enters an active state when the end-user focuses on the 
+input element. However, if you wanted to acheive this programmatically, this
+method will move the typeahead to an active state as long as it is enabled.
+
+Note being active means the typeahead will respond to interactions e.g. query
+changes.
+
+```javascript
+$('.typeahead').typeahead('activate');
+```
+
+#### jQuery#typeahead('deactivate')
+
+Moves the typeahead to an idle state. Normally this happens when the input
+loses focus.
+
+```javascript
+$('.typeahead').typeahead('deactivate');
+```
+
+#### jQuery#typeahead('isOpen')
+
+Returns `true` if the results container is open, `false` if it is closed.
+
+```javascript
+var isOpen = $('.typeahead').typeahead('isOpen');
 ```
 
 #### jQuery#typeahead('open')
 
-Opens the dropdown menu of typeahead. Note that being open does not mean that
-the menu is visible. The menu is only visible when it is open and has content.
+Opens the results container.
 
 ```javascript
 $('.typeahead').typeahead('open');
@@ -209,7 +115,7 @@ $('.typeahead').typeahead('open');
 
 #### jQuery#typeahead('close')
 
-Closes the dropdown menu of typeahead.
+Closes the results container.
 
 ```javascript
 $('.typeahead').typeahead('close');
@@ -230,6 +136,43 @@ Sets the value of the typeahead. This should be used in place of `jQuery#val`.
 
 ```javascript
 $('.typeahead').typeahead('val', myVal);
+```
+
+#### jQuery#typeahead('select', $selectable)
+
+Programmatically selects the `$selectable` element.
+
+```javascript
+var $selectable = $('.tt-selectable').first();
+$('.typeahead').typeahead('select', $selectable);
+```
+
+#### jQuery#typeahead('autocomplete', $selectable)
+
+Programmatically autocompletes to the `$selectable` element.
+
+```javascript
+var $selectable = $('.tt-selectable').first();
+$('.typeahead').typeahead('autocomplete', $selectable);
+```
+
+#### jQuery#typeahead('moveCursor', $selectable)
+
+Programmatically moves the results container cursor to  the `$selectable` 
+element.
+
+```javascript
+var $selectable = $('.tt-selectable').first();
+$('.typeahead').typeahead('moveCursor', $selectable);
+```
+
+#### jQuery#typeahead('destroy')
+
+Removes typeahead functionality and reverts the `input` element back to its 
+original state.
+
+```javascript
+$('.typeahead').typeahead('destroy');
 ```
 
 #### jQuery.fn.typeahead.noConflict()
@@ -270,17 +213,22 @@ multiple datasets.
 
 Datasets can be configured using the following options.
 
-* `source` – The backing data source for suggestions. Expected to be a function 
-  with the signature `(query, cb)`. It is expected that the function will 
-  compute the suggestion set (i.e. an array of JavaScript objects) for `query` 
-  and then invoke `cb` with said set. `cb` can be invoked synchronously or 
-  asynchronously. A Bloodhound suggestion engine can be used here, to learn 
-  how, see [Bloodhound Integration](#bloodhound-integration). **Required**.
+* `source` – The backing data source for suggestions. Expected to be a 
+  Bloodhound instance or a function with the signature `(query, asyncResults)`.
+  If using the latter, the function should return synchronous suggestions and
+  use the `asyncResults` callback function to return suggestions that are 
+  gathered asynchronously. **Required**.
+
+* `async` – Lets the dataset know if async suggestions should be expected. If
+  not set, this information is inferred from the signature of `source` i.e.
+  if the `source` function expects 2 arguments, `async` will be set to `true`.
 
 * `name` – The name of the dataset. This will be appended to `tt-dataset-` to 
   form the class name of the containing DOM element.  Must only consist of 
   underscores, dashes, letters (`a-z`), and numbers. Defaults to a random 
   number.
+
+* `limit` – The max number of suggestions to be displayed. Defaults to `5`.
 
 * `displayKey` – For a given suggestion object, determines the string 
   representation of it. This will be used when setting the value of the input
@@ -311,30 +259,55 @@ Datasets can be configured using the following options.
 
 ### Custom Events
 
-The typeahead component triggers the following custom events.
+The following events get triggered on the input element during the lifecycle of
+a typeahead.
 
-* `typeahead:opened` – Triggered when the dropdown menu of a typeahead is 
-  opened.
+* `typeahead:active` – Fired when the typeahead moves to active state.
 
-* `typeahead:closed` – Triggered when the dropdown menu of a typeahead is 
-  closed.
+* `typeahead:idle` – Fired when the typeahead moves to idle state.
 
-* `typeahead:cursorchanged` – Triggered when the dropdown menu cursor is moved
-  to a different suggestion. The event handler will be invoked with 3 
-  arguments: the jQuery event object, the suggestion object, and the name of 
-  the dataset the suggestion belongs to.
+* `typeahead:open` – Fired when the results container is opened.
 
-* `typeahead:selected` – Triggered when a suggestion from the dropdown menu is 
-  selected. The event handler will be invoked with 3 arguments: the jQuery 
-  event object, the suggestion object, and the name of the dataset the 
-  suggestion belongs to.
+* `typeahead:close` – Fired when the results container is closed.
 
-* `typeahead:autocompleted` – Triggered when the query is autocompleted. 
-  Autocompleted means the query was changed to the hint. The event handler will 
-  be invoked with 3 arguments: the jQuery event object, the suggestion object, 
-  and the name of the dataset the suggestion belongs to. 
+* `typeahead:change` – Normalized version of the native [`change` event]. 
+  Fired when input loses focus and the value has changed since it originally 
+  received focus.
 
-All custom events are triggered on the element initialized as a typeahead.
+* `typeahead:render` – Fired when suggestions are rendered for a dataset. The
+  event handler will be invoked with 4 arguments: the jQuery event object, the
+  suggestions that were rendered, a flag indicating whether the suggestions
+  were fetched asynchronously, and the name of the dataset the rendering 
+  occured in.
+
+* `typeahead:select` – Fired when a suggestion is selected. The event handler 
+  will be invoked with 2 arguments: the jQuery event object and the suggestion
+  object that was selected.
+
+* `typeahead:autocomplete` – Fired when a autocompletion occurs. The 
+  event handler will be invoked with 2 arguments: the jQuery event object and 
+  the suggestion object that was used for autocompletion.
+
+* `typeahead:cursorchange` – Fired when the results container cursor moves. The 
+  event handler will be invoked with 2 arguments: the jQuery event object and 
+  the suggestion object that was moved to.
+
+* `typeahead:asyncrequest` – Fired when an async request for suggestions is 
+  sent. The event handler will be invoked with 3 arguments: the jQuery event 
+  object, the current query, and the name of the dataset the async request 
+  belongs to.
+
+* `typeahead:asynccancel` – Fired when an async request is cancelled. The event 
+  handler will be invoked with 3 arguments: the jQuery event object, the current 
+  query, and the name of the dataset the async request belonged to.
+
+* `typeahead:asyncreceive` – Fired when an async request completes. The event 
+  handler will be invoked with 3 arguments: the jQuery event object, the current 
+  query, and the name of the dataset the async request belongs to.
+
+<!-- section links -->
+
+[`change` event]: https://developer.mozilla.org/en-US/docs/Web/Events/change
 
 ### Look and Feel
 
@@ -364,20 +337,3 @@ come from the provided templates detailed [here](#datasets).
 When an end-user mouses or keys over a `.tt-suggestion`, the class `tt-cursor` 
 will be added to it. You can use this class as a hook for styling the "under 
 cursor" state of suggestions.
-
-Bloodhound Integration
-----------------------
-
-Because datasets expect their `source` to be a function, you cannot directly
-pass a Bloodhound suggestion engine in as `source`. Rather, you'll need to 
-pass the suggestion engine's typeahead adapter:
-
-```javascript
-var engine = new Bloodhound({ /* options */ });
-
-engine.initialize();
-
-$('.typeahead').typeahead(null, {
-  source: engine.ttAdapter()
-});
-```

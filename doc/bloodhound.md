@@ -16,6 +16,7 @@ Table of Contents
   * [Remote](#remote)
   * [Datums](#datums)
   * [Tokens](#tokens)
+  * [Tokenizers](#tokenizers)
 
 Features
 --------
@@ -38,13 +39,10 @@ argument.
 
 ```javascript
 var engine = new Bloodhound({
-  name: 'animals',
   local: [{ val: 'dog' }, { val: 'pig' }, { val: 'moose' }],
   remote: 'http://example.com/animals?q=%QUERY',
-  datumTokenizer: function(d) {
-    return Bloodhound.tokenizers.whitespace(d.val);
-  },
-  queryTokenizer: Bloodhound.tokenizers.whitespace
+  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  datumTokenizer: Bloodhound.tokenizers.obj.whitespace('val')
 });
 ```
 
@@ -59,8 +57,8 @@ Returns a [jQuery promise] which is resolved when engine has been initialized.
 var promise = engine.initialize();
 
 promise
-.done(function() { console.log('success!'); })
-.fail(function() { console.log('err!'); });
+.done(function() { console.log('ready to go!'); })
+.fail(function() { console.log('err, something went wrong :('); });
 ```
 
 After the initial call of `initialize`, how subsequent invocations of the method
@@ -74,9 +72,13 @@ var promise1 = engine.initialize();
 var promise2 = engine.initialize();
 var promise3 = engine.initialize(true);
 
-promise1 === promise2;
-promise3 !== promise1 && promise3 !== promise2;
+assert(promise1 === promise2);
+assert(promise3 !== promise1 && promise3 !== promise2);
 ```
+
+<!-- section links -->
+
+[jQuery promise]: http://api.jquery.com/Types/#Promise
 
 #### Bloodhound#add(datums)
 
@@ -126,23 +128,19 @@ collisions.
 var Dachshund = Bloodhound.noConflict();
 ```
 
+#### Bloodhound#get(query, backfillCallback)
 
-<!-- section links -->
-
-[jQuery promise]: http://api.jquery.com/Types/#Promise
-
-#### Bloodhound#get(query, cb)
-
-Computes a set of suggestions for `query`. `cb` will be invoked with an array
-of datums that represent said set. `cb` will always be invoked once 
-synchronously with suggestions that were available on the client. If those
-suggestions are insufficient (# of suggestions is less than `limit`) and `remote` was configured, `cb` may also be 
-invoked asynchronously with the suggestions available on the client mixed with
-suggestions from the `remote` source.
+Computes and returns a set of suggestion from the search index powered by
+`local` and `prefetch` data. If the usage of `remote` was configured and not
+enough suggestions were returned from the search index, backfill suggestions 
+will be requested and returned asynchronously through `backfillCallback`.
 
 ```javascript
-bloodhound.get(myQuery, function(suggestions) {
-  suggestions.each(function(suggestion) { console.log(suggestion); });
+var syncSuggestions = bloodhound.get(myQuery, handleBackfill);
+syncSuggestions.each(function(suggestion) { console.log(suggestion); });
+
+function handleBackfill(asyncSuggestions) {
+  asyncSuggestions.each(function(suggestion) { console.log(suggestion); });
 });
 ```
 
@@ -157,15 +155,12 @@ options you can configure.
 * `queryTokenizer` – A function with the signature `(query)` that transforms a
   query into an array of string tokens. **Required**.
 
-* `limit` – The max number of suggestions to return from `Bloodhound#get`. If 
-  not reached, the data source will attempt to backfill the suggestions from 
-  `remote`. Defaults to `5`.
-
 * `dupDetector` – If set, this is expected to be a function with the signature 
   `(remoteMatch, localMatch)` that returns `true` if the datums are duplicates or 
   `false` otherwise. If not set, duplicate detection will not be performed.
 
-* `sorter` – A [compare function] used to sort matched datums for a given query.
+* `sorter` – A [compare function] used to sort suggestions returned from the
+  search index powered by `local` and `prefetch` data.
 
 * `local` – An array of [datums](#datums) or a function that returns an array of
   datums.
@@ -189,8 +184,8 @@ prevent additional network requests on subsequent page loads.
 
 **WARNING:** While it's possible to get away with it for smaller data sets, 
 prefetched data isn't meant to contain entire data sets. Rather, it should act 
-as a first-level cache for suggestions. If don't keep this warning in mind, 
-you run the risk of hitting [local storage limits].
+as a first-level cache for suggestions. Ignoring this warning means you'll run 
+the risk of hitting [local storage limits].
 
 When configuring `prefetch`, the following options are available.
 
@@ -226,6 +221,9 @@ When configuring `remote`, the following options are available.
 
 * `url` – A URL to make requests to when when the data provided by `local` and 
   `prefetch` is insufficient. **Required.**
+
+* `sufficient` – The minimum number of suggestions that must be returned from
+  `local`/`prefetch` to prevent backfilling. Defaults to `5`.
 
 * `wildcard` - The pattern in `url` that will be replaced with the user's query 
   when a request is made. Defaults to `%QUERY`. 
@@ -277,3 +275,38 @@ tokens...
 * `typehead.js`
 * `autoco`
 * `java type`
+
+### Tokenzers
+
+Bloodhound offers tokenizer functions for tokenizing on whitespace and nonword
+characters out of the box. 
+
+* `Bloodhound.tokenizers.nonword(string)` – Tokenizes a string on nonword 
+  characters.
+
+* `Bloodhound.tokenizers.whitespace(string)` – Tokenizes a string on whitespace 
+  characters.
+
+* `Bloodhound.tokenizers.obj.nonword([\*properties])` – Returns a function that
+  will tokenize the properties of an object on nonword characters.
+
+* `Bloodhound.tokenizers.obj.whitespace([\*properties])` – Returns a function that
+  will tokenize the properties of an object on whitespace characters.
+
+```js
+Bloodhound.tokenizers.nonword('foo-biz'); // ['foo', 'biz']
+Bloodhound.tokenizers.whitespace('foo biz'); // ['foo', 'biz']
+
+Bloodhound.tokenizers.nonword('name')({ name: 'foo-biz' }); // ['foo', 'biz']
+Bloodhound.tokenizers.whitespace('name')({ name: 'foo biz' }); // ['foo', 'biz']
+
+Bloodhound.tokenizers.nonword('name', 'job')({ 
+  name: 'foo-biz',
+  job: 'bar-fiz'
+}); // ['foo', 'biz', 'bar', 'fiz']
+
+Bloodhound.tokenizers.whitespace('name', 'job')({ 
+  name: 'foo biz',
+  job: 'bar fiz'
+}); // ['foo', 'biz', 'bar', 'fiz']
+```

@@ -358,7 +358,7 @@ var Typeahead = (function() {
 
       if (isValid && !this.eventBus.before('autocomplete', data.obj)) {
         this.input.setQuery(data.val);
-        this.eventBus.trigger('autocompleted', data.obj);
+        this.eventBus.trigger('autocomplete', data.obj);
 
         // return true if autocompletion succeeded
         return true;

@@ -147,6 +147,7 @@ var Bloodhound = (function() {
         stored.protocol = this.storage.get(keys.protocol);
         stored.thumbprint = this.storage.get(keys.thumbprint);
       }
+
       // the stored data is considered expired if the thumbprints
       // don't match or if the protocol it was originally stored under
       // has changed
@@ -158,6 +159,9 @@ var Bloodhound = (function() {
 
     _initialize: function initialize() {
       var that = this, local = this.local, deferred;
+
+      // in case this is a reinitialization, clear previous data
+      this.clear();
 
       deferred = this.prefetch ?
         this._loadPrefetch(this.prefetch) : $.Deferred().resolve();
@@ -191,7 +195,7 @@ var Bloodhound = (function() {
       local = this.sorter(this.index.get(query));
 
       if (this.remote) {
-        local.length < this.remote.under ?
+        local.length < this.remote.sufficient ?
           this._getFromRemote(query, processRemote) :
           this._cancelLastRemoteRequest();
 

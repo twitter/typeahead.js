@@ -513,7 +513,7 @@ describe('Bloodhound', function() {
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         local: fixtures.data.simple,
-        remote: { url: '/test?q=%QUERY', under: 3 }
+        remote: { url: '/test?q=%QUERY', sufficient: 3 }
       });
       this.bloodhound.initialize();
 
