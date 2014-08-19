@@ -393,7 +393,7 @@ var Typeahead = (function() {
           this._updateHint();
         }
 
-        this.eventBus.trigger('cursorchanged', payload);
+        this.eventBus.trigger('cursorchange', payload);
 
         // return true if move succeeded
         return true;

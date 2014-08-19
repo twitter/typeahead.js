@@ -7,7 +7,20 @@
 var EventBus = (function() {
   'use strict';
 
-  var namespace = 'typeahead:';
+  var namespace, deprecationMap;
+
+  namespace = 'typeahead:';
+
+  // DEPRECATED: will be remove in v1
+  //
+  // NOTE: there is no deprecation plan for the opened and closed event
+  // as their behavior has changed enough that it wouldn't make sense
+  deprecationMap = {
+    render: 'rendered',
+    cursorchange: 'cursorchanged',
+    select: 'selected',
+    autocomplete: 'autocompleted'
+  };
 
   // constructor
   // -----------
@@ -50,7 +63,14 @@ var EventBus = (function() {
     },
 
     trigger: function(type) {
+      var deprecatedType;
+
       this._trigger(type, [].slice.call(arguments, 1));
+
+      // TODO: remove in v1
+      if (deprecatedType = deprecationMap[type]) {
+        this._trigger(deprecatedType, [].slice.call(arguments, 1));
+      }
     }
   });
 

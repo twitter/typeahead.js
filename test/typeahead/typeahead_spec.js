@@ -1331,10 +1331,10 @@ describe('Typeahead', function() {
       }
     });
 
-    it('should trigger cursorchanged after setting cursor', function() {
+    it('should trigger cursorchange after setting cursor', function() {
       var spy = jasmine.createSpy();
 
-      this.$input.on('typeahead:cursorchanged', spy);
+      this.$input.on('typeahead:cursorchange', spy);
       this.view.moveCursor(1)
       expect(spy).toHaveBeenCalled();
     });
