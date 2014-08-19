@@ -32,6 +32,7 @@ var Dataset = (function() {
 
     this.source = o.source;
     this.displayFn = getDisplayFn(o.display || o.displayKey);
+    this.displayCategory = o.displayCategory || false;
 
     this.templates = getTemplates(o.templates, this.displayFn);
 
@@ -96,6 +97,28 @@ var Dataset = (function() {
         // jQuery#append doesn't support arrays as the first argument
         // until version 1.8, see http://bugs.jquery.com/ticket/11231
         nodes = _.map(suggestions, getSuggestionNode);
+
+        // Categorize results
+        if (that.displayCategory) {
+          var catNodes = {};
+
+          _.each(nodes, function(node) {
+            var cat = node.data(datumKey)[that.displayCategory];
+            if (typeof catNodes[cat] === 'undefined') {
+              catNodes[cat] = [];
+            }
+            catNodes[cat].push(node);
+          });
+
+          nodes = [];
+
+          _.each(catNodes, function(cnodes, cat) {
+            nodes.push(that.templates.category.header(cat));
+            nodes = nodes.concat(cnodes);
+            //nodes.push(that.templates.category.footer(cat));
+          });
+        }
+
         $suggestions.append.apply($suggestions, nodes);
 
         that.highlight && highlight({
@@ -195,11 +218,17 @@ var Dataset = (function() {
       empty: templates.empty && _.templatify(templates.empty),
       header: templates.header && _.templatify(templates.header),
       footer: templates.footer && _.templatify(templates.footer),
-      suggestion: templates.suggestion || suggestionTemplate
+      suggestion: templates.suggestion || suggestionTemplate,
+      category: {
+        header: templates.category && templates.category.header || categoryHeaderTemplate
+      }
     };
 
     function suggestionTemplate(context) {
       return '<p>' + displayFn(context) + '</p>';
+    }
+    function categoryHeaderTemplate(name) {
+      return '<p class="tt-suggestion-category">' + name + '</p>';
     }
   }
 
