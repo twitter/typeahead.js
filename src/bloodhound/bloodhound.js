@@ -56,6 +56,22 @@ var Bloodhound = (function() {
 
   _.mixin(Bloodhound.prototype, {
 
+    // ### super secret stuff used for integration with jquery plugin
+
+    __ttAdapter: function ttAdapter() {
+      var that = this;
+
+      return this.transport ? withBackfill : withoutBackfill;
+
+      function withBackfill(query, backfill) {
+        return that.get(query, backfill);
+      }
+
+      function withoutBackfill(query) {
+        return that.get(query);
+      }
+    },
+
     // ### private
 
     _loadPrefetch: function loadPrefetch(o) {
@@ -220,18 +236,9 @@ var Bloodhound = (function() {
       this.transport && Transport.resetCache();
     },
 
+    // DEPRECATED: will be removed in v1
     ttAdapter: function ttAdapter() {
-      var that = this;
-
-      return this.transport ? withBackfill : withoutBackfill;
-
-      function withBackfill(query, backfill) {
-        return that.get(query, backfill);
-      }
-
-      function withoutBackfill(query) {
-        return that.get(query);
-      }
+      return this.__ttAdapter();
     }
   });
 

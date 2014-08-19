@@ -34,13 +34,17 @@ var Dataset = (function() {
     this.highlight = !!o.highlight;
     this.name = o.name || _.getUniqueId();
 
-    this.source = o.source;
     this.limit = o.limit || 5;
     this.displayFn = getDisplayFn(o.display || o.displayKey);
     this.templates = getTemplates(o.templates, this.displayFn);
 
-    // TODO: comment
-    this.expectAsync = this.source.length > 1;
+    // use duck typing to see if source is a bloodhound instance by checking
+    // for the __ttAdapter property; otherwise assume it is a function
+    this.source = o.source.__ttAdapter ? o.source.__ttAdapter() : o.source;
+
+    // if the async option is undefined, inspect the source signature as
+    // a hint to figuring out of the source will return async results
+    this.async = _.isUndefined(o.async) ? this.source.length > 1 : !!o.async;
 
     this.$el = $(this.html.dataset.replace('%CLASS%', this.name));
   }
@@ -76,11 +80,11 @@ var Dataset = (function() {
         this.$el.html(this._getResultsHtml(query, results));
       }
 
-      else if (this.expectAsync && this.templates.pending) {
+      else if (this.async && this.templates.pending) {
         // TODO: render pending temlate
       }
 
-      else if (!this.expectAsync && this.templates.notFound) {
+      else if (!this.async && this.templates.notFound) {
         // TODO: render empty temlate
       }
 
@@ -147,7 +151,7 @@ var Dataset = (function() {
       this.cancel = function cancel() {
         canceled = true;
         that.cancel = $.noop;
-        that.expectAsync && that.trigger('asyncCanceled', query);
+        that.async && that.trigger('asyncCanceled', query);
       };
 
       results = (this.source(query, append) || []).slice(0, this.limit);
@@ -155,7 +159,7 @@ var Dataset = (function() {
 
       this._overwrite(query, results);
 
-      if (!atLimit && this.expectAsync) {
+      if (!atLimit && this.async) {
         this.trigger('asyncRequested', query);
       }
 
@@ -165,7 +169,7 @@ var Dataset = (function() {
         if (!canceled && !atLimit) {
           that.cancel = $.noop;
           that._append(query, results);
-          that.expectAsync && that.trigger('asyncReceived', query);
+          that.async && that.trigger('asyncReceived', query);
         }
       }
     },

@@ -79,7 +79,7 @@ describe('Dataset', function() {
     it('should trigger asyncRequested when needing/expecting backfill', function() {
       var spy = jasmine.createSpy();
 
-      this.dataset.expectAsync = true;
+      this.dataset.async = true;
       this.dataset.onSync('asyncRequested', spy);
       this.source.andCallFake(fakeGetWithAsyncResults);
 
@@ -91,7 +91,7 @@ describe('Dataset', function() {
     it('should not trigger asyncRequested when not expecting backfill', function() {
       var spy = jasmine.createSpy();
 
-      this.dataset.expectAsync = false;
+      this.dataset.async = false;
       this.dataset.onSync('asyncRequested', spy);
       this.source.andCallFake(fakeGetWithAsyncResults);
 
@@ -104,7 +104,7 @@ describe('Dataset', function() {
       var spy = jasmine.createSpy();
 
       this.dataset.limit = 2;
-      this.dataset.expectAsync = true;
+      this.dataset.async = true;
       this.dataset.onSync('asyncRequested', spy);
       this.source.andCallFake(fakeGetWithAsyncResults);
 
@@ -116,7 +116,7 @@ describe('Dataset', function() {
     it('should trigger asyncCanceled when pending aysnc results are canceled', function() {
       var spy = jasmine.createSpy();
 
-      this.dataset.expectAsync = true;
+      this.dataset.async = true;
       this.dataset.onSync('asyncCanceled', spy);
       this.source.andCallFake(fakeGetWithAsyncResults);
 
@@ -133,7 +133,7 @@ describe('Dataset', function() {
     it('should not trigger asyncCanceled when cancel happens after update', function() {
       var spy = jasmine.createSpy();
 
-      this.dataset.expectAsync = true;
+      this.dataset.async = true;
       this.dataset.onSync('asyncCanceled', spy);
       this.source.andCallFake(fakeGetWithAsyncResults);
 
@@ -150,7 +150,7 @@ describe('Dataset', function() {
     it('should trigger asyncReceived when aysnc results are received', function() {
       var spy = jasmine.createSpy();
 
-      this.dataset.expectAsync = true;
+      this.dataset.async = true;
       this.dataset.onSync('asyncReceived', spy);
       this.source.andCallFake(fakeGetWithAsyncResults);
 
@@ -166,7 +166,7 @@ describe('Dataset', function() {
     it('should not trigger asyncReceived if canceled', function() {
       var spy = jasmine.createSpy();
 
-      this.dataset.expectAsync = true;
+      this.dataset.async = true;
       this.dataset.onSync('asyncReceived', spy);
       this.source.andCallFake(fakeGetWithAsyncResults);
 
@@ -183,7 +183,7 @@ describe('Dataset', function() {
     it('should not modify sync results when async results are added', function() {
       var $test;
 
-      this.dataset.expectAsync = true;
+      this.dataset.async = true;
       this.source.andCallFake(fakeGetWithAsyncResults);
 
       this.dataset.update('woah');
@@ -200,7 +200,7 @@ describe('Dataset', function() {
     it('should cancel pending async results', function() {
       var spy1 = jasmine.createSpy(), spy2 = jasmine.createSpy();
 
-      this.dataset.expectAsync = true;
+      this.dataset.async = true;
       this.dataset.onSync('asyncCanceled', spy1);
       this.dataset.onSync('asyncReceived', spy2);
       this.source.andCallFake(fakeGetWithAsyncResults);

@@ -129,7 +129,7 @@
       },
       {
         displayKey: 'val',
-        source: states.ttAdapter()
+        source: states
       });
 
 
@@ -169,7 +169,7 @@
 
       $('.bad-tokens').typeahead(null, {
         displayKey: 'value1',
-        source: badTokens.ttAdapter()
+        source: badTokens
       });
 
       var regexSymbols = new Bloodhound({
@@ -191,7 +191,7 @@
 
       $('.regex-symbols').typeahead(null, {
         displayKey: 'val',
-        source: regexSymbols.ttAdapter()
+        source: regexSymbols
       });
 
       var abc = new Bloodhound({
@@ -212,7 +212,7 @@
 
       $('.header-footer').typeahead(null, {
         displayKey: 'val',
-        source: abc.ttAdapter(),
+        source: abc,
         templates: {
           header: '<h3>Header</h3>',
           footer: '<h3>Footer</h3>'
@@ -220,7 +220,7 @@
       },
       {
         displayKey: 'val',
-        source: abc.ttAdapter(),
+        source: abc,
         templates: {
           header: '<h3>start</h3>',
           footer: '<h3>end</h3>',
@@ -249,7 +249,7 @@
       },
       {
         displayKey: 'val',
-        source: ltr.ttAdapter()
+        source: ltr
       });
 
       var rtl = new Bloodhound({
@@ -273,7 +273,7 @@
       },
       {
         displayKey: 'val',
-        source: rtl.ttAdapter()
+        source: rtl
       });
 
       var mixed = new Bloodhound({
@@ -297,7 +297,7 @@
       },
       {
         displayKey: 'val',
-        source: mixed.ttAdapter()
+        source: mixed
       });
 
 
