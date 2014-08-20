@@ -153,6 +153,43 @@ describe('Typeahead', function() {
     });
   });
 
+  describe('on datasetCleared', function() {
+    var eventName;
+
+    beforeEach(function() {
+      eventName = 'datasetCleared';
+    });
+
+    describe('when idle', function() {
+      beforeEach(function() {
+        this.view.deactivate();
+      });
+
+      it('should do nothing', function() {
+        spyOn(this.view, '_onDatasetCleared');
+        this.results.trigger(eventName);
+        expect(this.view._onDatasetCleared).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when active', function() {
+      beforeEach(function() {
+        this.view.activate();
+      });
+
+      it('should update the hint', function() {
+        this.input.hasOverflow.andReturn(false);
+        this.results.getTopSelectable.andReturn($('<fiz>'));
+        this.results.getSelectableData.andReturn(testData);
+        this.input.getInputValue.andReturn(testData.val.slice(0, 2));
+
+        this.results.trigger(eventName);
+
+        expect(this.input.setHint).toHaveBeenCalled();
+      });
+    });
+  });
+
   describe('on focused', function() {
     var eventName;
 
@@ -1042,6 +1079,19 @@ describe('Typeahead', function() {
         expect(this.results.open).toHaveBeenCalled();
       });
 
+      it('should update hint if active', function() {
+        spyOn(this.view, 'isActive').andReturn(true);
+
+        this.input.hasOverflow.andReturn(false);
+        this.results.getTopSelectable.andReturn($('<fiz>'));
+        this.results.getSelectableData.andReturn(testData);
+        this.input.getInputValue.andReturn(testData.val.slice(0, 2));
+
+        this.view.open();
+
+        expect(this.input.setHint).toHaveBeenCalled();
+      });
+
       it('should trigger typeahead:open if not canceled', function() {
         var spy = jasmine.createSpy();
 
@@ -1094,9 +1144,14 @@ describe('Typeahead', function() {
         expect(spy2).not.toHaveBeenCalled();
       });
 
-      it('should open results', function() {
+      it('should close results', function() {
         this.view.close();
         expect(this.results.close).toHaveBeenCalled();
+      });
+
+      it('should clear hint', function() {
+        this.view.close();
+        expect(this.input.clearHint).toHaveBeenCalled();
       });
 
       it('should trigger typeahead:close if not canceled', function() {

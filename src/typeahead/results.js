@@ -59,6 +59,8 @@ var Results = (function() {
       this._allDatasetsEmpty() ?
         this.$node.addClass(this.classes.empty) :
         this.$node.removeClass(this.classes.empty);
+
+      this.trigger('datasetCleared');
     },
 
     _propagate: function propagate() {

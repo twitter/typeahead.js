@@ -80,6 +80,15 @@ describe('Results', function() {
 
       expect(this.$node).not.toHaveClass(www.classes.empty);
     });
+
+    it('should trigger datasetCleared', function() {
+      var spy;
+
+      this.view.onSync('datasetCleared', spy = jasmine.createSpy());
+      this.dataset.trigger('cleared');
+
+      expect(spy).toHaveBeenCalled();
+    });
   });
 
   describe('when asyncRequested is triggered on a dataset', function() {

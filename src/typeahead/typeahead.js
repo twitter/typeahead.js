@@ -12,8 +12,8 @@ var Typeahead = (function() {
 
   // THOUGHT: what if datasets could dynamically be added/removed?
   function Typeahead(o, www) {
-    var onSelectableClicked, onDatasetRendered, onFocused, onBlurred,
-        onEnterKeyed, onTabKeyed, onEscKeyed, onUpKeyed, onDownKeyed,
+    var onSelectableClicked, onDatasetRendered, onDatasetCleared, onFocused,
+        onBlurred, onEnterKeyed, onTabKeyed, onEscKeyed, onUpKeyed, onDownKeyed,
         onLeftKeyed, onRightKeyed, onQueryChanged, onWhitespaceChanged;
 
     o = o || {};
@@ -52,13 +52,15 @@ var Typeahead = (function() {
     // composed event handlers for results
     onSelectableClicked = c(this, 'isActive', '_onSelectableClicked');
     onDatasetRendered = c(this, 'isActive', '_onDatasetRendered');
+    onDatasetCleared = c(this, 'isActive', '_onDatasetCleared');
 
     this.results.bind()
     .onSync('selectableClicked', onSelectableClicked, this)
     .onSync('asyncRequested', this._onAsyncRequested, this)
     .onSync('asyncCanceled', this._onAsyncCanceled, this)
     .onSync('asyncReceived', this._onAsyncReceived, this)
-    .onSync('datasetRendered', onDatasetRendered, this);
+    .onSync('datasetRendered', onDatasetRendered, this)
+    .onSync('datasetCleared', onDatasetCleared, this);
 
     // composed event handlers for input
     onFocused = c(this, 'activate', 'open', '_onFocused');
@@ -129,6 +131,10 @@ var Typeahead = (function() {
 
     _onSelectableClicked: function onSelectableClicked(type, $el) {
       this.select($el);
+    },
+
+    _onDatasetCleared: function onDatasetCleared() {
+      this._updateHint();
     },
 
     _onDatasetRendered: function onDatasetRendered(type, dataset, results, async) {
@@ -312,6 +318,7 @@ var Typeahead = (function() {
     open: function open() {
       if (!this.isOpen() && !this.eventBus.before('open')) {
         this.results.open();
+        this.isActive() && this._updateHint();
         this.eventBus.trigger('open');
       }
 
@@ -321,6 +328,7 @@ var Typeahead = (function() {
     close: function close() {
       if (this.isOpen() && !this.eventBus.before('close')) {
         this.results.close();
+        this.input.clearHint();
         this.input.resetInputValue();
         this.eventBus.trigger('close');
       }
