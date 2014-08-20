@@ -197,6 +197,19 @@ describe('Dataset', function() {
       });
     });
 
+    it('should respect limit option in regard to async results', function() {
+      this.dataset.async = true;
+      this.source.andCallFake(fakeGetWithAsyncResults);
+
+      this.dataset.update('woah');
+
+      waits(100);
+
+      runs(function() {
+        expect(this.dataset.getRoot().find('.tt-result')).toHaveLength(5);
+      });
+    });
+
     it('should cancel pending async results', function() {
       var spy1 = jasmine.createSpy(), spy2 = jasmine.createSpy();
 
@@ -391,6 +404,9 @@ describe('Dataset', function() {
       cb([
         { value: 'four', raw: { value: 'four' } },
         { value: 'five', raw: { value: 'five' } },
+        { value: 'six', raw: { value: 'six' } },
+        { value: 'seven', raw: { value: 'seven' } },
+        { value: 'eight', raw: { value: 'eight' } },
       ]);
     }, 0);
 

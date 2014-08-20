@@ -18,7 +18,8 @@ var DefaultResults = (function() {
     // ---------
 
     open: function open() {
-      this._show();
+      // only display the menu when there's something to be shown
+      !this._allDatasetsEmpty() && this._show();
       return s.open.apply(this, [].slice.call(arguments, 0));
     },
 

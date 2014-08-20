@@ -78,10 +78,17 @@ describe('DefaultResults', function() {
 
   describe('#open', function() {
     it('should show results if not empty', function() {
-      this.$node.removeClass(www.classes.empty);
+      spyOn(this.view, '_allDatasetsEmpty').andReturn(false);
       this.view.open();
 
-      expect(this.$node).toBeVisible();
+      expect(this.$node).toHaveAttr('style', 'display: block;');
+    });
+
+    it('should not show results if empty', function() {
+      spyOn(this.view, '_allDatasetsEmpty').andReturn(true);
+      this.view.open();
+
+      expect(this.$node).not.toHaveAttr('style', 'display: block;');
     });
   });
 

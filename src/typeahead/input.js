@@ -44,6 +44,9 @@ var Input = (function() {
     // helps with calculating the width of the input's value
     this.$overflowHelper = buildOverflowHelper(this.$input);
 
+    // detect the initial lang direction
+    this._checkLanguageDirection();
+
     // if no hint, noop all the hint related functions
     if (this.$hint.length === 0) {
       this.setHint =
@@ -160,10 +163,6 @@ var Input = (function() {
     bind: function() {
       var that = this, onBlur, onFocus, onKeydown, onInput;
 
-      // parent will be listening for langDirChanged event by now
-      // so get the initial lang and bubble it up
-      this._checkLanguageDirection();
-
       // bound functions
       onBlur = _.bind(this._onBlur, this);
       onFocus = _.bind(this._onFocus, this);
@@ -202,6 +201,10 @@ var Input = (function() {
 
     blur: function blur() {
       this.$input.blur();
+    },
+
+    getLangDir: function getLangDir() {
+      return this.dir;
     },
 
     getQuery: function getQuery() {

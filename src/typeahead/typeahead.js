@@ -44,6 +44,9 @@ var Typeahead = (function() {
     this.active = false;
     this.input.hasFocus() && this.activate();
 
+    // detect the initial lang direction
+    this.dir = this.input.getLangDir();
+
     this._hacks();
 
     // composed event handlers for results

@@ -21,8 +21,9 @@ var Dataset = (function() {
     o = o || {};
     o.templates = o.templates || {};
 
-    // DEPRECATED: empty will be dropped in v1
+    // DEPRECATED: empty and suggestion will be dropped in v1
     o.templates.notFound = o.templates.notFound || o.templates.empty;
+    o.templates.result = o.templates.result || o.templates.suggestion;
 
     if (!o.source) {
       $.error('missing source');
@@ -78,18 +79,22 @@ var Dataset = (function() {
     _overwrite: function overwrite(query, results) {
       results = results || [];
 
+      // got results: overwrite dom with results
       if (results.length) {
         this._renderResults(query, results);
       }
 
+      // no results, expecting async: overwrite dom with pending
       else if (this.async && this.templates.pending) {
         this._renderPending(query);
       }
 
+      // no results, not expecting async: overwrite dom with not found
       else if (!this.async && this.templates.notFound) {
         this._renderNotFound(query);
       }
 
+      // nothing to render: empty dom
       else {
         this._empty();
       }
@@ -100,15 +105,18 @@ var Dataset = (function() {
     _append: function append(query, results) {
       results = results || [];
 
+      // got results, sync results exist: append results to dom
       if (results.length && this.$lastResult.length) {
         this._appendResults(query, results);
       }
 
+      // got results, no sync results: overwrite dom with results
       else if (results.length) {
         this._renderResults(query, results);
       }
 
-      else if (this.templates.notFound) {
+      // no async/sync results: overwrite dom with not found
+      else if (!this.$lastResult.length && this.templates.notFound) {
         this._renderNotFound(query);
       }
 
@@ -205,7 +213,7 @@ var Dataset = (function() {
     },
 
     update: function update(query) {
-      var that = this, canceled = false, results, atLimit;
+      var that = this, canceled = false, results, rendered;
 
       // cancel possible pending update
       this.cancel();
@@ -217,20 +225,22 @@ var Dataset = (function() {
       };
 
       results = (this.source(query, append) || []).slice(0, this.limit);
-      atLimit = results.length >= this.limit;
+      rendered = results.length;
 
       this._overwrite(query, results);
 
-      if (!atLimit && this.async) {
+      if (rendered < this.limit && this.async) {
         this.trigger('asyncRequested', query);
       }
 
       function append(results) {
+        results = results || [];
         // if the update has been canceled or if the query has changed
         // do not render the results as they've become outdated
-        if (!canceled && !atLimit) {
+        if (!canceled && rendered < that.limit) {
           that.cancel = $.noop;
-          that._append(query, results);
+          that._append(query, results.slice(0, that.limit - rendered));
+          rendered += results.length;
           that.async && that.trigger('asyncReceived', query);
         }
       }
