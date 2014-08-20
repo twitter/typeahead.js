@@ -28,7 +28,9 @@ var Results = (function() {
     this.datasets = _.map(o.datasets, initializeDataset);
 
     _.each(this.datasets, function(dataset) {
-      that.$node.append(dataset.getRoot());
+      // if inner is provided, that's the element datasets
+      // should get appended to
+      $(o.inner || o.node).append(dataset.getRoot());
     });
 
     function initializeDataset(oDataset) { return new Dataset(oDataset, www); }

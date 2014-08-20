@@ -32,8 +32,9 @@
       return this.each(attach);
 
       function attach() {
-        var $input, $wrapper, $hint, $results, defaultHint, defaultResults,
-            eventBus, input, results, typeahead, ResultsConstructor;
+        var $input, $wrapper, $hint, $rOuter, $rInner, defaultHint,
+            defaultResults, eventBus, input, results, typeahead,
+            ResultsConstructor;
 
         // highlight is a top-level config that needs to get inherited
         // from all of the datasets
@@ -41,14 +42,21 @@
 
         $input = $(this);
         $wrapper = $(www.html.wrapper);
-        $hint = isDom(o.hint) ? $(o.hint).first() : null;
-        $results = isDom(o.results) ? $(o.results).first() : null;
+        $hint = $elOrNull(o.hint);
+        $rOuter = $elOrNull(o.results);
+
+        // support { outer: outerEl, inner: innerEl }
+        // enforce that inner is a child of outer
+        if (!$rOuter && _.isObject(o.results)) {
+          $rOuter = $elOrNull(o.results.container);
+          $rInner = $rOuter && $elOrNull($rOuter.find(o.results.results));
+        }
 
         defaultHint = o.hint !== false && !$hint;
-        defaultResults = o.results !== false && !$results;
+        defaultResults = o.results !== false && !$rOuter;
 
         defaultHint && ($hint = buildHintFromInput($input, www));
-        defaultResults && ($results = $(www.html.results).css(www.css.results));
+        defaultResults && ($rOuter = $(www.html.results).css(www.css.results));
 
         // hint should be empty on init
         $hint && $hint.val('');
@@ -63,7 +71,7 @@
           .wrap($wrapper)
           .parent()
           .prepend(defaultHint ? $hint : null)
-          .append(defaultResults ? $results : null);
+          .append(defaultResults ? $rOuter : null);
         }
 
         ResultsConstructor = defaultResults ? DefaultResults : Results;
@@ -71,7 +79,8 @@
         eventBus = new EventBus({ el: $input });
         input = new Input({ hint: $hint, input: $input, }, www);
         results = new ResultsConstructor({
-          node: $results,
+          node: $rOuter,
+          inner: $rInner,
           datasets: datasets
         }, www);
 
@@ -280,5 +289,12 @@
     }
   }
 
-  function isDom(obj) { return _.isJQuery(obj) || _.isElement(obj); }
+  function $elOrNull(obj) {
+    var isValid, $el;
+
+    isValid = _.isJQuery(obj) || _.isElement(obj);
+    $el = isValid ? $(obj).first() : [];
+
+    return $el.length ? $el : null;
+  }
 })();
