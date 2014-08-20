@@ -148,15 +148,21 @@ var Dataset = (function() {
     _renderPending: function renderPending(query) {
       var template = this.templates.pending;
 
-      template && this.$el.html(template({ query: query }));
       this.$lastResult = null;
+      template && this.$el.html(template({
+        query: query,
+        dataset: this.name,
+      }));
     },
 
     _renderNotFound: function renderNotFound(query) {
       var template = this.templates.notFound;
 
-      template && this.$el.html(template({ query: query }));
       this.$lastResult = null;
+      template && this.$el.html(template({
+        query: query,
+        dataset: this.name,
+      }));
     },
 
     _empty: function empty() {
@@ -192,14 +198,20 @@ var Dataset = (function() {
 
     _getFooter: function getFooter(query, results) {
       return this.templates.footer ?
-        this.templates.footer({ query: query, results: results }) :
-        null;
+        this.templates.footer({
+          query: query,
+          results: results,
+          dataset: this.name
+        }) : null;
     },
 
     _getHeader: function getHeader(query, results) {
       return this.templates.header ?
-        this.templates.header({ query: query, results: results }) :
-        null;
+        this.templates.header({
+          query: query,
+          results: results,
+          dataset: this.name
+        }) : null;
     },
 
     _injectQuery: function injectQuery(query, obj) {
