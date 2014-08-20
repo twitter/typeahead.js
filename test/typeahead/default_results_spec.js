@@ -46,6 +46,36 @@ describe('DefaultResults', function() {
     });
   });
 
+  describe('when cleared is triggered on a dataset', function() {
+    it('should hide results if empty', function() {
+      this.dataset.isEmpty.andReturn(true);
+
+      this.view._show();
+      this.dataset.trigger('cleared');
+
+      expect(this.$node).not.toBeVisible();
+    });
+
+    it('should not show results if not open', function() {
+      this.dataset.isEmpty.andReturn(false);
+
+      this.view._hide();
+      this.dataset.trigger('cleared');
+
+      expect(this.$node).not.toBeVisible();
+    });
+
+    it('should show results if not empty and open', function() {
+      this.dataset.isEmpty.andReturn(false);
+
+      this.view._hide();
+      this.view.open();
+      this.dataset.trigger('cleared');
+
+      expect(this.$node).toBeVisible();
+    });
+  });
+
   describe('#open', function() {
     it('should show results if not empty', function() {
       this.$node.removeClass(www.classes.empty);

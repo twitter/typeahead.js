@@ -18,33 +18,37 @@ var DefaultResults = (function() {
     // ---------
 
     open: function open() {
-      var rv = s.open.apply(this, [].slice.call(arguments, 0));
-      !this.$node.hasClass(this.classes.empty) && this._show();
-
-      return rv;
+      this._show();
+      return s.open.apply(this, [].slice.call(arguments, 0));
     },
 
     close: function close() {
-      var rv = s.close.apply(this, [].slice.call(arguments, 0));
       this._hide();
-
-      return rv;
+      return s.close.apply(this, [].slice.call(arguments, 0));
     },
 
     _onRendered: function onRendered() {
-      var isEmpty = _.every(this.datasets, isDatasetEmpty);
-
-      if (isEmpty) {
+      if (this._allDatasetsEmpty()) {
         this._hide();
       }
 
       else {
-        this.$node.hasClass(this.classes.open) && this._show();
+        this.isOpen() && this._show();
       }
 
       return s._onRendered.apply(this, [].slice.call(arguments, 0));
+    },
 
-      function isDatasetEmpty(dataset) { return dataset.isEmpty(); }
+    _onCleared: function onCleared() {
+      if (this._allDatasetsEmpty()) {
+        this._hide();
+      }
+
+      else {
+        this.isOpen() && this._show();
+      }
+
+      return s._onCleared.apply(this, [].slice.call(arguments, 0));
     },
 
     setLanguageDirection: function setLanguageDirection(dir) {

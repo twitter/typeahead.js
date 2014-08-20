@@ -217,12 +217,11 @@ describe('Dataset', function() {
       });
     });
 
-    /*
-    it('should render empty when no suggestions are available', function() {
+    it('should render notFound when no suggestions are available', function() {
       this.dataset = new Dataset({
         source: this.source,
         templates: {
-          empty: '<h2>empty</h2>'
+          notFound: '<h2>empty</h2>'
         }
       }, www);
 
@@ -232,7 +231,22 @@ describe('Dataset', function() {
       expect(this.dataset.getRoot()).toContainText('empty');
     });
 
-    it('should render header', function() {
+    it('should render pending when no suggestions are available but async is pending', function() {
+      this.dataset = new Dataset({
+        source: this.source,
+        async: true,
+        templates: {
+          pending: '<h2>pending</h2>'
+        }
+      }, www);
+
+      this.source.andReturn([]);
+      this.dataset.update('woah');
+
+      expect(this.dataset.getRoot()).toContainText('pending');
+    });
+
+    it('should render header when results are rendered', function() {
       this.dataset = new Dataset({
         source: this.source,
         templates: {
@@ -246,7 +260,7 @@ describe('Dataset', function() {
       expect(this.dataset.getRoot()).toContainText('header');
     });
 
-    it('should render footer', function() {
+    it('should render footer when results are rendered', function() {
       this.dataset = new Dataset({
         source: this.source,
         templates: {
@@ -275,7 +289,6 @@ describe('Dataset', function() {
       expect(this.dataset.getRoot()).not.toContainText('header');
       expect(this.dataset.getRoot()).not.toContainText('footer');
     });
-    */
 
     it('should not render stale suggestions', function() {
       this.source.andCallFake(fakeGetWithAsyncResults);
@@ -336,6 +349,14 @@ describe('Dataset', function() {
       this.dataset.update('woah');
       spy = spyOn(this.dataset, 'cancel');
 
+      this.dataset.clear();
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should trigger cleared', function() {
+      var spy;
+
+      this.dataset.onSync('cleared', spy = jasmine.createSpy());
       this.dataset.clear();
       expect(spy).toHaveBeenCalled();
     });

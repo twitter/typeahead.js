@@ -62,6 +62,26 @@ describe('Results', function() {
     });
   });
 
+  describe('when cleared is triggered on a dataset', function() {
+    it('should add empty class to node if empty', function() {
+      this.dataset.isEmpty.andReturn(true);
+
+      this.$node.removeClass(www.classes.empty);
+      this.dataset.trigger('cleared');
+
+      expect(this.$node).toHaveClass(www.classes.empty);
+    });
+
+    it('should remove empty class from node if not empty', function() {
+      this.dataset.isEmpty.andReturn(false);
+
+      this.$node.addClass(www.classes.empty);
+      this.dataset.trigger('cleared');
+
+      expect(this.$node).not.toHaveClass(www.classes.empty);
+    });
+  });
+
   describe('when asyncRequested is triggered on a dataset', function() {
     it('should propagate event', function() {
       var spy = jasmine.createSpy();

@@ -46,9 +46,7 @@ var Results = (function() {
     },
 
     _onRendered: function onRendered(type, dataset, results, async) {
-      var isEmpty = _.every(this.datasets, isDatasetEmpty);
-
-      isEmpty ?
+      this._allDatasetsEmpty() ?
         this.$node.addClass(this.classes.empty) :
         this.$node.removeClass(this.classes.empty);
 
@@ -57,11 +55,23 @@ var Results = (function() {
       function isDatasetEmpty(dataset) { return dataset.isEmpty(); }
     },
 
+    _onCleared: function onCleared() {
+      this._allDatasetsEmpty() ?
+        this.$node.addClass(this.classes.empty) :
+        this.$node.removeClass(this.classes.empty);
+    },
+
     _propagate: function propagate() {
       this.trigger.apply(this, arguments);
     },
 
     // ### private
+
+    _allDatasetsEmpty: function allDatasetsEmpty() {
+      return _.every(this.datasets, isDatasetEmpty);
+
+      function isDatasetEmpty(dataset) { return dataset.isEmpty(); }
+    },
 
     _getSelectables: function getSelectables() {
       return this.$node.find(this.selectors.selectable);
@@ -104,7 +114,8 @@ var Results = (function() {
         .onSync('asyncRequested', that._propagate, that)
         .onSync('asyncCanceled', that._propagate, that)
         .onSync('asyncReceived', that._propagate, that)
-        .onSync('rendered', that._onRendered, that);
+        .onSync('rendered', that._onRendered, that)
+        .onSync('cleared', that._onCleared, that);
       });
 
       return this;

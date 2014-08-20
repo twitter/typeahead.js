@@ -21,6 +21,9 @@ var Dataset = (function() {
     o = o || {};
     o.templates = o.templates || {};
 
+    // DEPRECATED: empty will be dropped in v1
+    o.templates.notFound = o.templates.notFound || o.templates.empty;
+
     if (!o.source) {
       $.error('missing source');
     }
@@ -73,19 +76,22 @@ var Dataset = (function() {
     // ### private
 
     _overwrite: function overwrite(query, results) {
-      this.$el.empty();
       results = results || [];
 
       if (results.length) {
-        this.$el.html(this._getResultsHtml(query, results));
+        this._renderResults(query, results);
       }
 
       else if (this.async && this.templates.pending) {
-        // TODO: render pending temlate
+        this._renderPending(query);
       }
 
       else if (!this.async && this.templates.notFound) {
-        // TODO: render empty temlate
+        this._renderNotFound(query);
+      }
+
+      else {
+        this._empty();
       }
 
       this.trigger('rendered', this.name, results, false);
@@ -94,19 +100,63 @@ var Dataset = (function() {
     _append: function append(query, results) {
       results = results || [];
 
-      // TODO: remove pending template if shown
-      if (results.length) {
-        this.$el.append(this._getResultsHtml(query, results));
+      if (results.length && this.$lastResult.length) {
+        this._appendResults(query, results);
+      }
+
+      else if (results.length) {
+        this._renderResults(query, results);
       }
 
       else if (this.templates.notFound) {
-        // TODO: render empty temlate
+        this._renderNotFound(query);
       }
 
       this.trigger('rendered', this.name, results, true);
     },
 
-    _getResultsHtml: function getResultsHtml(query, results) {
+    _renderResults: function renderResults(query, results) {
+      var $fragment;
+
+      $fragment = this._getResultsFragment(query, results);
+      this.$lastResult = $fragment.children().last();
+
+      this.$el.html($fragment)
+      .prepend(this._getHeader(query, results))
+      .append(this._getFooter(query, results));
+    },
+
+    _appendResults: function appendResults(query, results) {
+      var $fragment, $lastResult;
+
+      $fragment = this._getResultsFragment(query, results);
+      $lastResult = $fragment.children().last();
+
+      this.$lastResult.after($fragment);
+
+      this.$lastResult = $lastResult;
+    },
+
+    _renderPending: function renderPending(query) {
+      var template = this.templates.pending;
+
+      template && this.$el.html(template({ query: query }));
+      this.$lastResult = null;
+    },
+
+    _renderNotFound: function renderNotFound(query) {
+      var template = this.templates.notFound;
+
+      template && this.$el.html(template({ query: query }));
+      this.$lastResult = null;
+    },
+
+    _empty: function empty() {
+      this.$el.empty();
+      this.$lastResult = null;
+    },
+
+    _getResultsFragment: function getResultsFragment(query, results) {
       var that = this, fragment;
 
       fragment = document.createDocumentFragment();
@@ -129,7 +179,19 @@ var Dataset = (function() {
         pattern: query
       });
 
-      return fragment;
+      return $(fragment);
+    },
+
+    _getFooter: function getFooter(query, results) {
+      return this.templates.footer ?
+        this.templates.footer({ query: query, results: results }) :
+        null;
+    },
+
+    _getHeader: function getHeader(query, results) {
+      return this.templates.header ?
+        this.templates.header({ query: query, results: results }) :
+        null;
     },
 
     _injectQuery: function injectQuery(query, obj) {
@@ -178,9 +240,9 @@ var Dataset = (function() {
     cancel: $.noop,
 
     clear: function clear() {
+      this._empty();
       this.cancel();
-      this.$el.empty();
-      this.trigger('rendered');
+      this.trigger('cleared');
     },
 
     isEmpty: function isEmpty() {
@@ -207,7 +269,8 @@ var Dataset = (function() {
 
   function getTemplates(templates, displayFn) {
     return {
-      empty: templates.empty && _.templatify(templates.empty),
+      notFound: templates.notFound && _.templatify(templates.notFound),
+      pending: templates.pending && _.templatify(templates.pending),
       header: templates.header && _.templatify(templates.header),
       footer: templates.footer && _.templatify(templates.footer),
       result: templates.result || resultTemplate
