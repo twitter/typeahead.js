@@ -50,6 +50,7 @@ var Dataset = (function() {
     // a hint to figuring out of the source will return async results
     this.async = _.isUndefined(o.async) ? this.source.length > 1 : !!o.async;
 
+    this._resetLastResult();
     this.$el = $(this.html.dataset.replace('%CLASS%', this.name));
   }
 
@@ -148,7 +149,7 @@ var Dataset = (function() {
     _renderPending: function renderPending(query) {
       var template = this.templates.pending;
 
-      this.$lastResult = null;
+      this._resetLastResult();
       template && this.$el.html(template({
         query: query,
         dataset: this.name,
@@ -158,7 +159,7 @@ var Dataset = (function() {
     _renderNotFound: function renderNotFound(query) {
       var template = this.templates.notFound;
 
-      this.$lastResult = null;
+      this._resetLastResult();
       template && this.$el.html(template({
         query: query,
         dataset: this.name,
@@ -167,7 +168,7 @@ var Dataset = (function() {
 
     _empty: function empty() {
       this.$el.empty();
-      this.$lastResult = null;
+      this._resetLastResult();
     },
 
     _getResultsFragment: function getResultsFragment(query, results) {
@@ -179,10 +180,10 @@ var Dataset = (function() {
 
         context = that._injectQuery(query, result);
 
-        $el = $(that.html.result)
-        .append(that.templates.result(context))
+        $el = $(that.templates.result(context))
+        .data(keys.obj, result)
         .data(keys.val, that.displayFn(result))
-        .data(keys.obj, result);
+        .addClass(that.classes.result + ' ' + that.classes.selectable);
 
         fragment.appendChild($el[0]);
       });
@@ -212,6 +213,10 @@ var Dataset = (function() {
           results: results,
           dataset: this.name
         }) : null;
+    },
+
+    _resetLastResult: function resetLastResult() {
+      this.$lastResult = $();
     },
 
     _injectQuery: function injectQuery(query, obj) {
@@ -299,7 +304,7 @@ var Dataset = (function() {
     };
 
     function resultTemplate(context) {
-      return '<p>' + displayFn(context) + '</p>';
+      return '<div><p>' + displayFn(context) + '</p></div>';
     }
   }
 

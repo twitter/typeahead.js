@@ -47,8 +47,7 @@ var WWW = (function() {
   function buildHtml(c) {
     return {
       wrapper: j('<span class="', c.wrapper, '"></span>'),
-      results: j('<span class="', c.results, '"></span>'),
-      result: j('<div class="', _j(c.result, c.selectable), '"></div>'),
+      results: j('<div class="', c.results, '"></div>'),
       dataset: j('<div class="', _j(c.dataset, c.dataset), '-%CLASS%"></div>')
     };
 
