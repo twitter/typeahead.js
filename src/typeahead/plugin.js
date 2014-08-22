@@ -48,8 +48,8 @@
         // support { outer: outerEl, inner: innerEl }
         // enforce that inner is a child of outer
         if (!$rOuter && _.isObject(o.results)) {
-          $rOuter = $elOrNull(o.results.container);
-          $rInner = $rOuter && $elOrNull($rOuter.find(o.results.results));
+          $rOuter = $elOrNull(o.results.outer);
+          $rInner = $rOuter && $elOrNull($rOuter.find(o.results.inner));
         }
 
         defaultHint = o.hint !== false && !$hint;
