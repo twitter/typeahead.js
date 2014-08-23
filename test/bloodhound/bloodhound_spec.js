@@ -57,12 +57,44 @@ describe('Bloodhound', function() {
         local: []
       }).add(fixtures.data.simple);
 
-      this.bloodhound.get('big', spy);
+      this.bloodhound.search('big', spy);
 
       expect(spy).toHaveBeenCalledWith([
         { value: 'big' },
         { value: 'bigger' },
         { value: 'biggest' }
+      ]);
+    });
+  });
+
+  describe('#get', function() {
+    beforeEach(function() {
+      this.bloodhound = new Bloodhound({
+        identify: function(d) { return d.value; },
+        datumTokenizer: datumTokenizer,
+        queryTokenizer: queryTokenizer,
+        local: fixtures.data.simple
+      });
+    });
+
+    it('should support array signature', function() {
+      expect(this.bloodhound.get(['big', 'bigger'])).toEqual([
+        { value: 'big' },
+        { value: 'bigger' }
+      ]);
+    });
+
+    it('should support splat signature', function() {
+      expect(this.bloodhound.get('big', 'bigger')).toEqual([
+        { value: 'big' },
+        { value: 'bigger' }
+      ]);
+    });
+
+    it('should return nothing for unknown ids', function() {
+      expect(this.bloodhound.get('big', 'foo', 'bigger')).toEqual([
+        { value: 'big' },
+        { value: 'bigger' }
       ]);
     });
   });
@@ -77,7 +109,7 @@ describe('Bloodhound', function() {
         local: fixtures.data.simple
       }).clear();
 
-      this.bloodhound.get('big', spy);
+      this.bloodhound.search('big', spy);
 
       expect(spy).toHaveBeenCalledWith([]);
     });
@@ -134,7 +166,7 @@ describe('Bloodhound', function() {
       it('should hydrate the bloodhound', function() {
         var spy = jasmine.createSpy();
 
-        this.bloodhound.get('big', spy)
+        this.bloodhound.search('big', spy)
 
         expect(spy).toHaveBeenCalledWith([
           { value: 'big' },
@@ -160,7 +192,7 @@ describe('Bloodhound', function() {
       it('should hydrate the bloodhound', function() {
         var spy = jasmine.createSpy();
 
-        this.bloodhound.get('big', spy)
+        this.bloodhound.search('big', spy)
 
         expect(spy).toHaveBeenCalledWith([
           { value: 'big' },
@@ -226,8 +258,8 @@ describe('Bloodhound', function() {
       expect(ajaxRequests[0].url).toBe('/test1');
       expect(ajaxRequests[1].url).toBe('/test2');
 
-      this.bloodhound1.get('big', spy1);
-      this.bloodhound2.get('big', spy2);
+      this.bloodhound1.search('big', spy1);
+      this.bloodhound2.search('big', spy2);
 
       expect(spy1).toHaveBeenCalledWith([
         { value: 'big' },
@@ -272,7 +304,7 @@ describe('Bloodhound', function() {
       mostRecentAjaxRequest().response(fixtures.ajaxResps.ok);
       expect(fakeFilter).toHaveBeenCalled();
 
-      this.bloodhound.get('big', spy);
+      this.bloodhound.search('big', spy);
 
       expect(spy).toHaveBeenCalledWith([
         { value: 'BIG' },
@@ -299,7 +331,7 @@ describe('Bloodhound', function() {
 
       expect(mostRecentAjaxRequest()).toBeNull();
 
-      this.bloodhound.get('big', spy);
+      this.bloodhound.search('big', spy);
 
       expect(spy).toHaveBeenCalledWith([
         { value: 'big' },
@@ -340,7 +372,7 @@ describe('Bloodhound', function() {
         }
       });
 
-      this.bloodhound.get('one two', $.noop, spy);
+      this.bloodhound.search('one two', $.noop, spy);
 
       expect(this.bloodhound.transport.get).toHaveBeenCalledWith(
         { url: '/foo' },
@@ -365,8 +397,8 @@ describe('Bloodhound', function() {
         }
       });
 
-      this.bloodhound1.get('one two', $.noop, spy);
-      this.bloodhound2.get('one two', $.noop, spy);
+      this.bloodhound1.search('one two', $.noop, spy);
+      this.bloodhound2.search('one two', $.noop, spy);
 
       expect(this.bloodhound1.transport.get).toHaveBeenCalledWith(
         { url: '/test?q=one%20two', type: 'GET', dataType: 'json' },
@@ -392,7 +424,7 @@ describe('Bloodhound', function() {
       });
       this.bloodhound.transport.get.andCallFake(fakeGet);
 
-      this.bloodhound.get('big', $.noop, spy);
+      this.bloodhound.search('big', $.noop, spy);
 
       expect(fakeFilter).toHaveBeenCalled();
       expect(spy).toHaveBeenCalledWith([
@@ -420,11 +452,11 @@ describe('Bloodhound', function() {
         });
       });
 
-      it('should call #get callback once', function() {
+      it('should call #search callback once', function() {
         var spy = jasmine.createSpy();
 
         this.bloodhound.transport.get.andCallFake(fakeGet);
-        this.bloodhound.get('dog', $.noop, spy);
+        this.bloodhound.search('dog', $.noop, spy);
 
         expect(spy.callCount).toBe(1);
 
@@ -444,11 +476,11 @@ describe('Bloodhound', function() {
         });
       });
 
-      it('should call the #get callback with backfill', function() {
+      it('should call the #search callback with backfill', function() {
         var spy = jasmine.createSpy();
 
         this.bloodhound.transport.get.andCallFake(fakeGetWithCacheMiss);
-        this.bloodhound.get('dog', $.noop, spy);
+        this.bloodhound.search('dog', $.noop, spy);
 
         expect(spy.callCount).toBe(1);
 
@@ -468,7 +500,7 @@ describe('Bloodhound', function() {
       });
       this.bloodhound.transport.get.andCallFake(fakeGet);
 
-      this.bloodhound.get('dog', $.noop, spy);
+      this.bloodhound.search('dog', $.noop, spy);
 
       expect(spy).toHaveBeenCalledWith([]);
 
@@ -486,13 +518,13 @@ describe('Bloodhound', function() {
       this.bloodhound = new Bloodhound({
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
-        dupDetector: function(d1, d2) { return d1.value === d2.value; },
+        identify: function(d) { return d.value; },
         local: fixtures.data.animals,
         remote: { url: '/test?q=%QUERY' }
       });
       this.bloodhound.transport.get.andCallFake(fakeGet);
 
-      this.bloodhound.get('dog', syncSpy, asyncSpy);
+      this.bloodhound.search('dog', syncSpy, asyncSpy);
       expect(asyncSpy).toHaveBeenCalledWith([{ value: 'cat' }, { value: 'moose' }]);
 
       function fakeGet(o, cb) { cb(null, fixtures.data.animals); }
@@ -512,7 +544,7 @@ describe('Bloodhound', function() {
       });
       this.bloodhound.transport.get.andCallFake(fakeGet);
 
-      this.bloodhound.get('big', syncSpy, asyncSpy);
+      this.bloodhound.search('big', syncSpy, asyncSpy);
 
       expect(syncSpy).toHaveBeenCalledWith([
         { value: 'big' },
@@ -521,7 +553,7 @@ describe('Bloodhound', function() {
       ]);
       expect(asyncSpy).not.toHaveBeenCalled();
 
-      this.bloodhound.get('bigg', syncSpy, asyncSpy);
+      this.bloodhound.search('bigg', syncSpy, asyncSpy);
 
       expect(syncSpy).toHaveBeenCalledWith([
         { value: 'bigger' },

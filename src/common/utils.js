@@ -86,10 +86,10 @@ var _ = (function() {
 
     clone: function(obj) { return $.extend(true, {}, obj); },
 
-    getUniqueId: (function() {
+    getIdGenerator: function() {
       var counter = 0;
       return function() { return counter++; };
-    })(),
+    },
 
     templatify: function templatify(obj) {
       return $.isFunction(obj) ? obj : template;

@@ -1,59 +1,73 @@
 describe('SearchIndex', function() {
 
   beforeEach(function() {
-    this.searchIndex = new SearchIndex({
+    this.index = new SearchIndex({
       datumTokenizer: datumTokenizer,
       queryTokenizer: queryTokenizer
     });
 
-    this.searchIndex.add(fixtures.data.simple);
+    this.index.add(fixtures.data.simple);
   });
 
   it('should support serialization/deserialization', function() {
-    var serialized = this.searchIndex.serialize();
+    var serialized = this.index.serialize();
 
-    this.searchIndex = new SearchIndex({
+    this.index = new SearchIndex({
       datumTokenizer: datumTokenizer,
       queryTokenizer: queryTokenizer
     });
-    this.searchIndex.bootstrap(serialized);
+    this.index.bootstrap(serialized);
 
-    expect(this.searchIndex.get('smaller')).toEqual([{ value: 'smaller' }]);
+    expect(this.index.search('smaller')).toEqual([{ value: 'smaller' }]);
   });
 
   it('should be able to add data on the fly', function() {
-    this.searchIndex.add({ value: 'new' });
+    this.index.add({ value: 'new' });
 
-    expect(this.searchIndex.get('new')).toEqual([{ value: 'new' }]);
+    expect(this.index.search('new')).toEqual([{ value: 'new' }]);
   });
 
-  it('#get should return datums that match the given query', function() {
-    expect(this.searchIndex.get('big')).toEqual([
+  it('#get should return datums by id', function() {
+    this.index = new SearchIndex({
+      identify: function(d) { return d.value; },
+      datumTokenizer: datumTokenizer,
+      queryTokenizer: queryTokenizer
+    });
+    this.index.add(fixtures.data.simple);
+
+    expect(this.index.get(['big', 'bigger'])).toEqual([
+      { value: 'big' },
+      { value: 'bigger' }
+    ]);
+  });
+
+  it('#search should return datums that match the given query', function() {
+    expect(this.index.search('big')).toEqual([
       { value: 'big' },
       { value: 'bigger' },
       { value: 'biggest' }
     ]);
 
-    expect(this.searchIndex.get('small')).toEqual([
+    expect(this.index.search('small')).toEqual([
       { value: 'small' },
       { value: 'smaller' },
       { value: 'smallest' }
     ]);
   });
 
-  it('#get should return an empty array of there are no matches', function() {
-    expect(this.searchIndex.get('wtf')).toEqual([]);
+  it('#search should return an empty array of there are no matches', function() {
+    expect(this.index.search('wtf')).toEqual([]);
   });
 
   it('#all should return all datums', function() {
-    expect(this.searchIndex.all()).toEqual(fixtures.data.simple);
+    expect(this.index.all()).toEqual(fixtures.data.simple);
   });
 
   it('#reset should empty the search index', function() {
-    this.searchIndex.reset();
-    expect(this.searchIndex.datums).toEqual([]);
-    expect(this.searchIndex.trie.ids).toEqual([]);
-    expect(this.searchIndex.trie.children).toEqual({});
+    this.index.reset();
+    expect(this.index.datums).toEqual([]);
+    expect(this.index.trie.ids).toEqual([]);
+    expect(this.index.trie.children).toEqual({});
   });
 
   // helper functions

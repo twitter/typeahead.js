@@ -17,6 +17,7 @@ var SearchIndex = (function() {
       $.error('datumTokenizer and queryTokenizer are both required');
     }
 
+    this.identify = o.identify || _.getIdGenerator();
     this.datumTokenizer = o.datumTokenizer;
     this.queryTokenizer = o.queryTokenizer;
 
@@ -43,7 +44,7 @@ var SearchIndex = (function() {
       _.each(data, function(datum) {
         var id, tokens;
 
-        id = that.datums.push(datum) - 1;
+        that.datums[id = that.identify(datum)] = datum;
         tokens = normalizeTokens(that.datumTokenizer(datum));
 
         _.each(tokens, function(token) {
@@ -60,7 +61,13 @@ var SearchIndex = (function() {
       });
     },
 
-    get: function get(query) {
+    get: function get(ids) {
+      var that = this;
+
+      return _.map(ids, function(id) { return that.datums[id]; });
+    },
+
+    search: function search(query) {
       var that = this, tokens, matches;
 
       tokens = normalizeTokens(this.queryTokenizer(query));
@@ -101,7 +108,7 @@ var SearchIndex = (function() {
     },
 
     reset: function reset() {
-      this.datums = [];
+      this.datums = {};
       this.trie = newNode();
     },
 

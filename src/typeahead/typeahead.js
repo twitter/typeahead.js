@@ -235,9 +235,9 @@ var Typeahead = (function() {
 
       $selectable = this.menu.getTopSelectable();
       data = this.menu.getSelectableData($selectable);
+      val = this.input.getInputValue();
 
-      if (data && !this.input.hasOverflow()) {
-        val = this.input.getInputValue();
+      if (data && !_.isBlankString(val) && !this.input.hasOverflow()) {
         query = Input.normalizeQuery(val);
         escapedQuery = _.escapeRegExChars(query);
 

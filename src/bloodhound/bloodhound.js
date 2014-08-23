@@ -21,7 +21,7 @@ var Bloodhound = (function() {
     }
 
     this.sorter = getSorter(o.sorter);
-    this.dupDetector = o.dupDetector || ignoreDuplicates;
+    this.identify = o.identify || _.getIdGenerator();
 
     this.local = oParser.local(o);
     this.prefetch = oParser.prefetch(o);
@@ -32,6 +32,7 @@ var Bloodhound = (function() {
 
     // the backing data structure used for fast pattern matching
     this.index = new SearchIndex({
+      identify: this.identify,
       datumTokenizer: o.datumTokenizer,
       queryTokenizer: o.queryTokenizer
     });
@@ -193,10 +194,15 @@ var Bloodhound = (function() {
       return this;
     },
 
-    get: function get(query, sync, async) {
+    get: function get(ids) {
+      ids = _.isArray(ids) ? ids : [].slice.call(arguments);
+      return this.index.get(ids);
+    },
+
+    search: function search(query, sync, async) {
       var that = this, local;
 
-      local = this.sorter(this.index.get(query));
+      local = this.sorter(this.index.search(query));
 
       // return a copy to guarantee no changes within this scope
       // as this array will get used when processing the remote results
@@ -220,7 +226,7 @@ var Bloodhound = (function() {
 
           // checks for duplicates
           isDuplicate = _.some(local, function(l) {
-            return that.dupDetector(r, l);
+            return that.identify(r) === that.identify(l);
           });
 
           !isDuplicate && nonDuplicates.push(r);
@@ -266,6 +272,4 @@ var Bloodhound = (function() {
     function sort(array) { return array.sort(sortFn); }
     function noSort(array) { return array; }
   }
-
-  function ignoreDuplicates() { return false; }
 })(this);

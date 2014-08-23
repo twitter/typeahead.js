@@ -7,12 +7,14 @@
 var Dataset = (function() {
   'use strict';
 
-  var keys;
+  var keys, nameGenerator;
 
   keys = {
     val: 'tt-selectable-display',
     obj: 'tt-selectable-object'
   };
+
+  nameGenerator = _.getIdGenerator();
 
   // constructor
   // -----------
@@ -39,7 +41,7 @@ var Dataset = (function() {
     www.mixin(this);
 
     this.highlight = !!o.highlight;
-    this.name = o.name || _.getUniqueId();
+    this.name = o.name || nameGenerator();
 
     this.limit = o.limit || 5;
     this.displayFn = getDisplayFn(o.display || o.displayKey);
