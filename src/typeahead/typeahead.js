@@ -251,6 +251,10 @@ var Typeahead = (function() {
         // clear hint if there's no trailing text
         match && this.input.setHint(val + match[1]);
       }
+
+      else {
+        this.input.clearHint();
+      }
     },
 
     // ### public
