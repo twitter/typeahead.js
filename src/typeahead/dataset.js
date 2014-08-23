@@ -230,7 +230,7 @@ var Dataset = (function() {
     },
 
     update: function update(query) {
-      var that = this, canceled = false, ignoreSync = false, rendered = 0;
+      var that = this, canceled = false, syncCalled = false, rendered = 0;
 
       // cancel possible pending update
       this.cancel();
@@ -242,23 +242,20 @@ var Dataset = (function() {
       };
 
       this.source(query, sync, async);
-
-      // any calls to the sync callback from here on out should be ignored
-      // as they would have been done asynchronously
-      ignoreSync = true;
-
-      if (rendered < this.limit && this.async) {
-        that.trigger('asyncRequested', query);
-      }
+      !syncCalled && sync([]);
 
       function sync(results) {
-        if (ignoreSync) { return; }
+        if (syncCalled) { return; }
 
-        ignoreSync = true;
+        syncCalled = true;
         results = (results || []).slice(0, that.limit);
         rendered = results.length;
 
         that._overwrite(query, results);
+
+        if (rendered < that.limit && that.async) {
+          that.trigger('asyncRequested', query);
+        }
       }
 
       function async(results) {

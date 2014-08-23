@@ -48,20 +48,12 @@ var Results = (function() {
     },
 
     _onRendered: function onRendered(type, dataset, results, async) {
-      this._allDatasetsEmpty() ?
-        this.$node.addClass(this.classes.empty) :
-        this.$node.removeClass(this.classes.empty);
-
+      this.$node.toggleClass(this.classes.empty, this._allDatasetsEmpty());
       this.trigger('datasetRendered', dataset, results, async);
-
-      function isDatasetEmpty(dataset) { return dataset.isEmpty(); }
     },
 
     _onCleared: function onCleared() {
-      this._allDatasetsEmpty() ?
-        this.$node.addClass(this.classes.empty) :
-        this.$node.removeClass(this.classes.empty);
-
+      this.$node.toggleClass(this.classes.empty, this._allDatasetsEmpty());
       this.trigger('datasetCleared');
     },
 
