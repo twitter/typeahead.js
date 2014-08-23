@@ -43,7 +43,7 @@ describe('Dataset', function() {
 
   describe('#update', function() {
     it('should render suggestions', function() {
-      this.source.andReturn(mockResults);
+      this.source.andCallFake(syncMockResults);
       this.dataset.update('woah');
 
       expect(this.dataset.getRoot()).toContainText('one');
@@ -53,7 +53,7 @@ describe('Dataset', function() {
 
     it('should respect limit option', function() {
       this.dataset.limit = 2;
-      this.source.andReturn(mockResults);
+      this.source.andCallFake(syncMockResults);
       this.dataset.update('woah');
 
       expect(this.dataset.getRoot()).toContainText('one');
@@ -68,12 +68,26 @@ describe('Dataset', function() {
         source: this.source = jasmine.createSpy('source')
       }, www);
 
-      this.source.andReturn(mockResultsDisplayFn);
+      this.source.andCallFake(syncMockResultsDisplayFn);
       this.dataset.update('woah');
 
       expect(this.dataset.getRoot()).toContainText('4');
       expect(this.dataset.getRoot()).toContainText('5');
       expect(this.dataset.getRoot()).toContainText('6');
+    });
+
+    it('should ignore async invocations of sync', function() {
+      this.source.andCallFake(asyncSync);
+      this.dataset.update('woah');
+
+      expect(this.dataset.getRoot()).not.toContainText('one');
+    });
+
+    it('should ignore subesequent invocations of sync', function() {
+      this.source.andCallFake(multipleSync);
+      this.dataset.update('woah');
+
+      expect(this.dataset.getRoot().find('.tt-result')).toHaveLength(3);
     });
 
     it('should trigger asyncRequested when needing/expecting backfill', function() {
@@ -238,7 +252,7 @@ describe('Dataset', function() {
         }
       }, www);
 
-      this.source.andReturn([]);
+      this.source.andCallFake(syncEmptyResults);
       this.dataset.update('woah');
 
       expect(this.dataset.getRoot()).toContainText('empty');
@@ -253,7 +267,7 @@ describe('Dataset', function() {
         }
       }, www);
 
-      this.source.andReturn([]);
+      this.source.andCallFake(syncEmptyResults);
       this.dataset.update('woah');
 
       expect(this.dataset.getRoot()).toContainText('pending');
@@ -267,7 +281,7 @@ describe('Dataset', function() {
         }
       }, www);
 
-      this.source.andReturn(mockResults);
+      this.source.andCallFake(syncMockResults);
       this.dataset.update('woah');
 
       expect(this.dataset.getRoot()).toContainText('header');
@@ -281,7 +295,7 @@ describe('Dataset', function() {
         }
       }, www);
 
-      this.source.andReturn(mockResults);
+      this.source.andCallFake(syncMockResults);
       this.dataset.update('woah');
 
       expect(this.dataset.getRoot()).toContainText('woah');
@@ -296,7 +310,7 @@ describe('Dataset', function() {
         }
       }, www);
 
-      this.source.andReturn([]);
+      this.source.andCallFake(syncEmptyResults);
       this.dataset.update('woah');
 
       expect(this.dataset.getRoot()).not.toContainText('header');
@@ -307,7 +321,7 @@ describe('Dataset', function() {
       this.source.andCallFake(fakeGetWithAsyncResults);
       this.dataset.update('woah');
 
-      this.source.andReturn(mockResults);
+      this.source.andCallFake(syncMockResults);
       this.dataset.update('nelly');
 
       waits(100);
@@ -339,7 +353,7 @@ describe('Dataset', function() {
 
       this.dataset.onSync('rendered', spy = jasmine.createSpy());
 
-      this.source.andReturn(mockResults);
+      this.source.andCallFake(syncMockResults);
       this.dataset.update('woah');
 
       waitsFor(function() { return spy.callCount; });
@@ -348,7 +362,7 @@ describe('Dataset', function() {
 
   describe('#clear', function() {
     it('should clear suggestions', function() {
-      this.source.andReturn(mockResults);
+      this.source.andCallFake(syncMockResults);
       this.dataset.update('woah');
 
       this.dataset.clear();
@@ -358,7 +372,7 @@ describe('Dataset', function() {
     it('should cancel pending updates', function() {
       var spy;
 
-      this.source.andReturn(mockResults);
+      this.source.andCallFake(syncMockResults);
       this.dataset.update('woah');
       spy = spyOn(this.dataset, 'cancel');
 
@@ -381,7 +395,7 @@ describe('Dataset', function() {
     });
 
     it('should return false when not empty', function() {
-      this.source.andReturn(mockResults);
+      this.source.andCallFake(syncMockResults);
       this.dataset.update('woah');
 
       expect(this.dataset.isEmpty()).toBe(false);
@@ -399,9 +413,32 @@ describe('Dataset', function() {
   // helper functions
   // ----------------
 
-  function fakeGetWithAsyncResults(query, cb) {
+  function syncEmptyResults(q, sync, async) {
+    sync([]);
+  }
+
+  function syncMockResults(q, sync, async) {
+    sync(mockResults);
+  }
+
+  function syncMockResultsDisplayFn(q, sync, async) {
+    sync(mockResultsDisplayFn);
+  }
+
+  function asyncSync(q, sync, async) {
+    setTimeout(function() { sync(mockResults); }, 0);
+  }
+
+  function multipleSync(q, sync, async) {
+    sync(mockResults);
+    sync(mockResults);
+  }
+
+  function fakeGetWithAsyncResults(query, sync, async) {
+    sync(mockResults);
+
     setTimeout(function() {
-      cb([
+      async([
         { value: 'four', raw: { value: 'four' } },
         { value: 'five', raw: { value: 'five' } },
         { value: 'six', raw: { value: 'six' } },
@@ -409,7 +446,5 @@ describe('Dataset', function() {
         { value: 'eight', raw: { value: 'eight' } },
       ]);
     }, 0);
-
-    return mockResults;
   }
 });

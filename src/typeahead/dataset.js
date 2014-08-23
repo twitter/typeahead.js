@@ -230,7 +230,7 @@ var Dataset = (function() {
     },
 
     update: function update(query) {
-      var that = this, canceled = false, results, rendered;
+      var that = this, canceled = false, ignoreSync = false, rendered = 0;
 
       // cancel possible pending update
       this.cancel();
@@ -241,23 +241,36 @@ var Dataset = (function() {
         that.async && that.trigger('asyncCanceled', query);
       };
 
-      results = (this.source(query, append) || []).slice(0, this.limit);
-      rendered = results.length;
+      this.source(query, sync, async);
 
-      this._overwrite(query, results);
+      // any calls to the sync callback from here on out should be ignored
+      // as they would have been done asynchronously
+      ignoreSync = true;
 
       if (rendered < this.limit && this.async) {
-        this.trigger('asyncRequested', query);
+        that.trigger('asyncRequested', query);
       }
 
-      function append(results) {
+      function sync(results) {
+        if (ignoreSync) { return; }
+
+        ignoreSync = true;
+        results = (results || []).slice(0, that.limit);
+        rendered = results.length;
+
+        that._overwrite(query, results);
+      }
+
+      function async(results) {
         results = results || [];
+
         // if the update has been canceled or if the query has changed
         // do not render the results as they've become outdated
         if (!canceled && rendered < that.limit) {
           that.cancel = $.noop;
-          that._append(query, results.slice(0, that.limit - rendered));
           rendered += results.length;
+          that._append(query, results.slice(0, that.limit - rendered));
+
           that.async && that.trigger('asyncReceived', query);
         }
       }

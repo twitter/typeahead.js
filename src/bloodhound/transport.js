@@ -24,7 +24,6 @@ var Transport = (function() {
     this._send = o.transport ? callbackToDeferred(o.transport) : $.ajax;
     this._get = o.rateLimiter ? o.rateLimiter(this._get) : this._get;
 
-    // eh, should this even exist? relying on the browser's cache may be enough
     this._cache = o.cache === false ? new LruCache(0) : sharedCache;
   }
 
@@ -78,12 +77,12 @@ var Transport = (function() {
       }
 
       function done(resp) {
-        cb && cb(null, resp);
+        cb(null, resp);
         that._cache.set(fingerprint, resp);
       }
 
       function fail() {
-        cb && cb(true);
+        cb(true);
       }
 
       function always() {
@@ -103,7 +102,9 @@ var Transport = (function() {
     get: function(o, cb) {
       var resp, fingerprint;
 
+      cb = cb || $.noop;
       o = _.isString(o) ? { url: o } : (o || {});
+
       fingerprint = this._fingerprint(o);
 
       this.cancelled = false;
@@ -111,16 +112,13 @@ var Transport = (function() {
 
       // in-memory cache hit
       if (resp = this._cache.get(fingerprint)) {
-        // defer to stay consistent with behavior of ajax call
-        _.defer(function() { cb && cb(null, resp); });
+        cb(null, resp);
       }
 
+      // go to network
       else {
         this._get(o, cb);
       }
-
-      // return bool indicating whether or not a cache hit occurred
-      return !!resp;
     },
 
     cancel: function() {

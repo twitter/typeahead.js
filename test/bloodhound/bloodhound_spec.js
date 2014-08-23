@@ -44,15 +44,18 @@ describe('Bloodhound', function() {
 
   describe('#add', function() {
     it('should add datums to search index', function() {
+      var spy = jasmine.createSpy();
+
       this.bloodhound = new Bloodhound({
+        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         local: []
-      });
-      this.bloodhound.initialize();
-      this.bloodhound.add(fixtures.data.simple);
+      }).add(fixtures.data.simple);
 
-      expect(this.bloodhound.get('big')).toEqual([
+      this.bloodhound.get('big', spy);
+
+      expect(spy).toHaveBeenCalledWith([
         { value: 'big' },
         { value: 'bigger' },
         { value: 'biggest' }
@@ -62,27 +65,29 @@ describe('Bloodhound', function() {
 
   describe('#clear', function() {
     it('should remove all datums to search index', function() {
+      var spy = jasmine.createSpy();
+
       this.bloodhound = new Bloodhound({
+        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         local: fixtures.data.simple
-      });
-      this.bloodhound.initialize();
-      this.bloodhound.clear();
+      }).clear();
 
-      expect(this.bloodhound.get('big')).toEqual([]);
+      this.bloodhound.get('big', spy);
+
+      expect(spy).toHaveBeenCalledWith([]);
     });
   });
 
   describe('#clearPrefetchCache', function() {
     it('should clear persistent storage', function() {
       this.bloodhound = new Bloodhound({
+        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         prefetch: '/test'
-      });
-      this.bloodhound.initialize();
-      this.bloodhound.clearPrefetchCache();
+      }).clearPrefetchCache();
 
       expect(this.bloodhound.storage.clear).toHaveBeenCalled();
     });
@@ -93,13 +98,12 @@ describe('Bloodhound', function() {
       spyOn(Transport, 'resetCache');
 
       this.bloodhound = new Bloodhound({
+        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         remote: '/test'
-      });
-      this.bloodhound.initialize();
+      }) .clearRemoteCache();
 
-      this.bloodhound.clearRemoteCache();
       expect(Transport.resetCache).toHaveBeenCalled();
     });
   });
@@ -107,12 +111,11 @@ describe('Bloodhound', function() {
   describe('#all', function() {
     it('should return all local results', function() {
       this.bloodhound = new Bloodhound({
+        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         local: fixtures.data.simple
       });
-
-      this.bloodhound.initialize();
 
       expect(this.bloodhound.all()).toEqual(fixtures.data.simple);
     });
@@ -122,16 +125,19 @@ describe('Bloodhound', function() {
     describe('when local is an array', function() {
       beforeEach(function() {
         this.bloodhound = new Bloodhound({
+          initialize: true,
           datumTokenizer: datumTokenizer,
           queryTokenizer: queryTokenizer,
           local: fixtures.data.simple
         });
-
-        this.bloodhound.initialize();
       });
 
       it('should hydrate the bloodhound', function() {
-        expect(this.bloodhound.get('big')).toEqual([
+        var spy = jasmine.createSpy();
+
+        this.bloodhound.get('big', spy)
+
+        expect(spy).toHaveBeenCalledWith([
           { value: 'big' },
           { value: 'bigger' },
           { value: 'biggest' }
@@ -146,16 +152,19 @@ describe('Bloodhound', function() {
         };
 
         this.bloodhound = new Bloodhound({
+          initialize: true,
           datumTokenizer: datumTokenizer,
           queryTokenizer: queryTokenizer,
           local: localFn
         });
-
-        this.bloodhound.initialize();
       });
 
       it('should hydrate the bloodhound', function() {
-        expect(this.bloodhound.get('big')).toEqual([
+        var spy = jasmine.createSpy();
+
+        this.bloodhound.get('big', spy)
+
+        expect(spy).toHaveBeenCalledWith([
           { value: 'big' },
           { value: 'bigger' },
           { value: 'biggest' }
@@ -182,13 +191,13 @@ describe('Bloodhound', function() {
       expect(PersistentStorage).toHaveBeenCalledWith('woah');
 
       this.bloodhound2 = new Bloodhound({
+        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         prefetch: { url: '/test2', ttl: ttl, thumbprint: '!' }
       });
       expect(PersistentStorage).toHaveBeenCalledWith('/test2');
 
-      this.bloodhound2.initialize();
       ajaxRequests[0].response(fixtures.ajaxResps.ok);
 
       expect(this.bloodhound2.storage.set)
@@ -200,18 +209,20 @@ describe('Bloodhound', function() {
     });
 
     it('should load data from provided url', function() {
+      var spy1 = jasmine.createSpy(), spy2 = jasmine.createSpy();
+
       this.bloodhound1 = new Bloodhound({
+        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         prefetch: '/test1'
       });
       this.bloodhound2 = new Bloodhound({
+        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         prefetch: { url: '/test2' }
       });
-      this.bloodhound1.initialize();
-      this.bloodhound2.initialize();
 
       ajaxRequests[0].response(fixtures.ajaxResps.ok);
       ajaxRequests[1].response(fixtures.ajaxResps.ok);
@@ -219,13 +230,16 @@ describe('Bloodhound', function() {
       expect(ajaxRequests[0].url).toBe('/test1');
       expect(ajaxRequests[1].url).toBe('/test2');
 
-      expect(this.bloodhound1.get('big')).toEqual([
+      this.bloodhound1.get('big', spy1);
+      this.bloodhound2.get('big', spy2);
+
+      expect(spy1).toHaveBeenCalledWith([
         { value: 'big' },
         { value: 'bigger' },
         { value: 'biggest' }
       ]);
 
-      expect(this.bloodhound2.get('big')).toEqual([
+      expect(spy2).toHaveBeenCalledWith([
         { value: 'big' },
         { value: 'bigger' },
         { value: 'biggest' }
@@ -247,33 +261,36 @@ describe('Bloodhound', function() {
     });
 
     it('should filter data if filter is provided', function() {
-      var spy;
+      var spy, fakeFilter;
 
-      spy = jasmine.createSpy().andCallFake(fakeFilter);
+      spy = jasmine.createSpy();
+      fakeFilter = jasmine.createSpy().andCallFake(fakeFilterImpl);
 
       this.bloodhound = new Bloodhound({
+        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
-        prefetch: { url: '/test', filter: spy }
+        prefetch: { url: '/test', filter: fakeFilter }
       });
-      this.bloodhound.initialize();
 
       mostRecentAjaxRequest().response(fixtures.ajaxResps.ok);
+      expect(fakeFilter).toHaveBeenCalled();
 
-      expect(spy).toHaveBeenCalled();
-      expect(this.bloodhound.get('big')).toEqual([
+      this.bloodhound.get('big', spy);
+
+      expect(spy).toHaveBeenCalledWith([
         { value: 'BIG' },
         { value: 'BIGGER' },
         { value: 'BIGGEST' }
       ]);
 
-      function fakeFilter(resp) {
+      function fakeFilterImpl(resp) {
         return [{ value: 'BIG' }, { value: 'BIGGER' }, { value: 'BIGGEST' }];
       }
     });
 
     it('should not make a request if data is available in storage', function() {
-      var that = this;
+      var that = this, spy = jasmine.createSpy();
 
       this.bloodhound = new Bloodhound({
         datumTokenizer: datumTokenizer,
@@ -285,7 +302,9 @@ describe('Bloodhound', function() {
 
       expect(mostRecentAjaxRequest()).toBeNull();
 
-      expect(this.bloodhound.get('big')).toEqual([
+      this.bloodhound.get('big', spy);
+
+      expect(spy).toHaveBeenCalledWith([
         { value: 'big' },
         { value: 'bigger' },
         { value: 'biggest' }
@@ -313,7 +332,10 @@ describe('Bloodhound', function() {
 
   describe('remote', function() {
     it('should respect before transform', function() {
+      var spy = jasmine.createSpy();
+
       this.bloodhound = new Bloodhound({
+        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         remote: {
@@ -322,9 +344,7 @@ describe('Bloodhound', function() {
         }
       });
 
-      this.bloodhound.initialize();
-
-      this.bloodhound.get('one two', $.noop);
+      this.bloodhound.get('one two', $.noop, spy);
 
       expect(this.bloodhound.transport.get).toHaveBeenCalledWith(
         { url: '/foo' },
@@ -333,12 +353,16 @@ describe('Bloodhound', function() {
     });
 
     it('should perform query substitution on the provided url', function() {
+      var spy = jasmine.createSpy();
+
       this.bloodhound1 = new Bloodhound({
+        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         remote: { url: '/test?q=$$', wildcard: '$$' }
       });
       this.bloodhound2 = new Bloodhound({
+        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         remote: {
@@ -347,11 +371,8 @@ describe('Bloodhound', function() {
         }
       });
 
-      this.bloodhound1.initialize();
-      this.bloodhound2.initialize();
-
-      this.bloodhound1.get('one two', $.noop);
-      this.bloodhound2.get('one two', $.noop);
+      this.bloodhound1.get('one two', $.noop, spy);
+      this.bloodhound2.get('one two', $.noop, spy);
 
       expect(this.bloodhound1.transport.get).toHaveBeenCalledWith(
         { url: '/test?q=one%20two', type: 'GET', dataType: 'json' },
@@ -365,34 +386,29 @@ describe('Bloodhound', function() {
     });
 
     it('should filter the response if a filter is provided', function() {
-      var filterSpy, spy;
+      var spy, fakeFilter;
 
       spy = jasmine.createSpy();
-      filterSpy = jasmine.createSpy().andCallFake(fakeFilter);
+      fakeFilter = jasmine.createSpy().andCallFake(fakeFilterImpl);
 
       this.bloodhound = new Bloodhound({
+        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
-        remote: { url: '/test', filter: filterSpy }
+        remote: { url: '/test', filter: fakeFilter }
       });
-      this.bloodhound.initialize();
-
       this.bloodhound.transport.get.andCallFake(fakeGet);
-      this.bloodhound.get('big', spy);
 
-      waitsFor(function() { return spy.callCount; });
+      this.bloodhound.get('big', $.noop, spy);
 
-      runs(function() {
-        expect(filterSpy).toHaveBeenCalled();
+      expect(fakeFilter).toHaveBeenCalled();
+      expect(spy).toHaveBeenCalledWith([
+        { value: 'BIG' },
+        { value: 'BIGGER' },
+        { value: 'BIGGEST' }
+      ]);
 
-        expect(spy).toHaveBeenCalledWith([
-          { value: 'BIG' },
-          { value: 'BIGGER' },
-          { value: 'BIGGEST' }
-        ]);
-      });
-
-      function fakeFilter(resp) {
+      function fakeFilterImpl(resp) {
         return [{ value: 'BIG' }, { value: 'BIGGER' }, { value: 'BIGGEST' }];
       }
 
@@ -404,26 +420,24 @@ describe('Bloodhound', function() {
     describe('when there is not matching data in the search index', function() {
       beforeEach(function() {
         this.bloodhound = new Bloodhound({
+          initialize: true,
           datumTokenizer: datumTokenizer,
           queryTokenizer: queryTokenizer,
           remote: '/test?q=%QUERY',
           local: { value: 'not an animal' }
         });
-
-        this.bloodhound.initialize();
       });
 
       it('should call #get callback once', function() {
         var spy = jasmine.createSpy();
 
-        this.bloodhound.transport.get.andCallFake(fakeGetWithCacheHit);
-        this.bloodhound.get('dog', spy);
+        this.bloodhound.transport.get.andCallFake(fakeGet);
+        this.bloodhound.get('dog', $.noop, spy);
 
         expect(spy.callCount).toBe(1);
 
-        function fakeGetWithCacheHit(o, cb) {
+        function fakeGet(o, cb) {
           cb(null, fixtures.data.animals);
-          return true;
         }
       });
     });
@@ -431,26 +445,24 @@ describe('Bloodhound', function() {
     describe('when there is matching data in the search index', function() {
       beforeEach(function() {
         this.bloodhound = new Bloodhound({
+          initialize: true,
           datumTokenizer: datumTokenizer,
           queryTokenizer: queryTokenizer,
           remote: '/test?q=%QUERY',
           local: { value: 'dog' }
         });
-
-        this.bloodhound.initialize();
       });
 
       it('should call the #get callback with backfill', function() {
         var spy = jasmine.createSpy();
 
         this.bloodhound.transport.get.andCallFake(fakeGetWithCacheMiss);
-        this.bloodhound.get('dog', spy);
+        this.bloodhound.get('dog', $.noop, spy);
 
         expect(spy.callCount).toBe(1);
 
         function fakeGetWithCacheMiss(o, cb) {
           cb(null, fixtures.data.animals);
-          return false;
         }
       });
     });
@@ -459,14 +471,14 @@ describe('Bloodhound', function() {
       var spy = jasmine.createSpy();
 
       this.bloodhound = new Bloodhound({
+        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         remote: '/test?q=%QUERY'
       });
-      this.bloodhound.initialize();
       this.bloodhound.transport.get.andCallFake(fakeGet);
 
-      this.bloodhound.get('dog', spy);
+      this.bloodhound.get('dog', $.noop, spy);
 
       expect(spy).toHaveBeenCalledWith([]);
 
@@ -476,71 +488,60 @@ describe('Bloodhound', function() {
 
   describe('local/prefetch/remote integration', function() {
     it('duplicates should be removed if dupDetector is provided', function() {
-      var spy;
+      var syncSpy, asyncSpy;
 
-      spy = jasmine.createSpy();
+      syncSpy = jasmine.createSpy();
+      asyncSpy = jasmine.createSpy();
 
       this.bloodhound = new Bloodhound({
+        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         dupDetector: function(d1, d2) { return d1.value === d2.value; },
         local: fixtures.data.animals,
         remote: { url: '/test?q=%QUERY' }
       });
-
-      this.bloodhound.initialize();
       this.bloodhound.transport.get.andCallFake(fakeGet);
-      this.bloodhound.get('dog', spy);
 
-      waitsFor(function() { return spy.callCount === 1; });
+      this.bloodhound.get('dog', syncSpy, asyncSpy);
+      expect(asyncSpy).toHaveBeenCalledWith([{ value: 'cat' }, { value: 'moose' }]);
 
-      runs(function() {
-        expect(spy).toHaveBeenCalledWith([{ value: 'cat' }, { value: 'moose' }]);
-      });
-
-      function fakeGet(o, cb) {
-        setTimeout(function() { cb(null, fixtures.data.animals); }, 0);
-      }
+      function fakeGet(o, cb) { cb(null, fixtures.data.animals); }
     });
 
     it('remote should backfill local/prefetch', function() {
-      var spy1, spy2;
+      var syncSpy, asyncSpy;
 
-      spy1 = jasmine.createSpy();
-      spy2 = jasmine.createSpy();
+      syncSpy = jasmine.createSpy();
+      asyncSpy = jasmine.createSpy();
 
       this.bloodhound = new Bloodhound({
+        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         local: fixtures.data.simple,
         remote: { url: '/test?q=%QUERY', sufficient: 3 }
       });
-      this.bloodhound.initialize();
-
       this.bloodhound.transport.get.andCallFake(fakeGet);
 
-      this.bloodhound.get('bigg', spy2);
+      this.bloodhound.get('big', syncSpy, asyncSpy);
 
-      expect(this.bloodhound.get('big', spy1)).toEqual([
+      expect(syncSpy).toHaveBeenCalledWith([
         { value: 'big' },
         { value: 'bigger' },
         { value: 'biggest' }
       ]);
-      expect(this.bloodhound.get('bigg', spy2)).toEqual([
+      expect(asyncSpy).not.toHaveBeenCalled();
+
+      this.bloodhound.get('bigg', syncSpy, asyncSpy);
+
+      expect(syncSpy).toHaveBeenCalledWith([
         { value: 'bigger' },
         { value: 'biggest' }
       ]);
+      expect(asyncSpy).toHaveBeenCalledWith(fixtures.data.animals);
 
-      waits(100);
-
-      runs(function() {
-        expect(spy1).not.toHaveBeenCalled();
-        expect(spy2).toHaveBeenCalledWith(fixtures.data.animals);
-      });
-
-      function fakeGet(o, cb) {
-        setTimeout(function() { cb(null, fixtures.data.animals); }, 0);
-      }
+      function fakeGet(o, cb) { cb(null, fixtures.data.animals); }
     });
   });
 

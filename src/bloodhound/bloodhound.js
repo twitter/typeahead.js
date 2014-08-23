@@ -15,7 +15,7 @@ var Bloodhound = (function() {
   // constructor
   // -----------
 
-  function Bloodhound(o) {
+  function Bloodhound(o, initialize) {
     if (!o || (!o.local && !o.prefetch && !o.remote)) {
       $.error('one of local, prefetch, or remote is required');
     }
@@ -39,6 +39,9 @@ var Bloodhound = (function() {
     // only initialize storage if there's a cacheKey otherwise
     // loading from storage on subsequent page loads is impossible
     this.storage = this.cacheKey ? new PersistentStorage(this.cacheKey) : null;
+
+    // if the initialize argument is truthy, kick off initialization
+    o.initialize && this.initialize();
   }
 
   // static methods
@@ -61,13 +64,13 @@ var Bloodhound = (function() {
     __ttAdapter: function ttAdapter() {
       var that = this;
 
-      return this.transport ? withBackfill : withoutBackfill;
+      return this.transport ? withAsync : withoutAsync;
 
-      function withBackfill(query, backfill) {
-        return that.get(query, backfill);
+      function withAsync(query, sync, async) {
+        return that.get(query, sync, async);
       }
 
-      function withoutBackfill(query) {
+      function withoutAsync(query) {
         return that.get(query);
       }
     },
@@ -187,24 +190,27 @@ var Bloodhound = (function() {
 
     add: function add(data) {
       this.index.add(data);
+      return this;
     },
 
-    get: function get(query, backfill) {
+    get: function get(query, sync, async) {
       var that = this, local;
 
       local = this.sorter(this.index.get(query));
 
-      if (this.remote) {
-        local.length < this.remote.sufficient ?
-          this._getFromRemote(query, processRemote) :
-          this._cancelLastRemoteRequest();
+      // return a copy to guarantee no changes within this scope
+      // as this array will get used when processing the remote results
+      sync(this.remote ? local.slice() : local);
 
-        // return a copy to guarantee no changes within this scope
-        // as this array will get used when processing the remote results
-        return local.slice();
+      if (this.remote && local.length < this.remote.sufficient) {
+        this._getFromRemote(query, processRemote);
       }
 
-      return local;
+      else if (this.remote) {
+        this._cancelLastRemoteRequest();
+      }
+
+      return this;
 
       function processRemote(remote) {
         var nonDuplicates = [];
@@ -220,7 +226,7 @@ var Bloodhound = (function() {
           !isDuplicate && nonDuplicates.push(r);
         });
 
-        backfill && backfill(nonDuplicates);
+        async && async(nonDuplicates);
       }
     },
 
@@ -230,14 +236,17 @@ var Bloodhound = (function() {
 
     clear: function clear() {
       this.index.reset();
+      return this;
     },
 
     clearPrefetchCache: function clearPrefetchCache() {
       this.storage && this.storage.clear();
+      return this;
     },
 
     clearRemoteCache: function clearRemoteCache() {
       this.transport && Transport.resetCache();
+      return this;
     },
 
     // DEPRECATED: will be removed in v1
