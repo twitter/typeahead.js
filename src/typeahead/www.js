@@ -47,12 +47,10 @@ var WWW = (function() {
   function buildHtml(c) {
     return {
       wrapper: j('<span class="', c.wrapper, '"></span>'),
-      results: j('<div class="', c.results, '"></div>'),
-      dataset: j('<div class="', _j(c.dataset, c.dataset), '-%CLASS%"></div>')
+      results: j('<div class="', c.results, '"></div>')
     };
 
     function j() { return [].slice.call(arguments, 0).join(''); }
-    function _j() { return [].slice.call(arguments, 0).join(' '); }
   }
 
   function buildSelectors(classes) {

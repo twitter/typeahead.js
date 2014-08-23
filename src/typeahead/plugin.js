@@ -32,9 +32,8 @@
       return this.each(attach);
 
       function attach() {
-        var $input, $wrapper, $hint, $rOuter, $rInner, defaultHint,
-            defaultResults, eventBus, input, results, typeahead,
-            ResultsConstructor;
+        var $input, $wrapper, $hint, $results, defaultHint, defaultResults,
+            eventBus, input, results, typeahead, ResultsConstructor;
 
         // highlight is a top-level config that needs to get inherited
         // from all of the datasets
@@ -43,20 +42,13 @@
         $input = $(this);
         $wrapper = $(www.html.wrapper);
         $hint = $elOrNull(o.hint);
-        $rOuter = $elOrNull(o.results);
-
-        // support { outer: outerEl, inner: innerEl }
-        // enforce that inner is a child of outer
-        if (!$rOuter && _.isObject(o.results)) {
-          $rOuter = $elOrNull(o.results.outer);
-          $rInner = $rOuter && $elOrNull($rOuter.find(o.results.inner));
-        }
+        $results = $elOrNull(o.results);
 
         defaultHint = o.hint !== false && !$hint;
-        defaultResults = o.results !== false && !$rOuter;
+        defaultResults = o.results !== false && !$results;
 
         defaultHint && ($hint = buildHintFromInput($input, www));
-        defaultResults && ($rOuter = $(www.html.results).css(www.css.results));
+        defaultResults && ($results = $(www.html.results).css(www.css.results));
 
         // hint should be empty on init
         $hint && $hint.val('');
@@ -71,7 +63,7 @@
           .wrap($wrapper)
           .parent()
           .prepend(defaultHint ? $hint : null)
-          .append(defaultResults ? $rOuter : null);
+          .append(defaultResults ? $results : null);
         }
 
         ResultsConstructor = defaultResults ? DefaultResults : Results;
@@ -79,8 +71,7 @@
         eventBus = new EventBus({ el: $input });
         input = new Input({ hint: $hint, input: $input, }, www);
         results = new ResultsConstructor({
-          node: $rOuter,
-          inner: $rInner,
+          node: $results,
           datasets: datasets
         }, www);
 

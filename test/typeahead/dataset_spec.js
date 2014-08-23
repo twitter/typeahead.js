@@ -16,6 +16,7 @@ describe('Dataset', function() {
   beforeEach(function() {
     this.dataset = new Dataset({
       name: 'test',
+      node: $('<div>'),
       source: this.source = jasmine.createSpy('source')
     }, www);
   });
@@ -30,14 +31,18 @@ describe('Dataset', function() {
     expect(fn).toThrow();
 
     function fn() {
-      var d = new Dataset({ name: 'a space', source: $.noop }, www);
+      var d = new Dataset({
+        name: 'a space',
+        node: $('<div>'),
+        source: $.noop
+      }, www);
     }
   });
 
   describe('#getRoot', function() {
     it('should return the root element', function() {
       var sel = 'div' + www.selectors.dataset + www.selectors.dataset + '-test';
-      expect(this.dataset.getRoot()).toBe(sel);
+      expect(this.dataset.$el).toBe(sel);
     });
   });
 
@@ -46,9 +51,9 @@ describe('Dataset', function() {
       this.source.andCallFake(syncMockResults);
       this.dataset.update('woah');
 
-      expect(this.dataset.getRoot()).toContainText('one');
-      expect(this.dataset.getRoot()).toContainText('two');
-      expect(this.dataset.getRoot()).toContainText('three');
+      expect(this.dataset.$el).toContainText('one');
+      expect(this.dataset.$el).toContainText('two');
+      expect(this.dataset.$el).toContainText('three');
     });
 
     it('should respect limit option', function() {
@@ -56,14 +61,15 @@ describe('Dataset', function() {
       this.source.andCallFake(syncMockResults);
       this.dataset.update('woah');
 
-      expect(this.dataset.getRoot()).toContainText('one');
-      expect(this.dataset.getRoot()).toContainText('two');
-      expect(this.dataset.getRoot()).not.toContainText('three');
+      expect(this.dataset.$el).toContainText('one');
+      expect(this.dataset.$el).toContainText('two');
+      expect(this.dataset.$el).not.toContainText('three');
     });
 
     it('should allow custom display functions', function() {
       this.dataset = new Dataset({
         name: 'test',
+        node: $('<div>'),
         display: function(o) { return o.display; },
         source: this.source = jasmine.createSpy('source')
       }, www);
@@ -71,23 +77,23 @@ describe('Dataset', function() {
       this.source.andCallFake(syncMockResultsDisplayFn);
       this.dataset.update('woah');
 
-      expect(this.dataset.getRoot()).toContainText('4');
-      expect(this.dataset.getRoot()).toContainText('5');
-      expect(this.dataset.getRoot()).toContainText('6');
+      expect(this.dataset.$el).toContainText('4');
+      expect(this.dataset.$el).toContainText('5');
+      expect(this.dataset.$el).toContainText('6');
     });
 
     it('should ignore async invocations of sync', function() {
       this.source.andCallFake(asyncSync);
       this.dataset.update('woah');
 
-      expect(this.dataset.getRoot()).not.toContainText('one');
+      expect(this.dataset.$el).not.toContainText('one');
     });
 
     it('should ignore subesequent invocations of sync', function() {
       this.source.andCallFake(multipleSync);
       this.dataset.update('woah');
 
-      expect(this.dataset.getRoot().find('.tt-result')).toHaveLength(3);
+      expect(this.dataset.$el.find('.tt-result')).toHaveLength(3);
     });
 
     it('should trigger asyncRequested when needing/expecting backfill', function() {
@@ -201,7 +207,7 @@ describe('Dataset', function() {
       this.source.andCallFake(fakeGetWithAsyncResults);
 
       this.dataset.update('woah');
-      $test = this.dataset.getRoot().find('.tt-result').first();
+      $test = this.dataset.$el.find('.tt-result').first();
       $test.addClass('test');
 
       waits(100);
@@ -220,7 +226,7 @@ describe('Dataset', function() {
       waits(100);
 
       runs(function() {
-        expect(this.dataset.getRoot().find('.tt-result')).toHaveLength(5);
+        expect(this.dataset.$el.find('.tt-result')).toHaveLength(5);
       });
     });
 
@@ -247,6 +253,7 @@ describe('Dataset', function() {
     it('should render notFound when no suggestions are available', function() {
       this.dataset = new Dataset({
         source: this.source,
+        node: $('<div>'),
         templates: {
           notFound: '<h2>empty</h2>'
         }
@@ -255,12 +262,13 @@ describe('Dataset', function() {
       this.source.andCallFake(syncEmptyResults);
       this.dataset.update('woah');
 
-      expect(this.dataset.getRoot()).toContainText('empty');
+      expect(this.dataset.$el).toContainText('empty');
     });
 
     it('should render pending when no suggestions are available but async is pending', function() {
       this.dataset = new Dataset({
         source: this.source,
+        node: $('<div>'),
         async: true,
         templates: {
           pending: '<h2>pending</h2>'
@@ -270,12 +278,13 @@ describe('Dataset', function() {
       this.source.andCallFake(syncEmptyResults);
       this.dataset.update('woah');
 
-      expect(this.dataset.getRoot()).toContainText('pending');
+      expect(this.dataset.$el).toContainText('pending');
     });
 
     it('should render header when results are rendered', function() {
       this.dataset = new Dataset({
         source: this.source,
+        node: $('<div>'),
         templates: {
           header: '<h2>header</h2>'
         }
@@ -284,12 +293,13 @@ describe('Dataset', function() {
       this.source.andCallFake(syncMockResults);
       this.dataset.update('woah');
 
-      expect(this.dataset.getRoot()).toContainText('header');
+      expect(this.dataset.$el).toContainText('header');
     });
 
     it('should render footer when results are rendered', function() {
       this.dataset = new Dataset({
         source: this.source,
+        node: $('<div>'),
         templates: {
           footer: function(c) { return '<p>' + c.query + '</p>'; }
         }
@@ -298,12 +308,13 @@ describe('Dataset', function() {
       this.source.andCallFake(syncMockResults);
       this.dataset.update('woah');
 
-      expect(this.dataset.getRoot()).toContainText('woah');
+      expect(this.dataset.$el).toContainText('woah');
     });
 
     it('should not render header/footer if there is no content', function() {
       this.dataset = new Dataset({
         source: this.source,
+        node: $('<div>'),
         templates: {
           header: '<h2>header</h2>',
           footer: '<h2>footer</h2>'
@@ -313,8 +324,8 @@ describe('Dataset', function() {
       this.source.andCallFake(syncEmptyResults);
       this.dataset.update('woah');
 
-      expect(this.dataset.getRoot()).not.toContainText('header');
-      expect(this.dataset.getRoot()).not.toContainText('footer');
+      expect(this.dataset.$el).not.toContainText('header');
+      expect(this.dataset.$el).not.toContainText('footer');
     });
 
     it('should not render stale suggestions', function() {
@@ -327,11 +338,11 @@ describe('Dataset', function() {
       waits(100);
 
       runs(function() {
-        expect(this.dataset.getRoot()).toContainText('one');
-        expect(this.dataset.getRoot()).toContainText('two');
-        expect(this.dataset.getRoot()).toContainText('three');
-        expect(this.dataset.getRoot()).not.toContainText('four');
-        expect(this.dataset.getRoot()).not.toContainText('five');
+        expect(this.dataset.$el).toContainText('one');
+        expect(this.dataset.$el).toContainText('two');
+        expect(this.dataset.$el).toContainText('three');
+        expect(this.dataset.$el).not.toContainText('four');
+        expect(this.dataset.$el).not.toContainText('five');
       });
     });
 
@@ -343,7 +354,7 @@ describe('Dataset', function() {
       waits(100);
 
       runs(function() {
-        var rendered = this.dataset.getRoot().find('.tt-result');
+        var rendered = this.dataset.$el.find('.tt-result');
         expect(rendered).toHaveLength(3);
       });
     });
@@ -366,7 +377,7 @@ describe('Dataset', function() {
       this.dataset.update('woah');
 
       this.dataset.clear();
-      expect(this.dataset.getRoot()).toBeEmpty();
+      expect(this.dataset.$el).toBeEmpty();
     });
 
     it('should cancel pending updates', function() {

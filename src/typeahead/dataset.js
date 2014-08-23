@@ -29,6 +29,10 @@ var Dataset = (function() {
       $.error('missing source');
     }
 
+    if (!o.node) {
+      $.error('missing node');
+    }
+
     if (o.name && !isValidName(o.name)) {
       $.error('invalid dataset name: ' + o.name);
     }
@@ -51,7 +55,10 @@ var Dataset = (function() {
     this.async = _.isUndefined(o.async) ? this.source.length > 1 : !!o.async;
 
     this._resetLastResult();
-    this.$el = $(this.html.dataset.replace('%CLASS%', this.name));
+
+    this.$el = $(o.node)
+    .addClass(this.classes.dataset)
+    .addClass(this.classes.dataset + '-' + this.name);
   }
 
   // static methods
@@ -224,10 +231,6 @@ var Dataset = (function() {
     },
 
     // ### public
-
-    getRoot: function getRoot() {
-      return this.$el;
-    },
 
     update: function update(query) {
       var that = this, canceled = false, syncCalled = false, rendered = 0;
