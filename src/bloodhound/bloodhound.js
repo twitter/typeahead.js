@@ -40,8 +40,8 @@ var Bloodhound = (function() {
     // loading from storage on subsequent page loads is impossible
     this.storage = this.cacheKey ? new PersistentStorage(this.cacheKey) : null;
 
-    // if the initialize argument is truthy, kick off initialization
-    o.initialize && this.initialize();
+    // hold off on intialization if the intialize option was explicitly false
+    o.initialize !== false && this.initialize();
   }
 
   // static methods
@@ -64,14 +64,14 @@ var Bloodhound = (function() {
     __ttAdapter: function ttAdapter() {
       var that = this;
 
-      return this.transport ? withAsync : withoutAsync;
+      return this.remote ? withAsync : withoutAsync;
 
       function withAsync(query, sync, async) {
         return that.get(query, sync, async);
       }
 
-      function withoutAsync(query) {
-        return that.get(query);
+      function withoutAsync(query, sync) {
+        return that.get(query, sync);
       }
     },
 

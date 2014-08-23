@@ -13,12 +13,17 @@ describe('Bloodhound', function() {
   describe('#initialize', function() {
     beforeEach(function() {
       this.bloodhound = new Bloodhound({
+        initialize: false,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         local: fixtures.data.simple
       });
 
       spyOn(this.bloodhound, '_initialize').andCallThrough();
+    });
+
+    it('should not initialize if intialize option is false', function() {
+      expect(this.bloodhound._initialize).not.toHaveBeenCalled();
     });
 
     it('should not support reinitialization by default', function() {
@@ -47,7 +52,6 @@ describe('Bloodhound', function() {
       var spy = jasmine.createSpy();
 
       this.bloodhound = new Bloodhound({
-        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         local: []
@@ -68,7 +72,6 @@ describe('Bloodhound', function() {
       var spy = jasmine.createSpy();
 
       this.bloodhound = new Bloodhound({
-        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         local: fixtures.data.simple
@@ -83,7 +86,6 @@ describe('Bloodhound', function() {
   describe('#clearPrefetchCache', function() {
     it('should clear persistent storage', function() {
       this.bloodhound = new Bloodhound({
-        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         prefetch: '/test'
@@ -98,7 +100,6 @@ describe('Bloodhound', function() {
       spyOn(Transport, 'resetCache');
 
       this.bloodhound = new Bloodhound({
-        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         remote: '/test'
@@ -111,7 +112,6 @@ describe('Bloodhound', function() {
   describe('#all', function() {
     it('should return all local results', function() {
       this.bloodhound = new Bloodhound({
-        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         local: fixtures.data.simple
@@ -125,7 +125,6 @@ describe('Bloodhound', function() {
     describe('when local is an array', function() {
       beforeEach(function() {
         this.bloodhound = new Bloodhound({
-          initialize: true,
           datumTokenizer: datumTokenizer,
           queryTokenizer: queryTokenizer,
           local: fixtures.data.simple
@@ -152,7 +151,6 @@ describe('Bloodhound', function() {
         };
 
         this.bloodhound = new Bloodhound({
-          initialize: true,
           datumTokenizer: datumTokenizer,
           queryTokenizer: queryTokenizer,
           local: localFn
@@ -184,6 +182,7 @@ describe('Bloodhound', function() {
       var ttl = 100;
 
       this.bloodhound1 = new Bloodhound({
+        initialize: false,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         prefetch: { url: '/test1', cacheKey: 'woah' }
@@ -191,7 +190,6 @@ describe('Bloodhound', function() {
       expect(PersistentStorage).toHaveBeenCalledWith('woah');
 
       this.bloodhound2 = new Bloodhound({
-        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         prefetch: { url: '/test2', ttl: ttl, thumbprint: '!' }
@@ -212,13 +210,11 @@ describe('Bloodhound', function() {
       var spy1 = jasmine.createSpy(), spy2 = jasmine.createSpy();
 
       this.bloodhound1 = new Bloodhound({
-        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         prefetch: '/test1'
       });
       this.bloodhound2 = new Bloodhound({
-        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         prefetch: { url: '/test2' }
@@ -248,6 +244,7 @@ describe('Bloodhound', function() {
 
     it('should clear preexisting data', function() {
       this.bloodhound = new Bloodhound({
+        initialize: false,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         prefetch: '/test'
@@ -267,7 +264,6 @@ describe('Bloodhound', function() {
       fakeFilter = jasmine.createSpy().andCallFake(fakeFilterImpl);
 
       this.bloodhound = new Bloodhound({
-        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         prefetch: { url: '/test', filter: fakeFilter }
@@ -293,6 +289,7 @@ describe('Bloodhound', function() {
       var that = this, spy = jasmine.createSpy();
 
       this.bloodhound = new Bloodhound({
+        initialize: false,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         prefetch: '/test'
@@ -335,7 +332,6 @@ describe('Bloodhound', function() {
       var spy = jasmine.createSpy();
 
       this.bloodhound = new Bloodhound({
-        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         remote: {
@@ -356,13 +352,11 @@ describe('Bloodhound', function() {
       var spy = jasmine.createSpy();
 
       this.bloodhound1 = new Bloodhound({
-        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         remote: { url: '/test?q=$$', wildcard: '$$' }
       });
       this.bloodhound2 = new Bloodhound({
-        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         remote: {
@@ -392,7 +386,6 @@ describe('Bloodhound', function() {
       fakeFilter = jasmine.createSpy().andCallFake(fakeFilterImpl);
 
       this.bloodhound = new Bloodhound({
-        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         remote: { url: '/test', filter: fakeFilter }
@@ -420,7 +413,6 @@ describe('Bloodhound', function() {
     describe('when there is not matching data in the search index', function() {
       beforeEach(function() {
         this.bloodhound = new Bloodhound({
-          initialize: true,
           datumTokenizer: datumTokenizer,
           queryTokenizer: queryTokenizer,
           remote: '/test?q=%QUERY',
@@ -445,7 +437,6 @@ describe('Bloodhound', function() {
     describe('when there is matching data in the search index', function() {
       beforeEach(function() {
         this.bloodhound = new Bloodhound({
-          initialize: true,
           datumTokenizer: datumTokenizer,
           queryTokenizer: queryTokenizer,
           remote: '/test?q=%QUERY',
@@ -471,7 +462,6 @@ describe('Bloodhound', function() {
       var spy = jasmine.createSpy();
 
       this.bloodhound = new Bloodhound({
-        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         remote: '/test?q=%QUERY'
@@ -494,7 +484,6 @@ describe('Bloodhound', function() {
       asyncSpy = jasmine.createSpy();
 
       this.bloodhound = new Bloodhound({
-        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         dupDetector: function(d1, d2) { return d1.value === d2.value; },
@@ -516,7 +505,6 @@ describe('Bloodhound', function() {
       asyncSpy = jasmine.createSpy();
 
       this.bloodhound = new Bloodhound({
-        initialize: true,
         datumTokenizer: datumTokenizer,
         queryTokenizer: queryTokenizer,
         local: fixtures.data.simple,
