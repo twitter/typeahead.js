@@ -10,7 +10,6 @@ var Typeahead = (function() {
   // constructor
   // -----------
 
-  // THOUGHT: what if datasets could dynamically be added/removed?
   function Typeahead(o, www) {
     var onSelectableClicked, onDatasetRendered, onDatasetCleared, onFocused,
         onBlurred, onEnterKeyed, onTabKeyed, onEscKeyed, onUpKeyed, onDownKeyed,
@@ -22,8 +21,8 @@ var Typeahead = (function() {
       $.error('missing input');
     }
 
-    if (!o.results) {
-      $.error('missing results');
+    if (!o.menu) {
+      $.error('missing menu');
     }
 
     if (!o.eventBus) {
@@ -36,7 +35,7 @@ var Typeahead = (function() {
     this.minLength = _.isNumber(o.minLength) ? o.minLength : 1;
 
     this.input = o.input;
-    this.results = o.results;
+    this.menu = o.menu;
 
     this.enabled = true;
 
@@ -49,12 +48,12 @@ var Typeahead = (function() {
 
     this._hacks();
 
-    // composed event handlers for results
+    // composed event handlers for menu
     onSelectableClicked = c(this, 'isActive', '_onSelectableClicked');
     onDatasetRendered = c(this, 'isActive', '_onDatasetRendered');
     onDatasetCleared = c(this, 'isActive', '_onDatasetCleared');
 
-    this.results.bind()
+    this.menu.bind()
     .onSync('selectableClicked', onSelectableClicked, this)
     .onSync('asyncRequested', this._onAsyncRequested, this)
     .onSync('asyncCanceled', this._onAsyncCanceled, this)
@@ -97,11 +96,11 @@ var Typeahead = (function() {
 
     // here's where hacks get applied and we don't feel bad about it
     _hacks: function hacks() {
-      var $input, $results;
+      var $input, $menu;
 
       // these default values are to make testing easier
       $input = this.input.$input || $('<div>');
-      $results = this.results.$node || $('<div>');
+      $menu = this.menu.$node || $('<div>');
 
       // #705: if there's scrollable overflow, ie doesn't support
       // blur cancellations when the scrollbar is clicked
@@ -111,8 +110,8 @@ var Typeahead = (function() {
         var active, isActive, hasActive;
 
         active = document.activeElement;
-        isActive = $results.is(active);
-        hasActive = $results.has(active).length > 0;
+        isActive = $menu.is(active);
+        hasActive = $menu.has(active).length > 0;
 
         if (_.isMsie() && (isActive || hasActive)) {
           $e.preventDefault();
@@ -123,8 +122,8 @@ var Typeahead = (function() {
         }
       });
 
-      // #351: prevents input blur due to clicks within results
-      $results.on('mousedown.tt', function($e) { $e.preventDefault(); });
+      // #351: prevents input blur due to clicks within menu
+      $menu.on('mousedown.tt', function($e) { $e.preventDefault(); });
     },
 
     // ### event handlers
@@ -137,9 +136,9 @@ var Typeahead = (function() {
       this._updateHint();
     },
 
-    _onDatasetRendered: function onDatasetRendered(type, dataset, results, async) {
+    _onDatasetRendered: function onDatasetRendered(type, dataset, suggestions, async) {
       this._updateHint();
-      this.eventBus.trigger('render', results, async, dataset);
+      this.eventBus.trigger('render', suggestions, async, dataset);
     },
 
     _onAsyncRequested: function onAsyncRequested(type, dataset, query) {
@@ -155,7 +154,7 @@ var Typeahead = (function() {
     },
 
     _onFocused: function onFocused() {
-      this._minLengthMet() && this.results.update(this.input.getQuery());
+      this._minLengthMet() && this.menu.update(this.input.getQuery());
     },
 
     _onBlurred: function onBlurred() {
@@ -167,7 +166,7 @@ var Typeahead = (function() {
     _onEnterKeyed: function onEnterKeyed(type, $e) {
       var $selectable;
 
-      if ($selectable = this.results.getActiveSelectable()) {
+      if ($selectable = this.menu.getActiveSelectable()) {
         this.select($selectable) && $e.preventDefault();
       }
     },
@@ -175,11 +174,11 @@ var Typeahead = (function() {
     _onTabKeyed: function onTabKeyed(type, $e) {
       var $selectable;
 
-      if ($selectable = this.results.getActiveSelectable()) {
+      if ($selectable = this.menu.getActiveSelectable()) {
         this.select($selectable) && $e.preventDefault();
       }
 
-      else if ($selectable = this.results.getTopSelectable()) {
+      else if ($selectable = this.menu.getTopSelectable()) {
         this.autocomplete($selectable) && $e.preventDefault();
       }
     },
@@ -198,20 +197,18 @@ var Typeahead = (function() {
 
     _onLeftKeyed: function onLeftKeyed() {
       if (this.dir === 'rtl' && this.input.isCursorAtEnd()) {
-        this.autocomplete(this.results.getTopSelectable());
+        this.autocomplete(this.menu.getTopSelectable());
       }
     },
 
     _onRightKeyed: function onRightKeyed() {
       if (this.dir === 'ltr' && this.input.isCursorAtEnd()) {
-        this.autocomplete(this.results.getTopSelectable());
+        this.autocomplete(this.menu.getTopSelectable());
       }
     },
 
     _onQueryChanged: function onQueryChanged(e, query) {
-      this._minLengthMet(query) ?
-        this.results.update(query) :
-        this.results.empty();
+      this._minLengthMet(query) ? this.menu.update(query) : this.menu.empty();
     },
 
     _onWhitespaceChanged: function onWhitespaceChanged() {
@@ -221,7 +218,7 @@ var Typeahead = (function() {
     _onLangDirChanged: function onLangDirChanged(e, dir) {
       if (this.dir !== dir) {
         this.dir = dir;
-        this.results.setLanguageDirection(dir);
+        this.menu.setLanguageDirection(dir);
       }
     },
 
@@ -236,8 +233,8 @@ var Typeahead = (function() {
     _updateHint: function updateHint() {
       var $selectable, data, val, query, escapedQuery, frontMatchRegEx, match;
 
-      $selectable = this.results.getTopSelectable();
-      data = this.results.getSelectableData($selectable);
+      $selectable = this.menu.getTopSelectable();
+      data = this.menu.getSelectableData($selectable);
 
       if (data && !this.input.hasOverflow()) {
         val = this.input.getInputValue();
@@ -316,12 +313,12 @@ var Typeahead = (function() {
     },
 
     isOpen: function isOpen() {
-      return this.results.isOpen();
+      return this.menu.isOpen();
     },
 
     open: function open() {
       if (!this.isOpen() && !this.eventBus.before('open')) {
-        this.results.open();
+        this.menu.open();
         this.isActive() && this._updateHint();
         this.eventBus.trigger('open');
       }
@@ -331,7 +328,7 @@ var Typeahead = (function() {
 
     close: function close() {
       if (this.isOpen() && !this.eventBus.before('close')) {
-        this.results.close();
+        this.menu.close();
         this.input.clearHint();
         this.input.resetInputValue();
         this.eventBus.trigger('close');
@@ -349,7 +346,7 @@ var Typeahead = (function() {
     },
 
     select: function select($selectable) {
-      var data = this.results.getSelectableData($selectable);
+      var data = this.menu.getSelectableData($selectable);
 
       if (data && !this.eventBus.before('select', data.obj)) {
         this.input.setQuery(data.val, true);
@@ -368,7 +365,7 @@ var Typeahead = (function() {
       var query, data, isValid;
 
       query = this.input.getQuery();
-      data = this.results.getSelectableData($selectable);
+      data = this.menu.getSelectableData($selectable);
       isValid = data && query !== data.val;
 
       if (isValid && !this.eventBus.before('autocomplete', data.obj)) {
@@ -386,16 +383,16 @@ var Typeahead = (function() {
       var query, $candidate, data, payload, cancelMove;
 
       query = this.input.getQuery();
-      $candidate = this.results.selectableRelativeToCursor(delta);
-      data = this.results.getSelectableData($candidate);
+      $candidate = this.menu.selectableRelativeToCursor(delta);
+      data = this.menu.getSelectableData($candidate);
       payload = data ? data.obj : null;
 
-      // update will return true when it's a new query and new results
+      // update will return true when it's a new query and new suggestions
       // need to be fetched – in this case we don't want to move the cursor
-      cancelMove = this._minLengthMet() && this.results.update(query);
+      cancelMove = this._minLengthMet() && this.menu.update(query);
 
       if (!cancelMove && !this.eventBus.before('cursorchange', payload)) {
-        this.results.setCursor($candidate);
+        this.menu.setCursor($candidate);
 
         // cursor moved to different selectable
         if (data) {
@@ -419,7 +416,7 @@ var Typeahead = (function() {
 
     destroy: function destroy() {
       this.input.destroy();
-      this.results.destroy();
+      this.menu.destroy();
     }
   });
 

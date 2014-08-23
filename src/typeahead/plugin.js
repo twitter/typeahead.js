@@ -32,8 +32,8 @@
       return this.each(attach);
 
       function attach() {
-        var $input, $wrapper, $hint, $results, defaultHint, defaultResults,
-            eventBus, input, results, typeahead, ResultsConstructor;
+        var $input, $wrapper, $hint, $menu, defaultHint, defaultMenu,
+            eventBus, input, menu, typeahead, MenuConstructor;
 
         // highlight is a top-level config that needs to get inherited
         // from all of the datasets
@@ -42,20 +42,20 @@
         $input = $(this);
         $wrapper = $(www.html.wrapper);
         $hint = $elOrNull(o.hint);
-        $results = $elOrNull(o.results);
+        $menu = $elOrNull(o.menu);
 
         defaultHint = o.hint !== false && !$hint;
-        defaultResults = o.results !== false && !$results;
+        defaultMenu = o.menu !== false && !$menu;
 
         defaultHint && ($hint = buildHintFromInput($input, www));
-        defaultResults && ($results = $(www.html.results).css(www.css.results));
+        defaultMenu && ($menu = $(www.html.menu).css(www.css.menu));
 
         // hint should be empty on init
         $hint && $hint.val('');
         $input = prepInput($input);
 
         // only apply inline styles and make dom changes if necessary
-        if (defaultHint || defaultResults) {
+        if (defaultHint || defaultMenu) {
           $wrapper.css(www.css.wrapper);
           $input.css(defaultHint ? www.css.input : www.css.inputWithNoHint);
 
@@ -63,21 +63,21 @@
           .wrap($wrapper)
           .parent()
           .prepend(defaultHint ? $hint : null)
-          .append(defaultResults ? $results : null);
+          .append(defaultMenu ? $menu : null);
         }
 
-        ResultsConstructor = defaultResults ? DefaultResults : Results;
+        MenuConstructor = defaultMenu ? DefaultMenu : Menu;
 
         eventBus = new EventBus({ el: $input });
         input = new Input({ hint: $hint, input: $input, }, www);
-        results = new ResultsConstructor({
-          node: $results,
+        menu = new MenuConstructor({
+          node: $menu,
           datasets: datasets
         }, www);
 
         typeahead = new Typeahead({
           input: input,
-          results: results,
+          menu: menu,
           eventBus: eventBus,
           minLength: o.minLength
         }, www);

@@ -21,9 +21,8 @@ var Dataset = (function() {
     o = o || {};
     o.templates = o.templates || {};
 
-    // DEPRECATED: empty and suggestion will be dropped in v1
+    // DEPRECATED: empty will be dropped in v1
     o.templates.notFound = o.templates.notFound || o.templates.empty;
-    o.templates.result = o.templates.result || o.templates.suggestion;
 
     if (!o.source) {
       $.error('missing source');
@@ -51,10 +50,10 @@ var Dataset = (function() {
     this.source = o.source.__ttAdapter ? o.source.__ttAdapter() : o.source;
 
     // if the async option is undefined, inspect the source signature as
-    // a hint to figuring out of the source will return async results
+    // a hint to figuring out of the source will return async suggestions
     this.async = _.isUndefined(o.async) ? this.source.length > 1 : !!o.async;
 
-    this._resetLastResult();
+    this._resetLastSuggestion();
 
     this.$el = $(o.node)
     .addClass(this.classes.dataset)
@@ -84,20 +83,20 @@ var Dataset = (function() {
 
     // ### private
 
-    _overwrite: function overwrite(query, results) {
-      results = results || [];
+    _overwrite: function overwrite(query, suggestions) {
+      suggestions = suggestions || [];
 
-      // got results: overwrite dom with results
-      if (results.length) {
-        this._renderResults(query, results);
+      // got suggestions: overwrite dom with suggestions
+      if (suggestions.length) {
+        this._renderSuggestions(query, suggestions);
       }
 
-      // no results, expecting async: overwrite dom with pending
+      // no suggestions, expecting async: overwrite dom with pending
       else if (this.async && this.templates.pending) {
         this._renderPending(query);
       }
 
-      // no results, not expecting async: overwrite dom with not found
+      // no suggestions, not expecting async: overwrite dom with not found
       else if (!this.async && this.templates.notFound) {
         this._renderNotFound(query);
       }
@@ -107,56 +106,56 @@ var Dataset = (function() {
         this._empty();
       }
 
-      this.trigger('rendered', this.name, results, false);
+      this.trigger('rendered', this.name, suggestions, false);
     },
 
-    _append: function append(query, results) {
-      results = results || [];
+    _append: function append(query, suggestions) {
+      suggestions = suggestions || [];
 
-      // got results, sync results exist: append results to dom
-      if (results.length && this.$lastResult.length) {
-        this._appendResults(query, results);
+      // got suggestions, sync suggestions exist: append suggestions to dom
+      if (suggestions.length && this.$lastSuggestion.length) {
+        this._appendSuggestions(query, suggestions);
       }
 
-      // got results, no sync results: overwrite dom with results
-      else if (results.length) {
-        this._renderResults(query, results);
+      // got suggestions, no sync suggestions: overwrite dom with suggestions
+      else if (suggestions.length) {
+        this._renderSuggestions(query, suggestions);
       }
 
-      // no async/sync results: overwrite dom with not found
-      else if (!this.$lastResult.length && this.templates.notFound) {
+      // no async/sync suggestions: overwrite dom with not found
+      else if (!this.$lastSuggestion.length && this.templates.notFound) {
         this._renderNotFound(query);
       }
 
-      this.trigger('rendered', this.name, results, true);
+      this.trigger('rendered', this.name, suggestions, true);
     },
 
-    _renderResults: function renderResults(query, results) {
+    _renderSuggestions: function renderSuggestions(query, suggestions) {
       var $fragment;
 
-      $fragment = this._getResultsFragment(query, results);
-      this.$lastResult = $fragment.children().last();
+      $fragment = this._getSuggestionsFragment(query, suggestions);
+      this.$lastSuggestion = $fragment.children().last();
 
       this.$el.html($fragment)
-      .prepend(this._getHeader(query, results))
-      .append(this._getFooter(query, results));
+      .prepend(this._getHeader(query, suggestions))
+      .append(this._getFooter(query, suggestions));
     },
 
-    _appendResults: function appendResults(query, results) {
-      var $fragment, $lastResult;
+    _appendSuggestions: function appendSuggestions(query, suggestions) {
+      var $fragment, $lastSuggestion;
 
-      $fragment = this._getResultsFragment(query, results);
-      $lastResult = $fragment.children().last();
+      $fragment = this._getSuggestionsFragment(query, suggestions);
+      $lastSuggestion = $fragment.children().last();
 
-      this.$lastResult.after($fragment);
+      this.$lastSuggestion.after($fragment);
 
-      this.$lastResult = $lastResult;
+      this.$lastSuggestion = $lastSuggestion;
     },
 
     _renderPending: function renderPending(query) {
       var template = this.templates.pending;
 
-      this._resetLastResult();
+      this._resetLastSuggestion();
       template && this.$el.html(template({
         query: query,
         dataset: this.name,
@@ -166,7 +165,7 @@ var Dataset = (function() {
     _renderNotFound: function renderNotFound(query) {
       var template = this.templates.notFound;
 
-      this._resetLastResult();
+      this._resetLastSuggestion();
       template && this.$el.html(template({
         query: query,
         dataset: this.name,
@@ -175,22 +174,22 @@ var Dataset = (function() {
 
     _empty: function empty() {
       this.$el.empty();
-      this._resetLastResult();
+      this._resetLastSuggestion();
     },
 
-    _getResultsFragment: function getResultsFragment(query, results) {
+    _getSuggestionsFragment: function getSuggestionsFragment(query, suggestions) {
       var that = this, fragment;
 
       fragment = document.createDocumentFragment();
-      _.each(results, function getResultNode(result) {
+      _.each(suggestions, function getSuggestionNode(suggestion) {
         var $el, context;
 
-        context = that._injectQuery(query, result);
+        context = that._injectQuery(query, suggestion);
 
-        $el = $(that.templates.result(context))
-        .data(keys.obj, result)
-        .data(keys.val, that.displayFn(result))
-        .addClass(that.classes.result + ' ' + that.classes.selectable);
+        $el = $(that.templates.suggestion(context))
+        .data(keys.obj, suggestion)
+        .data(keys.val, that.displayFn(suggestion))
+        .addClass(that.classes.suggestion + ' ' + that.classes.selectable);
 
         fragment.appendChild($el[0]);
       });
@@ -204,26 +203,26 @@ var Dataset = (function() {
       return $(fragment);
     },
 
-    _getFooter: function getFooter(query, results) {
+    _getFooter: function getFooter(query, suggestions) {
       return this.templates.footer ?
         this.templates.footer({
           query: query,
-          results: results,
+          suggestions: suggestions,
           dataset: this.name
         }) : null;
     },
 
-    _getHeader: function getHeader(query, results) {
+    _getHeader: function getHeader(query, suggestions) {
       return this.templates.header ?
         this.templates.header({
           query: query,
-          results: results,
+          suggestions: suggestions,
           dataset: this.name
         }) : null;
     },
 
-    _resetLastResult: function resetLastResult() {
-      this.$lastResult = $();
+    _resetLastSuggestion: function resetLastSuggestion() {
+      this.$lastSuggestion = $();
     },
 
     _injectQuery: function injectQuery(query, obj) {
@@ -247,29 +246,29 @@ var Dataset = (function() {
       this.source(query, sync, async);
       !syncCalled && sync([]);
 
-      function sync(results) {
+      function sync(suggestions) {
         if (syncCalled) { return; }
 
         syncCalled = true;
-        results = (results || []).slice(0, that.limit);
-        rendered = results.length;
+        suggestions = (suggestions || []).slice(0, that.limit);
+        rendered = suggestions.length;
 
-        that._overwrite(query, results);
+        that._overwrite(query, suggestions);
 
         if (rendered < that.limit && that.async) {
           that.trigger('asyncRequested', query);
         }
       }
 
-      function async(results) {
-        results = results || [];
+      function async(suggestions) {
+        suggestions = suggestions || [];
 
         // if the update has been canceled or if the query has changed
-        // do not render the results as they've become outdated
+        // do not render the suggestions as they've become outdated
         if (!canceled && rendered < that.limit) {
           that.cancel = $.noop;
-          rendered += results.length;
-          that._append(query, results.slice(0, that.limit - rendered));
+          rendered += suggestions.length;
+          that._append(query, suggestions.slice(0, that.limit - rendered));
 
           that.async && that.trigger('asyncReceived', query);
         }
@@ -313,10 +312,10 @@ var Dataset = (function() {
       pending: templates.pending && _.templatify(templates.pending),
       header: templates.header && _.templatify(templates.header),
       footer: templates.footer && _.templatify(templates.footer),
-      result: templates.result || resultTemplate
+      suggestion: templates.suggestion || suggestionTemplate
     };
 
-    function resultTemplate(context) {
+    function suggestionTemplate(context) {
       return '<div><p>' + displayFn(context) + '</p></div>';
     }
   }

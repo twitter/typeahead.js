@@ -21,8 +21,8 @@ var semver = require('semver'),
       'src/typeahead/highlight.js',
       'src/typeahead/input.js',
       'src/typeahead/dataset.js',
-      'src/typeahead/results.js',
-      'src/typeahead/default_results.js',
+      'src/typeahead/menu.js',
+      'src/typeahead/default_menu.js',
       'src/typeahead/typeahead.js',
       'src/typeahead/plugin.js'
       ]

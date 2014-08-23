@@ -57,7 +57,7 @@ describe('$plugin', function() {
     expect(this.$input.typeahead('isActive')).toBe(false);
   });
 
-  it('#open should open the results', function() {
+  it('#open should open the menu', function() {
     this.$input.typeahead('close');
     expect(this.$input.typeahead('isOpen')).toBe(false);
 
@@ -65,7 +65,7 @@ describe('$plugin', function() {
     expect(this.$input.typeahead('isOpen')).toBe(true);
   });
 
-  it('#close should close the results', function() {
+  it('#close should close the menu', function() {
     this.$input.typeahead('open');
     expect(this.$input.typeahead('isOpen')).toBe(true);
 

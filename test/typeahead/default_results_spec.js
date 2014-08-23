@@ -1,4 +1,4 @@
-describe('DefaultResults', function() {
+describe('DefaultMenu', function() {
   var www = WWW();
 
   beforeEach(function() {
@@ -6,18 +6,18 @@ describe('DefaultResults', function() {
 
     jasmine.Dataset.useMock();
 
-    setFixtures('<div id="results-fixture"></div>');
+    setFixtures('<div id="menu-fixture"></div>');
 
     $fixture = $('#jasmine-fixtures');
-    this.$node = $fixture.find('#results-fixture');
+    this.$node = $fixture.find('#menu-fixture');
     this.$node.html(fixtures.html.dataset);
 
-    this.view = new DefaultResults({ node: this.$node, datasets: [{}] }, www).bind();
+    this.view = new DefaultMenu({ node: this.$node, datasets: [{}] }, www).bind();
     this.dataset = this.view.datasets[0];
   });
 
   describe('when rendered is triggered on a dataset', function() {
-    it('should hide results if empty', function() {
+    it('should hide menu if empty', function() {
       this.dataset.isEmpty.andReturn(true);
 
       this.view._show();
@@ -26,7 +26,7 @@ describe('DefaultResults', function() {
       expect(this.$node).not.toBeVisible();
     });
 
-    it('should not show results if not open', function() {
+    it('should not show menu if not open', function() {
       this.dataset.isEmpty.andReturn(false);
 
       this.view._hide();
@@ -35,7 +35,7 @@ describe('DefaultResults', function() {
       expect(this.$node).not.toBeVisible();
     });
 
-    it('should show results if not empty and open', function() {
+    it('should show menu if not empty and open', function() {
       this.dataset.isEmpty.andReturn(false);
 
       this.view._hide();
@@ -47,7 +47,7 @@ describe('DefaultResults', function() {
   });
 
   describe('when cleared is triggered on a dataset', function() {
-    it('should hide results if empty', function() {
+    it('should hide menu if empty', function() {
       this.dataset.isEmpty.andReturn(true);
 
       this.view._show();
@@ -56,7 +56,7 @@ describe('DefaultResults', function() {
       expect(this.$node).not.toBeVisible();
     });
 
-    it('should not show results if not open', function() {
+    it('should not show menu if not open', function() {
       this.dataset.isEmpty.andReturn(false);
 
       this.view._hide();
@@ -65,7 +65,7 @@ describe('DefaultResults', function() {
       expect(this.$node).not.toBeVisible();
     });
 
-    it('should show results if not empty and open', function() {
+    it('should show menu if not empty and open', function() {
       this.dataset.isEmpty.andReturn(false);
 
       this.view._hide();
@@ -77,14 +77,14 @@ describe('DefaultResults', function() {
   });
 
   describe('#open', function() {
-    it('should show results if not empty', function() {
+    it('should show menu if not empty', function() {
       spyOn(this.view, '_allDatasetsEmpty').andReturn(false);
       this.view.open();
 
       expect(this.$node).toHaveAttr('style', 'display: block;');
     });
 
-    it('should not show results if empty', function() {
+    it('should not show menu if empty', function() {
       spyOn(this.view, '_allDatasetsEmpty').andReturn(true);
       this.view.open();
 
@@ -93,7 +93,7 @@ describe('DefaultResults', function() {
   });
 
   describe('#close', function() {
-    it('should hide results', function() {
+    it('should hide menu', function() {
       this.view._show();
       this.view.close();
 

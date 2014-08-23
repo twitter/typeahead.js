@@ -8,7 +8,7 @@
     'SearchIndex',
     'Input',
     'Dataset',
-    'Results'
+    'Menu'
     ];
 
   for (var i = 0; i < components.length; i++) {

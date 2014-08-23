@@ -1,4 +1,4 @@
-describe('Results', function() {
+describe('Menu', function() {
   var www = WWW();
 
   beforeEach(function() {
@@ -6,19 +6,19 @@ describe('Results', function() {
 
     jasmine.Dataset.useMock();
 
-    setFixtures('<div id="results-fixture"></div>');
+    setFixtures('<div id="menu-fixture"></div>');
 
     $fixture = $('#jasmine-fixtures');
-    this.$node = $fixture.find('#results-fixture');
+    this.$node = $fixture.find('#menu-fixture');
     this.$node.html(fixtures.html.dataset);
 
-    this.view = new Results({ node: this.$node, datasets: [{}] }, www).bind();
+    this.view = new Menu({ node: this.$node, datasets: [{}] }, www).bind();
     this.dataset = this.view.datasets[0];
   });
 
   it('should throw an error if node is missing', function() {
     expect(noNode).toThrow();
-    function noNode() { new Results({ datasets: [{}] }, www); }
+    function noNode() { new Menu({ datasets: [{}] }, www); }
   });
 
   describe('when click event is triggered on a selectable', function() {
@@ -263,7 +263,7 @@ describe('Results', function() {
   });
 
   describe('#getTopSelectable', function() {
-    it('should return the selectable at the top of the results', function() {
+    it('should return the selectable at the top of the menu', function() {
       var $first;
 
       $first = this.view._getSelectables().eq(0);

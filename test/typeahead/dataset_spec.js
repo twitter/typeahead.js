@@ -1,13 +1,13 @@
 describe('Dataset', function() {
-  var www = WWW(), mockResults, mockResultsDisplayFn;
+  var www = WWW(), mockSuggestions, mockSuggestionsDisplayFn;
 
-  mockResults = [
+  mockSuggestions = [
     { value: 'one', raw: { value: 'one' } },
     { value: 'two', raw: { value: 'two' } },
     { value: 'three', raw: { value: 'three' } }
   ];
 
-  mockResultsDisplayFn = [
+  mockSuggestionsDisplayFn = [
     { display: '4' },
     { display: '5' },
     { display: '6' }
@@ -48,7 +48,7 @@ describe('Dataset', function() {
 
   describe('#update', function() {
     it('should render suggestions', function() {
-      this.source.andCallFake(syncMockResults);
+      this.source.andCallFake(syncMockSuggestions);
       this.dataset.update('woah');
 
       expect(this.dataset.$el).toContainText('one');
@@ -58,7 +58,7 @@ describe('Dataset', function() {
 
     it('should respect limit option', function() {
       this.dataset.limit = 2;
-      this.source.andCallFake(syncMockResults);
+      this.source.andCallFake(syncMockSuggestions);
       this.dataset.update('woah');
 
       expect(this.dataset.$el).toContainText('one');
@@ -74,7 +74,7 @@ describe('Dataset', function() {
         source: this.source = jasmine.createSpy('source')
       }, www);
 
-      this.source.andCallFake(syncMockResultsDisplayFn);
+      this.source.andCallFake(syncMockSuggestionsDisplayFn);
       this.dataset.update('woah');
 
       expect(this.dataset.$el).toContainText('4');
@@ -93,7 +93,7 @@ describe('Dataset', function() {
       this.source.andCallFake(multipleSync);
       this.dataset.update('woah');
 
-      expect(this.dataset.$el.find('.tt-result')).toHaveLength(3);
+      expect(this.dataset.$el.find('.tt-suggestion')).toHaveLength(3);
     });
 
     it('should trigger asyncRequested when needing/expecting backfill', function() {
@@ -101,7 +101,7 @@ describe('Dataset', function() {
 
       this.dataset.async = true;
       this.dataset.onSync('asyncRequested', spy);
-      this.source.andCallFake(fakeGetWithAsyncResults);
+      this.source.andCallFake(fakeGetWithAsyncSuggestions);
 
       this.dataset.update('woah');
 
@@ -113,7 +113,7 @@ describe('Dataset', function() {
 
       this.dataset.async = false;
       this.dataset.onSync('asyncRequested', spy);
-      this.source.andCallFake(fakeGetWithAsyncResults);
+      this.source.andCallFake(fakeGetWithAsyncSuggestions);
 
       this.dataset.update('woah');
 
@@ -126,19 +126,19 @@ describe('Dataset', function() {
       this.dataset.limit = 2;
       this.dataset.async = true;
       this.dataset.onSync('asyncRequested', spy);
-      this.source.andCallFake(fakeGetWithAsyncResults);
+      this.source.andCallFake(fakeGetWithAsyncSuggestions);
 
       this.dataset.update('woah');
 
       expect(spy).not.toHaveBeenCalled();
     });
 
-    it('should trigger asyncCanceled when pending aysnc results are canceled', function() {
+    it('should trigger asyncCanceled when pending aysnc is canceled', function() {
       var spy = jasmine.createSpy();
 
       this.dataset.async = true;
       this.dataset.onSync('asyncCanceled', spy);
-      this.source.andCallFake(fakeGetWithAsyncResults);
+      this.source.andCallFake(fakeGetWithAsyncSuggestions);
 
       this.dataset.update('woah');
       this.dataset.cancel();
@@ -155,7 +155,7 @@ describe('Dataset', function() {
 
       this.dataset.async = true;
       this.dataset.onSync('asyncCanceled', spy);
-      this.source.andCallFake(fakeGetWithAsyncResults);
+      this.source.andCallFake(fakeGetWithAsyncSuggestions);
 
       this.dataset.update('woah');
 
@@ -167,12 +167,12 @@ describe('Dataset', function() {
       });
     });
 
-    it('should trigger asyncReceived when aysnc results are received', function() {
+    it('should trigger asyncReceived when aysnc is received', function() {
       var spy = jasmine.createSpy();
 
       this.dataset.async = true;
       this.dataset.onSync('asyncReceived', spy);
-      this.source.andCallFake(fakeGetWithAsyncResults);
+      this.source.andCallFake(fakeGetWithAsyncSuggestions);
 
       this.dataset.update('woah');
 
@@ -188,7 +188,7 @@ describe('Dataset', function() {
 
       this.dataset.async = true;
       this.dataset.onSync('asyncReceived', spy);
-      this.source.andCallFake(fakeGetWithAsyncResults);
+      this.source.andCallFake(fakeGetWithAsyncSuggestions);
 
       this.dataset.update('woah');
       this.dataset.cancel();
@@ -200,14 +200,14 @@ describe('Dataset', function() {
       });
     });
 
-    it('should not modify sync results when async results are added', function() {
+    it('should not modify sync when async is added', function() {
       var $test;
 
       this.dataset.async = true;
-      this.source.andCallFake(fakeGetWithAsyncResults);
+      this.source.andCallFake(fakeGetWithAsyncSuggestions);
 
       this.dataset.update('woah');
-      $test = this.dataset.$el.find('.tt-result').first();
+      $test = this.dataset.$el.find('.tt-suggestion').first();
       $test.addClass('test');
 
       waits(100);
@@ -217,26 +217,26 @@ describe('Dataset', function() {
       });
     });
 
-    it('should respect limit option in regard to async results', function() {
+    it('should respect limit option in regard to async', function() {
       this.dataset.async = true;
-      this.source.andCallFake(fakeGetWithAsyncResults);
+      this.source.andCallFake(fakeGetWithAsyncSuggestions);
 
       this.dataset.update('woah');
 
       waits(100);
 
       runs(function() {
-        expect(this.dataset.$el.find('.tt-result')).toHaveLength(5);
+        expect(this.dataset.$el.find('.tt-suggestion')).toHaveLength(5);
       });
     });
 
-    it('should cancel pending async results', function() {
+    it('should cancel pending async', function() {
       var spy1 = jasmine.createSpy(), spy2 = jasmine.createSpy();
 
       this.dataset.async = true;
       this.dataset.onSync('asyncCanceled', spy1);
       this.dataset.onSync('asyncReceived', spy2);
-      this.source.andCallFake(fakeGetWithAsyncResults);
+      this.source.andCallFake(fakeGetWithAsyncSuggestions);
 
 
       this.dataset.update('woah');
@@ -259,7 +259,7 @@ describe('Dataset', function() {
         }
       }, www);
 
-      this.source.andCallFake(syncEmptyResults);
+      this.source.andCallFake(syncEmptySuggestions);
       this.dataset.update('woah');
 
       expect(this.dataset.$el).toContainText('empty');
@@ -275,13 +275,13 @@ describe('Dataset', function() {
         }
       }, www);
 
-      this.source.andCallFake(syncEmptyResults);
+      this.source.andCallFake(syncEmptySuggestions);
       this.dataset.update('woah');
 
       expect(this.dataset.$el).toContainText('pending');
     });
 
-    it('should render header when results are rendered', function() {
+    it('should render header when suggestions are rendered', function() {
       this.dataset = new Dataset({
         source: this.source,
         node: $('<div>'),
@@ -290,13 +290,13 @@ describe('Dataset', function() {
         }
       }, www);
 
-      this.source.andCallFake(syncMockResults);
+      this.source.andCallFake(syncMockSuggestions);
       this.dataset.update('woah');
 
       expect(this.dataset.$el).toContainText('header');
     });
 
-    it('should render footer when results are rendered', function() {
+    it('should render footer when suggestions are rendered', function() {
       this.dataset = new Dataset({
         source: this.source,
         node: $('<div>'),
@@ -305,7 +305,7 @@ describe('Dataset', function() {
         }
       }, www);
 
-      this.source.andCallFake(syncMockResults);
+      this.source.andCallFake(syncMockSuggestions);
       this.dataset.update('woah');
 
       expect(this.dataset.$el).toContainText('woah');
@@ -321,7 +321,7 @@ describe('Dataset', function() {
         }
       }, www);
 
-      this.source.andCallFake(syncEmptyResults);
+      this.source.andCallFake(syncEmptySuggestions);
       this.dataset.update('woah');
 
       expect(this.dataset.$el).not.toContainText('header');
@@ -329,10 +329,10 @@ describe('Dataset', function() {
     });
 
     it('should not render stale suggestions', function() {
-      this.source.andCallFake(fakeGetWithAsyncResults);
+      this.source.andCallFake(fakeGetWithAsyncSuggestions);
       this.dataset.update('woah');
 
-      this.source.andCallFake(syncMockResults);
+      this.source.andCallFake(syncMockSuggestions);
       this.dataset.update('nelly');
 
       waits(100);
@@ -347,14 +347,14 @@ describe('Dataset', function() {
     });
 
     it('should not render async suggestions if update was canceled', function() {
-      this.source.andCallFake(fakeGetWithAsyncResults);
+      this.source.andCallFake(fakeGetWithAsyncSuggestions);
       this.dataset.update('woah');
       this.dataset.cancel();
 
       waits(100);
 
       runs(function() {
-        var rendered = this.dataset.$el.find('.tt-result');
+        var rendered = this.dataset.$el.find('.tt-suggestion');
         expect(rendered).toHaveLength(3);
       });
     });
@@ -364,7 +364,7 @@ describe('Dataset', function() {
 
       this.dataset.onSync('rendered', spy = jasmine.createSpy());
 
-      this.source.andCallFake(syncMockResults);
+      this.source.andCallFake(syncMockSuggestions);
       this.dataset.update('woah');
 
       waitsFor(function() { return spy.callCount; });
@@ -373,7 +373,7 @@ describe('Dataset', function() {
 
   describe('#clear', function() {
     it('should clear suggestions', function() {
-      this.source.andCallFake(syncMockResults);
+      this.source.andCallFake(syncMockSuggestions);
       this.dataset.update('woah');
 
       this.dataset.clear();
@@ -383,7 +383,7 @@ describe('Dataset', function() {
     it('should cancel pending updates', function() {
       var spy;
 
-      this.source.andCallFake(syncMockResults);
+      this.source.andCallFake(syncMockSuggestions);
       this.dataset.update('woah');
       spy = spyOn(this.dataset, 'cancel');
 
@@ -406,7 +406,7 @@ describe('Dataset', function() {
     });
 
     it('should return false when not empty', function() {
-      this.source.andCallFake(syncMockResults);
+      this.source.andCallFake(syncMockSuggestions);
       this.dataset.update('woah');
 
       expect(this.dataset.isEmpty()).toBe(false);
@@ -424,29 +424,29 @@ describe('Dataset', function() {
   // helper functions
   // ----------------
 
-  function syncEmptyResults(q, sync, async) {
+  function syncEmptySuggestions(q, sync, async) {
     sync([]);
   }
 
-  function syncMockResults(q, sync, async) {
-    sync(mockResults);
+  function syncMockSuggestions(q, sync, async) {
+    sync(mockSuggestions);
   }
 
-  function syncMockResultsDisplayFn(q, sync, async) {
-    sync(mockResultsDisplayFn);
+  function syncMockSuggestionsDisplayFn(q, sync, async) {
+    sync(mockSuggestionsDisplayFn);
   }
 
   function asyncSync(q, sync, async) {
-    setTimeout(function() { sync(mockResults); }, 0);
+    setTimeout(function() { sync(mockSuggestions); }, 0);
   }
 
   function multipleSync(q, sync, async) {
-    sync(mockResults);
-    sync(mockResults);
+    sync(mockSuggestions);
+    sync(mockSuggestions);
   }
 
-  function fakeGetWithAsyncResults(query, sync, async) {
-    sync(mockResults);
+  function fakeGetWithAsyncSuggestions(query, sync, async) {
+    sync(mockSuggestions);
 
     setTimeout(function() {
       async([

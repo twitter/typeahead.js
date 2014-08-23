@@ -4,16 +4,16 @@
  * Copyright 2013-2014 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var DefaultResults = (function() {
+var DefaultMenu = (function() {
   'use strict';
 
-  var s = Results.prototype;
+  var s = Menu.prototype;
 
-  function DefaultResults() {
-    Results.apply(this, [].slice.call(arguments, 0));
+  function DefaultMenu() {
+    Menu.apply(this, [].slice.call(arguments, 0));
   }
 
-  _.mixin(DefaultResults.prototype, Results.prototype, {
+  _.mixin(DefaultMenu.prototype, Menu.prototype, {
     // overrides
     // ---------
 
@@ -71,5 +71,5 @@ var DefaultResults = (function() {
     }
   });
 
-  return DefaultResults;
+  return DefaultMenu;
 })();

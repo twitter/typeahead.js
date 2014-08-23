@@ -11,9 +11,9 @@ var WWW = (function() {
     wrapper: 'twitter-typeahead',
     input: 'tt-input',
     hint: 'tt-hint',
-    results: 'tt-results',
+    menu: 'tt-menu',
     dataset: 'tt-dataset',
-    result: 'tt-result',
+    suggestion: 'tt-suggestion',
     selectable: 'tt-selectable',
     empty: 'tt-empty',
     open: 'tt-open',
@@ -46,11 +46,9 @@ var WWW = (function() {
 
   function buildHtml(c) {
     return {
-      wrapper: j('<span class="', c.wrapper, '"></span>'),
-      results: j('<div class="', c.results, '"></div>')
+      wrapper: '<span class="' + c.wrapper + '"></span>',
+      menu: '<div class="' + c.menu + '"></div>'
     };
-
-    function j() { return [].slice.call(arguments, 0).join(''); }
   }
 
   function buildSelectors(classes) {
@@ -84,7 +82,7 @@ var WWW = (function() {
         position: 'relative',
         verticalAlign: 'top'
       },
-      results: {
+      menu: {
         position: 'absolute',
         top: '100%',
         left: '0',

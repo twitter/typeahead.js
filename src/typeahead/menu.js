@@ -4,13 +4,13 @@
  * Copyright 2013-2014 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var Results = (function() {
+var Menu = (function() {
   'use strict';
 
   // constructor
   // -----------
 
-  function Results(o, www) {
+  function Menu(o, www) {
     var that = this;
 
     o = o || {};
@@ -23,7 +23,7 @@ var Results = (function() {
 
     this.$node = $(o.node);
 
-    // the latest query the results was updated for
+    // the latest query #update was called with
     this.query = null;
     this.datasets = _.map(o.datasets, initializeDataset);
 
@@ -38,7 +38,7 @@ var Results = (function() {
   // instance methods
   // ----------------
 
-  _.mixin(Results.prototype, EventEmitter, {
+  _.mixin(Menu.prototype, EventEmitter, {
 
     // ### event handlers
 
@@ -46,9 +46,9 @@ var Results = (function() {
       this.trigger('selectableClicked', $($e.currentTarget));
     },
 
-    _onRendered: function onRendered(type, dataset, results, async) {
+    _onRendered: function onRendered(type, dataset, suggestions, async) {
       this.$node.toggleClass(this.classes.empty, this._allDatasetsEmpty());
-      this.trigger('datasetRendered', dataset, results, async);
+      this.trigger('datasetRendered', dataset, suggestions, async);
     },
 
     _onCleared: function onCleared() {
@@ -212,5 +212,5 @@ var Results = (function() {
     }
   });
 
-  return Results;
+  return Menu;
 })();
