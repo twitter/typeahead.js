@@ -8,7 +8,7 @@ var oParser = (function() {
   'use strict';
 
   return function parse(o) {
-    var defaults;
+    var defaults, sorter;
 
     defaults = {
       initialize: true,
@@ -28,7 +28,8 @@ var oParser = (function() {
     !o.datumTokenizer && $.error('datumTokenizer is required');
     !o.queryTokenizer && $.error('queryTokenizer is required');
 
-    o.sorter = o.sorter ? function(x) { return x.sort(o.sorter); } : _.identity;
+    sorter = o.sorter;
+    o.sorter = sorter ? function(x) { return x.sort(sorter); } : _.identity;
 
     o.local = _.isFunction(o.local) ? o.local() : o.local;
     o.prefetch = parsePrefetch(o.prefetch);
@@ -66,10 +67,6 @@ var oParser = (function() {
     o.thumbprint = VERSION + o.thumbprint;
     o.transport = o.transport ? callbackToDeferred(o.transport) : $.ajax;
 
-    // TODO: where should this go now?
-    //prefetch.ajax.type = prefetch.ajax.type || 'GET';
-    //prefetch.ajax.dataType = prefetch.ajax.dataType || 'json';
-
     return o;
   }
 
@@ -83,7 +80,7 @@ var oParser = (function() {
       cache: true, // leave undocumented
       prepare: null,
       replace: null,
-      wildcard: '%QUERY',
+      wildcard: null,
       limiter: null,
       rateLimitBy: 'debounce',
       rateLimitWait: 300,
@@ -131,7 +128,7 @@ var oParser = (function() {
     }
 
     else {
-      prepare = _.identity;
+      prepare = idenityPrepare;
     }
 
     return prepare;
@@ -143,6 +140,10 @@ var oParser = (function() {
 
     function prepareByWildcard(query, settings) {
       settings.url = settings.url.replace(wildcard, encodeURIComponent(query));
+      return settings;
+    }
+
+    function idenityPrepare(query, settings) {
       return settings;
     }
   }
@@ -161,11 +162,11 @@ var oParser = (function() {
     return limiter;
 
     function debounce(wait) {
-      return function(fn) { return _.debounce(fn, wait); };
+      return function debounce(fn) { return _.debounce(fn, wait); };
     }
 
     function throttle(wait) {
-      return function(fn) { return _.throttle(fn, wait); };
+      return function throttle(fn) { return _.throttle(fn, wait); };
     }
   }
 
