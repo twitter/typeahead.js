@@ -84,6 +84,8 @@ var _ = (function() {
 
     mixin: $.extend,
 
+    identity: function(x) { return x; },
+
     clone: function(obj) { return $.extend(true, {}, obj); },
 
     getIdGenerator: function() {

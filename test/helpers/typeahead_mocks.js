@@ -3,6 +3,8 @@
 
   components = [
     'Bloodhound',
+    'Prefetch',
+    'Remote',
     'PersistentStorage',
     'Transport',
     'SearchIndex',

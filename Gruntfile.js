@@ -11,6 +11,8 @@ var semver = require('semver'),
       'src/bloodhound/persistent_storage.js',
       'src/bloodhound/transport.js',
       'src/bloodhound/search_index.js',
+      'src/bloodhound/prefetch.js',
+      'src/bloodhound/remote.js',
       'src/bloodhound/options_parser.js',
       'src/bloodhound/bloodhound.js'
       ],

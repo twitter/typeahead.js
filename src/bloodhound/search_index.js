@@ -4,7 +4,7 @@
  * Copyright 2013-2014 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var SearchIndex = (function() {
+var SearchIndex = window.Jake = (function() {
   'use strict';
 
   // constructor
@@ -104,7 +104,13 @@ var SearchIndex = (function() {
     },
 
     all: function all() {
-      return this.datums;
+      var values = [];
+
+      for (var key in this.datums) {
+        values.push(this.datums[key]);
+      }
+
+      return values;
     },
 
     reset: function reset() {

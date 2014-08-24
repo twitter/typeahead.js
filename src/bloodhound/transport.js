@@ -21,8 +21,8 @@ var Transport = (function() {
     this.cancelled = false;
     this.lastReq = null;
 
-    this._send = o.transport ? callbackToDeferred(o.transport) : $.ajax;
-    this._get = o.rateLimiter ? o.rateLimiter(this._get) : this._get;
+    this._send = o.transport;
+    this._get = o.limiter ? o.limiter(this._get) : this._get;
 
     this._cache = o.cache === false ? new LruCache(0) : sharedCache;
   }
@@ -127,29 +127,4 @@ var Transport = (function() {
   });
 
   return Transport;
-
-  // helper functions
-  // ----------------
-
-  function callbackToDeferred(fn) {
-    return function customSendWrapper(o) {
-      var deferred = $.Deferred();
-
-      fn(o, onSuccess, onError);
-
-      return deferred;
-
-      function onSuccess(resp) {
-        // defer in case fn is synchronous, otherwise done
-        // and always handlers will be attached after the resolution
-        _.defer(function() { deferred.resolve(resp); });
-      }
-
-      function onError(err) {
-        // defer in case fn is synchronous, otherwise done
-        // and always handlers will be attached after the resolution
-        _.defer(function() { deferred.reject(err); });
-      }
-    };
-  }
 })();
