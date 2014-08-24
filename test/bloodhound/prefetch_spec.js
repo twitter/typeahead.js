@@ -4,6 +4,7 @@ describe('Prefetch', function() {
     return new Prefetch(_.mixin({
       url: '/prefetch',
       ttl: 3600,
+      cache: true,
       thumbprint: '',
       cacheKey: 'cachekey',
       prepare: function(x) { return x; },
@@ -48,6 +49,14 @@ describe('Prefetch', function() {
       expect(this.storage.set)
       .toHaveBeenCalledWith('protocol', location.protocol, 3600);
     });
+
+    it('should be noop if cache option is false', function() {
+      this.prefetch = build({ cache: false });
+
+      this.prefetch.store({ foo: 'bar' });
+
+      expect(this.storage.set).not.toHaveBeenCalled();
+    });
   });
 
   describe('#fromCache', function() {
@@ -70,6 +79,16 @@ describe('Prefetch', function() {
       .andCallFake(fakeStorageGet(null, this.thumbprint));
 
       expect(this.prefetch.fromCache()).toBeNull();
+    });
+
+    it('should return null if cache option is false', function() {
+      this.prefetch = build({ cache: false });
+
+      this.storage.get
+      .andCallFake(fakeStorageGet({ foo: 'bar' }, this.thumbprint));
+
+      expect(this.prefetch.fromCache()).toBeNull();
+      expect(this.storage.get).not.toHaveBeenCalled();
     });
   });
 

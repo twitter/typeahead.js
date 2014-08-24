@@ -18,9 +18,10 @@ var Prefetch = (function() {
   function Prefetch(o) {
     this.url = o.url;
     this.ttl = o.ttl;
-    this.thumbprint = o.thumbprint;
+    this.cache = o.cache;
     this.transform = o.transform;
     this.transport = o.transport;
+    this.thumbprint = o.thumbprint;
 
     this.storage = new PersistentStorage(o.cacheKey);
   }
@@ -39,6 +40,8 @@ var Prefetch = (function() {
     // ### public
 
     store: function store(data) {
+      if (!this.cache) { return; }
+
       this.storage.set(keys.data, data, this.ttl);
       this.storage.set(keys.protocol, location.protocol, this.ttl);
       this.storage.set(keys.thumbprint, this.thumbprint, this.ttl);
@@ -46,6 +49,8 @@ var Prefetch = (function() {
 
     fromCache: function fromCache() {
       var stored = {}, isExpired;
+
+      if (!this.cache) { return null; }
 
       stored.data = this.storage.get(keys.data);
       stored.protocol = this.storage.get(keys.protocol);
@@ -81,4 +86,4 @@ var Prefetch = (function() {
   });
 
   return Prefetch;
-})(this);
+})();

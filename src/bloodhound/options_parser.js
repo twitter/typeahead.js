@@ -45,6 +45,7 @@ var oParser = (function() {
     defaults = {
       url: null,
       ttl: 24 * 60 * 60 * 1000, // 1 day
+      cache: true,
       cacheKey: null,
       thumbprint: '',
       transform: _.identity,
