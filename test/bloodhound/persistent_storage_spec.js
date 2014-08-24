@@ -1,18 +1,31 @@
 describe('PersistentStorage', function() {
-  var engine, ls = window.localStorage;
+  var engine, ls;
+
+  // test suite is dependent on localStorage being available
+  if (!window.localStorage) {
+    console.warn('no localStorage support – skipping PersistentStorage suite');
+    return;
+  }
+
+  // for good measure!
+  localStorage.clear();
 
   beforeEach(function() {
-    engine = new PersistentStorage('ns');
+    ls = {
+      get length() { return localStorage.length; },
+      key: spyThrough('key'),
+      clear: spyThrough('clear'),
+      getItem: spyThrough('getItem'),
+      setItem: spyThrough('setItem'),
+      removeItem: spyThrough('removeItem')
+    };
 
-    spyOn(ls, 'getItem').andCallThrough();
-    spyOn(ls, 'setItem').andCallThrough();
-    spyOn(ls, 'removeItem').andCallThrough();
-
+    engine = new PersistentStorage('ns', ls);
     spyOn(Date.prototype, 'getTime').andReturn(0);
   });
 
   afterEach(function() {
-    ls.clear();
+    localStorage.clear();
   });
 
   // public methods
@@ -96,6 +109,7 @@ describe('PersistentStorage', function() {
       engine.set('key2', 'val2');
       engine.set('key3', 'val3');
       engine.set('key4', 'val4', 0);
+      debugger
       engine.clear();
 
       expect(engine.get('key1')).toEqual(undefined);
@@ -128,4 +142,13 @@ describe('PersistentStorage', function() {
       expect(engine.isExpired('key')).toBe(true);
     });
   });
+
+  // compatible across browsers
+  function spyThrough(method) {
+    return jasmine.createSpy().andCallFake(fake);
+
+    function fake() {
+      return localStorage[method].apply(localStorage, arguments);
+    }
+  }
 });
