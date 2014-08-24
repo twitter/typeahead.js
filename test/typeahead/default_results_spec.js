@@ -81,7 +81,7 @@ describe('DefaultMenu', function() {
       spyOn(this.view, '_allDatasetsEmpty').andReturn(false);
       this.view.open();
 
-      expect(this.$node).toHaveAttr('style', 'display: block;');
+      expect(this.$node[0].getAttribute('style')).toMatch(/display: block/);
     });
 
     it('should not show menu if empty', function() {
