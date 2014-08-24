@@ -109,7 +109,6 @@ describe('PersistentStorage', function() {
       engine.set('key2', 'val2');
       engine.set('key3', 'val3');
       engine.set('key4', 'val4', 0);
-      debugger
       engine.clear();
 
       expect(engine.get('key1')).toEqual(undefined);

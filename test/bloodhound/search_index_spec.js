@@ -1,21 +1,20 @@
 describe('SearchIndex', function() {
 
-  beforeEach(function() {
-    this.index = new SearchIndex({
-      datumTokenizer: datumTokenizer,
-      queryTokenizer: queryTokenizer
-    });
+  function build(o) {
+    return new SearchIndex(_.mixin({
+      datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+      queryTokenizer: Bloodhound.tokenizers.whitespace
+    }, o || {}));
+  }
 
+  beforeEach(function() {
+    this.index = build();
     this.index.add(fixtures.data.simple);
   });
 
   it('should support serialization/deserialization', function() {
     var serialized = this.index.serialize();
 
-    this.index = new SearchIndex({
-      datumTokenizer: datumTokenizer,
-      queryTokenizer: queryTokenizer
-    });
     this.index.bootstrap(serialized);
 
     expect(this.index.search('smaller')).toEqual([{ value: 'smaller' }]);
@@ -28,11 +27,7 @@ describe('SearchIndex', function() {
   });
 
   it('#get should return datums by id', function() {
-    this.index = new SearchIndex({
-      identify: function(d) { return d.value; },
-      datumTokenizer: datumTokenizer,
-      queryTokenizer: queryTokenizer
-    });
+    this.index = build({ identify: function(d) { return d.value; } });
     this.index.add(fixtures.data.simple);
 
     expect(this.index.get(['big', 'bigger'])).toEqual([
@@ -59,6 +54,11 @@ describe('SearchIndex', function() {
     expect(this.index.search('wtf')).toEqual([]);
   });
 
+  it('#serach should handle multi-token queries', function() {
+    this.index.add({ value: 'foo bar' });
+    expect(this.index.search('foo b')).toEqual([{ value: 'foo bar' }]);
+  });
+
   it('#all should return all datums', function() {
     expect(this.index.all()).toEqual(fixtures.data.simple);
   });
@@ -69,10 +69,4 @@ describe('SearchIndex', function() {
     expect(this.index.trie.ids).toEqual([]);
     expect(this.index.trie.children).toEqual({});
   });
-
-  // helper functions
-  // ----------------
-
-  function datumTokenizer(d) { return $.trim(d.value).split(/\s+/); }
-  function queryTokenizer(s) { return $.trim(s).split(/\s+/); }
 });
