@@ -4,7 +4,7 @@
  * Copyright 2013-2014 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var SearchIndex = window.Jake = (function() {
+var SearchIndex = (function() {
   'use strict';
 
   // constructor
