@@ -164,10 +164,11 @@
     },
 
     get: function get(query, cb) {
-      var that = this, matches = [], cacheHit = false;
+      var that = this, matches = [], cacheHit = false, queryInfo;
 
+      queryInfo = { string: query, tokens: this.index.queryTokenizer(query) };
       matches = this.index.get(query);
-      matches = this.sorter(matches).slice(0, this.limit);
+      matches = this.sorter(matches, queryInfo).slice(0, this.limit);
 
       matches.length < this.limit ?
         (cacheHit = this._getFromRemote(query, returnRemoteMatches)) :
@@ -224,9 +225,15 @@
   // ----------------
 
   function getSorter(sortFn) {
+    var that = this;
+
     return _.isFunction(sortFn) ? sort : noSort;
 
-    function sort(array) { return array.sort(sortFn); }
+    function sort(array, query) {
+      return array.sort(function (a, b) {
+        return sortFn.call(that, a, b, query);
+      });
+    }
     function noSort(array) { return array; }
   }
 
