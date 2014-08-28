@@ -30,3 +30,5 @@ before_script:
 script: test/ci
 addons:
   sauce_connect: true
+git:
+  depth: 10
