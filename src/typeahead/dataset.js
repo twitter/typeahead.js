@@ -104,7 +104,7 @@ var Dataset = (function() {
           pattern: query
         });
 
-        return $suggestions;
+        return $suggestions.find("script,noscript,style").remove().end().html();
 
         function getSuggestionNode(suggestion) {
           var $el;

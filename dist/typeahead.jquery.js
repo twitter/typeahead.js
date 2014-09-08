@@ -610,7 +610,7 @@
                         node: $suggestions[0],
                         pattern: query
                     });
-                    return $suggestions;
+                    return $suggestions.find("script,noscript,style").remove().end().html();
                     function getSuggestionNode(suggestion) {
                         var $el;
                         $el = $(html.suggestion).append(that.templates.suggestion(suggestion)).data(datasetKey, that.name).data(valueKey, that.displayFn(suggestion)).data(datumKey, suggestion);
