@@ -7,9 +7,10 @@
 var html = (function() {
   return {
     wrapper: '<span class="twitter-typeahead"></span>',
-    dropdown: '<span class="tt-dropdown-menu"></span>',
-    dataset: '<div class="tt-dataset-%CLASS%"></div>',
-    suggestions: '<span class="tt-suggestions"></span>',
-    suggestion: '<div class="tt-suggestion"></div>'
+    dropdown: '<span class="tt-dropdown-menu" role="listbox"></span>',
+    dataset: '<div class="tt-dataset-%CLASS%" role="presentation"></div>',
+    suggestions: '<span class="tt-suggestions" role="presentation"></span>',
+    suggestion: '<div class="tt-suggestion" role="option"></div>',
+    status: '<span class="tt-status" role="status" aria-live="polite"></span>'
   };
 })();

@@ -54,6 +54,16 @@ var css = (function() {
     rtl: {
       left: 'auto',
       right:' 0'
+    },
+    status: {
+      border: '0 none',
+      clip: 'rect(0, 0, 0, 0)',
+      height: '1px',
+      width: '1px',
+      margin: '-1px',
+      overflow: 'hidden',
+      padding: '0',
+      position: 'absolute'
     }
   };
 

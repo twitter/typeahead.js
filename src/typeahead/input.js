@@ -206,6 +206,10 @@ var Input = (function() {
     resetInputValue: function resetInputValue() {
       this.setInputValue(this.query, true);
     },
+      
+    isWithHint: function() {
+      return this.$hint.length !== 0;
+    },
 
     getHint: function getHint() {
       return this.$hint.val();
@@ -270,6 +274,30 @@ var Input = (function() {
       this.$input.off('.tt');
 
       this.$hint = this.$input = this.$overflowHelper = null;
+    },
+      
+    destroyDomStructure: function($node, attrsKey) {
+      var $input = this.$input;
+      
+      // need to remove attrs that weren't previously defined and
+      // revert attrs that originally had a value
+      _.each($input.data(attrsKey), function(val, key) {
+        _.isUndefined(val) ? $input.removeAttr(key) : $input.attr(key, val);
+      });
+    
+      $input
+      .detach()
+      .removeData(attrsKey)
+      .removeClass('tt-input')
+      .insertAfter($node);
+    },
+      
+    attr: function(key, value) {
+      this.$input.attr(key, value);
+    },
+      
+    removeAttr: function(key) {
+      this.$input.removeAttr(key);
     }
   });
 

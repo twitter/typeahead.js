@@ -89,9 +89,10 @@ var Dataset = (function() {
       }
 
       function getSuggestionsHtml() {
-        var $suggestions, nodes;
+        var $suggestions, nodes, dropdownId;
 
         $suggestions = $(html.suggestions).css(css.suggestions);
+        dropdownId = that.$el.parent().attr('id') + '-';
 
         // jQuery#append doesn't support arrays as the first argument
         // until version 1.8, see http://bugs.jquery.com/ticket/11231
@@ -106,14 +107,15 @@ var Dataset = (function() {
 
         return $suggestions;
 
-        function getSuggestionNode(suggestion) {
+        function getSuggestionNode(suggestion, i) {
           var $el;
 
           $el = $(html.suggestion)
           .append(that.templates.suggestion(suggestion))
           .data(datasetKey, that.name)
           .data(valueKey, that.displayFn(suggestion))
-          .data(datumKey, suggestion);
+          .data(datumKey, suggestion)
+          .attr('id', dropdownId + i); // this is faster than _.guid()
 
           $el.children().each(function() { $(this).css(css.suggestionChild); });
 

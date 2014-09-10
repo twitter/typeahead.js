@@ -191,7 +191,8 @@ var Dropdown = (function() {
         datum = {
           raw: Dataset.extractDatum($el),
           value: Dataset.extractValue($el),
-          datasetName: Dataset.extractDatasetName($el)
+          datasetName: Dataset.extractDatasetName($el),
+          id: $el.attr('id')
         };
       }
 
@@ -208,7 +209,7 @@ var Dropdown = (function() {
 
     update: function update(query) {
       _.each(this.datasets, updateDataset);
-
+        
       function updateDataset(dataset) { dataset.update(query); }
     },
 
@@ -218,7 +219,7 @@ var Dropdown = (function() {
 
       function clearDataset(dataset) { dataset.clear(); }
     },
-
+      
     isVisible: function isVisible() {
       return this.isOpen && !this.isEmpty;
     },
@@ -231,6 +232,10 @@ var Dropdown = (function() {
       _.each(this.datasets, destroyDataset);
 
       function destroyDataset(dataset) { dataset.destroy(); }
+    },
+      
+    countSuggestions: function() {
+     return this.$menu.find('.tt-suggestion').length;
     }
   });
 
