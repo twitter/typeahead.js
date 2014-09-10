@@ -258,7 +258,7 @@ When initializing a typeahead, there are a number of options you can configure.
 * `accessibleStatus` – It can be either a HTML string or a precompiled template.
   If it's a precompiled template, the passed in context will contain:
   `query`, `hint`, `count`, `isEmpty`, `withHint`. The goal of this option
-  is to give an advisory information about displayed suggestions when user is typing.
+  is to give an advisory information about displayed suggestions when user is typing (WAI-ARIA support).
   Example of template:
   ```javascript
   Handlebars.compile(
