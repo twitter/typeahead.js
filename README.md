@@ -174,7 +174,7 @@ Authors
 
 * **Veljko Skarich**
   * [@vskarich](https://twitter.com/vskarich) 
-  * [GitHub](https://github.com/velsgithub)
+  * [GitHub](https://github.com/vskarich)
 
 * **Tim Trueman**
   * [@timtrueman](https://twitter.com/timtrueman) 
