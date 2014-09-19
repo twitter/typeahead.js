@@ -15,7 +15,8 @@ var highlight = (function(doc) {
         tagName: 'strong',
         className: null,
         wordsOnly: false,
-        caseSensitive: false
+        caseSensitive: false,
+        diacriticInsensitive: false
       };
       
   // used for diacritic insensitivity
@@ -61,7 +62,7 @@ var highlight = (function(doc) {
     // support wrapping multiple patterns
     o.pattern = _.isArray(o.pattern) ? o.pattern : [o.pattern];
 
-    regex = getRegex(o.pattern, o.caseSensitive, o.wordsOnly);
+    regex = getRegex(o.pattern, o.caseSensitive, o.wordsOnly, o.diacriticInsensitive);
     traverse(o.node, hightlightTextNode);
 
     function hightlightTextNode(textNode) {
@@ -103,13 +104,15 @@ var highlight = (function(doc) {
   function accent_replacer(chr) {
       return accented[chr.toUpperCase()] || chr;
   }
-  function getRegex(patterns, caseSensitive, wordsOnly) {
+  function getRegex(patterns, caseSensitive, wordsOnly, diacriticInsensitive) {
       var escapedPatterns = [], regexStr;
       for (var i = 0, len = patterns.length; i < len; i++) {
           var escapedWord = _.escapeRegExChars(patterns[i]);
           // added for diacritic insensitivity
-          var variantWord = escapedWord.replace(/\S/g,accent_replacer);
-          escapedPatterns.push(variantWord);
+          if(diacriticInsensitive){
+            var escapedWord = escapedWord.replace(/\S/g,accent_replacer);
+          }
+          escapedPatterns.push(escapedWord);
       }
       regexStr = wordsOnly ? "\\b(" + escapedPatterns.join("|") + ")\\b" : "(" + escapedPatterns.join("|") + ")";
       return caseSensitive ? new RegExp(regexStr) : new RegExp(regexStr, "i");
