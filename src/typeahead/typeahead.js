@@ -126,12 +126,12 @@ var Typeahead = (function() {
 
     _onFocused: function onFocused() {
       this.isActivated = true;
+      this.dropdown.empty();
       this.dropdown.open();
     },
 
     _onBlurred: function onBlurred() {
       this.isActivated = false;
-      this.dropdown.empty();
       this.dropdown.close();
     },
 
