@@ -18,31 +18,46 @@ describe('SearchIndex', function() {
     });
     this.searchIndex.bootstrap(serialized);
 
-    expect(this.searchIndex.get('smaller')).toEqual([{ value: 'smaller' }]);
+    expect(this.searchIndex.get('smaller')).toEqual({
+      matches: [{ value: 'smaller' }],
+      matchedTokens: ['smaller']
+    });
   });
 
   it('should be able to add data on the fly', function() {
     this.searchIndex.add({ value: 'new' });
 
-    expect(this.searchIndex.get('new')).toEqual([{ value: 'new' }]);
+    expect(this.searchIndex.get('new')).toEqual({
+      matches: [{ value: 'new' }],
+      matchedTokens: ['new']
+    });
   });
 
   it('#get should return datums that match the given query', function() {
-    expect(this.searchIndex.get('big')).toEqual([
-      { value: 'big' },
-      { value: 'bigger' },
-      { value: 'biggest' }
-    ]);
+    expect(this.searchIndex.get('big')).toEqual({
+      matches: [
+        { value: 'big' },
+        { value: 'bigger' },
+        { value: 'biggest' }
+      ],
+      matchedTokens: ['big','bigger','biggest']
+    });
 
-    expect(this.searchIndex.get('small')).toEqual([
-      { value: 'small' },
-      { value: 'smaller' },
-      { value: 'smallest' }
-    ]);
+    expect(this.searchIndex.get('small')).toEqual({
+      matches: [
+        { value: 'small' },
+        { value: 'smaller' },
+        { value: 'smallest' }
+      ],
+      matchedTokens: ['small', 'smaller', 'smallest']
+    });
   });
 
   it('#get should return an empty array of there are no matches', function() {
-    expect(this.searchIndex.get('wtf')).toEqual([]);
+    expect(this.searchIndex.get('wtf')).toEqual({
+      matches: [],
+      matchedTokens: []
+    });
   });
 
   it('#reset should empty the search index', function() {
