@@ -14,7 +14,7 @@ The typeahead.js library consists of 2 components: the suggestion engine,
 The suggestion engine is responsible for computing suggestions for a given 
 query. The UI view is responsible for rendering suggestions and handling DOM 
 interactions. Both components can be used separately, but when used together, 
-they can provided a rich typeahead experience.
+they can provide a rich typeahead experience.
 
 <!-- section links -->
 
