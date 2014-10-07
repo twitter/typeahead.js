@@ -14,7 +14,7 @@
         // Browser globals
         factory(jQuery, root);
     }
-}(this, function(jQuery, window) {
+}(this, function($, window) {
     var _ = function() {
         "use strict";
         return {
