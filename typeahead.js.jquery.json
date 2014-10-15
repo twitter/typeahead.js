@@ -5,7 +5,7 @@
     }
   ],
   "dependencies": {
-    "jquery": ">=1.9"
+    "jquery": ">=1.7"
   },
   "docs": "https://github.com/twitter/typeahead.js",
   "demo": "http://twitter.github.com/typeahead.js/examples",
@@ -36,5 +36,5 @@
       "url": "https://twitter.com/vskarich"
     }
   ],
-  "version": "0.10.4"
+  "version": "0.10.5"
 }
