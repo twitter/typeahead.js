@@ -319,6 +319,9 @@ The typeahead component triggers the following custom events.
 * `typeahead:closed` – Triggered when the dropdown menu of a typeahead is 
   closed.
 
+* `typeahead:change` – Triggered when the typeahead loses focus, if its value
+  has changed since it gained focus.
+
 * `typeahead:cursorchanged` – Triggered when the dropdown menu cursor is moved
   to a different suggestion. The event handler will be invoked with 3 
   arguments: the jQuery event object, the suggestion object, and the name of 
