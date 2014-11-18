@@ -45,18 +45,18 @@ module.exports = function(grunt) {
     ].join('\n'),
 
     concat: {
-        bloodhound: {
-            src: [files.common, files.bloodhound],
-            dest: '<%= tempDir %>/bloodhound.js'
-        },
-        typeahead: {
-            src: [files.common, files.typeahead],
-            dest: '<%= tempDir %>/typeahead.jquery.js'
-        },
-        bundle: {
-            src: [files.common, files.bloodhound, files.typeahead],
-            dest: '<%= tempDir %>/typeahead.bundle.js'
-        }
+      bloodhound: {
+        src: [files.common, files.bloodhound],
+        dest: '<%= tempDir %>/bloodhound.js'
+      },
+      typeahead: {
+        src: [files.common, files.typeahead],
+        dest: '<%= tempDir %>/typeahead.jquery.js'
+      },
+      bundle: {
+        src: [files.common, files.bloodhound, files.typeahead],
+        dest: '<%= tempDir %>/typeahead.bundle.js'
+      }
     },
 
     uglify: {
@@ -120,36 +120,36 @@ module.exports = function(grunt) {
     },
 
     umd: {
-        bloodhound: {
-            indent: '  ',
-            deps: {
-                'default': ['$'],
-                amd: ['jquery'],
-                cjs: ['jquery'],
-                global: ['jQuery']
-            },
-            src: '<%= tempDir %>/bloodhound.js'
+      bloodhound: {
+        indent: '  ',
+        deps: {
+          'default': ['$'],
+          amd: ['jquery'],
+          cjs: ['jquery'],
+          global: ['jQuery']
         },
-        typeahead: {
-            indent: '  ',
-            deps: {
-                'default': ['$'],
-                amd: ['jquery'],
-                cjs: ['jquery'],
-                global: ['jQuery']
-            },
-            src: '<%= tempDir %>/typeahead.jquery.js'
+        src: '<%= tempDir %>/bloodhound.js'
+      },
+      typeahead: {
+        indent: '  ',
+        deps: {
+          'default': ['$'],
+          amd: ['jquery'],
+          cjs: ['jquery'],
+          global: ['jQuery']
         },
-        bundle: {
-            indent: '  ',
-            deps: {
-                'default': ['$'],
-                amd: ['jquery'],
-                cjs: ['jquery'],
-                global: ['jQuery']
-            },
-            src: '<%= tempDir %>/typeahead.bundle.js'
-        }
+        src: '<%= tempDir %>/typeahead.jquery.js'
+      },
+      bundle: {
+        indent: '  ',
+        deps: {
+          'default': ['$'],
+          amd: ['jquery'],
+          cjs: ['jquery'],
+          global: ['jQuery']
+        },
+        src: '<%= tempDir %>/typeahead.bundle.js'
+      }
     },
 
     sed: {
@@ -207,7 +207,8 @@ module.exports = function(grunt) {
     },
 
     clean: {
-      dist: 'dist'
+      dist: 'dist',
+      temp: 'temp'
     },
 
     connect: {
