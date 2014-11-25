@@ -1206,7 +1206,7 @@
                     if (that.displayCategory) {
                         var catNodes = {};
                         _.each(nodes, function(node) {
-                            var cat = typeof that.displayCategory === 'function' ? that.displayCategory(node.data(datumKey)):  node.data(datumKey)[that.displayCategory];
+                            var cat = typeof that.displayCategory === "function" ? that.displayCategory(node.data(datumKey)) : node.data(datumKey)[that.displayCategory];
                             if (typeof catNodes[cat] === "undefined") {
                                 catNodes[cat] = [];
                             }
