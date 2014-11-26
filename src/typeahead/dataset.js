@@ -103,7 +103,7 @@ var Dataset = (function() {
           var catNodes = {};
 
           _.each(nodes, function(node) {
-            var cat = node.data(datumKey)[that.displayCategory];
+            var cat = typeof that.displayCategory === 'function' ? that.displayCategory(node.data(datumKey)):  node.data(datumKey)[that.displayCategory];
             if (typeof catNodes[cat] === 'undefined') {
               catNodes[cat] = [];
             }

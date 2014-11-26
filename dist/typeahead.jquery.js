@@ -568,6 +568,7 @@
             this.name = o.name || _.getUniqueId();
             this.source = o.source;
             this.displayFn = getDisplayFn(o.display || o.displayKey);
+            this.displayCategory = o.displayCategory || false;
             this.templates = getTemplates(o.templates, this.displayFn);
             this.$el = $(html.dataset.replace("%CLASS%", this.name));
         }
@@ -604,6 +605,21 @@
                     var $suggestions, nodes;
                     $suggestions = $(html.suggestions).css(css.suggestions);
                     nodes = _.map(suggestions, getSuggestionNode);
+                    if (that.displayCategory) {
+                        var catNodes = {};
+                        _.each(nodes, function(node) {
+                            var cat = typeof that.displayCategory === "function" ? that.displayCategory(node.data(datumKey)) : node.data(datumKey)[that.displayCategory];
+                            if (typeof catNodes[cat] === "undefined") {
+                                catNodes[cat] = [];
+                            }
+                            catNodes[cat].push(node);
+                        });
+                        nodes = [];
+                        _.each(catNodes, function(cnodes, cat) {
+                            nodes.push(that.templates.category.header(cat));
+                            nodes = nodes.concat(cnodes);
+                        });
+                    }
                     $suggestions.append.apply($suggestions, nodes);
                     that.highlight && highlight({
                         className: "tt-highlight",
@@ -675,10 +691,16 @@
                 empty: templates.empty && _.templatify(templates.empty),
                 header: templates.header && _.templatify(templates.header),
                 footer: templates.footer && _.templatify(templates.footer),
-                suggestion: templates.suggestion || suggestionTemplate
+                suggestion: templates.suggestion || suggestionTemplate,
+                category: {
+                    header: templates.category && templates.category.header || categoryHeaderTemplate
+                }
             };
             function suggestionTemplate(context) {
                 return "<p>" + displayFn(context) + "</p>";
+            }
+            function categoryHeaderTemplate(name) {
+                return '<p class="tt-suggestion-category">' + name + "</p>";
             }
         }
         function isValidName(str) {
