@@ -150,10 +150,11 @@ var Dataset = (function() {
       this.canceled = false;
       this.source(query, render);
 
+
       function render(suggestions) {
         // if the update has been canceled or if the query has changed
         // do not render the suggestions as they've become outdated
-        if (!that.canceled && query === that.query || (this.showDefault && query === '')) {
+        if (!that.canceled && query === that.query || (that.showDefault && query === '')) {
           that._render(query, suggestions);
         }
       }
