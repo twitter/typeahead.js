@@ -243,6 +243,18 @@ describe('Typeahead', function() {
 
         expect($e.preventDefault).toHaveBeenCalled();
       });
+
+      describe('when defaultOnTab is true', function() {
+        it('should not prevent the default behavior of the event', function() {
+          var $e;
+          this.view.defaultOnTab = true;
+
+          $e = jasmine.createSpyObj('event', ['preventDefault']);
+          this.input.trigger('tabKeyed', $e);
+
+          expect($e.preventDefault).not.toHaveBeenCalled();
+        });
+      });
     });
 
     describe('when cursor is not in use', function() {
