@@ -62,7 +62,9 @@ var Typeahead = (function() {
     .onSync('cursorRemoved', this._onCursorRemoved, this)
     .onSync('opened', this._onOpened, this)
     .onSync('closed', this._onClosed, this)
-    .onAsync('datasetRendered', this._onDatasetRendered, this);
+    .onAsync('datasetRendered', this._onDatasetRendered, this)
+    .onSync('hoverStarted', this._onHoverStart, this)
+    .onSync('hoverEnded', this._onHoverEnd, this);
 
     this.input = new Input({ input: $input, hint: $hint })
     .onSync('focused', this._onFocused, this)
@@ -150,6 +152,12 @@ var Typeahead = (function() {
         this._select(topSuggestionDatum);
         $e.preventDefault();
       }
+
+      else {
+        this._autocomplete(true);
+        this.dropdown.moveCursorDown();
+        $e.preventDefault();
+      }
     },
 
     _onTabKeyed: function onTabKeyed(type, $e) {
@@ -212,6 +220,17 @@ var Typeahead = (function() {
     _onWhitespaceChanged: function onWhitespaceChanged() {
       this._updateHint();
       this.dropdown.open();
+    },
+
+    _onHoverStart: function onHoverStart(type, $el) {
+      var datum = this.dropdown.getDatumForCursor();
+      this.input.setInputValue(datum.value, true);
+    },
+
+    _onHoverEnd: function onHoverEnd(type, $el) {
+      var query = this.input.getQuery();
+      this.input.resetInputValue();
+      this.dropdown.update(query);
     },
 
     _setLanguageDirection: function setLanguageDirection() {
