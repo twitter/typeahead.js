@@ -133,6 +133,7 @@ var Typeahead = (function() {
       this.isActivated = false;
       this.dropdown.empty();
       this.dropdown.close();
+      this.eventBus.trigger("blurred");
     },
 
     _onEnterKeyed: function onEnterKeyed(type, $e) {

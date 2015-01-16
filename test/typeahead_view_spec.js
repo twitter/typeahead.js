@@ -182,6 +182,15 @@ describe('Typeahead', function() {
 
       expect(this.dropdown.close).toHaveBeenCalled();
     });
+    it('should trigger typeahead:blurred', function() {
+      var spy;
+
+      this.$input.on('typeahead:blurred', spy = jasmine.createSpy());
+
+      this.input.trigger('blurred');
+
+      expect(spy).toHaveBeenCalled();
+    });
   });
 
   describe('when input triggers enterKeyed', function() {
