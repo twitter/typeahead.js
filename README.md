@@ -106,7 +106,7 @@ Versioning
 ----------
 
 For transparency and insight into our release cycle, releases will be numbered 
-with the follow format:
+with the following format:
 
 `<major>.<minor>.<patch>`
 
