@@ -27,7 +27,7 @@ var Dataset = (function() {
     // tracks the last query the dataset was updated for
     this.query = null;
 
-    this.highlight = !!o.highlight;
+    this.highlight = o.highlight;
     this.name = o.name || _.getUniqueId();
 
     this.source = o.source;
@@ -101,7 +101,7 @@ var Dataset = (function() {
         that.highlight && highlight({
           className: 'tt-highlight',
           node: $suggestions[0],
-          pattern: query
+          pattern: _.isFunction(that.highlight) ? that.highlight(query) : query
         });
 
         return $suggestions;
