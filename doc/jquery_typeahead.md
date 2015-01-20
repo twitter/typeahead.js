@@ -255,6 +255,8 @@ When initializing a typeahead, there are a number of options you can configure.
 * `minLength` – The minimum character length needed before suggestions start 
   getting rendered. Defaults to `1`.
 
+* `autoselect` – If `true`, the typeahead will select the first suggestion, when the Enter key has been pressed. Defaults to `false`.
+
 ### Datasets
 
 A typeahead is composed of one or more datasets. When an end-user modifies the
