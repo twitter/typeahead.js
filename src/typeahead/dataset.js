@@ -89,7 +89,9 @@ var Dataset = (function() {
       }
 
       function getSuggestionsHtml() {
-        var $suggestions, nodes;
+        var $suggestions, nodes, listboxId;
+        
+        listboxId = that.$el.parent().attr('id') + '-';
 
         $suggestions = $(html.suggestions).css(css.suggestions);
 
@@ -106,14 +108,15 @@ var Dataset = (function() {
 
         return $suggestions;
 
-        function getSuggestionNode(suggestion) {
+        function getSuggestionNode(suggestion, i) {
           var $el;
 
           $el = $(html.suggestion)
           .append(that.templates.suggestion(suggestion))
           .data(datasetKey, that.name)
           .data(valueKey, that.displayFn(suggestion))
-          .data(datumKey, suggestion);
+          .data(datumKey, suggestion)
+          .attr('id', listboxId + i);
 
           $el.children().each(function() { $(this).css(css.suggestionChild); });
 

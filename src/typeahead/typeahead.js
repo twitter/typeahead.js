@@ -99,12 +99,14 @@ var Typeahead = (function() {
       var datum = this.dropdown.getDatumForCursor();
 
       this.input.setInputValue(datum.value, true);
+      this.input.setAriaActivedescendant(datum.id);
 
       this.eventBus.trigger('cursorchanged', datum.raw, datum.datasetName);
     },
 
     _onCursorRemoved: function onCursorRemoved() {
       this.input.resetInputValue();
+      this.input.clearAriaActivedescendant();
       this._updateHint();
     },
 
@@ -114,12 +116,16 @@ var Typeahead = (function() {
 
     _onOpened: function onOpened() {
       this._updateHint();
-
+      
+      this.input.setAriaExpanded('true');
+      
       this.eventBus.trigger('opened');
     },
 
     _onClosed: function onClosed() {
       this.input.clearHint();
+      this.input.clearAriaActivedescendant();
+      this.input.setAriaExpanded('false');
 
       this.eventBus.trigger('closed');
     },
@@ -319,12 +325,13 @@ var Typeahead = (function() {
   return Typeahead;
 
   function buildDom(input, withHint) {
-    var $input, $wrapper, $dropdown, $hint;
+    var $input, $wrapper, $dropdown, $hint, listboxId;
 
     $input = $(input);
     $wrapper = $(html.wrapper).css(css.wrapper);
     $dropdown = $(html.dropdown).css(css.dropdown);
     $hint = $input.clone().css(css.hint).css(getBackgroundStyles($input));
+    listboxId = 'tt-listbox-'+_.getUniqueId();
 
     $hint
     .val('')
@@ -332,7 +339,7 @@ var Typeahead = (function() {
     .addClass('tt-hint')
     .removeAttr('id name placeholder required')
     .prop('readonly', true)
-    .attr({ autocomplete: 'off', spellcheck: 'false', tabindex: -1 });
+    .attr({ autocomplete: 'off', spellcheck: 'false', tabindex: -1, 'aria-hidden': true });
 
     // store the original values of the attrs that get modified
     // so modifications can be reverted on destroy
@@ -340,12 +347,18 @@ var Typeahead = (function() {
       dir: $input.attr('dir'),
       autocomplete: $input.attr('autocomplete'),
       spellcheck: $input.attr('spellcheck'),
-      style: $input.attr('style')
+      style: $input.attr('style'),
+      role: $input.attr('role'),
+      'aria-autocomplete': $input.attr('aria-autocomplete'),
+      'aria-expanded': $input.attr('aria-expanded'),
+      'aria-owns': $input.attr('aria-owns')
     });
+    
+    $dropdown.attr('id', listboxId);
 
     $input
     .addClass('tt-input')
-    .attr({ autocomplete: 'off', spellcheck: false })
+    .attr({ autocomplete: 'off', spellcheck: false, role: 'combobox', 'aria-autocomplete': withHint ? 'both' : 'list', 'aria-expanded': false, 'aria-owns': listboxId })
     .css(withHint ? css.input : css.inputWithNoHint);
 
     // ie7 does not like it when dir is set to auto

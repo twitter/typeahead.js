@@ -333,6 +333,28 @@ describe('Input', function() {
       expect(this.view.getHint()).toBe('cheese');
     });
   });
+  
+  describe('#setAriaActivedescendant', function() {
+    it('should set the value of the input\'s aria-activedescendant attribute', function() {
+      this.view.setAriaActivedescendant('milk');
+      expect(this.view.getAriaActivedescendant()).toBe('milk');
+    });
+  });
+  
+  describe('#clearAriaActivedescendant', function() {
+    it('should clear the input\'s aria-activedescendant attribute', function() {
+      this.view.setAriaActivedescendant('milk');
+      this.view.clearAriaActivedescendant();
+      expect(this.view.getAriaActivedescendant()).not.toBeDefined();
+    });
+  });
+  
+  describe('#setAriaExpanded', function() {
+    it('should set the value of the input\'s aria-expanded attribute', function() {
+      this.view.setAriaExpanded('true');
+      expect(this.view.getAriaExpanded()).toBe('true');
+    });
+  });
 
   describe('#getLanguageDirection', function() {
     it('should return the language direction of the input', function() {

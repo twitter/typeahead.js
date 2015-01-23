@@ -253,10 +253,10 @@ describe('Dropdown', function() {
     it('should extract the datum from the suggestion element', function() {
       var $suggestion, datum;
 
-      $suggestion = $('<div>').data({ ttValue: 'one', ttDatum: 'two' });
+      $suggestion = $('<div id="three">').data({ ttValue: 'one', ttDatum: 'two' });
       datum = this.view.getDatumForSuggestion($suggestion);
 
-      expect(datum).toEqual({ value: 'one', raw: 'two' });
+      expect(datum).toEqual({ value: 'one', raw: 'two', id: 'three' });
     });
 
     it('should return null if no element is given', function() {

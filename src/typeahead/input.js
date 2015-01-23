@@ -229,6 +229,26 @@ var Input = (function() {
 
       !isValid && this.clearHint();
     },
+    
+    setAriaActivedescendant: function setAriaActivedescendant(id) {
+      this.$input.attr('aria-activedescendant', id);
+    },
+    
+    getAriaActivedescendant: function getAriaActivedescendant() {
+      return this.$input.attr('aria-activedescendant');
+    },
+    
+    clearAriaActivedescendant: function clearAriaActivedescendant() {
+      this.$input.removeAttr('aria-activedescendant');
+    },
+    
+    setAriaExpanded: function setAriaExpanded(value) {
+      this.$input.attr('aria-expanded', value);
+    },
+    
+    getAriaExpanded: function getAriaExpanded() {
+      return this.$input.attr('aria-expanded');
+    },
 
     getLanguageDirection: function getLanguageDirection() {
       return (this.$input.css('direction') || 'ltr').toLowerCase();
