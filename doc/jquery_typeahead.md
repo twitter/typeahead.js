@@ -47,7 +47,7 @@ regarding datasets, refer to [Datasets](#datasets).
 ```javascript
 $('.typeahead').typeahead({
   minLength: 3,
-  highlight: true,
+  highlight: true
 },
 {
   name: 'my-dataset',
