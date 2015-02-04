@@ -1,7 +1,7 @@
 jQuery#typeahead
 ----------------
 
-The UI component of typeahead.js is a available as a jQuery plugin. It's 
+The UI component of typeahead.js is available as a jQuery plugin. It's
 responsible for rendering suggestions and handling DOM interactions.
 
 Table of Contents
