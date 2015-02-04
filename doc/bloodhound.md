@@ -189,7 +189,7 @@ prevent additional network requests on subsequent page loads.
 
 **WARNING:** While it's possible to get away with it for smaller data sets, 
 prefetched data isn't meant to contain entire data sets. Rather, it should act 
-as a first-level cache for suggestions. If don't keep this warning in mind, 
+as a first-level cache for suggestions. If you don't keep this warning in mind, 
 you run the risk of hitting [local storage limits].
 
 When configuring `prefetch`, the following options are available.
