@@ -12,7 +12,7 @@ var oParser = (function() {
 
     defaults = {
       initialize: true,
-      identify: _.getIdGenerator(), // JSON.stringify?
+      identify: _.getIdGenerator(),
       datumTokenizer: null,
       queryTokenizer: null,
       sufficient: 5,
@@ -61,7 +61,7 @@ var oParser = (function() {
     !o.url && $.error('prefetch requires url to be set');
 
     // DEPRECATED: filter will be dropped in v1
-    o.transform = o.transform || o.filter;
+    o.transform = o.filter || o.transform;
 
     o.cacheKey = o.cacheKey || o.url;
     o.thumbprint = VERSION + o.thumbprint;
@@ -96,7 +96,7 @@ var oParser = (function() {
     !o.url && $.error('remote requires url to be set');
 
     // DEPRECATED: filter will be dropped in v1
-    o.transform = o.transform || o.filter;
+    o.transform = o.filter || o.transform;
 
     o.prepare = toPrepare(o);
     o.limiter = toLimiter(o);

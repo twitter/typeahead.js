@@ -44,9 +44,9 @@ var EventBus = (function() {
       var $e;
 
       $e = $.Event(namespace + type);
-      args = [].slice.call(arguments, 1);
+      (args = args || []).unshift($e);
 
-      this.$el.trigger($e, args);
+      this.$el.trigger.apply(this.$el, args);
 
       return $e;
     },

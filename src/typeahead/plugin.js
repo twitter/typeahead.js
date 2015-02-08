@@ -52,7 +52,7 @@
 
         // hint should be empty on init
         $hint && $hint.val('');
-        $input = prepInput($input);
+        $input = prepInput($input, www);
 
         // only apply inline styles and make dom changes if necessary
         if (defaultHint || defaultMenu) {
@@ -214,7 +214,7 @@
 
   function buildHintFromInput($input, www) {
     return $input.clone()
-    .addClass('tt-hint')
+    .addClass(www.classes.hint)
     .removeData()
     .css(www.css.hint)
     .css(getBackgroundStyles($input))
@@ -223,7 +223,7 @@
     .attr({ autocomplete: 'off', spellcheck: 'false', tabindex: -1 });
   }
 
-  function prepInput($input) {
+  function prepInput($input, www) {
     // store the original values of the attrs that get modified
     // so modifications can be reverted on destroy
     $input.data(keys.attrs, {
@@ -234,7 +234,7 @@
     });
 
     $input
-    .addClass('tt-input')
+    .addClass(www.classes.input)
     .attr({ autocomplete: 'off', spellcheck: false });
 
     // ie7 does not like it when dir is set to auto

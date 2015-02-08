@@ -59,11 +59,11 @@ var Bloodhound = (function() {
       return this.remote ? withAsync : withoutAsync;
 
       function withAsync(query, sync, async) {
-        return that.get(query, sync, async);
+        return that.search(query, sync, async);
       }
 
       function withoutAsync(query, sync) {
-        return that.get(query, sync);
+        return that.search(query, sync);
       }
     },
 
