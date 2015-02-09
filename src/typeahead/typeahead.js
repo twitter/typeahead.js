@@ -11,9 +11,9 @@ var Typeahead = (function() {
   // -----------
 
   function Typeahead(o, www) {
-    var onSelectableClicked, onDatasetRendered, onDatasetCleared, onFocused,
-        onBlurred, onEnterKeyed, onTabKeyed, onEscKeyed, onUpKeyed, onDownKeyed,
-        onLeftKeyed, onRightKeyed, onQueryChanged, onWhitespaceChanged;
+    var onFocused, onBlurred, onEnterKeyed, onTabKeyed, onEscKeyed, onUpKeyed,
+        onDownKeyed, onLeftKeyed, onRightKeyed, onQueryChanged,
+        onWhitespaceChanged;
 
     o = o || {};
 
@@ -48,18 +48,13 @@ var Typeahead = (function() {
 
     this._hacks();
 
-    // composed event handlers for menu
-    onSelectableClicked = c(this, 'isActive', '_onSelectableClicked');
-    onDatasetRendered = c(this, 'isActive', '_onDatasetRendered');
-    onDatasetCleared = c(this, 'isActive', '_onDatasetCleared');
-
     this.menu.bind()
-    .onSync('selectableClicked', onSelectableClicked, this)
+    .onSync('selectableClicked', this._onSelectableClicked, this)
     .onSync('asyncRequested', this._onAsyncRequested, this)
     .onSync('asyncCanceled', this._onAsyncCanceled, this)
     .onSync('asyncReceived', this._onAsyncReceived, this)
-    .onSync('datasetRendered', onDatasetRendered, this)
-    .onSync('datasetCleared', onDatasetCleared, this);
+    .onSync('datasetRendered', this._onDatasetRendered, this)
+    .onSync('datasetCleared', this._onDatasetCleared, this);
 
     // composed event handlers for input
     onFocused = c(this, 'activate', 'open', '_onFocused');
@@ -71,8 +66,8 @@ var Typeahead = (function() {
     onDownKeyed = c(this, 'isActive', 'open', '_onDownKeyed');
     onLeftKeyed = c(this, 'isActive', 'isOpen', '_onLeftKeyed');
     onRightKeyed = c(this, 'isActive', 'isOpen', '_onRightKeyed');
-    onQueryChanged = c(this, 'isActive', 'open', '_onQueryChanged');
-    onWhitespaceChanged = c(this, 'isActive', 'open', '_onWhitespaceChanged');
+    onQueryChanged = c(this, '_openIfActive', '_onQueryChanged');
+    onWhitespaceChanged = c(this, '_openIfActive', '_onWhitespaceChanged');
 
     this.input.bind()
     .onSync('focused', onFocused, this)
@@ -224,6 +219,10 @@ var Typeahead = (function() {
 
     // ### private
 
+    _openIfActive: function openIfActive() {
+      this.isActive() && this.open();
+    },
+
     _minLengthMet: function minLengthMet(query) {
       query = _.isString(query) ? query : (this.input.getQuery() || '');
 
@@ -319,7 +318,7 @@ var Typeahead = (function() {
     open: function open() {
       if (!this.isOpen() && !this.eventBus.before('open')) {
         this.menu.open();
-        this.isActive() && this._updateHint();
+        this._updateHint();
         this.eventBus.trigger('open');
       }
 

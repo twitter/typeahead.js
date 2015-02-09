@@ -302,13 +302,14 @@
 
 
       $('input').on([
-        'typeahead:initialized',
-        'typeahead:initialized:err',
-        'typeahead:selected',
-        'typeahead:autocompleted',
-        'typeahead:cursorchanged',
-        'typeahead:opened',
-        'typeahead:closed'
+        'typeahead:active',
+        'typeahead:idle',
+        'typeahead:open',
+        'typeahead:close',
+        'typeahead:change',
+        'typeahead:select',
+        'typeahead:autocomplet',
+        'typeahead:cursorchange',
       ].join(' '), logTypeaheadEvent);
 
       $('form').on('submit', logSubmitEvent);

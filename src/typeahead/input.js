@@ -176,8 +176,7 @@ var Input = (function() {
 
       // ie7 and ie8 don't support the input event
       // ie9 doesn't fire the input event when characters are removed
-      // not sure if ie10 is compatible
-      if (!_.isMsie()) {
+      if (!_.isMsie() || _.isMsie() > 9) {
         this.$input.on('input.tt', onInput);
       }
 

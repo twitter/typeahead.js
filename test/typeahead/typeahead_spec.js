@@ -743,10 +743,9 @@ describe('Typeahead', function() {
         this.view.deactivate();
       });
 
-      it('should do nothing', function() {
-        spyOn(this.view, '_onQueryChanged');
+      it('should not open menu', function() {
         this.input.trigger(eventName, payload);
-        expect(this.view._onQueryChanged).not.toHaveBeenCalled();
+        expect(this.menu.open).not.toHaveBeenCalled();
       });
     });
 
@@ -788,10 +787,9 @@ describe('Typeahead', function() {
         this.view.deactivate();
       });
 
-      it('should do nothing', function() {
-        spyOn(this.view, '_onWhitespaceChanged');
+      it('should not open menu', function() {
         this.input.trigger(eventName, payload);
-        expect(this.view._onWhitespaceChanged).not.toHaveBeenCalled();
+        expect(this.menu.open).not.toHaveBeenCalled();
       });
     });
 
