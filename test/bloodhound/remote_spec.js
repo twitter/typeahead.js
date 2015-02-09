@@ -52,7 +52,7 @@ describe('Remote', function() {
 
       spy = jasmine.createSpy();
       spyOn(this.remote, 'transform').andReturn([{ foo: 'bar' }]);
-      this.transport.get.andCallFake(function(_, cb) { cb(null, {}); })
+      this.transport.get.andCallFake(function(_, cb) { cb(null, {}); });
 
       this.remote.get('foo', spy);
 
@@ -63,7 +63,7 @@ describe('Remote', function() {
       var spy;
 
       spy = jasmine.createSpy();
-      this.transport.get.andCallFake(function(_, cb) { cb(true); })
+      this.transport.get.andCallFake(function(_, cb) { cb(true); });
 
       this.remote.get('foo', spy);
 

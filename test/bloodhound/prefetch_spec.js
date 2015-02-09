@@ -23,7 +23,7 @@ describe('Prefetch', function() {
 
   describe('#clear', function() {
     it('should clear cache storage', function() {
-      this.prefetch.clear()
+      this.prefetch.clear();
       expect(this.storage.clear).toHaveBeenCalled();
     });
   });

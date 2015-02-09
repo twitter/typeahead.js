@@ -190,7 +190,7 @@ describe('Bloodhound', function() {
 
       this.bloodhound = build({ local: fixtures.data.simple });
 
-      this.bloodhound.search('big', spy)
+      this.bloodhound.search('big', spy);
 
       expect(spy).toHaveBeenCalledWith([
         { value: 'big' },
@@ -208,7 +208,7 @@ describe('Bloodhound', function() {
       this.bloodhound.prefetch.fromCache.andReturn(fixtures.serialized.simple);
       this.bloodhound.initialize();
 
-      this.bloodhound.search('big', spy)
+      this.bloodhound.search('big', spy);
 
       expect(spy).toHaveBeenCalledWith([
         { value: 'big' },

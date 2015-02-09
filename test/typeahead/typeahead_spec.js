@@ -1315,7 +1315,7 @@ describe('Typeahead', function() {
       this.menu.update.andReturn(true);
       this.$input.on('typeahead:beforecursorchange', spy);
 
-      this.view.moveCursor(1)
+      this.view.moveCursor(1);
 
       expect(spy).toHaveBeenCalled();
     });
@@ -1326,7 +1326,7 @@ describe('Typeahead', function() {
       this.menu.update.andReturn(false);
       this.$input.on('typeahead:beforecursorchange', spy);
 
-      this.view.moveCursor(1)
+      this.view.moveCursor(1);
 
       expect(spy).toHaveBeenCalled();
     });
@@ -1337,7 +1337,7 @@ describe('Typeahead', function() {
       this.menu.update.andReturn(true);
       this.$input.on('typeahead:beforecursorchange', spy);
 
-      this.view.moveCursor(1)
+      this.view.moveCursor(1);
 
       expect(spy).not.toHaveBeenCalled();
     });
@@ -1346,7 +1346,7 @@ describe('Typeahead', function() {
       var spy = jasmine.createSpy();
 
       this.$input.on('typeahead:beforecursorchange', spy);
-      this.view.moveCursor(1)
+      this.view.moveCursor(1);
       expect(spy).toHaveBeenCalled();
     });
 
@@ -1354,18 +1354,18 @@ describe('Typeahead', function() {
       var spy = jasmine.createSpy().andCallFake(prevent);
 
       this.$input.on('typeahead:beforecursorchange', spy);
-      this.view.moveCursor(1)
+      this.view.moveCursor(1);
       expect(this.menu.setCursor).not.toHaveBeenCalled();
     });
 
     it('should update the input value if moved to selectable', function() {
       this.menu.getSelectableData.andReturn(testData);
-      this.view.moveCursor(1)
+      this.view.moveCursor(1);
       expect(this.input.setInputValue).toHaveBeenCalledWith(testData.val);
     });
 
     it('should reset the input value if moved to input', function() {
-      this.view.moveCursor(1)
+      this.view.moveCursor(1);
       expect(this.input.resetInputValue).toHaveBeenCalled();
     });
 
@@ -1375,7 +1375,7 @@ describe('Typeahead', function() {
       this.menu.getSelectableData.andCallFake(fake);
       this.input.getInputValue.andReturn(testData.val.slice(0, 1));
 
-      this.view.moveCursor(1)
+      this.view.moveCursor(1);
 
       expect(this.input.setHint).toHaveBeenCalledWith(testData.val);
 
@@ -1388,7 +1388,7 @@ describe('Typeahead', function() {
       var spy = jasmine.createSpy();
 
       this.$input.on('typeahead:cursorchange', spy);
-      this.view.moveCursor(1)
+      this.view.moveCursor(1);
       expect(spy).toHaveBeenCalled();
     });
   });
