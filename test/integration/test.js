@@ -60,7 +60,7 @@ describe('jquery-typeahead.js', function() {
       yield this.init(caps);
       yield this.get('http://localhost:8888/test/integration/test.html');
 
-      body = this.elementByTagName('body');
+      body = yield this.elementByTagName('body');
       input = yield this.elementById('states');
       hint = yield this.elementByClassName('tt-hint');
       dropdown = yield this.elementByClassName('tt-menu');

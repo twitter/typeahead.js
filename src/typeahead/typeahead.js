@@ -349,9 +349,9 @@ var Typeahead = (function() {
 
       if (data && !this.eventBus.before('select', data.obj)) {
         this.input.setQuery(data.val, true);
-        this.close();
 
         this.eventBus.trigger('select', data.obj);
+        this.close();
 
         // return true if selection succeeded
         return true;
