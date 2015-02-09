@@ -155,6 +155,10 @@ var _ = (function() {
       };
     },
 
+    stringify: function(val) {
+      return _.isString(val) ? val : JSON.stringify(val);
+    },
+
     noop: function() {}
   };
 })();

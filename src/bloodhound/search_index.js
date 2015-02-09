@@ -4,8 +4,10 @@
  * Copyright 2013-2014 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var SearchIndex = (function() {
+var SearchIndex = window.SearchIndex = (function() {
   'use strict';
+
+  var CHILDREN = 'c', IDS = 'i';
 
   // constructor
   // -----------
@@ -17,7 +19,7 @@ var SearchIndex = (function() {
       $.error('datumTokenizer and queryTokenizer are both required');
     }
 
-    this.identify = o.identify || _.getIdGenerator();
+    this.identify = o.identify || _.stringify;
     this.datumTokenizer = o.datumTokenizer;
     this.queryTokenizer = o.queryTokenizer;
 
@@ -54,8 +56,8 @@ var SearchIndex = (function() {
           chars = token.split('');
 
           while (ch = chars.shift()) {
-            node = node.children[ch] || (node.children[ch] = newNode());
-            node.ids.push(id);
+            node = node[CHILDREN][ch] || (node[CHILDREN][ch] = newNode());
+            node[IDS].push(id);
           }
         });
       });
@@ -84,11 +86,11 @@ var SearchIndex = (function() {
         chars = token.split('');
 
         while (node && (ch = chars.shift())) {
-          node = node.children[ch];
+          node = node[CHILDREN][ch];
         }
 
         if (node && chars.length === 0) {
-          ids = node.ids.slice(0);
+          ids = node[IDS].slice(0);
           matches = matches ? getIntersection(matches, ids) : ids;
         }
 
@@ -139,7 +141,12 @@ var SearchIndex = (function() {
   }
 
   function newNode() {
-    return { ids: [], children: {} };
+    var node = {};
+
+    node[IDS] = [];
+    node[CHILDREN] = {};
+
+    return node;
   }
 
   function unique(array) {

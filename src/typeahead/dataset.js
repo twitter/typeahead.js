@@ -301,7 +301,7 @@ var Dataset = (function() {
   // ----------------
 
   function getDisplayFn(display) {
-    display = display || 'value';
+    display = display || _.stringify;
 
     return _.isFunction(display) ? display : displayFn;
 

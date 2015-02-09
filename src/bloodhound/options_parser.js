@@ -12,7 +12,7 @@ var oParser = (function() {
 
     defaults = {
       initialize: true,
-      identify: _.getIdGenerator(),
+      identify: _.stringify,
       datumTokenizer: null,
       queryTokenizer: null,
       sufficient: 5,

@@ -66,7 +66,7 @@ describe('SearchIndex', function() {
   it('#reset should empty the search index', function() {
     this.index.reset();
     expect(this.index.datums).toEqual([]);
-    expect(this.index.trie.ids).toEqual([]);
-    expect(this.index.trie.children).toEqual({});
+    expect(this.index.trie.i).toEqual([]);
+    expect(this.index.trie.c).toEqual({});
   });
 });
