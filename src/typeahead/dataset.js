@@ -101,7 +101,7 @@ var Dataset = (function() {
         that.highlight && highlight({
           className: 'tt-highlight',
           node: $suggestions[0],
-          pattern: _.isFunction(that.highlight) ? that.highlight(query) : query
+          pattern: _.isFunction(that.highlight) ? that.highlight(query, suggestions) : query
         });
 
         return $suggestions;
