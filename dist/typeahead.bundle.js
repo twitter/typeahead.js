@@ -915,7 +915,7 @@
         return function hightlight(o) {
             var regex;
             o = _.mixin({}, defaults, o);
-            if (!o.node || !o.pattern) {
+            if (!o.node || !o.pattern || o.pattern.length === 0) {
                 return;
             }
             o.pattern = _.isArray(o.pattern) ? o.pattern : [ o.pattern ];
