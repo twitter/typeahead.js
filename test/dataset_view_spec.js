@@ -52,6 +52,19 @@ describe('Dataset', function() {
       expect(this.dataset.getRoot()).toContainText('6');
     });
 
+    it('should allow custom highlighting functions', function () {
+      this.dataset = new Dataset({
+        name: 'test',
+        highlight: function(o) { o.node.innerHTML = 'custom'; },
+        source: this.source = jasmine.createSpy('source')
+      });
+
+      this.source.andCallFake(fakeGetForDisplayFn);
+      this.dataset.update('whatever');
+
+      expect(this.dataset.getRoot()).toContainText('custom');
+    });
+
     it('should render empty when no suggestions are available', function() {
       this.dataset = new Dataset({
         source: this.source,
