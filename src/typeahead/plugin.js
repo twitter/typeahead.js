@@ -29,7 +29,7 @@
 
         _.each(datasets, function(d) {
           // HACK: force highlight as a top-level config
-          d.highlight = !!o.highlight;
+          d.highlight = o.highlight;
         });
 
         typeahead = new Typeahead({
