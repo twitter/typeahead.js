@@ -61,8 +61,9 @@ var Transport = (function() {
       // under the pending request threshold, so fire off a request
       else if (pendingRequestsCount < maxPendingRequests) {
         pendingRequestsCount++;
+        o.url = url;
         pendingRequests[url] =
-          this._send(url, o).done(done).fail(fail).always(always);
+          this._send(o).done(done).fail(fail).always(always);
       }
 
       // at the pending request threshold, so hang out in the on deck circle
