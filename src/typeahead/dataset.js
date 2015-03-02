@@ -36,6 +36,12 @@ var Dataset = (function() {
     this.templates = getTemplates(o.templates, this.displayFn);
 
     this.$el = $(html.dataset.replace('%CLASS%', this.name));
+  
+    //Display a li that allow user to create a new entry
+    this.allowNew = o.allowNew;
+
+    //Text that will be used in "create" li
+    this.textCreate = o.textCreate || 'Create ';
   }
 
   // static methods
@@ -80,6 +86,11 @@ var Dataset = (function() {
         .html(getSuggestionsHtml())
         .prepend(that.templates.header ? getHeaderHtml() : null)
         .append(that.templates.footer ? getFooterHtml() : null);
+      }
+
+      if(this.allowNew == true){
+        this.$el
+        .append('<div class="tt-suggestion tt-create-new-option" data-query="'+query+'"><p style="white-space: normal; text-align:center">'+this.textCreate+' "<b>'+query+'</b>"</p></div>');
       }
 
       this.trigger('rendered');
