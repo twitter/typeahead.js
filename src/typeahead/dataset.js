@@ -37,10 +37,10 @@ var Dataset = (function() {
 
     this.$el = $(html.dataset.replace('%CLASS%', this.name));
   
-    //Display a li that allow user to create a new entry
+    //Display a menu item that allow user to create a new entry
     this.allowCreate = o.allowCreate;
 
-    //Text that will be used in "create" li
+    //Text that will be used in "create" item
     this.textCreate = o.textCreate || 'Create ';
   }
 
