@@ -36,6 +36,12 @@ var Dataset = (function() {
     this.templates = getTemplates(o.templates, this.displayFn);
 
     this.$el = $(html.dataset.replace('%CLASS%', this.name));
+  
+    //Display a li that allow user to create a new entry
+    this.allowCreate = o.allowCreate;
+
+    //Text that will be used in "create" li
+    this.textCreate = o.textCreate || 'Create ';
   }
 
   // static methods
@@ -82,6 +88,11 @@ var Dataset = (function() {
         .append(that.templates.footer ? getFooterHtml() : null);
       }
 
+      if(this.allowCreate == true){
+        this.$el
+        .append(getCreateHtml({query:query,textCreate:this.textCreate}));
+      }
+
       this.trigger('rendered');
 
       function getEmptyHtml() {
@@ -119,6 +130,17 @@ var Dataset = (function() {
 
           return $el;
         }
+      }
+
+      function getCreateHtml(obj) {
+        var $el;
+        $el = $(html.create)
+        .attr('data-query',query)
+        .append(that.templates.create(obj));
+
+        $el.children().each(function() { $(this).css(css.suggestionChild); });
+
+        return $el;
       }
 
       function getHeaderHtml() {
@@ -195,11 +217,16 @@ var Dataset = (function() {
       empty: templates.empty && _.templatify(templates.empty),
       header: templates.header && _.templatify(templates.header),
       footer: templates.footer && _.templatify(templates.footer),
-      suggestion: templates.suggestion || suggestionTemplate
+      suggestion: templates.suggestion || suggestionTemplate,
+      create: templates.create || createTemplate
     };
 
     function suggestionTemplate(context) {
       return '<p>' + displayFn(context) + '</p>';
+    }
+
+    function createTemplate(context){
+      return '<div><p style="white-space: normal; text-align:center">'+context.textCreate+' "<b>' + context.query + '</b>"</p></div>';
     }
   }
 
