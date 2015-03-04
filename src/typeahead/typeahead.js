@@ -330,8 +330,9 @@ var Typeahead = (function() {
     .val('')
     .removeData()
     .addClass('tt-hint')
-    .removeAttr('id name placeholder required')
+    .removeAttr('id name placeholder required aria-label')
     .prop('readonly', true)
+    .attr("aria-label", "type ahead dropdown hint")
     .attr({ autocomplete: 'off', spellcheck: 'false', tabindex: -1 });
 
     // store the original values of the attrs that get modified
