@@ -55,6 +55,7 @@ var Dropdown = (function() {
     _onSuggestionMouseEnter: function onSuggestionMouseEnter($e) {
       this._removeCursor();
       this._setCursor($($e.currentTarget), true);
+      this.trigger("cursorMoved");      
     },
 
     _onSuggestionMouseLeave: function onSuggestionMouseLeave() {
