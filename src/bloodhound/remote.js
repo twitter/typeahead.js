@@ -14,6 +14,7 @@ var Remote = (function() {
     this.url = o.url;
     this.prepare = o.prepare;
     this.transform = o.transform;
+    this.indexResponse = o.indexResponse;
 
     this.transport = new Transport({
       cache: o.cache,

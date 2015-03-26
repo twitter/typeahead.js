@@ -265,6 +265,10 @@ When configuring `remote`, the following options are available.
   you to transform the remote response before the Bloodhound instance operates 
   on it. Defaults to the [identity function].
 
+* `indexResponse` – Adds the remote response to the index (combined with local 
+  and prefetched data). Then returns filtered results based on the query. Defaults 
+  to `false`.
+
 <!-- section links -->
 
 [identity function]: http://en.wikipedia.org/wiki/Identity_function
