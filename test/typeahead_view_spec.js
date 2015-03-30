@@ -360,6 +360,8 @@ describe('Typeahead', function() {
       it('should not move cursor down', function() {
         expect(this.dropdown.moveCursorDown).not.toHaveBeenCalled();
       });
+   
+      
     });
 
     describe('when dropdown is not empty', function() {
@@ -401,6 +403,10 @@ describe('Typeahead', function() {
 
       expect(this.dropdown.open).toHaveBeenCalled();
     });
+
+
+
+
   });
 
   describe('when input triggers leftKeyed', function() {
@@ -479,6 +485,15 @@ describe('Typeahead', function() {
       expect(this.view.$node).toHaveCss({ direction: 'rtl' });
       expect(this.dropdown.setLanguageDirection).toHaveBeenCalledWith('rtl');
     });
+
+    it('should trigger the querychanged event', function() {
+      var $e, spy;
+      $e = jasmine.createSpyObj('event', ['preventDefault']);
+      this.$input.on('typeahead:querychanged', spy = jasmine.createSpy());
+      this.input.trigger('queryChanged', testDatum.value);
+      expect(spy).toHaveBeenCalled();
+    });
+
   });
 
   describe('when input triggers whitespaceChanged', function() {

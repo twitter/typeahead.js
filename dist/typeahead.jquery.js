@@ -1,7 +1,7 @@
 /*!
  * typeahead.js 0.10.5
  * https://github.com/twitter/typeahead.js
- * Copyright 2013-2014 Twitter, Inc. and other contributors; Licensed MIT
+ * Copyright 2013-2015 Twitter, Inc. and other contributors; Licensed MIT
  */
 
 (function($) {
@@ -972,6 +972,7 @@
                 query.length >= this.minLength ? this.dropdown.update(query) : this.dropdown.empty();
                 this.dropdown.open();
                 this._setLanguageDirection();
+                this.eventBus.trigger("querychanged");
             },
             _onWhitespaceChanged: function onWhitespaceChanged() {
                 this._updateHint();
