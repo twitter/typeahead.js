@@ -244,6 +244,11 @@ When configuring `remote`, the following options are available.
   transforms the response body into an array of datums. Expected to return an 
   array of datums.
 
+* `indexResponse` - If `true`, causes data fetched from remote to be added to
+  the index, along with local and prefetched data. This is useful, for example,
+  when trying to confirm that new tokens were suggested before adding them.
+  Defaults to `false`.
+
 * `ajax` – The [ajax settings object] passed to `jQuery.ajax`.
 
 <!-- section links -->
