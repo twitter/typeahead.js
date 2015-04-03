@@ -255,6 +255,10 @@ When initializing a typeahead, there are a number of options you can configure.
 * `minLength` – The minimum character length needed before suggestions start 
   getting rendered. Defaults to `1`.
 
+* `sharedTemplates` – Shared templates for use with multiple datasets.
+  Currently only `sharedTemplates.empty` is supported. See [below](#single-empty-message-with-multiple=datasets) 
+  for more information. Defaults to `{}`.
+
 ### Datasets
 
 A typeahead is composed of one or more datasets. When an end-user modifies the
@@ -308,6 +312,20 @@ Datasets can be configured using the following options.
   precompiled template. The associated suggestion object will serve as the 
   context. Defaults to the value of `displayKey` wrapped in a `p` tag i.e. 
   `<p>{{value}}</p>`.
+
+#### Empty Message With Multiple Datasets
+
+When you are using multiple datasets, but only would like to display a single empty message 
+(instead of one per dataset), construct the typeahead like so:
+
+```javascript
+$('.typeahead').typeahead({
+  /* other options */
+  sharedTemplates: {
+    empty: '<p>Some informative empty message.</p>'
+  }
+});
+```
 
 ### Custom Events
 
