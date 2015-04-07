@@ -142,8 +142,8 @@ suggestions from the `remote` source.
 
 ```javascript
 bloodhound.get(myQuery, function(suggestions) {
-  suggestions.each(function(suggestion) { console.log(suggestion); });
-});
+  		Object.keys(suggestions).forEach(function(key) { console.log(suggestions[key]); });
+	});
 ```
 
 ### Options
