@@ -82,6 +82,7 @@ var Input = (function() {
 
   Input.normalizeQuery = function(str) {
     // strips leading whitespace and condenses all whitespace
+    str = _.isString(str) ? str : _.toStr(str);
     return (str || '').replace(/^\s*/g, '').replace(/\s{2,}/g, ' ');
   };
 
