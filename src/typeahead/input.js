@@ -161,7 +161,7 @@ var Input = (function() {
       inputValue = this.getInputValue();
       areEquivalent = areQueriesEquivalent(inputValue, this.query);
       hasDifferentWhitespace = areEquivalent ?
-        this.query.length !== inputValue.length : false;
+        typeof this.query !== 'undefined' && this.query.length !== inputValue.length : false;
 
       this.query = inputValue;
 
