@@ -126,7 +126,7 @@ the test suite with PhantomJS, run `$ npm test`.
 
 <!-- section links -->
 
-[Jasmine]: http://pivotal.github.com/jasmine/
+[Jasmine]: http://jasmine.github.io/
 [Karma]: http://karma-runner.github.io/
 
 Developers
