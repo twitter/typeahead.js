@@ -10,6 +10,7 @@ var html = (function() {
     dropdown: '<span class="tt-dropdown-menu"></span>',
     dataset: '<div class="tt-dataset-%CLASS%"></div>',
     suggestions: '<span class="tt-suggestions"></span>',
-    suggestion: '<div class="tt-suggestion"></div>'
+    suggestion: '<div class="tt-suggestion"></div>',
+    create: '<div class="tt-suggestion tt-create"></div>'
   };
 })();
