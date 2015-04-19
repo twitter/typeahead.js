@@ -172,6 +172,14 @@ var Dropdown = (function() {
       }
     },
 
+    toggle: function toggle() {
+      if (this.isOpen) {
+        this.close();
+      } else {
+        this.open();
+      }
+    },
+
     setLanguageDirection: function setLanguageDirection(dir) {
       this.$menu.css(dir === 'ltr' ? css.ltr : css.rtl);
     },
