@@ -273,7 +273,7 @@ tokens...
 
 ...it would be a valid match for queries such as:
 
-* `typehead`
-* `typehead.js`
+* `typeahead`
+* `typeahead.js`
 * `autoco`
 * `java type`
