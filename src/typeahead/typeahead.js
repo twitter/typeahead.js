@@ -286,6 +286,10 @@ var Typeahead = (function() {
       this.dropdown.close();
     },
 
+    toggle: function toggle() {
+      this.dropdown.toggle();
+    },
+
     setVal: function setVal(val) {
       // expect val to be a string, so be safe, and coerce
       val = _.toStr(val);

@@ -1387,6 +1387,13 @@
                     this.trigger("opened");
                 }
             },
+            toggle: function toggle() {
+                if (this.isOpen) {
+                    this.close();
+                } else {
+                    this.open();
+                }
+            },
             setLanguageDirection: function setLanguageDirection(dir) {
                 this.$menu.css(dir === "ltr" ? css.ltr : css.rtl);
             },
@@ -1622,6 +1629,9 @@
             close: function close() {
                 this.dropdown.close();
             },
+            toggle: function toggle() {
+                this.dropdown.toggle();
+            },
             setVal: function setVal(val) {
                 val = _.toStr(val);
                 if (this.isActivated) {
@@ -1733,6 +1743,15 @@
                     var $input = $(this), typeahead;
                     if (typeahead = $input.data(typeaheadKey)) {
                         typeahead.close();
+                    }
+                }
+            },
+            toggle: function toggle() {
+                return this.each(toggleTypeahead);
+                function toggleTypeahead() {
+                    var $input = $(this), typeahead;
+                    if (typeahead = $input.data(typeaheadKey)) {
+                        typeahead.toggle();
                     }
                 }
             },

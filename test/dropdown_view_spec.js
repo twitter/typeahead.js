@@ -164,6 +164,30 @@ describe('Dropdown', function() {
     });
   });
 
+  describe('#toggle', function() {
+    it('should toggle from opened to closed', function() {
+      var spy;
+
+      this.view.onSync('closed', spy = jasmine.createSpy());
+
+      this.view.open();
+      this.view.toggle();
+
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should toggle from closed to opened', function() {
+      var spy;
+
+      this.view.onSync('opened', spy = jasmine.createSpy());
+
+      this.view.close();
+      this.view.toggle();
+
+      expect(spy).toHaveBeenCalled();
+    });
+  });
+
   describe('#setLanguageDirection', function() {
     it('should update css for given language direction', function() {
       // TODO: eh, the toHaveCss matcher doesn't seem to work very well

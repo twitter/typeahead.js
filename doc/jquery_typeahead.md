@@ -215,6 +215,14 @@ Closes the dropdown menu of typeahead.
 $('.typeahead').typeahead('close');
 ```
 
+#### jQuery#typeahead('toggle')
+
+Toggles the dropdown menu of typeahead.
+
+```javascript
+$('.typeahead').typeahead('toggle');
+```
+
 #### jQuery#typeahead('val')
 
 Returns the current value of the typeahead. The value is the text the user has 

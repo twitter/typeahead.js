@@ -69,6 +69,18 @@
       }
     },
 
+    toggle: function toggle() {
+      return this.each(toggleTypeahead);
+
+      function toggleTypeahead() {
+        var $input = $(this), typeahead;
+
+        if (typeahead = $input.data(typeaheadKey)) {
+          typeahead.toggle();
+        }
+      }
+    },
+
     val: function val(newVal) {
       // mirror jQuery#val functionality: reads opearte on first match,
       // write operates on all matches
