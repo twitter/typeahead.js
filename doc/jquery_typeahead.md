@@ -336,6 +336,18 @@ The typeahead component triggers the following custom events.
 
 All custom events are triggered on the element initialized as a typeahead.
 
+#### Custom Events Example
+The custom events listed above are used by calling jQuery `.bind()` method on a
+typeahead element. For example, the `typeahead:selected` event could be caputed
+with:
+```
+$('#studentSearch').bind('typeahead:selected', function(obj, datum, name) {
+		console.log(datum);
+	});
+```
+Note: Every event does not supply the same parameters. See the event
+descriptions above for details on each event's parameter list.
+
 ### Look and Feel
 
 Below is a faux mustache template describing the DOM structure of a typeahead 
