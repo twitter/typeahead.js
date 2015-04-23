@@ -24,6 +24,7 @@ var Typeahead = (function() {
 
     this.isActivated = false;
     this.autoselect = !!o.autoselect;
+    this.defaultOnTab = !!o.defaultOnTab;
     this.minLength = _.isNumber(o.minLength) ? o.minLength : 1;
     this.$node = buildDom(o.input, o.withHint);
 
@@ -157,7 +158,8 @@ var Typeahead = (function() {
 
       if (datum = this.dropdown.getDatumForCursor()) {
         this._select(datum);
-        $e.preventDefault();
+
+        if(!this.defaultOnTab) { $e.preventDefault(); }
       }
 
       else {
