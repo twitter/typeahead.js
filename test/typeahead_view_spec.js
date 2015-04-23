@@ -157,6 +157,12 @@ describe('Typeahead', function() {
       expect(this.view.isActivated).toBe(true);
     });
 
+    it('should empty the dropdown', function() {
+      this.input.trigger('focused');
+
+      expect(this.dropdown.empty).toHaveBeenCalled();
+    });
+
     it('should open the dropdown', function() {
       this.input.trigger('focused');
 
@@ -169,12 +175,6 @@ describe('Typeahead', function() {
       this.input.trigger('blurred');
 
       expect(this.view.isActivated).toBe(false);
-    });
-
-    it('should empty the dropdown', function() {
-      this.input.trigger('blurred');
-
-      expect(this.dropdown.empty).toHaveBeenCalled();
     });
 
     it('should close the dropdown', function() {
