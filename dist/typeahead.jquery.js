@@ -317,7 +317,7 @@
         return function hightlight(o) {
             var regex;
             o = _.mixin({}, defaults, o);
-            if (!o.node || !o.pattern) {
+            if (!o.node || !o.pattern || o.pattern.length === 0) {
                 return;
             }
             o.pattern = _.isArray(o.pattern) ? o.pattern : [ o.pattern ];
@@ -564,7 +564,7 @@
                 $.error("invalid dataset name: " + o.name);
             }
             this.query = null;
-            this.highlight = !!o.highlight;
+            this.highlight = o.highlight;
             this.name = o.name || _.getUniqueId();
             this.source = o.source;
             this.displayFn = getDisplayFn(o.display || o.displayKey);
@@ -608,7 +608,7 @@
                     that.highlight && highlight({
                         className: "tt-highlight",
                         node: $suggestions[0],
-                        pattern: query
+                        pattern: _.isFunction(that.highlight) ? that.highlight(query, suggestions) : query
                     });
                     return $suggestions;
                     function getSuggestionNode(suggestion) {
@@ -1105,7 +1105,7 @@
                 function attach() {
                     var $input = $(this), eventBus, typeahead;
                     _.each(datasets, function(d) {
-                        d.highlight = !!o.highlight;
+                        d.highlight = o.highlight;
                     });
                     typeahead = new Typeahead({
                         input: $input,

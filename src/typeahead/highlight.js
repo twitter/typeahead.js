@@ -23,7 +23,7 @@ var highlight = (function(doc) {
 
     o = _.mixin({}, defaults, o);
 
-    if (!o.node || !o.pattern) {
+    if (!o.node || !o.pattern || o.pattern.length === 0) {
       // fail silently
       return;
     }
