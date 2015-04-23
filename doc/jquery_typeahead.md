@@ -220,6 +220,17 @@ a typeahead.
   handler will be invoked with 3 arguments: the jQuery event object, the current 
   query, and the name of the dataset the async request belongs to.
 
+Example usage:
+
+```
+$('.typeahead').bind('typeahead:select', function(ev, suggestion) {
+  console.log('Selection: ' + suggestion);
+});
+```
+
+**NOTE**: Every event does not supply the same arguments. See the event
+descriptions above for details on each event's argument list.
+
 <!-- section links -->
 
 [`change` event]: https://developer.mozilla.org/en-US/docs/Web/Events/change
