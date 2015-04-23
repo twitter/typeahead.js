@@ -198,8 +198,14 @@ var Dataset = (function() {
       suggestion: templates.suggestion || suggestionTemplate
     };
 
+    function escapeHtmlChars(str) {
+      return str.replace(/[\u00A0-\u9999<>\&]/gim, function(character) {
+        return "&#" + character.charCodeAt(0) + ";";
+      });
+    }
+
     function suggestionTemplate(context) {
-      return '<p>' + displayFn(context) + '</p>';
+      return '<p>' + escapeHtmlChars(displayFn(context)) + '</p>';
     }
   }
 
