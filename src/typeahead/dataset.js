@@ -45,7 +45,7 @@ var Dataset = (function() {
     return $(el).data(datasetKey);
   };
 
-  Dataset.extractValue = function extractDatum(el) {
+  Dataset.extractValue = function extractValue(el) {
     return $(el).data(valueKey);
   };
 
