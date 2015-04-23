@@ -29,8 +29,9 @@ var EventBus = (function() {
 
     trigger: function(type) {
       var args = [].slice.call(arguments, 1);
-
-      this.$el.trigger(namespace + type, args);
+      var event = jQuery.Event(namespace + type);
+      this.$el.trigger(event, args);
+      return event;
     }
   });
 

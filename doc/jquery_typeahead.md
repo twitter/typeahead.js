@@ -324,6 +324,16 @@ The typeahead component triggers the following custom events.
   arguments: the jQuery event object, the suggestion object, and the name of 
   the dataset the suggestion belongs to.
 
+* `typeahead:selecting` – Triggered when a suggestion from the dropdown menu is 
+  selected, but before the `typeahead:selected` event and before the input box
+  value has been changed.
+  The event handler will be invoked with 3 arguments: the jQuery event object,
+  the suggestion object, and the name of the dataset the suggestion belongs to.
+  The selection of the item can be prevented by calling `.preventDefault()` on
+  the jQuery event object. If the event is canceled, `typeahead:selected` will
+  not be triggered, the input box will retain its previous value, and the
+  dropdown menu will not be closed.
+
 * `typeahead:selected` – Triggered when a suggestion from the dropdown menu is 
   selected. The event handler will be invoked with 3 arguments: the jQuery 
   event object, the suggestion object, and the name of the dataset the 

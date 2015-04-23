@@ -43,6 +43,50 @@ describe('Typeahead', function() {
 
       waitsFor(function() { return this.dropdown.close.callCount; });
     });
+
+    it('should trigger selecting event before value changes', function() {
+      var self = this;
+      var $e;
+      var selectedSpy;
+      var selectingEventTriggered = false;
+
+      var onSelecting = function () {
+        selectingEventTriggered = true;
+        expect(selectedSpy).not.toHaveBeenCalled();
+        expect(self.input.setQuery).not.toHaveBeenCalled();
+        expect(self.input.setInputValue).not.toHaveBeenCalled();
+      };
+
+      this.$input.on('typeahead:selecting', onSelecting);
+      this.$input.on('typeahead:selected', selectedSpy = jasmine.createSpy());
+
+      this.dropdown.trigger('suggestionClicked');
+
+      expect(selectingEventTriggered).toBe(true);
+      expect(selectedSpy).toHaveBeenCalled();
+      expect(self.input.setQuery).toHaveBeenCalled();
+      expect(self.input.setInputValue).toHaveBeenCalled();
+      waitsFor(function() { return this.dropdown.close.callCount; });
+    });
+
+    it('should allow canceling of selecting event', function() {
+      var self = this;
+      var $e;
+      var selectedSpy;
+
+      var onSelecting = function (selectingEvent) {
+        selectingEvent.preventDefault();
+      };
+
+      this.$input.on('typeahead:selecting', onSelecting);
+      this.$input.on('typeahead:selected', selectedSpy = jasmine.createSpy());
+
+      this.dropdown.trigger('suggestionClicked');
+
+      expect(selectedSpy).not.toHaveBeenCalled();
+      expect(self.input.setQuery).not.toHaveBeenCalled();
+      expect(self.input.setInputValue).not.toHaveBeenCalled();
+    });
   });
 
   describe('when dropdown triggers cursorMoved', function() {

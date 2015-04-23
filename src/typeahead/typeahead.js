@@ -263,6 +263,11 @@ var Typeahead = (function() {
     },
 
     _select: function select(datum) {
+      var eventResult = this.eventBus.trigger('selecting', datum.raw, datum.datasetName);
+      if(eventResult.isDefaultPrevented()) {
+        return;
+      }
+
       this.input.setQuery(datum.value);
       this.input.setInputValue(datum.value, true);
 

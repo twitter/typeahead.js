@@ -59,6 +59,9 @@
       <div class="typeahead-wrapper">
         <input class="mixed" type="text" placeholder="mixed">
       </div>
+      <div class="typeahead-wrapper">
+        <input class="cancel-select" type="text" placeholder="selection prevented">
+      </div>
     </div>
     </div>
 
@@ -300,10 +303,22 @@
         source: mixed.ttAdapter()
       });
 
+      $('.cancel-select').typeahead({
+        highlight: true
+      },
+      {
+        displayKey: 'val',
+        source: states.ttAdapter()
+      });
+      $('.cancel-select').on('typeahead:selecting', function(selectingEvent) {
+        // this is an example of preventing an item from being selected.
+        selectingEvent.preventDefault();
+      });
 
       $('input').on([
         'typeahead:initialized',
         'typeahead:initialized:err',
+        'typeahead:selecting',
         'typeahead:selected',
         'typeahead:autocompleted',
         'typeahead:cursorchanged',
