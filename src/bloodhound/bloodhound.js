@@ -100,7 +100,10 @@
       return this.transport.get(url, this.remote.ajax, handleRemoteResponse);
 
       function handleRemoteResponse(err, resp) {
-        err ? cb([]) : cb(that.remote.filter ? that.remote.filter(resp) : resp);
+        var data=that.remote.filter ? that.remote.filter(resp) : resp;
+        if(that.remote.indexResponse)
+          that.add(data);
+        err ? cb([]) : cb(data);
       }
     },
 

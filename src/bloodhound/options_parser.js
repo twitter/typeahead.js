@@ -56,6 +56,7 @@ var oParser = (function() {
       rateLimitWait: 300,
       send: null,
       filter: null,
+      indexResponse: false,
       ajax: {}
     };
 
