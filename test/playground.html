@@ -308,7 +308,8 @@
         'typeahead:autocompleted',
         'typeahead:cursorchanged',
         'typeahead:opened',
-        'typeahead:closed'
+        'typeahead:closed',
+	'typeahead:querychanged',
       ].join(' '), logTypeaheadEvent);
 
       $('form').on('submit', logSubmitEvent);
