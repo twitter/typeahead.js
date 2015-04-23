@@ -60,9 +60,10 @@ var css = (function() {
   // ie specific styling
   if (_.isMsie()) {
      // ie6-8 (and 9?) doesn't fire hover and click events for elements with
-     // transparent backgrounds, for a workaround, use 1x1 transparent gif
+     // transparent backgrounds, for a workaround, use a background image.
+     // To avoid security warnings in IE7, use about:blank as the image url.
     _.mixin(css.input, {
-      backgroundImage: 'url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7)'
+      backgroundImage: 'url(about:blank)'
     });
   }
 
