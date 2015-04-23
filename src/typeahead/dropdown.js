@@ -191,7 +191,8 @@ var Dropdown = (function() {
         datum = {
           raw: Dataset.extractDatum($el),
           value: Dataset.extractValue($el),
-          datasetName: Dataset.extractDatasetName($el)
+          datasetName: Dataset.extractDatasetName($el),
+          id: $el.attr('id')
         };
       }
 

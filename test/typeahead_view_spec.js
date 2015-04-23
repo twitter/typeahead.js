@@ -56,6 +56,13 @@ describe('Typeahead', function() {
       expect(this.input.setInputValue)
       .toHaveBeenCalledWith(testDatum.value, true);
     });
+    
+    it('should update the aria-activedescendant', function() {
+      this.dropdown.trigger('cursorMoved');
+        
+      expect(this.input.setAriaActivedescendant)
+      .toHaveBeenCalledWith(testDatum.id);
+    });
 
     it('should trigger cursorchanged', function() {
       var spy;
@@ -73,6 +80,12 @@ describe('Typeahead', function() {
       this.dropdown.trigger('cursorRemoved');
 
       expect(this.input.resetInputValue).toHaveBeenCalled();
+    });
+    
+    it('should clear the aria-activedescendent', function() {
+      this.dropdown.trigger('cursorRemoved');
+        
+      expect(this.input.clearAriaActivedescendant).toHaveBeenCalled();
     });
 
     it('should update the hint', function() {
@@ -130,6 +143,12 @@ describe('Typeahead', function() {
 
       expect(spy).toHaveBeenCalled();
     });
+    
+    it('should set the input\'s aria-expanded attribute to true', function() {
+      this.dropdown.trigger('opened');
+        
+      expect(this.input.setAriaExpanded).toHaveBeenCalledWith('true');
+    });
   });
 
   describe('when dropdown triggers closed', function() {
@@ -147,6 +166,18 @@ describe('Typeahead', function() {
       this.dropdown.trigger('closed');
 
       expect(spy).toHaveBeenCalled();
+    });
+    
+    it('should set the input\'s aria-expanded attribute to false', function() {
+      this.dropdown.trigger('closed');
+        
+      expect(this.input.setAriaExpanded).toHaveBeenCalledWith('false');
+    });
+    
+    it('should clear the aria-activedescendent', function() {
+      this.dropdown.trigger('cursorRemoved');
+        
+      expect(this.input.clearAriaActivedescendant).toHaveBeenCalled();
     });
   });
 
@@ -562,6 +593,8 @@ describe('Typeahead', function() {
 
     it('should revert DOM changes', function() {
       this.view.destroy();
+      
+      expect(this.view.getAriaExpanded).not.toBeDefined();
 
       // TODO: bad test
       expect(this.$input).not.toHaveClass('tt-input');
