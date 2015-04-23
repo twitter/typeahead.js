@@ -55,10 +55,12 @@ var Dropdown = (function() {
     _onSuggestionMouseEnter: function onSuggestionMouseEnter($e) {
       this._removeCursor();
       this._setCursor($($e.currentTarget), true);
+      this.trigger("hoverStarted", $($e.currentTarget));
     },
 
-    _onSuggestionMouseLeave: function onSuggestionMouseLeave() {
+    _onSuggestionMouseLeave: function onSuggestionMouseLeave($e) {
       this._removeCursor();
+      this.trigger("hoverEnded", $($e.currentTarget));
     },
 
     _onRendered: function onRendered() {

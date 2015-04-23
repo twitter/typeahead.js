@@ -712,9 +712,11 @@
             _onSuggestionMouseEnter: function onSuggestionMouseEnter($e) {
                 this._removeCursor();
                 this._setCursor($($e.currentTarget), true);
+                this.trigger("hoverStarted", $($e.currentTarget));
             },
-            _onSuggestionMouseLeave: function onSuggestionMouseLeave() {
+            _onSuggestionMouseLeave: function onSuggestionMouseLeave($e) {
                 this._removeCursor();
+                this.trigger("hoverEnded", $($e.currentTarget));
             },
             _onRendered: function onRendered() {
                 this.isEmpty = _.every(this.datasets, isDatasetEmpty);
@@ -883,7 +885,7 @@
             this.dropdown = new Dropdown({
                 menu: $menu,
                 datasets: o.datasets
-            }).onSync("suggestionClicked", this._onSuggestionClicked, this).onSync("cursorMoved", this._onCursorMoved, this).onSync("cursorRemoved", this._onCursorRemoved, this).onSync("opened", this._onOpened, this).onSync("closed", this._onClosed, this).onAsync("datasetRendered", this._onDatasetRendered, this);
+            }).onSync("suggestionClicked", this._onSuggestionClicked, this).onSync("cursorMoved", this._onCursorMoved, this).onSync("cursorRemoved", this._onCursorRemoved, this).onSync("opened", this._onOpened, this).onSync("closed", this._onClosed, this).onAsync("datasetRendered", this._onDatasetRendered, this).onSync("hoverStarted", this._onHoverStart, this).onSync("hoverEnded", this._onHoverEnd, this);
             this.input = new Input({
                 input: $input,
                 hint: $hint
@@ -936,6 +938,10 @@
                 } else if (this.autoselect && topSuggestionDatum) {
                     this._select(topSuggestionDatum);
                     $e.preventDefault();
+                } else {
+                    this._autocomplete(true);
+                    this.dropdown.moveCursorDown();
+                    $e.preventDefault();
                 }
             },
             _onTabKeyed: function onTabKeyed(type, $e) {
@@ -976,6 +982,15 @@
             _onWhitespaceChanged: function onWhitespaceChanged() {
                 this._updateHint();
                 this.dropdown.open();
+            },
+            _onHoverStart: function onHoverStart(type, $el) {
+                var datum = this.dropdown.getDatumForCursor();
+                this.input.setInputValue(datum.value, true);
+            },
+            _onHoverEnd: function onHoverEnd(type, $el) {
+                var query = this.input.getQuery();
+                this.input.resetInputValue();
+                this.dropdown.update(query);
             },
             _setLanguageDirection: function setLanguageDirection() {
                 var dir;
