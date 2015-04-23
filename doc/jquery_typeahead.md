@@ -254,6 +254,18 @@ When initializing a typeahead, there are a number of options you can configure.
 
 * `minLength` – The minimum character length needed before suggestions start 
   getting rendered. Defaults to `1`.
+  
+* `accessibleStatus` – It can be either a HTML string or a precompiled template.
+  If it's a precompiled template, the passed in context will contain:
+  `query`, `hint`, `count`, `isEmpty`, `withHint`. The goal of this option
+  is to give an advisory information about displayed suggestions when user is typing (WAI-ARIA support).
+  Example of template:
+  ```javascript
+  Handlebars.compile(
+      '{{#unless isEmpty}}{{count}} suggestions available.' +
+      '{{#if withHint}} Top suggestion {{hint}} can be chosen by right arrow or tab key.' +
+      '{{/if}}{{/unless}}')
+  ```
 
 ### Datasets
 

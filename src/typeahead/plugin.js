@@ -38,7 +38,8 @@
           withHint: _.isUndefined(o.hint) ? true : !!o.hint,
           minLength: o.minLength,
           autoselect: o.autoselect,
-          datasets: datasets
+          datasets: datasets,
+          accessibleStatus: o.accessibleStatus
         });
 
         $input.data(typeaheadKey, typeahead);

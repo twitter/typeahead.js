@@ -25,11 +25,14 @@ var Typeahead = (function() {
     this.isActivated = false;
     this.autoselect = !!o.autoselect;
     this.minLength = _.isNumber(o.minLength) ? o.minLength : 1;
-    this.$node = buildDom(o.input, o.withHint);
+    this.accessibleStatus = (_.isUndefined(o.accessibleStatus) || o.accessibleStatus == null) ? null : _.templatify(o.accessibleStatus);
+      
+    this.$node = buildDom(o.input, o.withHint, this.accessibleStatus != null);
 
     $menu = this.$node.find('.tt-dropdown-menu');
     $input = this.$node.find('.tt-input');
     $hint = this.$node.find('.tt-hint');
+    this.$status = this.accessibleStatus != null ? this.$node.find('.tt-status') : null;
 
     // #705: if there's scrollable overflow, ie doesn't support
     // blur cancellations when the scrollbar is clicked
@@ -99,6 +102,7 @@ var Typeahead = (function() {
       var datum = this.dropdown.getDatumForCursor();
 
       this.input.setInputValue(datum.value, true);
+      this.input.attr('aria-activedescendant', datum.id);
 
       this.eventBus.trigger('cursorchanged', datum.raw, datum.datasetName);
     },
@@ -106,10 +110,28 @@ var Typeahead = (function() {
     _onCursorRemoved: function onCursorRemoved() {
       this.input.resetInputValue();
       this._updateHint();
+      this.input.removeAttr('aria-activedescendant');
     },
 
     _onDatasetRendered: function onDatasetRendered() {
       this._updateHint();
+      
+      if (this.dropdown.isVisible()) {
+        this.input.attr('aria-expanded', 'true');
+      } else {
+        this.input.attr('aria-expanded', 'false');
+        this.input.removeAttr('aria-activedescendant');
+      }
+    
+      if (this.$status) {
+        this.$status.html(this.accessibleStatus({
+          query: this.getVal(),
+          hint: this.input.isWithHint() ? this.input.getHint() : null,
+          count: this.dropdown.countSuggestions(),
+          isEmpty: this.dropdown.isEmpty,
+          withHint: this.input.isWithHint()
+        }));
+      }
     },
 
     _onOpened: function onOpened() {
@@ -120,6 +142,8 @@ var Typeahead = (function() {
 
     _onClosed: function onClosed() {
       this.input.clearHint();
+      this.input.removeAttr('aria-activedescendant');
+      this.input.attr('aria-expanded', 'false');
 
       this.eventBus.trigger('closed');
     },
@@ -310,29 +334,38 @@ var Typeahead = (function() {
       this.input.destroy();
       this.dropdown.destroy();
 
-      destroyDomStructure(this.$node);
-
+      this.input.destroyDomStructure(this.$node, attrsKey);
+    
+      this.$node.remove();
       this.$node = null;
     }
   });
 
   return Typeahead;
 
-  function buildDom(input, withHint) {
-    var $input, $wrapper, $dropdown, $hint;
+  function buildDom(input, withHint, withStatus) {
+    var $input, $wrapper, $dropdown, $hint, $status;
 
     $input = $(input);
     $wrapper = $(html.wrapper).css(css.wrapper);
     $dropdown = $(html.dropdown).css(css.dropdown);
-    $hint = $input.clone().css(css.hint).css(getBackgroundStyles($input));
+    // generate unique Id for dropdown to reference it in aria-owns on input field
+    var guid = _.guid();
+    $dropdown.attr('id', guid);
+    $input.attr({ 'aria-owns': guid, 'aria-expanded': 'false' });
+      
+    $hint = withHint ? $input.clone().css(css.hint).css(getBackgroundStyles($input)) : null;
+    $status = withStatus ? $(html.status).css(css.status) : null;
 
-    $hint
-    .val('')
-    .removeData()
-    .addClass('tt-hint')
-    .removeAttr('id name placeholder required')
-    .prop('readonly', true)
-    .attr({ autocomplete: 'off', spellcheck: 'false', tabindex: -1 });
+    if ($hint) {
+      $hint
+      .val('')
+      .removeData()
+      .addClass('tt-hint')
+      .removeAttr('id name placeholder required aria-owns aria-expanded')
+      .prop('readonly', true)
+      .attr({ autocomplete: 'off', spellcheck: 'false', tabindex: -1, 'aria-hidden': 'true' });
+    }
 
     // store the original values of the attrs that get modified
     // so modifications can be reverted on destroy
@@ -345,7 +378,8 @@ var Typeahead = (function() {
 
     $input
     .addClass('tt-input')
-    .attr({ autocomplete: 'off', spellcheck: false })
+    .attr({ autocomplete: 'off', spellcheck: false, role: 'combobox',
+            'aria-autocomplete': withHint ? 'both' : 'list' })
     .css(withHint ? css.input : css.inputWithNoHint);
 
     // ie7 does not like it when dir is set to auto
@@ -354,8 +388,9 @@ var Typeahead = (function() {
     return $input
     .wrap($wrapper)
     .parent()
-    .prepend(withHint ? $hint : null)
-    .append($dropdown);
+    .prepend($hint)
+    .append($dropdown)
+    .append($status);
   }
 
   function getBackgroundStyles($el) {
@@ -369,23 +404,5 @@ var Typeahead = (function() {
       backgroundRepeat: $el.css('background-repeat'),
       backgroundSize: $el.css('background-size')
     };
-  }
-
-  function destroyDomStructure($node) {
-    var $input = $node.find('.tt-input');
-
-    // need to remove attrs that weren't previously defined and
-    // revert attrs that originally had a value
-    _.each($input.data(attrsKey), function(val, key) {
-      _.isUndefined(val) ? $input.removeAttr(key) : $input.attr(key, val);
-    });
-
-    $input
-    .detach()
-    .removeData(attrsKey)
-    .removeClass('tt-input')
-    .insertAfter($node);
-
-    $node.remove();
   }
 })();

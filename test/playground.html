@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="../bower_components/jquery/jquery.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.3.0/handlebars.min.js"></script>      
     <script src="../dist/typeahead.bundle.js"></script>
 
     <style>
@@ -125,7 +126,10 @@
       states.initialize();
 
       $('.states').typeahead({
-        highlight: true
+        highlight: true,
+		hint: true,
+        accessibleStatus: Handlebars.compile('{{#unless isEmpty}}{{count}} suggestions available.' +        
+            '{{#if withHint}}Top suggestion {{hint}} can be chosen by right arrow or tab key.{{/if}}{{/unless}}')
       },
       {
         displayKey: 'val',
