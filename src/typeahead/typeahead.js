@@ -26,6 +26,7 @@ var Typeahead = (function() {
     this.autoselect = !!o.autoselect;
     this.minLength = _.isNumber(o.minLength) ? o.minLength : 1;
     this.$node = buildDom(o.input, o.withHint);
+    this.autoClear = _.isUndefined(o.autoClear) || o.autoClear;
 
     $menu = this.$node.find('.tt-dropdown-menu');
     $input = this.$node.find('.tt-input');
@@ -64,7 +65,7 @@ var Typeahead = (function() {
     .onSync('closed', this._onClosed, this)
     .onAsync('datasetRendered', this._onDatasetRendered, this);
 
-    this.input = new Input({ input: $input, hint: $hint })
+    this.input = new Input({ input: $input, hint: $hint, autoClear: this.autoClear })
     .onSync('focused', this._onFocused, this)
     .onSync('blurred', this._onBlurred, this)
     .onSync('enterKeyed', this._onEnterKeyed, this)
@@ -167,7 +168,9 @@ var Typeahead = (function() {
 
     _onEscKeyed: function onEscKeyed() {
       this.dropdown.close();
-      this.input.resetInputValue();
+      if (this.autoClear) {
+        this.input.resetInputValue();
+      }
     },
 
     _onUpKeyed: function onUpKeyed() {

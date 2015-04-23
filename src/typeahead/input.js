@@ -37,6 +37,7 @@ var Input = (function() {
     onKeydown = _.bind(this._onKeydown, this);
     onInput = _.bind(this._onInput, this);
 
+    this.autoClear = _.isUndefined(o.autoClear) || o.autoClear;
     this.$hint = $(o.hint);
     this.$input = $(o.input)
     .on('blur.tt', onBlur)
@@ -93,7 +94,9 @@ var Input = (function() {
     // ### private
 
     _onBlur: function onBlur() {
-      this.resetInputValue();
+      if (this.autoClear) {
+        this.resetInputValue();
+      }
       this.trigger('blurred');
     },
 

@@ -378,6 +378,7 @@
             onFocus = _.bind(this._onFocus, this);
             onKeydown = _.bind(this._onKeydown, this);
             onInput = _.bind(this._onInput, this);
+            this.autoClear = _.isUndefined(o.autoClear) || o.autoClear;
             this.$hint = $(o.hint);
             this.$input = $(o.input).on("blur.tt", onBlur).on("focus.tt", onFocus).on("keydown.tt", onKeydown);
             if (this.$hint.length === 0) {
@@ -401,7 +402,9 @@
         };
         _.mixin(Input.prototype, EventEmitter, {
             _onBlur: function onBlur() {
-                this.resetInputValue();
+                if (this.autoClear) {
+                    this.resetInputValue();
+                }
                 this.trigger("blurred");
             },
             _onFocus: function onFocus() {
@@ -858,6 +861,7 @@
             this.autoselect = !!o.autoselect;
             this.minLength = _.isNumber(o.minLength) ? o.minLength : 1;
             this.$node = buildDom(o.input, o.withHint);
+            this.autoClear = _.isUndefined(o.autoClear) || o.autoClear;
             $menu = this.$node.find(".tt-dropdown-menu");
             $input = this.$node.find(".tt-input");
             $hint = this.$node.find(".tt-hint");
@@ -886,7 +890,8 @@
             }).onSync("suggestionClicked", this._onSuggestionClicked, this).onSync("cursorMoved", this._onCursorMoved, this).onSync("cursorRemoved", this._onCursorRemoved, this).onSync("opened", this._onOpened, this).onSync("closed", this._onClosed, this).onAsync("datasetRendered", this._onDatasetRendered, this);
             this.input = new Input({
                 input: $input,
-                hint: $hint
+                hint: $hint,
+                autoClear: this.autoClear
             }).onSync("focused", this._onFocused, this).onSync("blurred", this._onBlurred, this).onSync("enterKeyed", this._onEnterKeyed, this).onSync("tabKeyed", this._onTabKeyed, this).onSync("escKeyed", this._onEscKeyed, this).onSync("upKeyed", this._onUpKeyed, this).onSync("downKeyed", this._onDownKeyed, this).onSync("leftKeyed", this._onLeftKeyed, this).onSync("rightKeyed", this._onRightKeyed, this).onSync("queryChanged", this._onQueryChanged, this).onSync("whitespaceChanged", this._onWhitespaceChanged, this);
             this._setLanguageDirection();
         }
@@ -949,7 +954,9 @@
             },
             _onEscKeyed: function onEscKeyed() {
                 this.dropdown.close();
-                this.input.resetInputValue();
+                if (this.autoClear) {
+                    this.input.resetInputValue();
+                }
             },
             _onUpKeyed: function onUpKeyed() {
                 var query = this.input.getQuery();
