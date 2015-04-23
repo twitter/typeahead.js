@@ -38,6 +38,8 @@
           withHint: _.isUndefined(o.hint) ? true : !!o.hint,
           minLength: o.minLength,
           autoselect: o.autoselect,
+          triggerCharacter: o.triggerCharacter,
+          triggerRegex: o.triggerRegex,
           datasets: datasets
         });
 
