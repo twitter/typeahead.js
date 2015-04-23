@@ -60,7 +60,7 @@ describe('Bloodhound', function() {
         { value: 'big' },
         { value: 'bigger' },
         { value: 'biggest' }
-      ]);
+      ],['big','bigger','biggest']);
     });
   });
 
@@ -78,7 +78,7 @@ describe('Bloodhound', function() {
 
       this.bloodhound.get('big', spy);
 
-      expect(spy).toHaveBeenCalledWith([]);
+      expect(spy).toHaveBeenCalledWith([],[]);
     });
   });
 
@@ -133,7 +133,7 @@ describe('Bloodhound', function() {
           { value: 'big' },
           { value: 'bigger' },
           { value: 'biggest' }
-        ]);
+        ],['big','bigger','biggest']);
       });
     });
 
@@ -161,7 +161,7 @@ describe('Bloodhound', function() {
           { value: 'big' },
           { value: 'bigger' },
           { value: 'biggest' }
-        ]);
+        ],['big','bigger','biggest']);
       });
     });
   });
@@ -233,13 +233,13 @@ describe('Bloodhound', function() {
         { value: 'big' },
         { value: 'bigger' },
         { value: 'biggest' }
-      ]);
+      ],['big','bigger','biggest']);
 
       expect(spy2).toHaveBeenCalledWith([
         { value: 'big' },
         { value: 'bigger' },
         { value: 'biggest' }
-      ]);
+      ],['big','bigger','biggest']);
     });
 
     it('should clear preexisting data', function() {
@@ -279,7 +279,7 @@ describe('Bloodhound', function() {
         { value: 'BIG' },
         { value: 'BIGGER' },
         { value: 'BIGGEST' }
-      ]);
+      ],['BIG','BIGGER','BIGGEST']);
 
       function fakeFilter(resp) {
         return [{ value: 'BIG' }, { value: 'BIGGER' }, { value: 'BIGGEST' }];
@@ -305,7 +305,7 @@ describe('Bloodhound', function() {
         { value: 'big' },
         { value: 'bigger' },
         { value: 'biggest' }
-      ]);
+      ],['big','bigger','biggest']);
 
       function fakeGet(key) {
         var val;
@@ -387,7 +387,7 @@ describe('Bloodhound', function() {
           { value: 'BIG' },
           { value: 'BIGGER' },
           { value: 'BIGGEST' }
-        ]);
+        ],[]); // The matched tokens will only be listed for local matches.
       });
 
       function fakeFilter(resp) {
@@ -495,7 +495,7 @@ describe('Bloodhound', function() {
 
       this.bloodhound.get('dog', spy);
 
-      expect(spy).toHaveBeenCalledWith([]);
+      expect(spy).toHaveBeenCalledWith([],[]);
 
       function fakeGet(url, o, cb) { cb(true); }
     });
@@ -522,12 +522,12 @@ describe('Bloodhound', function() {
 
       this.bloodhound.get('dog', spy);
 
-      expect(spy).toHaveBeenCalledWith([{ value: 'dog' }]);
+      expect(spy).toHaveBeenCalledWith([{ value: 'dog' }],['dog']);
 
       waitsFor(function() { return spy.callCount === 2; });
 
       runs(function() {
-        expect(spy).toHaveBeenCalledWith(fixtures.data.animals);
+        expect(spy).toHaveBeenCalledWith(fixtures.data.animals, ['dog']);
       });
 
       function fakeGet(url, o, cb) {
@@ -562,11 +562,11 @@ describe('Bloodhound', function() {
         { value: 'big' },
         { value: 'bigger' },
         { value: 'biggest' }
-      ]);
+      ],['big','bigger','biggest']);
       expect(spy2).toHaveBeenCalledWith([
         { value: 'bigger' },
         { value: 'biggest' }
-      ]);
+      ],['bigger','biggest']);
 
       waitsFor(function() { return spy2.callCount === 2; });
 
@@ -575,7 +575,7 @@ describe('Bloodhound', function() {
           { value: 'bigger' },
           { value: 'biggest' },
           { value: 'dog' }
-        ]);
+        ],['bigger','biggest']);
       });
 
       function fakeGet(url, o, cb) {

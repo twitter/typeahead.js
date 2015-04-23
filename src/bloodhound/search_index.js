@@ -62,6 +62,7 @@ var SearchIndex = (function() {
 
     get: function get(query) {
       var that = this, tokens, matches;
+      var matchedTokens = [];
 
       tokens = normalizeTokens(this.queryTokenizer(query));
 
@@ -81,6 +82,28 @@ var SearchIndex = (function() {
         }
 
         if (node && chars.length === 0) {
+          // Get the complete tokens that matched for this token:
+          var findMatchedTokens = function (node, query) {
+            var m_tokens = [];
+
+            _.each(node.ids, function (id) {
+              var sameStart = function (me, other){
+                return me.slice(0, other.length) == other;
+              };
+
+              var data = that.datums[id];
+              var tokens = that.datumTokenizer(data);
+              for (var i = 0; i < tokens.length; i++){
+                if (sameStart(tokens[i].toUpperCase(), query.toUpperCase())){
+                  m_tokens.push(tokens[i]);
+                }
+              }
+            });
+            return m_tokens;
+          };
+
+          matchedTokens = matchedTokens.concat(findMatchedTokens(node, token));
+
           ids = node.ids.slice(0);
           matches = matches ? getIntersection(matches, ids) : ids;
         }
@@ -92,8 +115,17 @@ var SearchIndex = (function() {
         }
       });
 
-      return matches ?
-        _.map(unique(matches), function(id) { return that.datums[id]; }) : [];
+      if (matches){
+        var matched_datums = _.map(unique(matches), function(id) {
+          return that.datums[id];
+        });
+        return {
+          matches: matched_datums,
+          matchedTokens: unique(matchedTokens)
+        };
+      } else {
+        return [];
+      }
     },
 
     reset: function reset() {

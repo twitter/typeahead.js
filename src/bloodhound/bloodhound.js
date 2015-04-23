@@ -166,7 +166,8 @@
     get: function get(query, cb) {
       var that = this, matches = [], cacheHit = false;
 
-      matches = this.index.get(query);
+      var result = this.index.get(query);
+      matches = result.matches;
       matches = this.sorter(matches).slice(0, this.limit);
 
       matches.length < this.limit ?
@@ -179,7 +180,7 @@
       if (!cacheHit) {
         // only render if there are some local suggestions or we're
         // going to the network to backfill
-        (matches.length > 0 || !this.transport) && cb && cb(matches);
+        (matches.length > 0 || !this.transport) && cb && cb(matches, result.matchedTokens);
       }
 
       function returnRemoteMatches(remoteMatches) {
@@ -199,7 +200,7 @@
           // the remote results and can break out of the each loop
           return matchesWithBackfill.length < that.limit;
         });
-        cb && cb(that.sorter(matchesWithBackfill));
+        cb && cb(that.sorter(matchesWithBackfill), result.matchedTokens);
       }
     },
 

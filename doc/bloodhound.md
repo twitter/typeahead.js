@@ -134,14 +134,16 @@ var Dachshund = Bloodhound.noConflict();
 #### Bloodhound#get(query, cb)
 
 Computes a set of suggestions for `query`. `cb` will be invoked with an array
-of datums that represent said set. `cb` will always be invoked once 
+of datums that represent said set and an array of the exact tokens (from the original source),
+that matched the query. `cb` will always be invoked once 
 synchronously with suggestions that were available on the client. If those
 suggestions are insufficient (# of suggestions is less than `limit`) and `remote` was configured, `cb` may also be 
 invoked asynchronously with the suggestions available on the client mixed with
-suggestions from the `remote` source.
+suggestions from the `remote` source (the matched tokens .
 
 ```javascript
-bloodhound.get(myQuery, function(suggestions) {
+bloodhound.get(myQuery, function(suggestions, matchedTokens) {
+  console.log(matchedTokens);
   suggestions.each(function(suggestion) { console.log(suggestion); });
 });
 ```

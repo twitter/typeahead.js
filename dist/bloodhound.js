@@ -428,6 +428,7 @@
             },
             get: function get(query) {
                 var that = this, tokens, matches;
+                var matchedTokens = [];
                 tokens = normalizeTokens(this.queryTokenizer(query));
                 _.each(tokens, function(token) {
                     var node, chars, ch, ids;
@@ -440,6 +441,23 @@
                         node = node.children[ch];
                     }
                     if (node && chars.length === 0) {
+                        var findMatchedTokens = function(node, query) {
+                            var m_tokens = [];
+                            _.each(node.ids, function(id) {
+                                var sameStart = function(me, other) {
+                                    return me.slice(0, other.length) == other;
+                                };
+                                var data = that.datums[id];
+                                var tokens = that.datumTokenizer(data);
+                                for (var i = 0; i < tokens.length; i++) {
+                                    if (sameStart(tokens[i].toUpperCase(), query.toUpperCase())) {
+                                        m_tokens.push(tokens[i]);
+                                    }
+                                }
+                            });
+                            return m_tokens;
+                        };
+                        matchedTokens = matchedTokens.concat(findMatchedTokens(node, token));
                         ids = node.ids.slice(0);
                         matches = matches ? getIntersection(matches, ids) : ids;
                     } else {
@@ -447,9 +465,17 @@
                         return false;
                     }
                 });
-                return matches ? _.map(unique(matches), function(id) {
-                    return that.datums[id];
-                }) : [];
+                if (matches) {
+                    var matched_datums = _.map(unique(matches), function(id) {
+                        return that.datums[id];
+                    });
+                    return {
+                        matches: matched_datums,
+                        matchedTokens: unique(matchedTokens)
+                    };
+                } else {
+                    return [];
+                }
             },
             reset: function reset() {
                 this.datums = [];
@@ -678,11 +704,12 @@
             },
             get: function get(query, cb) {
                 var that = this, matches = [], cacheHit = false;
-                matches = this.index.get(query);
+                var result = this.index.get(query);
+                matches = result.matches;
                 matches = this.sorter(matches).slice(0, this.limit);
                 matches.length < this.limit ? cacheHit = this._getFromRemote(query, returnRemoteMatches) : this._cancelLastRemoteRequest();
                 if (!cacheHit) {
-                    (matches.length > 0 || !this.transport) && cb && cb(matches);
+                    (matches.length > 0 || !this.transport) && cb && cb(matches, result.matchedTokens);
                 }
                 function returnRemoteMatches(remoteMatches) {
                     var matchesWithBackfill = matches.slice(0);
@@ -694,7 +721,7 @@
                         !isDuplicate && matchesWithBackfill.push(remoteMatch);
                         return matchesWithBackfill.length < that.limit;
                     });
-                    cb && cb(that.sorter(matchesWithBackfill));
+                    cb && cb(that.sorter(matchesWithBackfill), result.matchedTokens);
                 }
             },
             clear: function clear() {
