@@ -45,7 +45,7 @@ module.exports = function(grunt) {
     uglify: {
       options: {
         banner: '<%= banner %>',
-        enclose: { 'window.jQuery': '$' }
+        enclose: { 'window.$': '$' }
       },
       bloodhound: {
         options: {
