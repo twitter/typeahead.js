@@ -36,6 +36,8 @@ var Dataset = (function() {
     this.templates = getTemplates(o.templates, this.displayFn);
 
     this.$el = $(html.dataset.replace('%CLASS%', this.name));
+
+    this.hasSuggestions = false;
   }
 
   // static methods
@@ -66,7 +68,7 @@ var Dataset = (function() {
       var that = this, hasSuggestions;
 
       this.$el.empty();
-      hasSuggestions = suggestions && suggestions.length;
+      this.hasSuggestions = hasSuggestions = suggestions && suggestions.length;
 
       if (!hasSuggestions && this.templates.empty) {
         this.$el

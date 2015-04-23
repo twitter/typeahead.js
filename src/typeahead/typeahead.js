@@ -25,6 +25,7 @@ var Typeahead = (function() {
     this.isActivated = false;
     this.autoselect = !!o.autoselect;
     this.minLength = _.isNumber(o.minLength) ? o.minLength : 1;
+    this.templates = (_.isObject(o.templates)) ? getTemplates(o.templates) : {};
     this.$node = buildDom(o.input, o.withHint);
 
     $menu = this.$node.find('.tt-dropdown-menu');
@@ -56,7 +57,7 @@ var Typeahead = (function() {
 
     this.eventBus = o.eventBus || new EventBus({ el: $input });
 
-    this.dropdown = new Dropdown({ menu: $menu, datasets: o.datasets })
+    this.dropdown = new Dropdown({ menu: $menu, datasets: o.datasets, templates: o.templates })
     .onSync('suggestionClicked', this._onSuggestionClicked, this)
     .onSync('cursorMoved', this._onCursorMoved, this)
     .onSync('cursorRemoved', this._onCursorRemoved, this)
@@ -317,6 +318,14 @@ var Typeahead = (function() {
   });
 
   return Typeahead;
+
+  function getTemplates(templates) {
+    return {
+      empty: templates.empty && _.templatify(templates.empty),
+      header: templates.header && _.templatify(templates.header),
+      footer: templates.footer && _.templatify(templates.footer)
+    };
+  }
 
   function buildDom(input, withHint) {
     var $input, $wrapper, $dropdown, $hint;

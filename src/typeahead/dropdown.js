@@ -25,6 +25,8 @@ var Dropdown = (function() {
 
     this.datasets = _.map(o.datasets, initializeDataset);
 
+    this.templates = o.templates;
+
     // bound functions
     onSuggestionClick = _.bind(this._onSuggestionClick, this);
     onSuggestionMouseEnter = _.bind(this._onSuggestionMouseEnter, this);
@@ -209,7 +211,38 @@ var Dropdown = (function() {
     update: function update(query) {
       _.each(this.datasets, updateDataset);
 
-      function updateDataset(dataset) { dataset.update(query); }
+      var noSuggestions = true;
+
+      function updateDataset(dataset) { 
+        dataset.update(query); 
+      }
+
+      _.each(this.datasets, checkForEmpty);
+      function checkForEmpty(dataset){
+        if(dataset.hasSuggestions > 0){
+          noSuggestions = false;
+        }
+      }
+      if(noSuggestions && this.templates && this.templates.empty){
+        this.renderGlobalEmpty();
+      }
+    },
+
+    renderGlobalEmpty : function renderGlobalEmpty(){
+      var dataset = this.datasets[0], // use first dataset as element
+          that = this;
+
+      if (!dataset.$el) {
+        return;
+      }
+      dataset.$el.empty();
+      dataset.$el.html(getEmptyHtml(that));
+
+      dataset.trigger("rendered");
+
+      function getEmptyHtml(that) {
+        return that.templates.empty;
+      }
     },
 
     empty: function empty() {
