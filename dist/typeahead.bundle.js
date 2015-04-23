@@ -995,6 +995,7 @@
             this.$overflowHelper = buildOverflowHelper(this.$input);
         }
         Input.normalizeQuery = function(str) {
+            str = _.isString(str) ? str : _.toStr(str);
             return (str || "").replace(/^\s*/g, "").replace(/\s{2,}/g, " ");
         };
         _.mixin(Input.prototype, EventEmitter, {
