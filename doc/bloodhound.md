@@ -16,6 +16,7 @@ Table of Contents
   * [Remote](#remote)
   * [Datums](#datums)
   * [Tokens](#tokens)
+  * [Transport](#transport)
 
 Features
 --------
@@ -222,9 +223,11 @@ Remote data is only used when the data provided by `local` and `prefetch` is
 insufficient. In order to prevent an obscene number of requests being made to
 the remote endpoint, requests are rate-limited.
 
+By default, `remote` uses `jQuery.ajax` to process remote requests.
+
 When configuring `remote`, the following options are available.
 
-* `url` – A URL to make requests to when when the data provided by `local` and 
+* `url` – A URL to make requests to when the data provided by `local` and 
   `prefetch` is insufficient. **Required.**
 
 * `wildcard` - The pattern in `url` that will be replaced with the user's query 
@@ -245,6 +248,10 @@ When configuring `remote`, the following options are available.
   array of datums.
 
 * `ajax` – The [ajax settings object] passed to `jQuery.ajax`.
+
+* `transport` – A function with the signature `transport(url, options, onSuccess, onError)` that processes the remote request. Overrides the default transport of `jQuery.ajax`. Expected to pass the response body to the onSuccess callback, or the error object to onError if the request failed. See the [remote transport example](#transport).
+
+
 
 <!-- section links -->
 
@@ -277,3 +284,34 @@ tokens...
 * `typehead.js`
 * `autoco`
 * `java type`
+
+### Transport
+
+You may wish to use a remote transport other than `jQuery.ajax`.
+
+Do so by implementing the `transport` option from the [remote options hash](#remote).
+
+The following example re-implements the Jquery $.ajax deferral for the sake of simplicity.
+
+```javascript
+var engine = new Bloodhound({
+    remote: {
+        transport: function (url, options, onSuccess, onError) {
+            
+            // Here's where you'd do your custom remote lookup.
+            $.ajax(url, options).done(done).fail(fail).always(always);
+
+            function done(data, textStatus, request) {
+                onSuccess(data); // Notify Bloodhound on success
+            }
+
+            function fail(request, textStatus, errorThrown) {
+                onError(errorThrown); // Notify Bloodhound on error
+            }
+
+            function always() {
+            }
+        }
+    }
+});
+```
