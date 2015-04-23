@@ -4,7 +4,17 @@
  * Copyright 2013-2015 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-(function($) {
+(function(root, factory) {
+    if (typeof define === "function" && define.amd) {
+        define([ "jquery" ], function($) {
+            return root.returnExportsGlobal = factory($);
+        });
+    } else if (typeof exports === "object") {
+        module.exports = factory(require("jquery"));
+    } else {
+        factory(jQuery);
+    }
+})(this, function($) {
     var _ = function() {
         "use strict";
         return {
@@ -724,4 +734,4 @@
             return false;
         }
     })(this);
-})(window.jQuery);
+});

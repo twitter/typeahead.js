@@ -34,6 +34,8 @@ module.exports = function(grunt) {
 
     buildDir: 'dist',
 
+    tempDir: 'temp',
+
     banner: [
       '/*!',
       ' * typeahead.js <%= version %>',
@@ -42,10 +44,24 @@ module.exports = function(grunt) {
       ' */\n\n'
     ].join('\n'),
 
+    concat: {
+      bloodhound: {
+        src: [files.common, files.bloodhound],
+        dest: '<%= tempDir %>/bloodhound.js'
+      },
+      typeahead: {
+        src: [files.common, files.typeahead],
+        dest: '<%= tempDir %>/typeahead.jquery.js'
+      },
+      bundle: {
+        src: [files.common, files.bloodhound, files.typeahead],
+        dest: '<%= tempDir %>/typeahead.bundle.js'
+      }
+    },
+
     uglify: {
       options: {
-        banner: '<%= banner %>',
-        enclose: { 'window.jQuery': '$' }
+        banner: '<%= banner %>'
       },
       bloodhound: {
         options: {
@@ -53,7 +69,7 @@ module.exports = function(grunt) {
           beautify: true,
           compress: false
         },
-        src: files.common.concat(files.bloodhound),
+        src: '<%= tempDir %>/bloodhound.js',
         dest: '<%= buildDir %>/bloodhound.js'
       },
       bloodhoundMin: {
@@ -61,7 +77,7 @@ module.exports = function(grunt) {
           mangle: true,
           compress: {}
         },
-        src: files.common.concat(files.bloodhound),
+        src: '<%= tempDir %>/bloodhound.js',
         dest: '<%= buildDir %>/bloodhound.min.js'
       },
       typeahead: {
@@ -70,7 +86,7 @@ module.exports = function(grunt) {
           beautify: true,
           compress: false
         },
-        src: files.common.concat(files.typeahead),
+        src: '<%= tempDir %>/typeahead.jquery.js',
         dest: '<%= buildDir %>/typeahead.jquery.js'
 
       },
@@ -79,7 +95,7 @@ module.exports = function(grunt) {
           mangle: true,
           compress: {}
         },
-        src: files.common.concat(files.typeahead),
+        src: '<%= tempDir %>/typeahead.jquery.js',
         dest: '<%= buildDir %>/typeahead.jquery.min.js'
 
       },
@@ -89,7 +105,7 @@ module.exports = function(grunt) {
           beautify: true,
           compress: false
         },
-        src: files.common.concat(files.bloodhound, files.typeahead),
+        src: '<%= tempDir %>/typeahead.bundle.js',
         dest: '<%= buildDir %>/typeahead.bundle.js'
 
       },
@@ -98,8 +114,41 @@ module.exports = function(grunt) {
           mangle: true,
           compress: {}
         },
-        src: files.common.concat(files.bloodhound, files.typeahead),
+        src: '<%= tempDir %>/typeahead.bundle.js',
         dest: '<%= buildDir %>/typeahead.bundle.min.js'
+      }
+    },
+
+    umd: {
+      bloodhound: {
+        indent: '  ',
+        deps: {
+          'default': ['$'],
+          amd: ['jquery'],
+          cjs: ['jquery'],
+          global: ['jQuery']
+        },
+        src: '<%= tempDir %>/bloodhound.js'
+      },
+      typeahead: {
+        indent: '  ',
+        deps: {
+          'default': ['$'],
+          amd: ['jquery'],
+          cjs: ['jquery'],
+          global: ['jQuery']
+        },
+        src: '<%= tempDir %>/typeahead.jquery.js'
+      },
+      bundle: {
+        indent: '  ',
+        deps: {
+          'default': ['$'],
+          amd: ['jquery'],
+          cjs: ['jquery'],
+          global: ['jQuery']
+        },
+        src: '<%= tempDir %>/typeahead.bundle.js'
       }
     },
 
@@ -158,7 +207,8 @@ module.exports = function(grunt) {
     },
 
     clean: {
-      dist: 'dist'
+      dist: 'dist',
+      temp: 'temp'
     },
 
     connect: {
@@ -244,7 +294,7 @@ module.exports = function(grunt) {
   // -------
 
   grunt.registerTask('default', 'build');
-  grunt.registerTask('build', ['uglify', 'sed:version']);
+  grunt.registerTask('build', ['clean:temp', 'concat', 'umd', 'uglify', 'clean:temp', 'sed:version']);
   grunt.registerTask('server', 'connect:server');
   grunt.registerTask('lint', 'jshint');
   grunt.registerTask('dev', 'concurrent:dev');
@@ -262,4 +312,5 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-connect');
+  grunt.loadNpmTasks('grunt-umd');
 };
