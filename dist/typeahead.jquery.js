@@ -1051,7 +1051,7 @@
             $wrapper = $(html.wrapper).css(css.wrapper);
             $dropdown = $(html.dropdown).css(css.dropdown);
             $hint = $input.clone().css(css.hint).css(getBackgroundStyles($input));
-            $hint.val("").removeData().addClass("tt-hint").removeAttr("id name placeholder required").prop("readonly", true).attr({
+            $hint.val("").removeData().addClass("tt-hint").removeAttr("id name placeholder required aria-label").prop("readonly", true).attr("aria-label", "type ahead dropdown hint").attr({
                 autocomplete: "off",
                 spellcheck: "false",
                 tabindex: -1
