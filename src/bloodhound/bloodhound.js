@@ -159,6 +159,12 @@ var Bloodhound = (function() {
           }) && nonDuplicates.push(r);
         });
 
+        // #1148: Should Bloodhound index remote datums?
+        if (that.remote.indexResponse) {
+          that.index.add(nonDuplicates);
+          nonDuplicates = that.index.search(query);
+        }
+
         async && async(nonDuplicates);
       }
     },
