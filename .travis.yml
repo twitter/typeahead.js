@@ -21,8 +21,7 @@ node_js:
 before_script: 
 - npm install -g grunt-cli@0.1.13
 - npm install -g node-static@0.7.3
-# until https://github.com/bower/bower/pull/1403 is merged
-- npm install -g git://github.com/jharding/bower.git
+- npm install -g bower@1.3.8
 - bower install
 - grunt build
 script: test/ci

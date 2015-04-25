@@ -83,7 +83,7 @@ module.exports = function(grunt) {
       bloodhoundMin: {
         options: {
           mangle: true,
-          compress: true
+          compress: {}
         },
         src: '<%= tempDir %>/bloodhound.js',
         dest: '<%= buildDir %>/bloodhound.min.js'
@@ -100,7 +100,7 @@ module.exports = function(grunt) {
       typeaheadMin: {
         options: {
           mangle: true,
-          compress: true
+          compress: {}
         },
         src: '<%= tempDir %>/typeahead.jquery.js',
         dest: '<%= buildDir %>/typeahead.jquery.min.js'
@@ -121,7 +121,7 @@ module.exports = function(grunt) {
       bundleMin: {
         options: {
           mangle: true,
-          compress: true
+          compress: {}
         },
         src: [
           '<%= tempDir %>/bloodhound.js',
