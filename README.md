@@ -79,7 +79,7 @@ Browser Support
 * Internet Explorer 8+
 * Opera 11+
 
-**NOTE:** typeahead.js is not tested on mobile browers.
+**NOTE:** typeahead.js is not tested on mobile browsers.
 
 Customer Support
 ----------------
