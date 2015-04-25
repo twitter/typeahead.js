@@ -142,7 +142,8 @@ Datasets can be configured using the following options.
 * `display` – For a given suggestion, determines the string representation 
   of it. This will be used when setting the value of the input control after a 
   suggestion is selected. Can be either a key string or a function that 
-  transforms a suggestion object into a string. Defaults to `value`.
+  transforms a suggestion object into a string. Defaults to stringifying the 
+  suggestion.
 
 * `templates` – A hash of templates to be used when rendering the dataset. Note
   a precompiled template is a function that takes a JavaScript object as its

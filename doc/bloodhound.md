@@ -210,7 +210,7 @@ hitting [local storage limits].
 
 When configuring `prefetch`, the following options are available.
 
-* `url` – The URL prefetch data should be loaded from. ** Required.**
+* `url` – The URL prefetch data should be loaded from. **Required.**
 
 * `cache` – If `false`, will not attempt to read or write to local storage and
   will always load prefetch data from `url` on initialization.  Defaults to 
@@ -242,7 +242,7 @@ of requests being made to the remote endpoint, requests are rate-limited.
 
 When configuring `remote`, the following options are available.
 
-* `url` – The URL remote data should be loaded from. ** Required.**
+* `url` – The URL remote data should be loaded from. **Required.**
 
 * `prepare` – A function that provides a hook to allow you to prepare the 
   settings object passed to `transport` when a request is about to be made. 
