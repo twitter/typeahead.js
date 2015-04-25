@@ -165,8 +165,8 @@ var SearchIndex = window.SearchIndex = (function() {
   function getIntersection(arrayA, arrayB) {
     var ai = 0, bi = 0, intersection = [];
 
-    arrayA = arrayA.sort(compare);
-    arrayB = arrayB.sort(compare);
+    arrayA = arrayA.sort();
+    arrayB = arrayB.sort();
 
     var lenArrayA = arrayA.length, lenArrayB = arrayB.length;
 
@@ -187,7 +187,5 @@ var SearchIndex = window.SearchIndex = (function() {
     }
 
     return intersection;
-
-    function compare(a, b) { return a - b; }
   }
 })();
