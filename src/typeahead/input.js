@@ -174,7 +174,7 @@ var Input = (function() {
       .on('focus.tt', onFocus)
       .on('keydown.tt', onKeydown);
 
-      // ie7 and ie8 don't support the input event
+      // ie8 don't support the input event
       // ie9 doesn't fire the input event when characters are removed
       if (!_.isMsie() || _.isMsie() > 9) {
         this.$input.on('input.tt', onInput);

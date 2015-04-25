@@ -76,7 +76,7 @@ Browser Support
 * Chrome
 * Firefox 3.5+
 * Safari 4+
-* Internet Explorer 7+
+* Internet Explorer 8+
 * Opera 11+
 
 **NOTE:** typeahead.js is not tested on mobile browers.

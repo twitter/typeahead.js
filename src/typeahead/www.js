@@ -108,13 +108,6 @@ var WWW = (function() {
       });
     }
 
-    // ie7 and under specific styling
-    if (_.isMsie() && _.isMsie() <= 7) {
-      // if someone can tell me why this is necessary to align
-      // the hint with the query in ie7, i'll send you $5 - @JakeHarding
-      _.mixin(css.input, { marginTop: '-1px' });
-    }
-
     return css;
   }
 })();
