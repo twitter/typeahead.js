@@ -1,11 +1,3 @@
-/* custom font! */
-/* ------------ */
-
-@font-face {
-  font-family: Prociono;
-  src: url(../font/Prociono-Regular-webfont.ttf);
-}
-
 /* scaffolding */
 /* ----------- */
 
@@ -20,7 +12,7 @@ html {
   text-align: center;
 }
 
-.tt-dropdown-menu,
+.tt-menu,
 .gist {
   text-align: left;
 }
@@ -29,11 +21,10 @@ html {
 /* ----------- */
 
 html {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 18px;
-  line-height: 1.2;
-  color: #333;
+  font: normal normal normal 18px/1.2 "Helvetica Neue", Roboto, "Segoe UI", Calibri, sans-serif;
+  color: #292f33;
 }
+
 
 a {
   color: #03739c;
@@ -53,11 +44,6 @@ a:hover {
 .table-of-contents li a {
   font-size: 16px;
   color: #999;
-}
-
-.title,
-.example-name {
-  font-family: Prociono;
 }
 
 p + p {
@@ -120,9 +106,9 @@ p + p {
   color: #999
 }
 
-.tt-dropdown-menu {
+.tt-menu {
   width: 422px;
-  margin-top: 12px;
+  margin: 12px 0;
   padding: 8px 0;
   background-color: #fff;
   border: 1px solid #ccc;
@@ -169,11 +155,11 @@ p + p {
   border-bottom: 1px solid #ccc;
 }
 
-#scrollable-dropdown-menu .tt-dropdown-menu {
+#scrollable-dropdown-menu .tt-menu {
   max-height: 150px;
   overflow-y: auto;
 }
 
-#rtl-support .tt-dropdown-menu {
+#rtl-support .tt-menu {
   text-align: right;
 }

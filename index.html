@@ -9,6 +9,7 @@
     <link rel="shortcut icon" type="image/x-icon" href="http://twitter.com/favicons/favicon.ico">
     <link rel="stylesheet" href="css/normalize.min.css">
     <link rel="stylesheet" href="css/main.css">
+    <base target="_blank">
   </head>
   <body>
     <div class="sticky-footer-wrapper">
@@ -16,11 +17,19 @@
         <h1 class="title"><img class="twitter-logo" src="img/twitter-logo.png"> typeahead.js</h1>
         <p class="tagline">a flexible JavaScript library that provides a strong foundation for building robust typeaheads</p>
 
-        <div class="typeahead-demo">
-          <input class="typeahead" id="main-typeahead" placeholder="open source projects by Twitter">
-          <div class="btn-demo">
-            <p class="btn-demo-text">activate typeahead.js demo</p>
-          </div>
+        <div class="Demo">
+          <form action="https://twitter.com/search" method="get">
+            <input type="hidden" name="mode" value="users">
+            <div class="Typeahead Typeahead--twitterUsers">
+              <div class="u-posRelative">
+                <input class="Typeahead-hint" type="text" tabindex="-1" readonly>
+                <input class="Typeahead-input" id="demo-input" type="text" name="q" placeholder="Search Twitter users...">
+                <img class="Typeahead-spinner" src="img/spinner.gif">
+              </div>
+              <div class="Typeahead-menu"></div>
+            </div>
+            <button class="u-hidden" type="submit">blah</button>
+          </form>
         </div>
         <span class="links links-examples">
           <a href="examples/">or see examples</a>
@@ -50,9 +59,31 @@
       <div class="sticky-footer-push"></div>
     </div>
 
+    <script id="result-template" type="text/x-handlebars-template">
+      <div class="ProfileCard u-cf">
+        <img class="ProfileCard-avatar" src="{{profile_image_url_https}}">
+
+        <div class="ProfileCard-details">
+          <div class="ProfileCard-realName">{{name}}</div>
+          <div class="ProfileCard-screenName">@{{screen_name}}</div>
+          <div class="ProfileCard-description">{{description}}</div>
+        </div>
+
+        <div class="ProfileCard-stats">
+          <div class="ProfileCard-stat"><span class="ProfileCard-stat-label">Tweets:</span> {{statuses_count}}</div>
+          <div class="ProfileCard-stat"><span class="ProfileCard-stat-label">Following:</span> {{friends_count}}</div>
+          <div class="ProfileCard-stat"><span class="ProfileCard-stat-label">Followers:</span> {{followers_count}}</div>
+        </div>
+      </div>
+    </script>
+
+    <script id="empty-template" type="text/x-handlebars-template">
+      <div class="EmptyMessage">Your search turned up 0 results. This most likely means the backend is down, yikes!</div>
+    </script>
+
     <script src="js/handlebars.js"></script>
     <script src="js/jquery-1.10.2.min.js"></script>
-    <script src="js/ghostwriter.min.js"></script>
+    <script src="js/jquery.xdomainrequest.min.js"></script>
     <script src="releases/latest/typeahead.bundle.js"></script>
     <script src="js/main.js"></script>
     <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
