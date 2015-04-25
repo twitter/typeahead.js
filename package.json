@@ -43,7 +43,7 @@
     "grunt-exec": "~0.4.5",
     "grunt-sed": "~0.1",
     "grunt-step": "~0.2.0",
-    "grunt-umd": "^2.0.0",
+    "grunt-umd": "^2.3.3",
     "karma": "^0.12.22",
     "karma-chrome-launcher": "^0.1.4",
     "karma-coverage": "^0.2.6",
