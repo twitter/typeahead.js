@@ -318,7 +318,7 @@ var Dataset = (function() {
     };
 
     function suggestionTemplate(context) {
-      return '<div><p>' + displayFn(context) + '</p></div>';
+      return $('<div>').text(displayFn(context));
     }
   }
 

@@ -169,8 +169,8 @@ Datasets can be configured using the following options.
 
   * `suggestion` – Used to render a single suggestion. If set, this has to be a 
     precompiled template. The associated suggestion object will serve as the 
-    context. Defaults to the value of `display` wrapped in a `p` tag i.e. 
-    `<p>{{value}}</p>`.
+    context. Defaults to the value of `display` wrapped in a `div` tag i.e. 
+    `<div>{{value}}</div>`.
 
 ### Custom Events
 
