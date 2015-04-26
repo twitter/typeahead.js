@@ -49,6 +49,7 @@ var oParser = (function() {
       cache: true,
       cacheKey: null,
       thumbprint: '',
+      prepare: _.identity,
       transform: _.identity,
       transport: null
     };
@@ -98,7 +99,7 @@ var oParser = (function() {
     // DEPRECATED: filter will be dropped in v1
     o.transform = o.filter || o.transform;
 
-    o.prepare = toPrepare(o);
+    o.prepare = toRemotePrepare(o);
     o.limiter = toLimiter(o);
     o.transport = o.transport ? callbackToDeferred(o.transport) : $.ajax;
 
@@ -110,7 +111,7 @@ var oParser = (function() {
     return o;
   }
 
-  function toPrepare(o) {
+  function toRemotePrepare(o) {
     var prepare, replace, wildcard;
 
     prepare = o.prepare;

@@ -108,6 +108,18 @@ describe('Prefetch', function() {
       });
     });
 
+    it('should transform request settings with prepare', function() {
+      var spy;
+
+      spy = jasmine.createSpy();
+      spyOn(this.prefetch, 'prepare').andReturn({ foo: 'bar' });
+      spyOn(this.prefetch, 'transport').andReturn($.Deferred());
+
+      this.prefetch.fromNetwork(spy);
+
+      expect(this.prefetch.transport).toHaveBeenCalledWith({ foo: 'bar' });
+    });
+
     it('should transform the response using transform', function() {
       var spy;
 

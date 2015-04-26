@@ -225,6 +225,13 @@ When configuring `prefetch`, the following options are available.
 * `thumbprint` – A string used for thumbprinting prefetched data. If this
   doesn't match what's stored in local storage, the data will be refetched.
 
+* `prepare` – A function that provides a hook to allow you to prepare the 
+  settings object passed to `transport` when a request is about to be made. 
+  The function signature should be `prepare(settings)` where `settings` is the 
+  default settings object created internally by the Bloodhound instance. The 
+  `prepare` function should return a settings object. Defaults to the 
+  [identity function].
+
 * `transform` – A function with the signature `transform(response)` that allows
   you to transform the prefetch response before the Bloodhound instance operates 
   on it. Defaults to the [identity function].
