@@ -32,13 +32,7 @@ var PersistentStorage = (function() {
     this.ls = override || LOCAL_STORAGE;
 
     // if local storage isn't available, everything becomes a noop
-    if (!this.ls || !window.JSON) {
-      this.get =
-      this.set =
-      this.remove =
-      this.clear =
-      this.isExpired = _.noop;
-    }
+    !this.ls && this._noop();
   }
 
   // instance methods
@@ -55,6 +49,26 @@ var PersistentStorage = (function() {
       return this._prefix(key) + this.ttlKey;
     },
 
+    _noop: function() {
+      this.get =
+      this.set =
+      this.remove =
+      this.clear =
+      this.isExpired = _.noop;
+    },
+
+    _safeSet: function(key, val) {
+      try {
+        this.ls.setItem(key, val);
+      } catch (err) {
+        // hit the localstorage limit so clean up and better luck next time
+        if (err.name === 'QuotaExceededError') {
+          this.clear();
+          this._noop();
+        }
+      }
+    },
+
     // ### public
 
     get: function(key) {
@@ -67,14 +81,14 @@ var PersistentStorage = (function() {
 
     set: function(key, val, ttl) {
       if (_.isNumber(ttl)) {
-        this.ls.setItem(this._ttlKey(key), encode(now() + ttl));
+        this._safeSet(this._ttlKey(key), encode(now() + ttl));
       }
 
       else {
         this.ls.removeItem(this._ttlKey(key));
       }
 
-      return this.ls.setItem(this._prefix(key), encode(val));
+      return this._safeSet(this._prefix(key), encode(val));
     },
 
     remove: function(key) {
@@ -85,14 +99,7 @@ var PersistentStorage = (function() {
     },
 
     clear: function() {
-      var i, key, keys = [], len = this.ls.length;
-
-      for (i = 0; i < len; i++) {
-        if ((key = this.ls.key(i)).match(this.keyMatcher)) {
-          // gather keys to remove after loop exits
-          keys.push(key.replace(this.keyMatcher, ''));
-        }
-      }
+      var i, keys = gatherMatchingKeys(this.keyMatcher);
 
       for (i = keys.length; i--;) {
         this.remove(keys[i]);
@@ -124,5 +131,17 @@ var PersistentStorage = (function() {
 
   function decode(val) {
     return $.parseJSON(val);
+  }
+
+  function gatherMatchingKeys(keyMatcher) {
+    var i, key, keys = [], len = LOCAL_STORAGE.length;
+
+    for (i = 0; i < len; i++) {
+      if ((key = LOCAL_STORAGE.key(i)).match(keyMatcher)) {
+        keys.push(key.replace(keyMatcher, ''));
+      }
+    }
+
+    return keys;
   }
 })();
