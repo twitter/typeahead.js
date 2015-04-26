@@ -237,6 +237,24 @@ describe('Input', function() {
     });
   });
 
+  describe('.normalizeQuery', function() {
+    it('should strip leading whitespace', function() {
+      expect(Input.normalizeQuery('  foo')).toBe('foo');
+    });
+
+    it('should condense whitespace', function() {
+      expect(Input.normalizeQuery('foo   bar')).toBe('foo bar');
+    });
+
+    it('should play nice with non-string values', function() {
+      expect(Input.normalizeQuery(2)).toBe('2');
+      expect(Input.normalizeQuery([])).toBe('');
+      expect(Input.normalizeQuery(null)).toBe('');
+      expect(Input.normalizeQuery(undefined)).toBe('');
+      expect(Input.normalizeQuery(false)).toBe('false');
+    });
+  });
+
   describe('#focus', function() {
     it('should focus the input', function() {
       this.$input.blur();
