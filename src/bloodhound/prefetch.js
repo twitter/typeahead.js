@@ -19,6 +19,7 @@ var Prefetch = (function() {
     this.url = o.url;
     this.ttl = o.ttl;
     this.cache = o.cache;
+    this.prepare = o.prepare;
     this.transform = o.transform;
     this.transport = o.transport;
     this.thumbprint = o.thumbprint;
@@ -69,11 +70,12 @@ var Prefetch = (function() {
     },
 
     fromNetwork: function(cb) {
-      var that = this;
+      var that = this, settings;
 
       if (!cb) { return; }
 
-      this.transport(this._settings()).fail(onError).done(onResponse);
+      settings = this.prepare(this._settings());
+      this.transport(settings).fail(onError).done(onResponse);
 
       function onError() { cb(true); }
       function onResponse(resp) { cb(null, that.transform(resp)); }
