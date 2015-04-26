@@ -204,7 +204,8 @@ var Menu = (function() {
     destroy: function destroy() {
       this.$node.off('.tt');
 
-      this.$node = null;
+      // #970
+      this.$node = $('<div>');
 
       _.each(this.datasets, destroyDataset);
 

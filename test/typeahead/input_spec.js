@@ -475,12 +475,18 @@ describe('Input', function() {
       expect($input.off).toHaveBeenCalledWith('.tt');
     });
 
-    it('should null out its reference to DOM elements', function() {
+    it('should set references to DOM elements to dummy element', function() {
+      var $hint, $input, $overflowHelper;
+
+      $hint = this.view.$hint;
+      $input = this.view.$input;
+      $overflowHelper = this.view.$overflowHelper;
+
       this.view.destroy();
 
-      expect(this.view.$hint).toBeNull();
-      expect(this.view.$input).toBeNull();
-      expect(this.view.$overflowHelper).toBeNull();
+      expect(this.view.$hint).not.toBe($hint);
+      expect(this.view.$input).not.toBe($input);
+      expect(this.view.$overflowHelper).not.toBe($overflowHelper);
     });
   });
 

@@ -296,7 +296,8 @@ var Input = (function() {
       this.$input.off('.tt');
       this.$overflowHelper.remove();
 
-      this.$hint = this.$input = this.$overflowHelper = null;
+      // #970
+      this.$hint = this.$input = this.$overflowHelper = $('<div>');
     }
   });
 
