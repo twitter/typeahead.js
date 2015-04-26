@@ -4,7 +4,7 @@ describe('Dataset', function() {
   mockSuggestions = [
     { value: 'one', raw: { value: 'one' } },
     { value: 'two', raw: { value: 'two' } },
-    { value: 'three', raw: { value: 'three' } }
+    { value: 'html', raw: { value: '<b>html</b>' } }
   ];
 
   mockSuggestionsDisplayFn = [
@@ -53,7 +53,14 @@ describe('Dataset', function() {
 
       expect(this.dataset.$el).toContainText('one');
       expect(this.dataset.$el).toContainText('two');
-      expect(this.dataset.$el).toContainText('three');
+      expect(this.dataset.$el).toContainText('html');
+    });
+
+    it('should escape html chars from display value when using default template', function() {
+      this.source.andCallFake(syncMockSuggestions);
+      this.dataset.update('woah');
+
+      expect(this.dataset.$el).toContainText('<b>html</b>');
     });
 
     it('should respect limit option', function() {
@@ -340,7 +347,7 @@ describe('Dataset', function() {
       runs(function() {
         expect(this.dataset.$el).toContainText('one');
         expect(this.dataset.$el).toContainText('two');
-        expect(this.dataset.$el).toContainText('three');
+        expect(this.dataset.$el).toContainText('html');
         expect(this.dataset.$el).not.toContainText('four');
         expect(this.dataset.$el).not.toContainText('five');
       });
