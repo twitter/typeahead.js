@@ -216,7 +216,7 @@ describe('Bloodhound', function() {
       ]);
 
       function fakeSorter(a, b) {
-        return a.value.length < b.value.length;
+        return a.value.length < b.value.length ? 1 : -1;
       }
     });
 
@@ -231,8 +231,8 @@ describe('Bloodhound', function() {
       this.bloodhound.search('big', function() {});
 
       expect(spy).toHaveBeenCalledWith(
-        { value: 'big' },
-        { value: 'bigger' },
+        jasmine.any(Object),
+        jasmine.any(Object),
         { query: 'big', tokens: ['big'] }
       )
     });
@@ -275,7 +275,7 @@ describe('Bloodhound', function() {
       ]);
 
       function fakeSorter(a, b) {
-        return a.value.length < b.value.length;
+        return a.value.length < b.value.length ? 1 : -1;
       }
     });
 
@@ -293,8 +293,8 @@ describe('Bloodhound', function() {
       this.bloodhound.search('big', function() {});
 
       expect(spy).toHaveBeenCalledWith(
-        { value: 'big' },
-        { value: 'bigger' },
+        jasmine.any(Object),
+        jasmine.any(Object),
         { query: 'big', tokens: ['big'] }
       )
     });
