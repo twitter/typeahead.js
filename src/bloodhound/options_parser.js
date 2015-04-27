@@ -28,8 +28,7 @@ var oParser = (function() {
     !o.datumTokenizer && $.error('datumTokenizer is required');
     !o.queryTokenizer && $.error('queryTokenizer is required');
 
-    sorter = o.sorter;
-    o.sorter = sorter ? function(x) { return x.sort(sorter); } : _.identity;
+    o.sorter = o.sorter ? sorterWrapper(o.sorter) : _.identity;
 
     o.local = _.isFunction(o.local) ? o.local() : o.local;
     o.prefetch = parsePrefetch(o.prefetch);
@@ -37,6 +36,14 @@ var oParser = (function() {
 
     return o;
   };
+
+  function sorterWrapper(sorter) {
+    return function(x, info) {
+      return x.sort(function(a, b) {
+        return sorter.call(null, a, b, info);
+      });
+    };
+  }
 
   function parsePrefetch(o) {
     var defaults;

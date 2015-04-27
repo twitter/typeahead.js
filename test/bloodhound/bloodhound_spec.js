@@ -198,6 +198,44 @@ describe('Bloodhound', function() {
         { value: 'biggest' }
       ]);
     });
+
+    it('should sort results according to sorter function', function() {
+      var spy = jasmine.createSpy();
+
+      this.bloodhound = build({
+        local: fixtures.data.simple,
+        sorter: fakeSorter
+      });
+
+      this.bloodhound.search('big', spy);
+
+      expect(spy).toHaveBeenCalledWith([
+        { value: 'biggest' },
+        { value: 'bigger' },
+        { value: 'big' }
+      ]);
+
+      function fakeSorter(a, b) {
+        return a.value.length < b.value.length;
+      }
+    });
+
+    it('should pass query context to sorter function', function() {
+      var spy = jasmine.createSpy();
+
+      this.bloodhound = build({
+        local: fixtures.data.simple,
+        sorter: spy
+      });
+
+      this.bloodhound.search('big', function() {});
+
+      expect(spy).toHaveBeenCalledWith(
+        { value: 'big' },
+        { value: 'bigger' },
+        { query: 'big', tokens: ['big'] }
+      )
+    });
   });
 
   describe('#search – prefetch', function() {
@@ -215,6 +253,50 @@ describe('Bloodhound', function() {
         { value: 'bigger' },
         { value: 'biggest' }
       ]);
+    });
+
+    it('should sort results according to sorter function', function() {
+      var spy = jasmine.createSpy();
+
+      this.bloodhound = build({
+        initialize: false,
+        prefetch: '/prefetch',
+        sorter: fakeSorter
+      });
+      this.bloodhound.prefetch.fromCache.andReturn(fixtures.serialized.simple);
+      this.bloodhound.initialize();
+
+      this.bloodhound.search('big', spy);
+
+      expect(spy).toHaveBeenCalledWith([
+        { value: 'biggest' },
+        { value: 'bigger' },
+        { value: 'big' }
+      ]);
+
+      function fakeSorter(a, b) {
+        return a.value.length < b.value.length;
+      }
+    });
+
+    it('should pass query context to sorter function', function() {
+      var spy = jasmine.createSpy();
+
+      this.bloodhound = build({
+        initialize: false,
+        prefetch: '/prefetch',
+        sorter: spy
+      });
+      this.bloodhound.prefetch.fromCache.andReturn(fixtures.serialized.simple);
+      this.bloodhound.initialize();
+
+      this.bloodhound.search('big', function() {});
+
+      expect(spy).toHaveBeenCalledWith(
+        { value: 'big' },
+        { value: 'bigger' },
+        { query: 'big', tokens: ['big'] }
+      )
     });
   });
 
