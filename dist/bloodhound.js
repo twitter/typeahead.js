@@ -1,5 +1,5 @@
 /*!
- * typeahead.js 0.11.0
+ * typeahead.js 0.11.1
  * https://github.com/twitter/typeahead.js
  * Copyright 2013-2015 Twitter, Inc. and other contributors; Licensed MIT
  */
@@ -151,7 +151,7 @@
             noop: function() {}
         };
     }();
-    var VERSION = "0.11.0";
+    var VERSION = "0.11.1";
     var tokenizers = function() {
         "use strict";
         return {
@@ -171,11 +171,11 @@
             return str ? str.split(/\W+/) : [];
         }
         function getObjTokenizer(tokenizer) {
-            return function setKey() {
-                var args = [].slice.call(arguments, 0);
+            return function setKey(keys) {
+                keys = _.isArray(keys) ? keys : [].slice.call(arguments, 0);
                 return function tokenize(o) {
                     var tokens = [];
-                    _.each(args, function(k) {
+                    _.each(keys, function(k) {
                         tokens = tokens.concat(tokenizer(_.toStr(o[k])));
                     });
                     return tokens;
@@ -266,9 +266,7 @@
             this.ttlKey = "__ttl__";
             this.keyMatcher = new RegExp("^" + _.escapeRegExChars(this.prefix));
             this.ls = override || LOCAL_STORAGE;
-            if (!this.ls || !window.JSON) {
-                this.get = this.set = this.remove = this.clear = this.isExpired = _.noop;
-            }
+            !this.ls && this._noop();
         }
         _.mixin(PersistentStorage.prototype, {
             _prefix: function(key) {
@@ -276,6 +274,19 @@
             },
             _ttlKey: function(key) {
                 return this._prefix(key) + this.ttlKey;
+            },
+            _noop: function() {
+                this.get = this.set = this.remove = this.clear = this.isExpired = _.noop;
+            },
+            _safeSet: function(key, val) {
+                try {
+                    this.ls.setItem(key, val);
+                } catch (err) {
+                    if (err.name === "QuotaExceededError") {
+                        this.clear();
+                        this._noop();
+                    }
+                }
             },
             get: function(key) {
                 if (this.isExpired(key)) {
@@ -285,11 +296,11 @@
             },
             set: function(key, val, ttl) {
                 if (_.isNumber(ttl)) {
-                    this.ls.setItem(this._ttlKey(key), encode(now() + ttl));
+                    this._safeSet(this._ttlKey(key), encode(now() + ttl));
                 } else {
                     this.ls.removeItem(this._ttlKey(key));
                 }
-                return this.ls.setItem(this._prefix(key), encode(val));
+                return this._safeSet(this._prefix(key), encode(val));
             },
             remove: function(key) {
                 this.ls.removeItem(this._ttlKey(key));
@@ -297,12 +308,7 @@
                 return this;
             },
             clear: function() {
-                var i, key, keys = [], len = this.ls.length;
-                for (i = 0; i < len; i++) {
-                    if ((key = this.ls.key(i)).match(this.keyMatcher)) {
-                        keys.push(key.replace(this.keyMatcher, ""));
-                    }
-                }
+                var i, keys = gatherMatchingKeys(this.keyMatcher);
                 for (i = keys.length; i--; ) {
                     this.remove(keys[i]);
                 }
@@ -322,6 +328,15 @@
         }
         function decode(val) {
             return $.parseJSON(val);
+        }
+        function gatherMatchingKeys(keyMatcher) {
+            var i, key, keys = [], len = LOCAL_STORAGE.length;
+            for (i = 0; i < len; i++) {
+                if ((key = LOCAL_STORAGE.key(i)).match(keyMatcher)) {
+                    keys.push(key.replace(keyMatcher, ""));
+                }
+            }
+            return keys;
         }
     }();
     var Transport = function() {
@@ -539,6 +554,7 @@
             this.url = o.url;
             this.ttl = o.ttl;
             this.cache = o.cache;
+            this.prepare = o.prepare;
             this.transform = o.transform;
             this.transport = o.transport;
             this.thumbprint = o.thumbprint;
@@ -572,11 +588,12 @@
                 return stored.data && !isExpired ? stored.data : null;
             },
             fromNetwork: function(cb) {
-                var that = this;
+                var that = this, settings;
                 if (!cb) {
                     return;
                 }
-                this.transport(this._settings()).fail(onError).done(onResponse);
+                settings = this.prepare(this._settings());
+                this.transport(settings).fail(onError).done(onResponse);
                 function onError() {
                     cb(true);
                 }
@@ -667,6 +684,7 @@
                 cache: true,
                 cacheKey: null,
                 thumbprint: "",
+                prepare: _.identity,
                 transform: _.identity,
                 transport: null
             };
@@ -704,7 +722,7 @@
             o = _.mixin(defaults, o);
             !o.url && $.error("remote requires url to be set");
             o.transform = o.filter || o.transform;
-            o.prepare = toPrepare(o);
+            o.prepare = toRemotePrepare(o);
             o.limiter = toLimiter(o);
             o.transport = o.transport ? callbackToDeferred(o.transport) : $.ajax;
             delete o.replace;
@@ -713,7 +731,7 @@
             delete o.rateLimitWait;
             return o;
         }
-        function toPrepare(o) {
+        function toRemotePrepare(o) {
             var prepare, replace, wildcard;
             prepare = o.prepare;
             replace = o.replace;
