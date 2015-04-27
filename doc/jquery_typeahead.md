@@ -72,6 +72,22 @@ Sets the value of the typeahead. This should be used in place of `jQuery#val`.
 $('.typeahead').typeahead('val', myVal);
 ```
 
+#### jQuery#typeahead('open')
+
+Opens the suggestion menu.
+
+```javascript
+$('.typeahead').typeahead('open');
+```
+
+#### jQuery#typeahead('close')
+
+Closes the suggestion menu.
+
+```javascript
+$('.typeahead').typeahead('close');
+```
+
 #### jQuery#typeahead('destroy')
 
 Removes typeahead functionality and reverts the `input` element back to its 
