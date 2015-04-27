@@ -291,7 +291,8 @@ var Dataset = (function() {
     },
 
     destroy: function destroy() {
-      this.$el = null;
+      // #970
+      this.$el = $('<div>');
     }
   });
 

@@ -322,9 +322,11 @@ describe('Menu', function() {
       expect(this.dataset.destroy).toHaveBeenCalled();
     });
 
-    it('should null out its reference to the node element', function() {
+    it('should set node element to dummy element', function() {
+      var $node = this.view.$node;
+
       this.view.destroy();
-      expect(this.view.$node).toBeNull();
+      expect(this.view.$node).not.toBe($node);
     });
   });
 });

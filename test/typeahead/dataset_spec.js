@@ -421,10 +421,11 @@ describe('Dataset', function() {
   });
 
   describe('#destroy', function() {
-    it('should null out the reference to the dataset element', function() {
-      this.dataset.destroy();
+    it('should set dataset element to dummy element', function() {
+      var $prevEl = this.dataset.$el;
 
-      expect(this.dataset.$el).toBeNull();
+      this.dataset.destroy();
+      expect(this.dataset.$el).not.toBe($prevEl);
     });
   });
 
