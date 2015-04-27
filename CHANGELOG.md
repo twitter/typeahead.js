@@ -16,6 +16,14 @@ For more information on semantic versioning, please visit http://semver.org/.
 
 ---
 
+### 0.11.1 April 26, 2015
+
+* Add prepare option to prefetch. [#1181]
+* Handle QuotaExceededError. [#1110]
+* Escape HTML entities from suggestion display value when rendering with default
+  template. [#964]
+* List jquery as a dependency in package.json. [#1143]
+
 ### 0.11.0 April 25, 2015
 
 An overhaul of typeahead.js – consider this a release candidate for v1. There
@@ -174,6 +182,10 @@ work for them with a custom implementation.
 
 [0.10.0 milestone]: https://github.com/twitter/typeahead.js/issues?milestone=8&page=1&state=closed
 
+[#1181]: https://github.com/twitter/typeahead.js/pull/1181
+[#1143]: https://github.com/twitter/typeahead.js/pull/1143
+[#1110]: https://github.com/twitter/typeahead.js/pull/1110
+[#964]: https://github.com/twitter/typeahead.js/pull/964
 [#917]: https://github.com/twitter/typeahead.js/pull/917
 [#899]: https://github.com/twitter/typeahead.js/pull/899
 [#881]: https://github.com/twitter/typeahead.js/pull/881
