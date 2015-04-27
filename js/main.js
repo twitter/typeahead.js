@@ -3,7 +3,7 @@ $(document).ready(function() {
 
   $.support.cors = true;
 
-  remoteHost = 'http://typeahead-js-twitter-api-proxy.herokuapp.com';
+  remoteHost = 'https://typeahead-js-twitter-api-proxy.herokuapp.com';
   template = Handlebars.compile($("#result-template").html());
   empty = Handlebars.compile($("#empty-template").html());
 
