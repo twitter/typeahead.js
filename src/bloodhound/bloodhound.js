@@ -25,11 +25,14 @@ var Bloodhound = (function() {
     this.remote = o.remote ? new Remote(o.remote) : null;
     this.prefetch = o.prefetch ? new Prefetch(o.prefetch) : null;
 
+    this.datumTokenizer = o.datumTokenizer;
+    this.queryTokenizer = o.queryTokenizer;
+
     // the backing data structure used for fast pattern matching
     this.index = new SearchIndex({
       identify: this.identify,
-      datumTokenizer: o.datumTokenizer,
-      queryTokenizer: o.queryTokenizer
+      datumTokenizer: this.datumTokenizer,
+      queryTokenizer: this.queryTokenizer
     });
 
     // hold off on intialization if the intialize option was explicitly false
@@ -132,7 +135,10 @@ var Bloodhound = (function() {
     search: function search(query, sync, async) {
       var that = this, local;
 
-      local = this.sorter(this.index.search(query));
+      local = this.sorter(this.index.search(query), {
+        query: query,
+        tokens: this.queryTokenizer(query)
+      });
 
       // return a copy to guarantee no changes within this scope
       // as this array will get used when processing the remote results
