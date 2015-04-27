@@ -121,6 +121,7 @@ var Menu = (function() {
     },
 
     open: function open() {
+      this.$node.scrollTop(0);
       this.$node.addClass(this.classes.open);
     },
 
