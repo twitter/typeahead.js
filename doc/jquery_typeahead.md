@@ -211,7 +211,7 @@ a typeahead.
   were fetched asynchronously, and the name of the dataset the rendering 
   occurred in.
 
-* `typeahead:select` – Fired when a suggestion is selected. The event handler 
+* `typeahead:selected` – Fired when a suggestion is selected. The event handler 
   will be invoked with 2 arguments: the jQuery event object and the suggestion
   object that was selected.
 
