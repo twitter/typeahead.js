@@ -16,8 +16,8 @@ describe('EventBus', function() {
 
     this.$el.on('typeahead:fiz', spy);
 
-    this.eventBus.trigger('fiz');
-    expect(spy).toHaveBeenCalled();
+    this.eventBus.trigger('fiz', 'foo', 'bar');
+    expect(spy).toHaveBeenCalledWith(jasmine.any(Object), 'foo', 'bar');
   });
 
   it('#before should return false if default was not prevented', function() {

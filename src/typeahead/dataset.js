@@ -10,6 +10,7 @@ var Dataset = (function() {
   var keys, nameGenerator;
 
   keys = {
+    dataset: 'tt-selectable-dataset',
     val: 'tt-selectable-display',
     obj: 'tt-selectable-object'
   };
@@ -41,7 +42,7 @@ var Dataset = (function() {
     www.mixin(this);
 
     this.highlight = !!o.highlight;
-    this.name = o.name || nameGenerator();
+    this.name = _.toStr(o.name || nameGenerator());
 
     this.limit = o.limit || 5;
     this.displayFn = getDisplayFn(o.display || o.displayKey);
@@ -70,6 +71,7 @@ var Dataset = (function() {
 
     if ($el.data(keys.obj)) {
       return {
+        dataset: $el.data(keys.dataset) || '',
         val: $el.data(keys.val) || '',
         obj: $el.data(keys.obj) || null
       };
@@ -108,7 +110,7 @@ var Dataset = (function() {
         this._empty();
       }
 
-      this.trigger('rendered', this.name, suggestions, false);
+      this.trigger('rendered', suggestions, false, this.name);
     },
 
     _append: function append(query, suggestions) {
@@ -129,7 +131,7 @@ var Dataset = (function() {
         this._renderNotFound(query);
       }
 
-      this.trigger('rendered', this.name, suggestions, true);
+      this.trigger('rendered', suggestions, true, this.name);
     },
 
     _renderSuggestions: function renderSuggestions(query, suggestions) {
@@ -189,6 +191,7 @@ var Dataset = (function() {
         context = that._injectQuery(query, suggestion);
 
         $el = $(that.templates.suggestion(context))
+        .data(keys.dataset, that.name)
         .data(keys.obj, suggestion)
         .data(keys.val, that.displayFn(suggestion))
         .addClass(that.classes.suggestion + ' ' + that.classes.selectable);
@@ -242,7 +245,7 @@ var Dataset = (function() {
       this.cancel = function cancel() {
         canceled = true;
         that.cancel = $.noop;
-        that.async && that.trigger('asyncCanceled', query);
+        that.async && that.trigger('asyncCanceled', query, that.name);
       };
 
       this.source(query, sync, async);
@@ -258,7 +261,7 @@ var Dataset = (function() {
         that._overwrite(query, suggestions);
 
         if (rendered < that.limit && that.async) {
-          that.trigger('asyncRequested', query);
+          that.trigger('asyncRequested', query, that.name);
         }
       }
 
@@ -271,7 +274,7 @@ var Dataset = (function() {
           that.cancel = $.noop;
           that._append(query, suggestions.slice(0, that.limit - rendered));
 
-          that.async && that.trigger('asyncReceived', query);
+          that.async && that.trigger('asyncReceived', query, that.name);
         }
       }
     },
