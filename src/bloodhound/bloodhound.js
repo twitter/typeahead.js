@@ -20,6 +20,7 @@ var Bloodhound = (function() {
     this.sorter = o.sorter;
     this.identify = o.identify;
     this.sufficient = o.sufficient;
+    this.indexRemote = o.indexRemote;
 
     this.local = o.local;
     this.remote = o.remote ? new Remote(o.remote) : null;
@@ -132,6 +133,9 @@ var Bloodhound = (function() {
     search: function search(query, sync, async) {
       var that = this, local;
 
+      sync = sync || _.noop;
+      async = async || _.noop;
+
       local = this.sorter(this.index.search(query));
 
       // return a copy to guarantee no changes within this scope
@@ -159,7 +163,10 @@ var Bloodhound = (function() {
           }) && nonDuplicates.push(r);
         });
 
-        async && async(nonDuplicates);
+        // #1148: Should Bloodhound index remote datums?
+        that.indexRemote && that.add(nonDuplicates);
+
+        async(nonDuplicates);
       }
     },
 

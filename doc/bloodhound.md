@@ -193,6 +193,9 @@ options you can configure.
   the internal search index is insufficient or, if more configurability is 
   needed, a [remote options hash](#remote).
 
+* `indexRemote` – Adds the data loaded from `remote` to the search index (where
+  `local` and `prefetch` are stored for retrieval). Defaults to `false`.
+
 <!-- section links -->
 
 [compare function]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
@@ -252,15 +255,15 @@ When configuring `remote`, the following options are available.
 * `url` – The URL remote data should be loaded from. **Required.**
 
 * `prepare` – A function that provides a hook to allow you to prepare the 
-  settings object passed to `transport` when a request is about to be made. 
-  The function signature should be `prepare(query, settings)`, where `query` is
-  the query `#search` was called with and `settings` is the default settings
-  object created internally by the Bloodhound instance. The `prepare` function
-  should return a settings object. Defaults to the [identity function].
+   settings object passed to `transport` when a request is about to be made. 
+   The function signature should be `prepare(query, settings)`, where `query` is
+   the query `#search` was called with and `settings` is the default settings
+   object created internally by the Bloodhound instance. The `prepare` function
+   should return a settings object. Defaults to the [identity function].
 
 * `wildcard` – A convenience option for `prepare`. If set, `prepare` will be a
-  function that replaces the value of this option in `url` with the URI encoded
-  query.
+   function that replaces the value of this option in `url` with the URI encoded
+   query.
 
 * `rateLimitBy` – The method used to rate-limit network requests. Can be either 
   `debounce` or `throttle`. Defaults to `debounce`.
@@ -269,8 +272,8 @@ When configuring `remote`, the following options are available.
   `rateLimitBy`. Defaults to `300`.
 
 * `transform` – A function with the signature `transform(response)` that allows
-  you to transform the remote response before the Bloodhound instance operates 
-  on it. Defaults to the [identity function].
+   you to transform the remote response before the Bloodhound instance operates 
+   on it. Defaults to the [identity function].
 
 <!-- section links -->
 

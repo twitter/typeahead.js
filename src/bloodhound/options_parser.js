@@ -16,6 +16,7 @@ var oParser = (function() {
       datumTokenizer: null,
       queryTokenizer: null,
       sufficient: 5,
+      indexRemote: false,
       sorter: null,
       local: [],
       prefetch: null,

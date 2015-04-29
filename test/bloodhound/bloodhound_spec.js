@@ -289,6 +289,57 @@ describe('Bloodhound', function() {
 
       function fakeGet(o, cb) { cb(fixtures.data.animals); }
     });
+
+    it('should not add remote data to index if indexRemote is false', function() {
+      this.bloodhound = build({
+        identify: function(d) { return d.value; },
+        remote: '/remote'
+      });
+      this.bloodhound.remote.get.andCallFake(fakeGet);
+
+      spyOn(this.bloodhound, 'add');
+      this.bloodhound.search('dog');
+
+      expect(this.bloodhound.add).not.toHaveBeenCalled();
+
+      function fakeGet(o, cb) { cb(fixtures.data.animals); }
+    });
+
+    it('should add remote data to index if indexRemote is true', function() {
+      this.bloodhound = build({
+        identify: function(d) { return d.value; },
+        indexRemote: true,
+        remote: '/remote'
+      });
+      this.bloodhound.remote.get.andCallFake(fakeGet);
+
+      spyOn(this.bloodhound, 'add');
+      this.bloodhound.search('dog');
+
+      expect(this.bloodhound.add).toHaveBeenCalledWith(fixtures.data.animals);
+
+      function fakeGet(o, cb) { cb(fixtures.data.animals); }
+    });
+
+    it('should not add duplicates from remote to index', function() {
+      this.bloodhound = build({
+        identify: function(d) { return d.value; },
+        indexRemote: true,
+        local: fixtures.data.animals,
+        remote: '/remote'
+      });
+      this.bloodhound.remote.get.andCallFake(fakeGet);
+
+      spyOn(this.bloodhound, 'add');
+      this.bloodhound.search('dog');
+
+      expect(this.bloodhound.add).toHaveBeenCalledWith([
+        { value: 'cat' },
+        { value: 'moose' }
+      ]);
+
+      function fakeGet(o, cb) { cb(fixtures.data.animals); }
+    });
   });
 
   // helper functions
