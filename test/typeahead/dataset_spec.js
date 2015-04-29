@@ -1,5 +1,5 @@
 describe('Dataset', function() {
-  var www = WWW(), mockSuggestions, mockSuggestionsDisplayFn;
+  var www = WWW(), mockSuggestions, mockSuggestionsDisplayFn, mockAsyncSuggestions;
 
   mockSuggestions = [
     { value: 'one', raw: { value: 'one' } },
@@ -11,6 +11,14 @@ describe('Dataset', function() {
     { display: '4' },
     { display: '5' },
     { display: '6' }
+  ];
+
+  mockAsyncSuggestions = [
+    { value: 'four', raw: { value: 'four' } },
+    { value: 'five', raw: { value: 'five' } },
+    { value: 'six', raw: { value: 'six' } },
+    { value: 'seven', raw: { value: 'seven' } },
+    { value: 'eight', raw: { value: 'eight' } },
   ];
 
   beforeEach(function() {
@@ -112,7 +120,7 @@ describe('Dataset', function() {
 
       this.dataset.update('woah');
 
-      expect(spy).toHaveBeenCalled();
+      expect(spy).toHaveBeenCalledWith('asyncRequested', 'woah', 'test');
     });
 
     it('should not trigger asyncRequested when not expecting backfill', function() {
@@ -153,7 +161,7 @@ describe('Dataset', function() {
       waits(100);
 
       runs(function() {
-        expect(spy).toHaveBeenCalled();
+        expect(spy).toHaveBeenCalledWith('asyncCanceled', 'woah', 'test');
       });
     });
 
@@ -186,7 +194,7 @@ describe('Dataset', function() {
       waits(100);
 
       runs(function() {
-        expect(spy).toHaveBeenCalled();
+        expect(spy).toHaveBeenCalledWith('asyncReceived', 'woah', 'test');
       });
     });
 
@@ -379,7 +387,8 @@ describe('Dataset', function() {
       });
     });
 
-    it('should trigger rendered after suggestions are rendered', function() {
+
+   it('should trigger rendered after sync suggestions are rendered', function() {
       var spy;
 
       this.dataset.onSync('rendered', spy = jasmine.createSpy());
@@ -388,6 +397,27 @@ describe('Dataset', function() {
       this.dataset.update('woah');
 
       waitsFor(function() { return spy.callCount; });
+
+      runs(function() {
+        expect(spy).toHaveBeenCalledWith('rendered', mockSuggestions, false, 'test');
+      });
+    });
+
+    it('should trigger rendered after suggestions are rendered', function() {
+      var spy;
+
+      this.dataset.async = true;
+      this.source.andCallFake(fakeGetWithAsyncSuggestions);
+
+      this.dataset.onSync('rendered', spy = jasmine.createSpy());
+      this.dataset.update('woah');
+
+      waitsFor(function() { return spy.callCount === 2; });
+
+      runs(function() {
+        expect(spy).toHaveBeenCalledWith('rendered', mockSuggestions, false, 'test');
+        expect(spy).toHaveBeenCalledWith('rendered', mockAsyncSuggestions.slice(0, 2), true, 'test');
+      });
     });
   });
 

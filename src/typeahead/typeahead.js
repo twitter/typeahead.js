@@ -131,7 +131,7 @@ var Typeahead = (function() {
       this._updateHint();
     },
 
-    _onDatasetRendered: function onDatasetRendered(type, dataset, suggestions, async) {
+    _onDatasetRendered: function onDatasetRendered(type, suggestions, async, dataset) {
       this._updateHint();
       this.eventBus.trigger('render', suggestions, async, dataset);
     },
@@ -347,10 +347,10 @@ var Typeahead = (function() {
     select: function select($selectable) {
       var data = this.menu.getSelectableData($selectable);
 
-      if (data && !this.eventBus.before('select', data.obj)) {
+      if (data && !this.eventBus.before('select', data.obj, data.dataset)) {
         this.input.setQuery(data.val, true);
 
-        this.eventBus.trigger('select', data.obj);
+        this.eventBus.trigger('select', data.obj, data.dataset);
         this.close();
 
         // return true if selection succeeded
@@ -367,9 +367,9 @@ var Typeahead = (function() {
       data = this.menu.getSelectableData($selectable);
       isValid = data && query !== data.val;
 
-      if (isValid && !this.eventBus.before('autocomplete', data.obj)) {
+      if (isValid && !this.eventBus.before('autocomplete', data.obj, data.dataset)) {
         this.input.setQuery(data.val);
-        this.eventBus.trigger('autocomplete', data.obj);
+        this.eventBus.trigger('autocomplete', data.obj, data.dataset);
 
         // return true if autocompletion succeeded
         return true;
@@ -379,18 +379,20 @@ var Typeahead = (function() {
     },
 
     moveCursor: function moveCursor(delta) {
-      var query, $candidate, data, payload, cancelMove;
+      var query, $candidate, data, suggestion, datasetName, cancelMove;
 
       query = this.input.getQuery();
+
       $candidate = this.menu.selectableRelativeToCursor(delta);
       data = this.menu.getSelectableData($candidate);
-      payload = data ? data.obj : null;
+      suggestion = data ? data.obj : null;
+      datasetName = data ? data.dataset : null;
 
       // update will return true when it's a new query and new suggestions
       // need to be fetched – in this case we don't want to move the cursor
       cancelMove = this._minLengthMet() && this.menu.update(query);
 
-      if (!cancelMove && !this.eventBus.before('cursorchange', payload)) {
+      if (!cancelMove && !this.eventBus.before('cursorchange', suggestion, datasetName)) {
         this.menu.setCursor($candidate);
 
         // cursor moved to different selectable
@@ -404,7 +406,7 @@ var Typeahead = (function() {
           this._updateHint();
         }
 
-        this.eventBus.trigger('cursorchange', payload);
+        this.eventBus.trigger('cursorchange', suggestion, datasetName);
 
         // return true if move succeeded
         return true;
