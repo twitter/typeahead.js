@@ -240,13 +240,14 @@ describe('Menu', function() {
       var $selectable, datum;
 
       $selectable = $('<div>').data({
+        'tt-selectable-dataset': 'foo',
         'tt-selectable-display': 'one',
         'tt-selectable-object': 'two'
       });
 
       data = this.view.getSelectableData($selectable);
 
-      expect(data).toEqual({ val: 'one', obj: 'two' });
+      expect(data).toEqual({ dataset: 'foo', val: 'one', obj: 'two' });
     });
 
     it('should return null if no element is given', function() {
