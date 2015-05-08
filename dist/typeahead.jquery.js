@@ -6,7 +6,7 @@
 
 (function(root, factory) {
     if (typeof define === "function" && define.amd) {
-        define("typeahead.js", [ "jquery" ], function(a0) {
+        define("typeahead", [ "jquery" ], function(a0) {
             return factory(a0);
         });
     } else if (typeof exports === "object") {
