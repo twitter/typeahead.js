@@ -145,7 +145,7 @@ module.exports = function(grunt) {
       },
       typeahead: {
         src: '<%= tempDir %>/typeahead.jquery.js',
-        amdModuleId: 'typeahead.js',
+        amdModuleId: 'typeahead',
         deps: {
           default: ['$'],
           amd: ['jquery'],
