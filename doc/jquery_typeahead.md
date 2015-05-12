@@ -260,7 +260,7 @@ descriptions above for details on each event's argument list.
 
 * `menu` - Added to menu element. Defaults to `tt-menu`.
 
-* `dataset` - Added to dataset elements. to Defaults to `tt-dataset`.
+* `dataset` - Added to dataset elements. Defaults to `tt-dataset`.
 
 * `suggestion` - Added to suggestion elements. Defaults to `tt-suggestion`.
 
