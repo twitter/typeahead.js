@@ -112,8 +112,8 @@ module.exports = function(grunt) {
           compress: false
         },
         src: [
-          '<%= tempDir %>/bloodhound.js',
-          '<%= tempDir %>/typeahead.jquery.js'
+          '<%= tempDir %>/typeahead.jquery.js',
+          '<%= tempDir %>/bloodhound.js'
         ],
         dest: '<%= buildDir %>/typeahead.bundle.js'
 
