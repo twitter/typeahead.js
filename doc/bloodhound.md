@@ -260,7 +260,7 @@ When configuring `remote`, the following options are available.
 
 * `wildcard` – A convenience option for `prepare`. If set, `prepare` will be a
   function that replaces the value of this option in `url` with the URI encoded
-  query.
+  query. In older versions of typeahead, this was `%QUERY` and now should now be manually specified as such.
 
 * `rateLimitBy` – The method used to rate-limit network requests. Can be either 
   `debounce` or `throttle`. Defaults to `debounce`.
