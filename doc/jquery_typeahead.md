@@ -165,7 +165,7 @@ Datasets can be configured using the following options.
   a precompiled template is a function that takes a JavaScript object as its
   first argument and returns a HTML string.
 
-  * `notFound` – Rendered when `0` suggestions are available for the given
+  * `empty` – Rendered when `0` suggestions are available for the given
     query. Can be either a HTML string or a precompiled template. If it's a
     precompiled template, the passed in context will contain `query`.
 
