@@ -123,6 +123,8 @@ When initializing a typeahead, there are a number of options you can configure.
 * `classNames` – For overriding the default class names used. See 
   [Class Names](#class-names) for more details.
 
+* `autoSelect` – If `true`, the typeahead will select the first suggestion automatically, and either Enter or Tab key will be available to press. Defaults to `false`.
+
 ### Datasets
 
 A typeahead is composed of one or more datasets. When an end-user modifies the

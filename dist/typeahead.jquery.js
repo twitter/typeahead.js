@@ -668,6 +668,7 @@
             this.highlight = !!o.highlight;
             this.name = o.name || nameGenerator();
             this.limit = o.limit || 5;
+            this.autoSelect = !!o.autoSelect;
             this.displayFn = getDisplayFn(o.display || o.displayKey);
             this.templates = getTemplates(o.templates, this.displayFn);
             this.source = o.source.__ttAdapter ? o.source.__ttAdapter() : o.source;
@@ -750,6 +751,9 @@
                     var $el, context;
                     context = that._injectQuery(query, suggestion);
                     $el = $(that.templates.suggestion(context)).data(keys.obj, suggestion).data(keys.val, that.displayFn(suggestion)).addClass(that.classes.suggestion + " " + that.classes.selectable);
+                    if(that.autoSelect && !fragment.firstChild){
+                        $el.addClass(that.classes.cursor);
+                    }
                     fragment.appendChild($el[0]);
                 });
                 this.highlight && highlight({
@@ -862,6 +866,7 @@
             this.$node = $(o.node);
             this.query = null;
             this.datasets = _.map(o.datasets, initializeDataset);
+            this.autoSelect = !!o.autoSelect;
             function initializeDataset(oDataset) {
                 var node = that.$node.find(oDataset.node).first();
                 oDataset.node = node.length ? node : $("<div>").appendTo(that.$node);
@@ -921,6 +926,9 @@
                 return this.$node.hasClass(this.classes.open);
             },
             open: function open() {
+                if(this.autoSelect && this.$node[0].children[0].children.length > 0){
+                    $(this.$node[0].children[0].children[0]).addClass(this.classes.cursor);
+                }
                 this.$node.addClass(this.classes.open);
             },
             close: function close() {
@@ -1325,6 +1333,7 @@
                     var $input, $wrapper, $hint, $menu, defaultHint, defaultMenu, eventBus, input, menu, typeahead, MenuConstructor;
                     _.each(datasets, function(d) {
                         d.highlight = !!o.highlight;
+                        d.autoSelect = !!o.autoSelect;
                     });
                     $input = $(this);
                     $wrapper = $(www.html.wrapper);
@@ -1351,7 +1360,8 @@
                     }, www);
                     menu = new MenuConstructor({
                         node: $menu,
-                        datasets: datasets
+                        datasets: datasets,
+                        autoSelect: !!o.autoSelect
                     }, www);
                     typeahead = new Typeahead({
                         input: input,

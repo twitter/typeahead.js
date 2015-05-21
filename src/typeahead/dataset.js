@@ -44,6 +44,7 @@ var Dataset = (function() {
     this.name = o.name || nameGenerator();
 
     this.limit = o.limit || 5;
+    this.autoSelect = !!o.autoSelect;
     this.displayFn = getDisplayFn(o.display || o.displayKey);
     this.templates = getTemplates(o.templates, this.displayFn);
 
@@ -192,7 +193,9 @@ var Dataset = (function() {
         .data(keys.obj, suggestion)
         .data(keys.val, that.displayFn(suggestion))
         .addClass(that.classes.suggestion + ' ' + that.classes.selectable);
-
+        if(that.autoSelect && !fragment.firstChild){
+          $el.addClass(that.classes.cursor);
+        }
         fragment.appendChild($el[0]);
       });
 
