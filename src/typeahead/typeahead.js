@@ -246,6 +246,11 @@ var Typeahead = (function() {
 
         // clear hint if there's no trailing text
         match && this.input.setHint(val + match[1]);
+
+        // automatically select top selectable element
+        if (this.menu.autoSelect && !$selectable.hasClass(this.classes.cursor)){
+          $selectable.addClass(this.classes.cursor);
+        }
       }
 
       else {
