@@ -37,7 +37,7 @@
 
         // highlight is a top-level config that needs to get inherited
         // from all of the datasets
-        _.each(datasets, function(d) { d.highlight = !!o.highlight; d.autoSelect = !!o.autoSelect; });
+        _.each(datasets, function(d) { d.highlight = !!o.highlight; });
 
         $input = $(this);
         $wrapper = $(www.html.wrapper);
@@ -72,8 +72,7 @@
         input = new Input({ hint: $hint, input: $input, }, www);
         menu = new MenuConstructor({
           node: $menu,
-          datasets: datasets,
-          autoSelect: !!o.autoSelect
+          datasets: datasets
         }, www);
 
         typeahead = new Typeahead({
