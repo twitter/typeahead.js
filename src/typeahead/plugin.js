@@ -44,7 +44,7 @@
         $hint = $elOrNull(o.hint);
         $menu = $elOrNull(o.menu);
 
-        defaultHint = o.hint !== false && !$hint;
+        defaultHint = o.changeInputValue !== false && o.hint !== false && !$hint;
         defaultMenu = o.menu !== false && !$menu;
 
         defaultHint && ($hint = buildHintFromInput($input, www));
