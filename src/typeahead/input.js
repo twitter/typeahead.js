@@ -7,18 +7,6 @@
 var Input = (function() {
   'use strict';
 
-  var specialKeyCodeMap;
-
-  specialKeyCodeMap = {
-    9: 'tab',
-    27: 'esc',
-    37: 'left',
-    39: 'right',
-    13: 'enter',
-    38: 'up',
-    40: 'down'
-  };
-
   // constructor
   // -----------
 
@@ -83,7 +71,7 @@ var Input = (function() {
 
     _onKeydown: function onKeydown($e) {
       // which is normalized and consistent (but not for ie)
-      var keyName = specialKeyCodeMap[$e.which || $e.keyCode];
+      var keyName = this._specialKey($e);
 
       this._managePreventDefault(keyName, $e);
       if (keyName && this._shouldTrigger(keyName, $e)) {
@@ -98,6 +86,18 @@ var Input = (function() {
     },
 
     // ### private
+
+    _specialKey: function _specialKey($e) {
+      var key = $e.which || $e.keyCode;
+
+      if (key == 9) { return 'tab'; }
+      else if (key == 27) { return 'esc';   }
+      else if (key == 37) { return 'left';  }
+      else if (key == 39) { return 'right'; }
+      else if (key == 13) { return 'enter'; }
+      else if (key == 38 || (key == 80 && $e.ctrlKey)) { return 'up';  }
+      else if (key == 40 || (key == 78 && $e.ctrlKey)) { return 'down';  }
+    },
 
     _managePreventDefault: function managePreventDefault(keyName, $e) {
       var preventDefault;
@@ -183,7 +183,7 @@ var Input = (function() {
       else {
         this.$input.on('keydown.tt keypress.tt cut.tt paste.tt', function($e) {
           // if a special key triggered this, ignore it
-          if (specialKeyCodeMap[$e.which || $e.keyCode]) { return; }
+          if ( this._specialKey($e) ) { return; }
 
           // give the browser a chance to update the value of the input
           // before checking to see if the query changed

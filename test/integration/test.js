@@ -240,6 +240,44 @@ describe('jquery-typeahead.js', function() {
     });
   });
 
+  describe('on ctrl-p', function() {
+    it('should cycle through suggestions', function(done) {
+      driver.run(function*() {
+        var suggestions;
+
+        yield input.click();
+        yield input.type('mi');
+
+        suggestions = yield dropdown.elementsByClassName('tt-suggestion');
+
+        yield input.type([wd.SPECIAL_KEYS['Control'], 'p']);
+        expect(yield input.getValue()).to.equal('Missouri');
+        expect(yield suggestions[3].getAttribute('class')).to.equal('tt-suggestion tt-selectable tt-cursor');
+
+        yield input.type([wd.SPECIAL_KEYS['Control'], 'p']);
+        expect(yield input.getValue()).to.equal('Mississippi');
+        expect(yield suggestions[2].getAttribute('class')).to.equal('tt-suggestion tt-selectable tt-cursor');
+
+        yield input.type([wd.SPECIAL_KEYS['Control'], 'p']);
+        expect(yield input.getValue()).to.equal('Minnesota');
+        expect(yield suggestions[1].getAttribute('class')).to.equal('tt-suggestion tt-selectable tt-cursor');
+
+        yield input.type([wd.SPECIAL_KEYS['Control'], 'p']);
+        expect(yield input.getValue()).to.equal('Michigan');
+        expect(yield suggestions[0].getAttribute('class')).to.equal('tt-suggestion tt-selectable tt-cursor');
+
+        yield input.type([wd.SPECIAL_KEYS['Control'], 'p']);
+        expect(yield input.getValue()).to.equal('mi');
+        expect(yield suggestions[0].getAttribute('class')).to.equal('tt-suggestion tt-selectable');
+        expect(yield suggestions[1].getAttribute('class')).to.equal('tt-suggestion tt-selectable');
+        expect(yield suggestions[2].getAttribute('class')).to.equal('tt-suggestion tt-selectable');
+        expect(yield suggestions[3].getAttribute('class')).to.equal('tt-suggestion tt-selectable');
+
+        done();
+      });
+    });
+  });
+
   describe('on down arrow', function() {
     it('should cycle through suggestions', function(done) {
       driver.run(function*() {
@@ -267,6 +305,44 @@ describe('jquery-typeahead.js', function() {
         expect(yield suggestions[3].getAttribute('class')).to.equal('tt-suggestion tt-selectable tt-cursor');
 
         yield input.type(wd.SPECIAL_KEYS['Down arrow']);
+        expect(yield input.getValue()).to.equal('mi');
+        expect(yield suggestions[0].getAttribute('class')).to.equal('tt-suggestion tt-selectable');
+        expect(yield suggestions[1].getAttribute('class')).to.equal('tt-suggestion tt-selectable');
+        expect(yield suggestions[2].getAttribute('class')).to.equal('tt-suggestion tt-selectable');
+        expect(yield suggestions[3].getAttribute('class')).to.equal('tt-suggestion tt-selectable');
+
+        done();
+      });
+    });
+  });
+
+  describe('on ctrl-n', function() {
+    it('should cycle through suggestions', function(done) {
+      driver.run(function*() {
+        var suggestions;
+
+        yield input.click();
+        yield input.type('mi');
+
+        suggestions = yield dropdown.elementsByClassName('tt-suggestion');
+
+        yield input.type([wd.SPECIAL_KEYS['Control'], 'n']);
+        expect(yield input.getValue()).to.equal('Michigan');
+        expect(yield suggestions[0].getAttribute('class')).to.equal('tt-suggestion tt-selectable tt-cursor');
+
+        yield input.type([wd.SPECIAL_KEYS['Control'], 'n']);
+        expect(yield input.getValue()).to.equal('Minnesota');
+        expect(yield suggestions[1].getAttribute('class')).to.equal('tt-suggestion tt-selectable tt-cursor');
+
+        yield input.type([wd.SPECIAL_KEYS['Control'], 'n']);
+        expect(yield input.getValue()).to.equal('Mississippi');
+        expect(yield suggestions[2].getAttribute('class')).to.equal('tt-suggestion tt-selectable tt-cursor');
+
+        yield input.type([wd.SPECIAL_KEYS['Control'], 'n']);
+        expect(yield input.getValue()).to.equal('Missouri');
+        expect(yield suggestions[3].getAttribute('class')).to.equal('tt-suggestion tt-selectable tt-cursor');
+
+        yield input.type([wd.SPECIAL_KEYS['Control'], 'n']);
         expect(yield input.getValue()).to.equal('mi');
         expect(yield suggestions[0].getAttribute('class')).to.equal('tt-suggestion tt-selectable');
         expect(yield suggestions[1].getAttribute('class')).to.equal('tt-suggestion tt-selectable');
