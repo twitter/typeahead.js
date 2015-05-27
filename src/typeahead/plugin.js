@@ -79,7 +79,8 @@
           input: input,
           menu: menu,
           eventBus: eventBus,
-          minLength: o.minLength
+          minLength: o.minLength,
+          changeInputValue: o.changeInputValue
         }, www);
 
         $input.data(keys.www, www);
