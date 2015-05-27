@@ -33,7 +33,8 @@ var Typeahead = (function() {
 
     this.eventBus = o.eventBus;
     this.minLength = _.isNumber(o.minLength) ? o.minLength : 1;
-
+    this.changeInputValue = !_.isUndefined(o.changeInputValue) ? o.changeInputValue : true;
+    
     this.input = o.input;
     this.menu = o.menu;
 
@@ -348,8 +349,11 @@ var Typeahead = (function() {
       var data = this.menu.getSelectableData($selectable);
 
       if (data && !this.eventBus.before('select', data.obj)) {
-        this.input.setQuery(data.val, true);
-
+        
+        if (this.changeInputValue) {
+          this.input.setQuery(data.val, true);
+        }
+        
         this.eventBus.trigger('select', data.obj);
         this.close();
 
@@ -368,7 +372,9 @@ var Typeahead = (function() {
       isValid = data && query !== data.val;
 
       if (isValid && !this.eventBus.before('autocomplete', data.obj)) {
-        this.input.setQuery(data.val);
+        if (this.changeInputValue) {
+          this.input.setQuery(data.val);
+        }
         this.eventBus.trigger('autocomplete', data.obj);
 
         // return true if autocompletion succeeded
@@ -394,12 +400,12 @@ var Typeahead = (function() {
         this.menu.setCursor($candidate);
 
         // cursor moved to different selectable
-        if (data) {
+        if (data && this.changeInputValue) {
           this.input.setInputValue(data.val);
         }
 
         // cursor moved off of selectables, back to input
-        else {
+        else if (this.changeInputValue) {
           this.input.resetInputValue();
           this._updateHint();
         }
