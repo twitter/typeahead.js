@@ -136,7 +136,7 @@ contain at least `sufficient` number of datums, `remote` data will be requested
 and then passed to the `async` callback.
 
 ```javascript
-bloodhound.get(myQuery, sync, async);
+engine.search(myQuery, sync, async);
 
 function sync(datums) {
   console.log('datums from `local`, `prefetch`, and `#add`');
