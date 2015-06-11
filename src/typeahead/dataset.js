@@ -269,7 +269,8 @@ var Dataset = (function() {
         // do not render the suggestions as they've become outdated
         if (!canceled && rendered < that.limit) {
           that.cancel = $.noop;
-          suggestions = suggestions.slice(0, Math.min(that.limit, suggestions.length));
+          var count = Math.min(that.limit, suggestions.length, that.limit - rendered);
+          suggestions = suggestions.slice(0, count);
           rendered += suggestions.length;
           that._append(query, suggestions);
 
