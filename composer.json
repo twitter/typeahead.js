@@ -13,5 +13,8 @@
         "issues": "https://github.com/twitter/typeahead.js/issues"
     },
     "author": "Twitter Inc.",
-    "license": "MIT"
+    "license": "MIT",
+    "require": {
+        "components/jquery": ">=1.7"
+    }
 }
