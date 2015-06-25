@@ -224,6 +224,20 @@ describe('Dataset', function() {
       });
     });
 
+    it('combines sync and async results', function() {
+      this.dataset.async = true;
+      this.dataset.limit = 10;
+      this.source.andCallFake(fakeGetWithAsyncSuggestions);
+
+      this.dataset.update('woah');
+
+      waits(100);
+
+      runs(function() {
+        expect(this.dataset.$el.find('.tt-suggestion')).toHaveLength(8);
+      });
+    });
+
     it('should respect limit option in regard to async', function() {
       this.dataset.async = true;
       this.source.andCallFake(fakeGetWithAsyncSuggestions);
