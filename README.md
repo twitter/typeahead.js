@@ -1,4 +1,4 @@
-[![build status](https://secure.travis-ci.org/twitter/typeahead.js.png?branch=master)](http://travis-ci.org/twitter/typeahead.js)
+[![build status](https://secure.travis-ci.org/twitter/typeahead.js.svg?branch=master)](http://travis-ci.org/twitter/typeahead.js)
 [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
 
 
@@ -76,10 +76,10 @@ Browser Support
 * Chrome
 * Firefox 3.5+
 * Safari 4+
-* Internet Explorer 7+
+* Internet Explorer 8+
 * Opera 11+
 
-**NOTE:** typeahead.js is not tested on mobile browers.
+**NOTE:** typeahead.js is not tested on mobile browsers.
 
 Customer Support
 ----------------
@@ -106,7 +106,7 @@ Versioning
 ----------
 
 For transparency and insight into our release cycle, releases will be numbered 
-with the follow format:
+with the following format:
 
 `<major>.<minor>.<patch>`
 
@@ -126,7 +126,7 @@ the test suite with PhantomJS, run `$ npm test`.
 
 <!-- section links -->
 
-[Jasmine]: http://pivotal.github.com/jasmine/
+[Jasmine]: http://jasmine.github.io/
 [Karma]: http://karma-runner.github.io/
 
 Developers

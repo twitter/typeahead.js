@@ -18,99 +18,111 @@ fixtures.data = {
 
 fixtures.serialized = {
   simple: {
-    "datums": [
-      { "value": "big" },
-      { "value": "bigger" },
-      { "value": "biggest" },
-      { "value": "small" },
-      { "value": "smaller" },
-      { "value": "smallest" }
-    ],
-    "trie": {
-      "ids": [],
-      "children": {
-        "b": {
-          "ids": [0, 1, 2],
-          "children": {
-            "i": {
-              "ids": [0, 1, 2],
-              "children": {
-                "g": {
-                  "ids": [0, 1, 2],
-                  "children": {
-                    "g": {
-                      "ids": [1, 2],
-                      "children": {
-                        "e": {
-                          "ids": [1, 2],
-                          "children": {
-                            "r": {
-                              "ids": [1],
-                              "children": {}
-                            },
-                            "s": {
-                              "ids": [2],
-                              "children": {
-                                "t": {
-                                  "ids": [2],
-                                  "children": {}
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
+    "datums": {
+        "{\"value\":\"big\"}": {
+            "value": "big"
         },
-        "s": {
-          "ids": [3, 4, 5],
-          "children": {
-            "m": {
-              "ids": [3, 4, 5],
-              "children": {
-                "a": {
-                  "ids": [3, 4, 5],
-                  "children": {
-                    "l": {
-                      "ids": [3, 4, 5],
-                      "children": {
-                        "l": {
-                          "ids": [3, 4, 5],
-                          "children": {
-                            "e": {
-                              "ids": [4, 5],
-                              "children": {
-                                "r": {
-                                  "ids": [4],
-                                  "children": {}
-                                },
-                                "s": {
-                                  "ids": [5],
-                                  "children": {
-                                    "t": {
-                                      "ids": [5],
-                                      "children": {}
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
+        "{\"value\":\"bigger\"}": {
+            "value": "bigger"
+        },
+        "{\"value\":\"biggest\"}": {
+            "value": "biggest"
+        },
+        "{\"value\":\"small\"}": {
+            "value": "small"
+        },
+        "{\"value\":\"smaller\"}": {
+            "value": "smaller"
+        },
+        "{\"value\":\"smallest\"}": {
+            "value": "smallest"
         }
-      }
+    },
+    "trie": {
+        "i": [],
+        "c": {
+            "b": {
+                "i": ["{\"value\":\"big\"}", "{\"value\":\"bigger\"}", "{\"value\":\"biggest\"}"],
+                "c": {
+                    "i": {
+                        "i": ["{\"value\":\"big\"}", "{\"value\":\"bigger\"}", "{\"value\":\"biggest\"}"],
+                        "c": {
+                            "g": {
+                                "i": ["{\"value\":\"big\"}", "{\"value\":\"bigger\"}", "{\"value\":\"biggest\"}"],
+                                "c": {
+                                    "g": {
+                                        "i": ["{\"value\":\"bigger\"}", "{\"value\":\"biggest\"}"],
+                                        "c": {
+                                            "e": {
+                                                "i": ["{\"value\":\"bigger\"}", "{\"value\":\"biggest\"}"],
+                                                "c": {
+                                                    "r": {
+                                                        "i": ["{\"value\":\"bigger\"}"],
+                                                        "c": {}
+                                                    },
+                                                    "s": {
+                                                        "i": ["{\"value\":\"biggest\"}"],
+                                                        "c": {
+                                                            "t": {
+                                                                "i": ["{\"value\":\"biggest\"}"],
+                                                                "c": {}
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "s": {
+                "i": ["{\"value\":\"small\"}", "{\"value\":\"smaller\"}", "{\"value\":\"smallest\"}"],
+                "c": {
+                    "m": {
+                        "i": ["{\"value\":\"small\"}", "{\"value\":\"smaller\"}", "{\"value\":\"smallest\"}"],
+                        "c": {
+                            "a": {
+                                "i": ["{\"value\":\"small\"}", "{\"value\":\"smaller\"}", "{\"value\":\"smallest\"}"],
+                                "c": {
+                                    "l": {
+                                        "i": ["{\"value\":\"small\"}", "{\"value\":\"smaller\"}", "{\"value\":\"smallest\"}"],
+                                        "c": {
+                                            "l": {
+                                                "i": ["{\"value\":\"small\"}", "{\"value\":\"smaller\"}", "{\"value\":\"smallest\"}"],
+                                                "c": {
+                                                    "e": {
+                                                        "i": ["{\"value\":\"smaller\"}", "{\"value\":\"smallest\"}"],
+                                                        "c": {
+                                                            "r": {
+                                                                "i": ["{\"value\":\"smaller\"}"],
+                                                                "c": {}
+                                                            },
+                                                            "s": {
+                                                                "i": ["{\"value\":\"smallest\"}"],
+                                                                "c": {
+                                                                    "t": {
+                                                                        "i": ["{\"value\":\"smallest\"}"],
+                                                                        "c": {}
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
-  }
+}
 }

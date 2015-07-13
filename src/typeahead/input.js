@@ -22,26 +22,30 @@ var Input = (function() {
   // constructor
   // -----------
 
-  function Input(o) {
-    var that = this, onBlur, onFocus, onKeydown, onInput;
-
+  function Input(o, www) {
     o = o || {};
 
     if (!o.input) {
       $.error('input is missing');
     }
 
-    // bound functions
-    onBlur = _.bind(this._onBlur, this);
-    onFocus = _.bind(this._onFocus, this);
-    onKeydown = _.bind(this._onKeydown, this);
-    onInput = _.bind(this._onInput, this);
+    www.mixin(this);
 
     this.$hint = $(o.hint);
-    this.$input = $(o.input)
-    .on('blur.tt', onBlur)
-    .on('focus.tt', onFocus)
-    .on('keydown.tt', onKeydown);
+    this.$input = $(o.input);
+
+    // the query defaults to whatever the value of the input is
+    // on initialization, it'll most likely be an empty string
+    this.query = this.$input.val();
+
+    // for tracking when a change event should be triggered
+    this.queryWhenFocused = this.hasFocus() ? this.query : null;
+
+    // helps with calculating the width of the input's value
+    this.$overflowHelper = buildOverflowHelper(this.$input);
+
+    // detect the initial lang direction
+    this._checkLanguageDirection();
 
     // if no hint, noop all the hint related functions
     if (this.$hint.length === 0) {
@@ -50,31 +54,6 @@ var Input = (function() {
       this.clearHint =
       this.clearHintIfInvalid = _.noop;
     }
-
-    // ie7 and ie8 don't support the input event
-    // ie9 doesn't fire the input event when characters are removed
-    // not sure if ie10 is compatible
-    if (!_.isMsie()) {
-      this.$input.on('input.tt', onInput);
-    }
-
-    else {
-      this.$input.on('keydown.tt keypress.tt cut.tt paste.tt', function($e) {
-        // if a special key triggered this, ignore it
-        if (specialKeyCodeMap[$e.which || $e.keyCode]) { return; }
-
-        // give the browser a chance to update the value of the input
-        // before checking to see if the query changed
-        _.defer(_.bind(that._onInput, that, $e));
-      });
-    }
-
-    // the query defaults to whatever the value of the input is
-    // on initialization, it'll most likely be an empty string
-    this.query = this.$input.val();
-
-    // helps with calculating the width of the input's value
-    this.$overflowHelper = buildOverflowHelper(this.$input);
   }
 
   // static methods
@@ -82,7 +61,7 @@ var Input = (function() {
 
   Input.normalizeQuery = function(str) {
     // strips leading whitespace and condenses all whitespace
-    return (str || '').replace(/^\s*/g, '').replace(/\s{2,}/g, ' ');
+    return (_.toStr(str)).replace(/^\s*/g, '').replace(/\s{2,}/g, ' ');
   };
 
   // instance methods
@@ -90,7 +69,7 @@ var Input = (function() {
 
   _.mixin(Input.prototype, EventEmitter, {
 
-    // ### private
+    // ### event handlers
 
     _onBlur: function onBlur() {
       this.resetInputValue();
@@ -98,6 +77,7 @@ var Input = (function() {
     },
 
     _onFocus: function onFocus() {
+      this.queryWhenFocused = this.query;
       this.trigger('focused');
     },
 
@@ -112,22 +92,17 @@ var Input = (function() {
     },
 
     _onInput: function onInput() {
-      this._checkInputValue();
+      this._setQuery(this.getInputValue());
+      this.clearHintIfInvalid();
+      this._checkLanguageDirection();
     },
 
+    // ### private
+
     _managePreventDefault: function managePreventDefault(keyName, $e) {
-      var preventDefault, hintValue, inputValue;
+      var preventDefault;
 
       switch (keyName) {
-        case 'tab':
-          hintValue = this.getHint();
-          inputValue = this.getInputValue();
-
-          preventDefault = hintValue &&
-            hintValue !== inputValue &&
-            !withModifier($e);
-          break;
-
         case 'up':
         case 'down':
           preventDefault = !withModifier($e);
@@ -155,26 +130,69 @@ var Input = (function() {
       return trigger;
     },
 
-    _checkInputValue: function checkInputValue() {
-      var inputValue, areEquivalent, hasDifferentWhitespace;
+    _checkLanguageDirection: function checkLanguageDirection() {
+      var dir = (this.$input.css('direction') || 'ltr').toLowerCase();
 
-      inputValue = this.getInputValue();
-      areEquivalent = areQueriesEquivalent(inputValue, this.query);
+      if (this.dir !== dir) {
+        this.dir = dir;
+        this.$hint.attr('dir', dir);
+        this.trigger('langDirChanged', dir);
+      }
+    },
+
+    _setQuery: function setQuery(val, silent) {
+      var areEquivalent, hasDifferentWhitespace;
+
+      areEquivalent = areQueriesEquivalent(val, this.query);
       hasDifferentWhitespace = areEquivalent ?
-        this.query.length !== inputValue.length : false;
+        this.query.length !== val.length : false;
 
-      this.query = inputValue;
+      this.query = val;
 
-      if (!areEquivalent) {
+      if (!silent && !areEquivalent) {
         this.trigger('queryChanged', this.query);
       }
 
-      else if (hasDifferentWhitespace) {
+      else if (!silent && hasDifferentWhitespace) {
         this.trigger('whitespaceChanged', this.query);
       }
     },
 
     // ### public
+
+    bind: function() {
+      var that = this, onBlur, onFocus, onKeydown, onInput;
+
+      // bound functions
+      onBlur = _.bind(this._onBlur, this);
+      onFocus = _.bind(this._onFocus, this);
+      onKeydown = _.bind(this._onKeydown, this);
+      onInput = _.bind(this._onInput, this);
+
+      this.$input
+      .on('blur.tt', onBlur)
+      .on('focus.tt', onFocus)
+      .on('keydown.tt', onKeydown);
+
+      // ie8 don't support the input event
+      // ie9 doesn't fire the input event when characters are removed
+      if (!_.isMsie() || _.isMsie() > 9) {
+        this.$input.on('input.tt', onInput);
+      }
+
+      else {
+        this.$input.on('keydown.tt keypress.tt cut.tt paste.tt', function($e) {
+          // if a special key triggered this, ignore it
+          if (specialKeyCodeMap[$e.which || $e.keyCode]) { return; }
+
+          // give the browser a chance to update the value of the input
+          // before checking to see if the query changed
+          _.defer(_.bind(that._onInput, that, $e));
+        });
+      }
+
+      return this;
+    },
 
     focus: function focus() {
       this.$input.focus();
@@ -184,27 +202,35 @@ var Input = (function() {
       this.$input.blur();
     },
 
-    getQuery: function getQuery() {
-      return this.query;
+    getLangDir: function getLangDir() {
+      return this.dir;
     },
 
-    setQuery: function setQuery(query) {
-      this.query = query;
+    getQuery: function getQuery() {
+      return this.query || '';
+    },
+
+    setQuery: function setQuery(val, silent) {
+      this.setInputValue(val);
+      this._setQuery(val, silent);
+    },
+
+    hasQueryChangedSinceLastFocus: function hasQueryChangedSinceLastFocus() {
+      return this.query !== this.queryWhenFocused;
     },
 
     getInputValue: function getInputValue() {
       return this.$input.val();
     },
 
-    setInputValue: function setInputValue(value, silent) {
+    setInputValue: function setInputValue(value) {
       this.$input.val(value);
-
-      // silent prevents any additional events from being triggered
-      silent ? this.clearHint() : this._checkInputValue();
+      this.clearHintIfInvalid();
+      this._checkLanguageDirection();
     },
 
     resetInputValue: function resetInputValue() {
-      this.setInputValue(this.query, true);
+      this.setInputValue(this.query);
     },
 
     getHint: function getHint() {
@@ -230,8 +256,8 @@ var Input = (function() {
       !isValid && this.clearHint();
     },
 
-    getLanguageDirection: function getLanguageDirection() {
-      return (this.$input.css('direction') || 'ltr').toLowerCase();
+    hasFocus: function hasFocus() {
+      return this.$input.is(':focus');
     },
 
     hasOverflow: function hasOverflow() {
@@ -268,8 +294,10 @@ var Input = (function() {
     destroy: function destroy() {
       this.$hint.off('.tt');
       this.$input.off('.tt');
+      this.$overflowHelper.remove();
 
-      this.$hint = this.$input = this.$overflowHelper = null;
+      // #970
+      this.$hint = this.$input = this.$overflowHelper = $('<div>');
     }
   });
 

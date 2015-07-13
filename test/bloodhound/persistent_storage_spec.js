@@ -1,18 +1,31 @@
 describe('PersistentStorage', function() {
-  var engine, ls = window.localStorage;
+  var engine, ls;
+
+  // test suite is dependent on localStorage being available
+  if (!window.localStorage) {
+    console.warn('no localStorage support – skipping PersistentStorage suite');
+    return;
+  }
+
+  // for good measure!
+  localStorage.clear();
 
   beforeEach(function() {
-    engine = new PersistentStorage('ns');
+    ls = {
+      get length() { return localStorage.length; },
+      key: spyThrough('key'),
+      clear: spyThrough('clear'),
+      getItem: spyThrough('getItem'),
+      setItem: spyThrough('setItem'),
+      removeItem: spyThrough('removeItem')
+    };
 
-    spyOn(ls, 'getItem').andCallThrough();
-    spyOn(ls, 'setItem').andCallThrough();
-    spyOn(ls, 'removeItem').andCallThrough();
-
+    engine = new PersistentStorage('ns', ls);
     spyOn(Date.prototype, 'getTime').andReturn(0);
   });
 
   afterEach(function() {
-    ls.clear();
+    localStorage.clear();
   });
 
   // public methods
@@ -67,6 +80,47 @@ describe('PersistentStorage', function() {
 
       expect(ls.setItem.argsForCall[0])
       .toEqual(['__ns__key__ttl__', ttl.toString()]);
+    });
+
+    it('should call clear if the localStorage limit has been reached', function() {
+      var spy;
+
+      ls.setItem.andCallFake(function() {
+        var err = new Error();
+        err.name = 'QuotaExceededError';
+
+        throw err;
+      });
+
+      engine.clear = spy = jasmine.createSpy();
+      engine.set('key', 'value', 1);
+
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should noop if the localStorage limit has been reached', function() {
+      var get, set, remove, clear, isExpired;
+
+      ls.setItem.andCallFake(function() {
+        var err = new Error();
+        err.name = 'QuotaExceededError';
+
+        throw err;
+      });
+
+      get = engine.get;
+      set = engine.set;
+      remove = engine.remove;
+      clear = engine.clear;
+      isExpired = engine.isExpired;
+
+      engine.set('key', 'value', 1);
+
+      expect(engine.get).not.toBe(get);
+      expect(engine.set).not.toBe(set);
+      expect(engine.remove).not.toBe(remove);
+      expect(engine.clear).not.toBe(clear);
+      expect(engine.isExpired).not.toBe(isExpired);
     });
   });
 
@@ -128,4 +182,13 @@ describe('PersistentStorage', function() {
       expect(engine.isExpired('key')).toBe(true);
     });
   });
+
+  // compatible across browsers
+  function spyThrough(method) {
+    return jasmine.createSpy().andCallFake(fake);
+
+    function fake() {
+      return localStorage[method].apply(localStorage, arguments);
+    }
+  }
 });

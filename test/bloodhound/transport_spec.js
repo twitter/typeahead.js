@@ -4,7 +4,7 @@ describe('Transport', function() {
     jasmine.Ajax.useMock();
     jasmine.Clock.useMock();
 
-    this.transport = new Transport();
+    this.transport = new Transport({ transport: $.ajax });
   });
 
   afterEach(function() {
@@ -32,28 +32,6 @@ describe('Transport', function() {
     expect(spy).toHaveBeenCalledWith(null, resp.parsed);
   });
 
-  it('should allow the transport mechanism to be configured', function() {
-    var resp = fixtures.ajaxResps.ok,
-        cbSpy = jasmine.createSpy(),
-        sendSpy = jasmine.createSpy().andCallFake(send);
-
-    this.transport = new Transport({ transport: sendSpy });
-    this.transport.get('/test', cbSpy);
-
-    jasmine.Clock.tick(0);
-
-    expect(cbSpy).toHaveBeenCalledWith(null, resp.parsed);
-    expect(sendSpy).toHaveBeenCalledWith(
-      '/test',
-      {},
-      jasmine.any(Function),
-      jasmine.any(Function)
-    );
-
-    // send must be async
-    function send(url, o, onSuccess, onError) { onSuccess(resp.parsed); }
-  });
-
   it('should respect maxPendingRequests configuration', function() {
     for (var i = 0; i < 10; i++) {
       this.transport.get('/test' + i, $.noop);
@@ -63,7 +41,7 @@ describe('Transport', function() {
   });
 
   it('should support rate limiting', function() {
-    this.transport = new Transport({ rateLimiter: rateLimiter });
+    this.transport = new Transport({ transport: $.ajax, limiter: limiter });
 
     for (var i = 0; i < 5; i++) {
       this.transport.get('/test' + i, $.noop);
@@ -72,7 +50,7 @@ describe('Transport', function() {
     jasmine.Clock.tick(100);
     expect(ajaxRequests.length).toBe(1);
 
-    function rateLimiter(fn) { return _.debounce(fn, 20); }
+    function limiter(fn) { return _.debounce(fn, 20); }
   });
 
   it('should cache most recent requests', function() {
@@ -99,7 +77,7 @@ describe('Transport', function() {
   });
 
   it('should not cache requests if cache option is false', function() {
-    this.transport = new Transport({ cache: false });
+    this.transport = new Transport({ transport: $.ajax, cache: false });
 
     this.transport.get('/test1', $.noop);
     mostRecentAjaxRequest().response(fixtures.ajaxResps.ok);
@@ -160,7 +138,7 @@ describe('Transport', function() {
   });
 
   it('should not send cancelled requests', function() {
-    this.transport = new Transport({ rateLimiter: rateLimiter });
+    this.transport = new Transport({ transport: $.ajax, limiter: limiter });
 
     this.transport.get('/test', $.noop);
     this.transport.cancel();
@@ -168,11 +146,11 @@ describe('Transport', function() {
     jasmine.Clock.tick(100);
     expect(ajaxRequests.length).toBe(0);
 
-    function rateLimiter(fn) { return _.debounce(fn, 20); }
+    function limiter(fn) { return _.debounce(fn, 20); }
   });
 
   it('should not send outdated requests', function() {
-    this.transport = new Transport({ rateLimiter: rateLimiter });
+    this.transport = new Transport({ transport: $.ajax, limiter: limiter });
 
     // warm cache
     this.transport.get('/test1', $.noop);
@@ -192,6 +170,6 @@ describe('Transport', function() {
 
     expect(ajaxRequests.length).toBe(1);
 
-    function rateLimiter(fn) { return _.debounce(fn, 20); }
+    function limiter(fn) { return _.debounce(fn, 20); }
   });
 });

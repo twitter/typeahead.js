@@ -14,8 +14,6 @@ Table of Contents
   * [Options](#options)
   * [Prefetch](#prefetch)
   * [Remote](#remote)
-  * [Datums](#datums)
-  * [Tokens](#tokens)
 
 Features
 --------
@@ -31,6 +29,14 @@ Usage
 
 ### API
 
+* [`new Bloodhound(options)`](#new-bloodhoundoptions)
+* [`Bloodhound.noConflict()`](#bloodhoundnoconflict)
+* [`Bloodhound#initialize(reinitialize)`](#bloodhoundinitializereinitialize)
+* [`Bloodhound#add(data)`](#bloodhoundadddata)
+* [`Bloodhound#get(ids)`](#bloodhoundgetids)
+* [`Bloodhound#search(query, sync, async)`](#bloodhoundsearchquery-sync-async)
+* [`Bloodhound#clear()`](#bloodhoundclear)
+
 #### new Bloodhound(options)
 
 The constructor function. It takes an [options hash](#options) as its only 
@@ -38,33 +44,49 @@ argument.
 
 ```javascript
 var engine = new Bloodhound({
-  name: 'animals',
-  local: [{ val: 'dog' }, { val: 'pig' }, { val: 'moose' }],
-  remote: 'http://example.com/animals?q=%QUERY',
-  datumTokenizer: function(d) {
-    return Bloodhound.tokenizers.whitespace(d.val);
-  },
-  queryTokenizer: Bloodhound.tokenizers.whitespace
+  local: ['dog', 'pig', 'moose'],
+  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  datumTokenizer: Bloodhound.tokenizers.whitespace
 });
 ```
 
-#### Bloodhound#initialize(reinitialize)
+#### Bloodhound.noConflict()
 
-Kicks off the initialization of the suggestion engine. This includes processing 
-the data provided through `local` and fetching/processing the data provided 
-through `prefetch`. Until initialized, all other methods will behave as no-ops.
-Returns a [jQuery promise] which is resolved when engine has been initialized.
+Returns a reference to `Bloodhound` and reverts `window.Bloodhound` to its 
+previous value. Can be used to avoid naming collisions. 
 
 ```javascript
+var Dachshund = Bloodhound.noConflict();
+```
+
+#### Bloodhound#initialize(reinitialize) 
+
+Kicks off the initialization of the suggestion engine. Initialization entails
+adding the data provided by `local` and `prefetch` to the internal search 
+index as well as setting up transport mechanism used by `remote`. Before 
+`#initialize` is called, the `#get` and `#search` methods will effectively be
+no-ops.
+
+Note, unless the `initialize` option is `false`, this method is implicitly
+called by the constructor.
+
+```javascript
+var engine = new Bloodhound({
+  initialize: false,
+  local: ['dog', 'pig', 'moose'],
+  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  datumTokenizer: Bloodhound.tokenizers.whitespace
+});
+
 var promise = engine.initialize();
 
 promise
-.done(function() { console.log('success!'); })
-.fail(function() { console.log('err!'); });
+.done(function() { console.log('ready to go!'); })
+.fail(function() { console.log('err, something went wrong :('); });
 ```
 
-After the initial call of `initialize`, how subsequent invocations of the method
-behave depends on the `reinitialize` argument. If `reinitialize` is falsy, the
+After initialization, how subsequent invocations of `#initialize` behave 
+depends on the `reinitialize` argument. If `reinitialize` is falsy, the
 method will not execute the initialization logic and will just return the same 
 jQuery promise returned by the initial invocation. If `reinitialize` is truthy,
 the method will behave as if it were being called for the first time.
@@ -74,76 +96,66 @@ var promise1 = engine.initialize();
 var promise2 = engine.initialize();
 var promise3 = engine.initialize(true);
 
-promise1 === promise2;
-promise3 !== promise1 && promise3 !== promise2;
+assert(promise1 === promise2);
+assert(promise3 !== promise1 && promise3 !== promise2);
 ```
-
-#### Bloodhound#add(datums)
-
-Takes one argument, `datums`, which is expected to be an array of 
-[datums](#datums). The passed in datums will get added to the search index that
-powers the suggestion engine.
-
-```javascript
-engine.add([{ val: 'one' }, { val: 'two' }]);
-```
-
-#### Bloodhound#clear()
-
-Removes all suggestions from the search index.
-
-```javascript
-engine.clear();
-```
-
-#### Bloodhound#clearPrefetchCache()
-
-If you're using `prefetch`, data gets cached in local storage in an effort to
-cut down on unnecessary network requests. `clearPrefetchCache` offers a way to
-programmatically clear said cache.
-
-```javascript
-engine.clearPrefetchCache();
-```
-
-#### Bloodhound#clearRemoteCache()
-
-If you're using `remote`, Bloodhound will cache the 10 most recent responses
-in an effort to provide a better user experience. `clearRemoteCache` offers a 
-way to programmatically clear said cache.
-
-```javascript
-engine.clearRemoteCache();
-```
-
-#### Bloodhound.noConflict()
-
-Returns a reference to the Bloodhound constructor and reverts 
-`window.Bloodhound` to its previous value. Can be used to avoid naming 
-collisions. 
-
-```javascript
-var Dachshund = Bloodhound.noConflict();
-```
-
 
 <!-- section links -->
 
 [jQuery promise]: http://api.jquery.com/Types/#Promise
 
-#### Bloodhound#get(query, cb)
+#### Bloodhound#add(data)
 
-Computes a set of suggestions for `query`. `cb` will be invoked with an array
-of datums that represent said set. `cb` will always be invoked once 
-synchronously with suggestions that were available on the client. If those
-suggestions are insufficient (# of suggestions is less than `limit`) and `remote` was configured, `cb` may also be 
-invoked asynchronously with the suggestions available on the client mixed with
-suggestions from the `remote` source.
+Takes one argument, `data`, which is expected to be an array. The data passed
+in will get added to the internal search index.
 
 ```javascript
-bloodhound.get(myQuery, function(suggestions) {
-  suggestions.each(function(suggestion) { console.log(suggestion); });
-});
+engine.add([{ val: 'one' }, { val: 'two' }]);
+```
+
+#### Bloodhound#get(ids)
+
+Returns the data in the local search index corresponding to `ids`.
+
+```javascript
+  var engine = new Bloodhound({
+    local: [{ id: 1, name: 'dog' }, { id: 2, name: 'pig' }],
+    identify: function(obj) { return obj.id; },
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    datumTokenizer: Bloodhound.tokenizers.whitespace
+  });
+
+  engine.get([1, 3]); // [{ id: 1, name: 'dog' }, null]
+```
+
+#### Bloodhound#search(query, sync, async)
+
+Returns the data that matches `query`. Matches found in the local search index
+will be passed to the `sync` callback. If the data passed to `sync` doesn't 
+contain at least `sufficient` number of datums, `remote` data will be requested 
+and then passed to the `async` callback.
+
+```javascript
+bloodhound.get(myQuery, sync, async);
+
+function sync(datums) {
+  console.log('datums from `local`, `prefetch`, and `#add`');
+  console.log(datums);
+}
+
+function async(datums) {
+  console.log('datums from `remote`');
+  console.log(datums);
+}
+```
+
+#### Bloodhound#clear()
+
+Clears the internal search index that's powered by `local`, `prefetch`, and 
+`#add`.
+
+```javascript
+engine.clear();
 ```
 
 ### Options
@@ -157,25 +169,29 @@ options you can configure.
 * `queryTokenizer` – A function with the signature `(query)` that transforms a
   query into an array of string tokens. **Required**.
 
-* `limit` – The max number of suggestions to return from `Bloodhound#get`. If 
-  not reached, the data source will attempt to backfill the suggestions from 
-  `remote`. Defaults to `5`.
+* `initialize` – If set to `false`, the Bloodhound instance will not be 
+  implicitly initialized by the constructor function. Defaults to `true`.
 
-* `dupDetector` – If set, this is expected to be a function with the signature 
-  `(remoteMatch, localMatch)` that returns `true` if the datums are duplicates or 
-  `false` otherwise. If not set, duplicate detection will not be performed.
+* `identify` – Given a datum, this function is expected to return a unique id
+  for it. Defaults to `JSON.stringify`. Note that it is **highly recommended**
+  to override this option.
 
-* `sorter` – A [compare function] used to sort matched datums for a given query.
+* `sufficient` – If the number of datums provided from the internal search 
+  index is less than `sufficient`, `remote` will be used to backfill search
+  requests triggered by calling `#search`. Defaults to `5`.
 
-* `local` – An array of [datums](#datums) or a function that returns an array of
-  datums.
+* `sorter` – A [compare function] used to sort data returned from the internal
+  search index.
 
-* `prefetch` – Can be a URL to a JSON file containing an array of datums or, if 
+* `local` – An array of data or a function that returns an array of data. The 
+  data will be added to the internal search index when `#initialize` is called.
+
+* `prefetch` – Can be a URL to a JSON file containing an array of data or, if 
   more configurability is needed, a [prefetch options hash](#prefetch).
 
-* `remote` – Can be a URL to fetch suggestions from when the data provided by 
-  `local` and `prefetch` is insufficient or, if more configurability is needed, 
-  a [remote options hash](#remote).
+* `remote` – Can be a URL to fetch data from when the data provided by 
+  the internal search index is insufficient or, if more configurability is 
+  needed, a [remote options hash](#remote).
 
 <!-- section links -->
 
@@ -188,51 +204,63 @@ supports local storage, the processed data will be cached there to
 prevent additional network requests on subsequent page loads.
 
 **WARNING:** While it's possible to get away with it for smaller data sets, 
-prefetched data isn't meant to contain entire data sets. Rather, it should act 
-as a first-level cache for suggestions. If don't keep this warning in mind, 
-you run the risk of hitting [local storage limits].
+prefetched data isn't meant to contain entire sets of data. Rather, it should 
+act as a first-level cache. Ignoring this warning means you'll run the risk of 
+hitting [local storage limits].
 
 When configuring `prefetch`, the following options are available.
 
-* `url` – A URL to a JSON file containing an array of datums. **Required.**
+* `url` – The URL prefetch data should be loaded from. **Required.**
 
-* `cacheKey` – The key that data will be stored in local storage under. 
-  Defaults to value of `url`.
+* `cache` – If `false`, will not attempt to read or write to local storage and
+  will always load prefetch data from `url` on initialization.  Defaults to 
+  `true`.
 
 * `ttl` – The time (in milliseconds) the prefetched data should be cached in 
   local storage. Defaults to `86400000` (1 day).
 
+* `cacheKey` – The key that data will be stored in local storage under. 
+  Defaults to value of `url`.
+
 * `thumbprint` – A string used for thumbprinting prefetched data. If this
   doesn't match what's stored in local storage, the data will be refetched.
 
-* `filter` – A function with the signature `filter(parsedResponse)` that 
-  transforms the response body into an array of datums. Expected to return an 
-  array of datums.
+* `prepare` – A function that provides a hook to allow you to prepare the 
+  settings object passed to `transport` when a request is about to be made. 
+  The function signature should be `prepare(settings)` where `settings` is the 
+  default settings object created internally by the Bloodhound instance. The 
+  `prepare` function should return a settings object. Defaults to the 
+  [identity function].
 
-* `ajax` – The [ajax settings object] passed to `jQuery.ajax`.
+* `transform` – A function with the signature `transform(response)` that allows
+  you to transform the prefetch response before the Bloodhound instance operates 
+  on it. Defaults to the [identity function].
 
 <!-- section links -->
 
 [local storage limits]: http://stackoverflow.com/a/2989317
-[ajax settings object]:http://api.jquery.com/jQuery.ajax/#jQuery-ajax-settings
+[identity function]: http://en.wikipedia.org/wiki/Identity_function
 
 ### Remote
 
-Remote data is only used when the data provided by `local` and `prefetch` is 
-insufficient. In order to prevent an obscene number of requests being made to
-the remote endpoint, requests are rate-limited.
+Bloodhound only goes to the network when the internal search engine cannot 
+provide a sufficient number of results. In order to prevent an obscene number 
+of requests being made to the remote endpoint, requests are rate-limited.
 
 When configuring `remote`, the following options are available.
 
-* `url` – A URL to make requests to when when the data provided by `local` and 
-  `prefetch` is insufficient. **Required.**
+* `url` – The URL remote data should be loaded from. **Required.**
 
-* `wildcard` - The pattern in `url` that will be replaced with the user's query 
-  when a request is made. Defaults to `%QUERY`. 
+* `prepare` – A function that provides a hook to allow you to prepare the 
+  settings object passed to `transport` when a request is about to be made. 
+  The function signature should be `prepare(query, settings)`, where `query` is
+  the query `#search` was called with and `settings` is the default settings
+  object created internally by the Bloodhound instance. The `prepare` function
+  should return a settings object. Defaults to the [identity function].
 
-* `replace` – A function with the signature `replace(url, query)` that can be 
-  used to override the request URL. Expected to return a valid URL. If set, no 
-  wildcard substitution will be performed on `url`.
+* `wildcard` – A convenience option for `prepare`. If set, `prepare` will be a
+  function that replaces the value of this option in `url` with the URI encoded
+  query.
 
 * `rateLimitBy` – The method used to rate-limit network requests. Can be either 
   `debounce` or `throttle`. Defaults to `debounce`.
@@ -240,40 +268,10 @@ When configuring `remote`, the following options are available.
 * `rateLimitWait` – The time interval in milliseconds that will be used by 
   `rateLimitBy`. Defaults to `300`.
 
-* `filter` – A function with the signature `filter(parsedResponse)` that 
-  transforms the response body into an array of datums. Expected to return an 
-  array of datums.
-
-* `ajax` – The [ajax settings object] passed to `jQuery.ajax`.
+* `transform` – A function with the signature `transform(response)` that allows
+  you to transform the remote response before the Bloodhound instance operates 
+  on it. Defaults to the [identity function].
 
 <!-- section links -->
 
-[ajax settings object]: http://api.jquery.com/jQuery.ajax/#jQuery-ajax-settings
-
-### Datums
-
-Datums are JavaScript objects that hydrate the pool of possible suggestions.
-Bloodhound doesn't expect datums to contain any specific properties as any
-operations performed on datums are done using functions defined by the user i.e.
-`datumTokenizer`, `dupDetector`, and `sorter`.
-
-### Tokens
-
-The algorithm used by bloodhounds for providing suggestions for a given query 
-is token-based. When `Bloodhound#get` is called, it tokenizes `query` using 
-`queryTokenizer` and then invokes `cb` with all of the datums that contain those 
-tokens.
-
-For a quick example, if a datum was tokenized into the following set of 
-tokens...
-
-```javascript
-['typeahead.js', 'typeahead', 'autocomplete', 'javascript'];
-```
-
-...it would be a valid match for queries such as:
-
-* `typehead`
-* `typehead.js`
-* `autoco`
-* `java type`
+[identity function]: http://en.wikipedia.org/wiki/Identity_function

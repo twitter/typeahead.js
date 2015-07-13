@@ -4,52 +4,43 @@
  * Copyright 2013-2014 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-(function(root) {
+var Bloodhound = (function() {
   'use strict';
 
-  var old, keys;
+  var old;
 
-  old = root.Bloodhound;
-  keys = { data: 'data', protocol: 'protocol', thumbprint: 'thumbprint' };
-
-  // add Bloodhoud to global context
-  root.Bloodhound = Bloodhound;
+  old = window && window.Bloodhound;
 
   // constructor
   // -----------
 
   function Bloodhound(o) {
-    if (!o || (!o.local && !o.prefetch && !o.remote)) {
-      $.error('one of local, prefetch, or remote is required');
-    }
+    o = oParser(o);
 
-    this.limit = o.limit || 5;
-    this.sorter = getSorter(o.sorter);
-    this.dupDetector = o.dupDetector || ignoreDuplicates;
+    this.sorter = o.sorter;
+    this.identify = o.identify;
+    this.sufficient = o.sufficient;
 
-    this.local = oParser.local(o);
-    this.prefetch = oParser.prefetch(o);
-    this.remote = oParser.remote(o);
-
-    this.cacheKey = this.prefetch ?
-      (this.prefetch.cacheKey || this.prefetch.url) : null;
+    this.local = o.local;
+    this.remote = o.remote ? new Remote(o.remote) : null;
+    this.prefetch = o.prefetch ? new Prefetch(o.prefetch) : null;
 
     // the backing data structure used for fast pattern matching
     this.index = new SearchIndex({
+      identify: this.identify,
       datumTokenizer: o.datumTokenizer,
       queryTokenizer: o.queryTokenizer
     });
 
-    // only initialize storage if there's a cacheKey otherwise
-    // loading from storage on subsequent page loads is impossible
-    this.storage = this.cacheKey ? new PersistentStorage(this.cacheKey) : null;
+    // hold off on intialization if the intialize option was explicitly false
+    o.initialize !== false && this.initialize();
   }
 
   // static methods
   // --------------
 
   Bloodhound.noConflict = function noConflict() {
-    root.Bloodhound = old;
+    window && (window.Bloodhound = old);
     return Bloodhound;
   };
 
@@ -60,97 +51,65 @@
 
   _.mixin(Bloodhound.prototype, {
 
+    // ### super secret stuff used for integration with jquery plugin
+
+    __ttAdapter: function ttAdapter() {
+      var that = this;
+
+      return this.remote ? withAsync : withoutAsync;
+
+      function withAsync(query, sync, async) {
+        return that.search(query, sync, async);
+      }
+
+      function withoutAsync(query, sync) {
+        return that.search(query, sync);
+      }
+    },
+
     // ### private
 
-    _loadPrefetch: function loadPrefetch(o) {
-      var that = this, serialized, deferred;
+    _loadPrefetch: function loadPrefetch() {
+      var that = this, deferred, serialized;
 
-      if (serialized = this._readFromStorage(o.thumbprint)) {
+      deferred = $.Deferred();
+
+      if (!this.prefetch) {
+        deferred.resolve();
+      }
+
+      else if (serialized = this.prefetch.fromCache()) {
         this.index.bootstrap(serialized);
-        deferred = $.Deferred().resolve();
+        deferred.resolve();
       }
 
       else {
-        deferred = $.ajax(o.url, o.ajax).done(handlePrefetchResponse);
+        this.prefetch.fromNetwork(done);
       }
 
-      return deferred;
+      return deferred.promise();
 
-      function handlePrefetchResponse(resp) {
-        // clear to mirror the behavior of bootstrapping
-        that.clear();
-        that.add(o.filter ? o.filter(resp) : resp);
+      function done(err, data) {
+        if (err) { return deferred.reject(); }
 
-        that._saveToStorage(that.index.serialize(), o.thumbprint, o.ttl);
+        that.add(data);
+        that.prefetch.store(that.index.serialize());
+        deferred.resolve();
       }
-    },
-
-    _getFromRemote: function getFromRemote(query, cb) {
-      var that = this, url, uriEncodedQuery;
-
-      if (!this.transport) { return; }
-
-      query = query || '';
-      uriEncodedQuery = encodeURIComponent(query);
-
-      url = this.remote.replace ?
-        this.remote.replace(this.remote.url, query) :
-        this.remote.url.replace(this.remote.wildcard, uriEncodedQuery);
-
-      return this.transport.get(url, this.remote.ajax, handleRemoteResponse);
-
-      function handleRemoteResponse(err, resp) {
-        err ? cb([]) : cb(that.remote.filter ? that.remote.filter(resp) : resp);
-      }
-    },
-
-    _cancelLastRemoteRequest: function cancelLastRemoteRequest() {
-      // #149: prevents outdated rate-limited requests from being sent
-      this.transport && this.transport.cancel();
-    },
-
-    _saveToStorage: function saveToStorage(data, thumbprint, ttl) {
-      if (this.storage) {
-        this.storage.set(keys.data, data, ttl);
-        this.storage.set(keys.protocol, location.protocol, ttl);
-        this.storage.set(keys.thumbprint, thumbprint, ttl);
-      }
-    },
-
-    _readFromStorage: function readFromStorage(thumbprint) {
-      var stored = {}, isExpired;
-
-      if (this.storage) {
-        stored.data = this.storage.get(keys.data);
-        stored.protocol = this.storage.get(keys.protocol);
-        stored.thumbprint = this.storage.get(keys.thumbprint);
-      }
-      // the stored data is considered expired if the thumbprints
-      // don't match or if the protocol it was originally stored under
-      // has changed
-      isExpired = stored.thumbprint !== thumbprint ||
-        stored.protocol !== location.protocol;
-
-      return stored.data && !isExpired ? stored.data : null;
     },
 
     _initialize: function initialize() {
-      var that = this, local = this.local, deferred;
+      var that = this, deferred;
 
-      deferred = this.prefetch ?
-        this._loadPrefetch(this.prefetch) : $.Deferred().resolve();
+      // in case this is a reinitialization, clear previous data
+      this.clear();
 
-      // make sure local is added to the index after prefetch
-      local && deferred.done(addLocalToIndex);
+      (this.initPromise = this._loadPrefetch())
+      .done(addLocalToIndex); // local must be added to index after prefetch
 
-      this.transport = this.remote ? new Transport(this.remote) : null;
+      return this.initPromise;
 
-      return (this.initPromise = deferred.promise());
-
-      function addLocalToIndex() {
-        // local can be a function that returns an array of datums
-        that.add(_.isFunction(local) ? local() : local);
-      }
+      function addLocalToIndex() { that.add(that.local); }
     },
 
     // ### public
@@ -159,76 +118,75 @@
       return !this.initPromise || force ? this._initialize() : this.initPromise;
     },
 
+    // TODO: before initialize what happens?
     add: function add(data) {
       this.index.add(data);
+      return this;
     },
 
-    get: function get(query, cb) {
-      var that = this, matches = [], cacheHit = false;
+    get: function get(ids) {
+      ids = _.isArray(ids) ? ids : [].slice.call(arguments);
+      return this.index.get(ids);
+    },
 
-      matches = this.index.get(query);
-      matches = this.sorter(matches).slice(0, this.limit);
+    search: function search(query, sync, async) {
+      var that = this, local;
 
-      matches.length < this.limit ?
-        (cacheHit = this._getFromRemote(query, returnRemoteMatches)) :
-        this._cancelLastRemoteRequest();
+      local = this.sorter(this.index.search(query));
 
-      // if a cache hit occurred, skip rendering local matches
-      // because the rendering of local/remote matches is already
-      // in the event loop
-      if (!cacheHit) {
-        // only render if there are some local suggestions or we're
-        // going to the network to backfill
-        (matches.length > 0 || !this.transport) && cb && cb(matches);
+      // return a copy to guarantee no changes within this scope
+      // as this array will get used when processing the remote results
+      sync(this.remote ? local.slice() : local);
+
+      if (this.remote && local.length < this.sufficient) {
+        this.remote.get(query, processRemote);
       }
 
-      function returnRemoteMatches(remoteMatches) {
-        var matchesWithBackfill = matches.slice(0);
+      else if (this.remote) {
+        // #149: prevents outdated rate-limited requests from being sent
+        this.remote.cancelLastRequest();
+      }
 
-        _.each(remoteMatches, function(remoteMatch) {
-          var isDuplicate;
+      return this;
 
-          // checks for duplicates
-          isDuplicate = _.some(matchesWithBackfill, function(match) {
-            return that.dupDetector(remoteMatch, match);
-          });
+      function processRemote(remote) {
+        var nonDuplicates = [];
 
-          !isDuplicate && matchesWithBackfill.push(remoteMatch);
-
-          // if we're at the limit, we no longer need to process
-          // the remote results and can break out of the each loop
-          return matchesWithBackfill.length < that.limit;
+        // exclude duplicates
+        _.each(remote, function(r) {
+           !_.some(local, function(l) {
+            return that.identify(r) === that.identify(l);
+          }) && nonDuplicates.push(r);
         });
-        cb && cb(that.sorter(matchesWithBackfill));
+
+        async && async(nonDuplicates);
       }
+    },
+
+    all: function all() {
+      return this.index.all();
     },
 
     clear: function clear() {
       this.index.reset();
+      return this;
     },
 
     clearPrefetchCache: function clearPrefetchCache() {
-      this.storage && this.storage.clear();
+      this.prefetch && this.prefetch.clear();
+      return this;
     },
 
     clearRemoteCache: function clearRemoteCache() {
-      this.transport && Transport.resetCache();
+      Transport.resetCache();
+      return this;
     },
 
-    ttAdapter: function ttAdapter() { return _.bind(this.get, this); }
+    // DEPRECATED: will be removed in v1
+    ttAdapter: function ttAdapter() {
+      return this.__ttAdapter();
+    }
   });
 
   return Bloodhound;
-
-  // helper functions
-  // ----------------
-
-  function getSorter(sortFn) {
-    return _.isFunction(sortFn) ? sort : noSort;
-
-    function sort(array) { return array.sort(sortFn); }
-    function noSort(array) { return array; }
-  }
-
-  function ignoreDuplicates() { return false; }
-})(this);
+})();

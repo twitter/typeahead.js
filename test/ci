@@ -1,7 +1,7 @@
 #!/bin/bash -x
 
 if [ "$TEST_SUITE" == "unit" ]; then
-  ./node_modules/.bin/karma start --single-run --browsers PhantomJS
+  ./node_modules/karma/bin/karma start --single-run --browsers PhantomJS
 elif [ "$TRAVIS_SECURE_ENV_VARS" == "true" -a "$TEST_SUITE" == "integration" ]; then
   static -p 8888 &
   sleep 3
