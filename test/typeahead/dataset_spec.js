@@ -376,6 +376,21 @@ describe('Dataset', function() {
 
       waitsFor(function() { return spy.callCount; });
     });
+
+    it('should allow custom highlighting functions', function () {
+      this.dataset = new Dataset({
+        name: 'test',
+        node: $('<div>'),
+        highlight: function(o) { o.node.childNodes[0].innerHTML = 'custom'; },
+        source: this.source = jasmine.createSpy('source')
+      }, www);
+
+      this.source.andCallFake(syncMockSuggestionsDisplayFn);
+      this.dataset.update('whatever');
+
+      expect(this.dataset.$el).toContainText('custom');
+    });
+
   });
 
   describe('#clear', function() {

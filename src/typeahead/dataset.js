@@ -40,7 +40,7 @@ var Dataset = (function() {
 
     www.mixin(this);
 
-    this.highlight = !!o.highlight;
+    this.highlight = o.highlight;
     this.name = o.name || nameGenerator();
 
     this.limit = o.limit || 5;
@@ -196,6 +196,7 @@ var Dataset = (function() {
         fragment.appendChild($el[0]);
       });
 
+      var highlight = _.isFunction(this.highlight) ? this.highlight : highlight;
       this.highlight && highlight({
         className: this.classes.highlight,
         node: fragment,

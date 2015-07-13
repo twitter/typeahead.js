@@ -111,9 +111,13 @@ jQuery.fn._typeahead = typeahead;
 
 When initializing a typeahead, there are a number of options you can configure.
 
-* `highlight` – If `true`, when suggestions are rendered, pattern matches
-  for the current query in text nodes will be wrapped in a `strong` element with
-  its class set to `{{classNames.highlight}}`. Defaults to `false`.
+* `highlight` – Can be a Boolean or a function. If `true`, when suggestions are
+  rendered, pattern matches for the current query in text nodes will be wrapped
+  in a `strong` element with its class set to `{{classNames.highlight}}`.
+  Defaults to `false`. If a function, it is expected to take in an object
+  containing `pattern`, `node`, `tagName`, and `className`, and to highlight
+  the suggestions contained in `node` according to `pattern`, `tagName`, and
+  `className`.
 
 * `hint` – If `false`, the typeahead will not show a hint. Defaults to `true`.
 

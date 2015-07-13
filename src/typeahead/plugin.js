@@ -37,7 +37,7 @@
 
         // highlight is a top-level config that needs to get inherited
         // from all of the datasets
-        _.each(datasets, function(d) { d.highlight = !!o.highlight; });
+        _.each(datasets, function(d) { d.highlight = o.highlight === undefined ? false : o.highlight; });
 
         $input = $(this);
         $wrapper = $(www.html.wrapper);
