@@ -29,7 +29,7 @@
       "url": "https://twitter.com/vskarich"
     }
   ],
-  "dependencies": {
+  "peerDependencies": {
     "jquery": ">=1.7"
   },
   "devDependencies": {
