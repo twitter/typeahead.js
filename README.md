@@ -28,8 +28,9 @@ Getting Started
 
 How you acquire typeahead.js is up to you.
 
-Preferred method:
+Preferred methods:
 * Install with [Bower]: `$ bower install typeahead.js`
+* Install with [npm]: `$ npm install jquery typeahead.js`
 
 Other methods:
 * [Download zipball of latest release][zipball].
@@ -45,6 +46,7 @@ Other methods:
 <!-- section links -->
 
 [Bower]: http://bower.io/
+[npm]: https://www.npmjs.com/
 [zipball]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.js.zip
 [bloodhound.js]: http://twitter.github.com/typeahead.js/releases/latest/bloodhound.js
 [typeahead.jquery.js]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.jquery.js
