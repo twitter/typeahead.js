@@ -33,6 +33,7 @@ var Input = (function() {
 
     this.$hint = $(o.hint);
     this.$input = $(o.input);
+    this.$menu = $(o.menu);
 
     // the query defaults to whatever the value of the input is
     // on initialization, it'll most likely be an empty string
@@ -71,9 +72,32 @@ var Input = (function() {
 
     // ### event handlers
 
-    _onBlur: function onBlur() {
-      this.resetInputValue();
-      this.trigger('blurred');
+    _onBlur: function onBlur ($e) {
+        var active, isActive, hasActive, that = this;
+        active = document.activeElement;
+        isActive = this.$menu.is(active);
+        hasActive = this.$menu.has(active).length > 0;
+    
+        // #705: if there's scrollable overflow, ie doesn't support
+        // blur cancellations when the scrollbar is clicked
+        //
+        // #351, #1243: preventDefault won't cancel blurs in ie <= 8, so we refuse to trigger the "blurred" event
+        if (_.isMsie() && (isActive || hasActive)) {
+            _.defer(function() {
+                console.log ('timeout');
+                if (!that.$input.is (':focus')) {
+                    that.$input.focus();
+                };
+            });
+
+            // stop immediate in order to prevent Input#_onBlur from
+            // getting exectued
+            $e.preventDefault();
+            $e.stopImmediatePropagation();
+        } else {
+            this.resetInputValue();
+            this.trigger("blurred");
+        };
     },
 
     _onFocus: function onFocus() {
