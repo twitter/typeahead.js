@@ -69,7 +69,7 @@
         MenuConstructor = defaultMenu ? DefaultMenu : Menu;
 
         eventBus = new EventBus({ el: $input });
-        input = new Input({ hint: $hint, input: $input, }, www);
+        input = new Input({ hint: $hint, input: $input, menu: $menu, }, www);
         menu = new MenuConstructor({
           node: $menu,
           datasets: datasets

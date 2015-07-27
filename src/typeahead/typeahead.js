@@ -91,31 +91,7 @@ var Typeahead = (function() {
 
     // here's where hacks get applied and we don't feel bad about it
     _hacks: function hacks() {
-      var $input, $menu;
-
-      // these default values are to make testing easier
-      $input = this.input.$input || $('<div>');
-      $menu = this.menu.$node || $('<div>');
-
-      // #705: if there's scrollable overflow, ie doesn't support
-      // blur cancellations when the scrollbar is clicked
-      //
-      // #351: preventDefault won't cancel blurs in ie <= 8
-      $input.on('blur.tt', function($e) {
-        var active, isActive, hasActive;
-
-        active = document.activeElement;
-        isActive = $menu.is(active);
-        hasActive = $menu.has(active).length > 0;
-
-        if (_.isMsie() && (isActive || hasActive)) {
-          $e.preventDefault();
-          // stop immediate in order to prevent Input#_onBlur from
-          // getting exectued
-          $e.stopImmediatePropagation();
-          _.defer(function() { $input.focus(); });
-        }
-      });
+      var $menu = this.menu.$node || $("<div>");
 
       // #351: prevents input blur due to clicks within menu
       $menu.on('mousedown.tt', function($e) { $e.preventDefault(); });
