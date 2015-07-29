@@ -220,7 +220,7 @@
     .css(getBackgroundStyles($input))
     .prop('readonly', true)
     .removeAttr('id name placeholder required')
-    .attr({ autocomplete: 'off', spellcheck: 'false', tabindex: -1 });
+    .attr({ autocomplete: 'false', spellcheck: 'false', tabindex: -1 });
   }
 
   function prepInput($input, www) {
@@ -235,7 +235,7 @@
 
     $input
     .addClass(www.classes.input)
-    .attr({ autocomplete: 'off', spellcheck: false });
+    .attr({ autocomplete: 'false', spellcheck: false });
 
     // ie7 does not like it when dir is set to auto
     try { !$input.attr('dir') && $input.attr('dir', 'auto'); } catch (e) {}
