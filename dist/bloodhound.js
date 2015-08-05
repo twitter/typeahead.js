@@ -523,23 +523,18 @@
             }
             return uniques;
         }
-        function getIntersection(arrayA, arrayB) {
-            var ai = 0, bi = 0, intersection = [];
-            arrayA = arrayA.sort();
-            arrayB = arrayB.sort();
-            var lenArrayA = arrayA.length, lenArrayB = arrayB.length;
-            while (ai < lenArrayA && bi < lenArrayB) {
-                if (arrayA[ai] < arrayB[bi]) {
-                    ai++;
-                } else if (arrayA[ai] > arrayB[bi]) {
-                    bi++;
-                } else {
-                    intersection.push(arrayA[ai]);
-                    ai++;
-                    bi++;
+        function getIntersection(array) {
+            var result = [],
+                argsLength = arguments.length;
+            for (var i = 0, length = array.length; i < length; i++) {
+                var item = array[i];
+                if (result.indexOf(item) > -1) continue;
+                for (var j = 1; j < argsLength; j++) {
+                    if (arguments[j].indexOf(item) === -1) break;
                 }
+                if (j === argsLength) result.push(item);
             }
-            return intersection;
+            return result;
         }
     }();
     var Prefetch = function() {

@@ -162,30 +162,22 @@ var SearchIndex = window.SearchIndex = (function() {
     return uniques;
   }
 
-  function getIntersection(arrayA, arrayB) {
-    var ai = 0, bi = 0, intersection = [];
+  function getIntersection(array) {
+    var result = [],
+        argsLength = arguments.length;
 
-    arrayA = arrayA.sort();
-    arrayB = arrayB.sort();
+    for (var i = 0, length = array.length; i < length; i++) {
+      var item = array[i];
 
-    var lenArrayA = arrayA.length, lenArrayB = arrayB.length;
+      if (result.indexOf(item) > -1) continue;
 
-    while (ai < lenArrayA && bi < lenArrayB) {
-      if (arrayA[ai] < arrayB[bi]) {
-        ai++;
+      for (var j = 1; j < argsLength; j++) {
+        if (arguments[j].indexOf(item) === -1) break;
       }
 
-      else if (arrayA[ai] > arrayB[bi]) {
-        bi++;
-      }
-
-      else {
-        intersection.push(arrayA[ai]);
-        ai++;
-        bi++;
-      }
+      if (j === argsLength) result.push(item);
     }
 
-    return intersection;
+    return result;
   }
 })();
