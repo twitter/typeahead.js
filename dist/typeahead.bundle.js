@@ -559,13 +559,14 @@
             this.transport = o.transport;
             this.thumbprint = o.thumbprint;
             this.storage = new PersistentStorage(o.cacheKey);
+            this.dataType = o.dataType || "json";
         }
         _.mixin(Prefetch.prototype, {
             _settings: function settings() {
                 return {
                     url: this.url,
                     type: "GET",
-                    dataType: "json"
+                    dataType: this.dataType
                 };
             },
             store: function store(data) {
@@ -619,13 +620,14 @@
                 limiter: o.limiter,
                 transport: o.transport
             });
+            this.dataType = o.dataType || "json";
         }
         _.mixin(Remote.prototype, {
             _settings: function settings() {
                 return {
                     url: this.url,
                     type: "GET",
-                    dataType: "json"
+                    dataType: this.dataType
                 };
             },
             get: function get(query, cb) {
