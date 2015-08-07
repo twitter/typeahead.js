@@ -805,10 +805,13 @@
                 }
                 function async(suggestions) {
                     suggestions = suggestions || [];
-                    if (!canceled && rendered < that.limit) {
+                    if (!canceled) {
                         that.cancel = $.noop;
                         rendered += suggestions.length;
-                        that._append(query, suggestions.slice(0, that.limit - rendered));
+                        if (rendered > that.limit) {
+                            suggestions.splice(that.limit, rendered - that.limit);
+                        }
+                        that._append(query, suggestions);
                         that.async && that.trigger("asyncReceived", query);
                     }
                 }
