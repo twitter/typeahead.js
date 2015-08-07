@@ -559,14 +559,13 @@
             this.transport = o.transport;
             this.thumbprint = o.thumbprint;
             this.storage = new PersistentStorage(o.cacheKey);
-            this.dataType = o.dataType || "json";
         }
         _.mixin(Prefetch.prototype, {
             _settings: function settings() {
                 return {
                     url: this.url,
                     type: "GET",
-                    dataType: this.dataType
+                    dataType: "json"
                 };
             },
             store: function store(data) {
@@ -620,14 +619,13 @@
                 limiter: o.limiter,
                 transport: o.transport
             });
-            this.dataType = o.dataType || "json";
         }
         _.mixin(Remote.prototype, {
             _settings: function settings() {
                 return {
                     url: this.url,
                     type: "GET",
-                    dataType: this.dataType
+                    dataType: "json"
                 };
             },
             get: function get(query, cb) {
@@ -1719,6 +1717,7 @@
                     }
                 }
                 function async(suggestions) {
+                    suggestions = suggestions || [];
                     if (!canceled) {
                         that.cancel = $.noop;
                         rendered += suggestions.length;

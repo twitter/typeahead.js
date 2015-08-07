@@ -277,6 +277,7 @@ var Dataset = (function() {
           }
           that._append(query, suggestions);
           that.async && that.trigger('asyncReceived', query);
+        }
       }
     },
 

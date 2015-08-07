@@ -804,6 +804,7 @@
                     }
                 }
                 function async(suggestions) {
+                    suggestions = suggestions || [];
                     if (!canceled) {
                         that.cancel = $.noop;
                         rendered += suggestions.length;
