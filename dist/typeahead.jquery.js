@@ -1,4 +1,4 @@
-/*!
+/*
  * typeahead.js 0.11.1
  * https://github.com/twitter/typeahead.js
  * Copyright 2013-2015 Twitter, Inc. and other contributors; Licensed MIT
@@ -164,7 +164,8 @@
             empty: "tt-empty",
             open: "tt-open",
             cursor: "tt-cursor",
-            highlight: "tt-highlight"
+            highlight: "tt-highlight",
+            category: 'tt-category'
         };
         return build;
         function build(o) {
@@ -669,6 +670,9 @@
             this.name = o.name || nameGenerator();
             this.limit = o.limit || 5;
             this.displayFn = getDisplayFn(o.display || o.displayKey);
+
+            this.displayCategory = o.displayCategory || false;
+
             this.templates = getTemplates(o.templates, this.displayFn);
             this.source = o.source.__ttAdapter ? o.source.__ttAdapter() : o.source;
             this.async = _.isUndefined(o.async) ? this.source.length > 2 : !!o.async;
@@ -712,7 +716,11 @@
             },
             _renderSuggestions: function renderSuggestions(query, suggestions) {
                 var $fragment;
-                $fragment = this._getSuggestionsFragment(query, suggestions);
+                if (this.displayCategory) {
+                    $fragment = this._getCategorizedSuggestionsFragment(query, suggestions);
+                } else {
+                    $fragment = this._getSuggestionsFragment(query, suggestions);
+                }
                 this.$lastSuggestion = $fragment.children().last();
                 this.$el.html($fragment).prepend(this._getHeader(query, suggestions)).append(this._getFooter(query, suggestions));
             },
@@ -758,6 +766,51 @@
                     pattern: query
                 });
                 return $(fragment);
+            },
+            _getCategorizedSuggestionsFragment: function (query, suggestions) {
+                    var that = this, categories = {}, categoryIndexes = [], fragment;
+                    fragment = document.createDocumentFragment();
+
+                    _.each(suggestions, function getSuggestionNode(suggestion, index) {
+
+                        var cat = suggestion[that.displayCategory];
+
+                        if (typeof categories[cat] === "undefined") {
+                            categories[cat] = [];
+                            categoryIndexes.push(cat);
+                        }
+
+                        categories[cat].push(suggestion);
+                    });
+
+                    var totalCategories = categoryIndexes.length;
+
+                    for (var j = 0; j < totalCategories; j++) {
+                        var cat = categoryIndexes[j];
+                        var catSuggestionsFragment = document.createDocumentFragment(), catHeaderFragment;
+
+                        var catSuggestions = categories[cat];
+                        catHeaderFragment = $(that.templates.category.header(cat)).data(keys.obj, cat).data(keys.val, cat).addClass(that.classes.category);
+
+                        //render suggestions from the category
+                        _.each(catSuggestions, function (suggestion) {
+                            var $el, context;
+                            context = that._injectQuery(query, suggestion);
+                            $el = $(that.templates.suggestion(context)).data(keys.obj, suggestion).data(keys.val, that.displayFn(suggestion)).addClass(that.classes.suggestion + " " + that.classes.selectable);
+                            catSuggestionsFragment.appendChild($el[0]);
+                        });
+
+                        this.highlight && highlight({
+                            className: this.classes.highlight,
+                            node: catSuggestionsFragment,
+                            pattern: query
+                        });
+
+                        fragment.appendChild(catHeaderFragment[0]);
+                        fragment.appendChild(catSuggestionsFragment);
+                    }
+
+                    return $(fragment);
             },
             _getFooter: function getFooter(query, suggestions) {
                 return this.templates.footer ? this.templates.footer({
@@ -807,8 +860,8 @@
                     suggestions = suggestions || [];
                     if (!canceled && rendered < that.limit) {
                         that.cancel = $.noop;
-                        rendered += suggestions.length;
                         that._append(query, suggestions.slice(0, that.limit - rendered));
+                        rendered += suggestions.length;
                         that.async && that.trigger("asyncReceived", query);
                     }
                 }
@@ -840,10 +893,16 @@
                 pending: templates.pending && _.templatify(templates.pending),
                 header: templates.header && _.templatify(templates.header),
                 footer: templates.footer && _.templatify(templates.footer),
-                suggestion: templates.suggestion || suggestionTemplate
+                suggestion: templates.suggestion || suggestionTemplate,
+                category: {
+                    header: templates.category && templates.category.header || categoryHeaderTemplate
+                }
             };
             function suggestionTemplate(context) {
                 return $("<div>").text(displayFn(context));
+            }
+            function categoryHeaderTemplate(name) {
+                return $("<div>").text(name);
             }
         }
         function isValidName(str) {
