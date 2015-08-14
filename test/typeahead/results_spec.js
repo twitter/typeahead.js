@@ -230,7 +230,7 @@ describe('Menu', function() {
 
   describe('#getSelectableData', function() {
     it('should extract the data from the selectable element', function() {
-      var $selectable, datum;
+      var $selectable, data;
 
       $selectable = $('<div>').data({
         'tt-selectable-display': 'one',
@@ -244,6 +244,31 @@ describe('Menu', function() {
 
     it('should return null if no element is given', function() {
       expect(this.view.getSelectableData($('notreal'))).toBeNull();
+    });
+  });
+
+  describe('#getSelectableDataset', function() {
+    it('should extract the dataset from the selectable element', function() {
+      var $selectable, $parent, dataset;
+
+      $parent = $('<div class="tt-dataset">').data('ttDataset', 'foo');
+
+      $selectable = $('<div>').data({
+        'tt-selectable-display': 'one',
+        'tt-selectable-object': 'two'
+      });
+
+      $parent.append($selectable);
+
+      dataset = this.view.getSelectableDataset($selectable);
+
+      debugger;
+
+      expect(dataset).toEqual('foo');
+    });
+
+    it('should return null if no element is given', function() {
+      expect(this.view.getSelectableDataset($('notreal'))).toBeNull();
     });
   });
 

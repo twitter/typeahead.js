@@ -59,7 +59,8 @@ var Dataset = (function() {
 
     this.$el = $(o.node)
     .addClass(this.classes.dataset)
-    .addClass(this.classes.dataset + '-' + this.name);
+    .addClass(this.classes.dataset + '-' + this.name)
+    .data('ttDataset', this.name);
   }
 
   // static methods

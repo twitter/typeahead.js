@@ -345,12 +345,15 @@ var Typeahead = (function() {
     },
 
     select: function select($selectable) {
-      var data = this.menu.getSelectableData($selectable);
+      var data, dataset;
+
+      data = this.menu.getSelectableData($selectable);
+      dataset = this.menu.getSelectableDataset($selectable);
 
       if (data && !this.eventBus.before('select', data.obj)) {
         this.input.setQuery(data.val, true);
 
-        this.eventBus.trigger('select', data.obj);
+        this.eventBus.trigger('select', [data.obj, dataset]);
         this.close();
 
         // return true if selection succeeded
