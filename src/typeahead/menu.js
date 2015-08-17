@@ -166,6 +166,10 @@ var Menu = (function() {
       return ($el && $el.length) ? Dataset.extractData($el) : null;
     },
 
+    getSelectableDataset: function getSelectableDataset($el) {
+      return ($el && $el.length) ? $el.closest('.' + this.classes.dataset).data('ttDataset') : null;
+    },
+
     getActiveSelectable: function getActiveSelectable() {
       var $selectable = this._getSelectables().filter(this.selectors.cursor).first();
 
