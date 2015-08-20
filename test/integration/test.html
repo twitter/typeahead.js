@@ -35,6 +35,12 @@
           <input type="submit">
         </div>
       </form>
+      <form action="/where" method="GET">
+        <div class="typeahead-wrapper">
+          <input id="states-capitals" name="states-capitals" type="text">
+          <input type="submit">
+        </div>
+      </form>
     </div>
 
     <script>
@@ -95,6 +101,62 @@
           { val: 'this is a very long value so deal with it' }
         ]
       });
+      var capitals = new Bloodhound({
+        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('val'),
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        local: [
+          { val: 'Albany' },
+          { val: 'Annapolis' },
+          { val: 'Atlanta' },
+          { val: 'Augusta' },
+          { val: 'Austin' },
+          { val: 'Baton Rouge' },
+          { val: 'Bismarck' },
+          { val: 'Boise' },
+          { val: 'Boston' },
+          { val: 'Carson City' },
+          { val: 'Charleston' },
+          { val: 'Cheyenne' },
+          { val: 'Columbia' },
+          { val: 'Columbus' },
+          { val: 'Concord' },
+          { val: 'Denver' },
+          { val: 'Des Moines' },
+          { val: 'Dover' },
+          { val: 'Frankfort' },
+          { val: 'Harrisburg' },
+          { val: 'Hartford' },
+          { val: 'Helena' },
+          { val: 'Honolulu' },
+          { val: 'Indianapolis' },
+          { val: 'Jackson' },
+          { val: 'Jefferson City' },
+          { val: 'Juneau' },
+          { val: 'Lansing' },
+          { val: 'Lincoln' },
+          { val: 'Little Rock' },
+          { val: 'Madison' },
+          { val: 'Montgomery' },
+          { val: 'Montpelier' },
+          { val: 'Nashville' },
+          { val: 'Oklahoma City' },
+          { val: 'Olympia' },
+          { val: 'Phoenix' },
+          { val: 'Pierre' },
+          { val: 'Providence' },
+          { val: 'Raleigh' },
+          { val: 'Richmond' },
+          { val: 'Sacramento' },
+          { val: 'Saint Paul' },
+          { val: 'Salem' },
+          { val: 'Salt Lake City' },
+          { val: 'Santa Fe' },
+          { val: 'Springfield' },
+          { val: 'Tallahassee' },
+          { val: 'Topeka' },
+          { val: 'Trenton' }
+        ]
+      });
 
       $('#states').typeahead({
         highlight: true
@@ -102,6 +164,18 @@
       {
         display: 'val',
         source: states
+      });
+      $('#states-capitals').typeahead({
+        highlight: true,
+        autoSelect: true
+      },{
+        display: 'val',
+        source: states,
+        templates: {header: '<div style="color:red;">STATES</div>'}
+      },{
+        display: 'val',
+        source: capitals,
+        templates: {header: '<div style="color:red;">CAPITALS</div>'}
       });
     </script>
   </body>
