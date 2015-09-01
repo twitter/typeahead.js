@@ -12,6 +12,7 @@ Table of Contents
 * [Usage](#usage)
   * [API](#api)
   * [Options](#options)
+  * [Tokenizers] (#tokenizers)
   * [Prefetch](#prefetch)
   * [Remote](#remote)
 
@@ -164,10 +165,12 @@ When instantiating a Bloodhound suggestion engine, there are a number of
 options you can configure.
 
 * `datumTokenizer` – A function with the signature `(datum)` that transforms a
-  datum into an array of string tokens. **Required**.
-
+  datum into an array of string tokens. **Required**. For built-in examples see
+  [Tokenizers](#tokenizers) or feel free to create your own.
+  
 * `queryTokenizer` – A function with the signature `(query)` that transforms a
-  query into an array of string tokens. **Required**.
+  query into an array of string tokens. **Required**. For built-in examples see 
+  [Tokenizers](#tokenizers) or feel free to create your own.
 
 * `initialize` – If set to `false`, the Bloodhound instance will not be 
   implicitly initialized by the constructor function. Defaults to `true`.
@@ -196,6 +199,58 @@ options you can configure.
 <!-- section links -->
 
 [compare function]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+
+### Tokenizers
+Bloodhound has various built-in static tokenizer functions which can be used as a value for `datumTokenizer` and 
+`queryTokenizer` in [Options](#options). 
+
+#### Bloodhound.tokenizers.nonword(str)
+Splits the string `str` on any nonword using: `str.split(/\W+/)`. A nonword includes all characters except alphanumeric 
+and underscores.
+
+```javascript
+Bloodhound.tokenizers.nonword("I'll give bloodhound#0.11 a 8.5/10");
+//OUTPUT: ["I", "ll", "give", "bloodhound", "0", "11", "a", "8", "5", "10", ""]
+```
+
+#### Bloodhound.tokenizers.whitespace(str)
+Splits the string `str` on any whitespaces using: `str.split(/\s+/)`. A whitespace includes spaces, tabs, carriage 
+returns, new line character, a vertical tab character and a form feed character.
+
+```javascript
+Bloodhound.tokenizers.whitespace("I     like \t my space!");
+//OUTPUT: ["I", "like", "my", "space!"]
+```
+
+#### Bloodhound.tokenizers.obj.nonword([*keys])(obj)
+Takes an variadic argument `keys`, which contains the field name/s of `obj` that you wish to tokenize.  
+Performs the function [Bloodhound.tokenizers.nonword](#bloodhoundtokenizersnonword-str) on each of the `keys` 
+provided  on `obj` and then concatenates them.
+
+```javascript
+Bloodhound.tokenizers.obj.nonword("name", "message", "age")({ 
+  name: "John Smith", 
+  message: "I like Bloodhound#0.10!", 
+  age: 21, 
+  bio: "I won't be shown!"
+});
+//OUTPUT: ["John", "Smith", "I", "like", "Bloodhound", "0", "10", "", "21"]
+```
+
+#### Bloodhound.tokenizers.obj.whitespace([*keys])(obj)
+Takes an variadic argument `keys`, which contains the field name/s of `obj` that you wish to tokenize.  
+Performs the function [Bloodhound.tokenizers.whitespace](#bloodhoundtokenizerswhitespace-str) on each of the `keys` 
+provided  on `obj` and then concatenates them.
+
+```javascript
+Bloodhound.tokenizers.obj.whitespace("name", "message", "age")({ 
+  name: "John Smith", 
+  message: "I     like \t my space!", 
+  age: 21, 
+  bio: "I won't be shown!"
+});
+["John", "Smith", "I", "like", "my", "space!", "21"]
+```
 
 ### Prefetch
 
