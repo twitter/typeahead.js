@@ -199,8 +199,8 @@ options you can configure.
 [compare function]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
 
 ### Tokenizers
-Bloodhound has various built-in tokenizer functions which can be used in as a value for `datumTokenizer` and 
-`queryTokenizer` in [options hash](#options). 
+Bloodhound has various built-in tokenizer functions which can be used as a value for `datumTokenizer` and 
+`queryTokenizer` in the [options](#options). 
 
 #### Bloodhound.tokenizers.nonword(str)
 Splits the string `str` on any non alphanumeric characters or underscores using: `str.split(/\W+/)`
@@ -245,18 +245,6 @@ Bloodhound.tokenizers.obj.whitespace("name", "message", "age")({
   bio: "I won't be shown!"
 });
 ["John", "Smith", "I", "like", "my", "space!", "21"]
-```
-
-#### new Bloodhound(options)
-The constructor function. It takes an [options hash](#options) as its only 
-argument.
-
-```javascript
-var engine = new Bloodhound({
-  local: ['dog', 'pig', 'moose'],
-  queryTokenizer: Bloodhound.tokenizers.whitespace,
-  datumTokenizer: Bloodhound.tokenizers.whitespace
-});
 ```
 
 ### Prefetch
