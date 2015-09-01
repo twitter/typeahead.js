@@ -12,6 +12,7 @@ Table of Contents
 * [Usage](#usage)
   * [API](#api)
   * [Options](#options)
+  * [Tokenizers] (#tokenizers)
   * [Prefetch](#prefetch)
   * [Remote](#remote)
 
@@ -196,6 +197,67 @@ options you can configure.
 <!-- section links -->
 
 [compare function]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+
+### Tokenizers
+Bloodhound has various built-in tokenizer functions which can be used in as a value for `datumTokenizer` and 
+`queryTokenizer` in [options hash](#options). 
+
+#### Bloodhound.tokenizers.nonword(str)
+Splits the string `str` on any non alphanumeric characters or underscores using: `str.split(/\W+/)`
+
+```javascript
+Bloodhound.tokenizers.nonword("I'll give bloodhound#0.11 a 8.5/10!");
+//OUTPUT: ["I", "ll", "give", "bloodhound", "0", "11", "a", "8", "5", "10", ""]
+```
+
+#### Bloodhound.tokenizers.whitespace(str)
+Splits the string `str` on any whitespaces using: `str.split(/\s+/)`. A whitespace includes spaces, tabs, carriage 
+returns, new line character, a vertical tab character & a form feed character
+
+```javascript
+Bloodhound.tokenizers.whitespace("I     like \t my space!");
+//OUTPUT: ["I", "like", "my", "space!"]
+```
+
+#### Bloodhound.tokenizers.obj.nonword([*keys])(obj)
+Performs the function [Bloodhound.tokenizers.nonword](#bloodhoundtokenizersnonword-keys-obj) on each key in `keys` 
+provided  on `obj` and then concatenates them.
+
+```javascript
+Bloodhound.tokenizers.obj.nonword("name", "message", "age")({ 
+  name: "John Smith", 
+  message: "I like Bloodhound#0.10!", 
+  age: 21, 
+  bio: "I won't be shown!"
+});
+//OUTPUT: ["John", "Smith", "I", "like", "Bloodhound", "0", "10", "", "21"]
+```
+
+#### Bloodhound.tokenizers.obj.whitespace([*keys])(obj)
+Performs the function `Bloodhound.tokenizers.whitespace` on each of the `keys` provided  on `obj` and then concatenates 
+them.
+
+```javascript
+Bloodhound.tokenizers.obj.whitespace("name", "message", "age")({ 
+  name: "John Smith", 
+  message: "I     like \t my space!", 
+  age: 21, 
+  bio: "I won't be shown!"
+});
+["John", "Smith", "I", "like", "my", "space!", "21"]
+```
+
+#### new Bloodhound(options)
+The constructor function. It takes an [options hash](#options) as its only 
+argument.
+
+```javascript
+var engine = new Bloodhound({
+  local: ['dog', 'pig', 'moose'],
+  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  datumTokenizer: Bloodhound.tokenizers.whitespace
+});
+```
 
 ### Prefetch
 
