@@ -169,6 +169,10 @@ options you can configure.
 * `queryTokenizer` – A function with the signature `(query)` that transforms a
   query into an array of string tokens. **Required**.
 
+* `matchAnyQueryToken` - By default a search result must match ALL query-tokens.
+  Instead, this option returns results that match ANY query-tokens. Defaults to
+  `false`.
+
 * `initialize` – If set to `false`, the Bloodhound instance will not be 
   implicitly initialized by the constructor function. Defaults to `true`.
 
