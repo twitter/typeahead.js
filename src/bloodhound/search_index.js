@@ -22,6 +22,7 @@ var SearchIndex = window.SearchIndex = (function() {
     this.identify = o.identify || _.stringify;
     this.datumTokenizer = o.datumTokenizer;
     this.queryTokenizer = o.queryTokenizer;
+    this.matchAnyQueryToken = o.matchAnyQueryToken;
 
     this.reset();
   }
@@ -78,7 +79,7 @@ var SearchIndex = window.SearchIndex = (function() {
         var node, chars, ch, ids;
 
         // previous tokens didn't share any matches
-        if (matches && matches.length === 0) {
+        if (matches && matches.length === 0 && !that.matchAnyQueryToken) {
           return false;
         }
 
@@ -96,8 +97,10 @@ var SearchIndex = window.SearchIndex = (function() {
 
         // break early if we find out there are no possible matches
         else {
-          matches = [];
-          return false;
+          if (!that.matchAnyQueryToken) {
+            matches = [];
+            return false;
+          }
         }
       });
 
