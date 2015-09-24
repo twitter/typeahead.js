@@ -1,4 +1,4 @@
-[![build status](https://secure.travis-ci.org/twitter/typeahead.js.svg?branch=master)](http://travis-ci.org/twitter/typeahead.js)
+[![Build Status](https://travis-ci.org/corejavascript/typeahead.js.svg?branch=master)](https://travis-ci.org/corejavascript/typeahead.js)
 [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
 
 
@@ -18,10 +18,10 @@ they can provide a rich typeahead experience.
 
 <!-- section links -->
 
-[gh-page]: http://twitter.github.io/typeahead.js/
+[gh-page]: http://corejavascript.github.io/typeahead.js/
 [twitter.com]: https://twitter.com
-[Bloodhound]: https://github.com/twitter/typeahead.js/blob/master/doc/bloodhound.md
-[Typeahead]: https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
+[Bloodhound]: https://github.com/corejavascript/typeahead.js/blob/master/doc/bloodhound.md
+[Typeahead]: https://github.com/corejavascript/typeahead.js/blob/master/doc/jquery_typeahead.md
 
 Getting Started
 ---------------
@@ -44,12 +44,12 @@ Other methods:
 
 <!-- section links -->
 
-[Bower]: http://bower.io/
-[zipball]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.js.zip
-[bloodhound.js]: http://twitter.github.com/typeahead.js/releases/latest/bloodhound.js
-[typeahead.jquery.js]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.jquery.js
-[typeahead.bundle.js]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.bundle.js
-[typeahead.bundle.min.js]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.bundle.min.js
+[Bower]: https://bower.io/
+[zipball]: https://corejavascript.github.com/typeahead.js/releases/latest/typeahead.js.zip
+[bloodhound.js]: https://corejavascript.github.com/typeahead.js/releases/latest/bloodhound.js
+[typeahead.jquery.js]: https://corejavascript.github.com/typeahead.js/releases/latest/typeahead.jquery.js
+[typeahead.bundle.js]: https://corejavascript.github.com/typeahead.js/releases/latest/typeahead.bundle.js
+[typeahead.bundle.min.js]: https://corejavascript.github.com/typeahead.js/releases/latest/typeahead.bundle.min.js
 [jQuery]: http://jquery.com/
 
 Documentation 
@@ -58,8 +58,8 @@ Documentation
 * [Typeahead Docs]
 * [Bloodhound Docs]
 
-[Typeahead Docs]: https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
-[Bloodhound Docs]: https://github.com/twitter/typeahead.js/blob/master/doc/bloodhound.md
+[Typeahead Docs]: https://github.com/corejavascript/typeahead.js/blob/master/doc/jquery_typeahead.md
+[Bloodhound Docs]: https://github.com/corejavascript/typeahead.js/blob/master/doc/bloodhound.md
 
 Examples
 --------
@@ -68,7 +68,7 @@ For some working examples of typeahead.js, visit the [examples page].
 
 <!-- section links -->
 
-[examples page]: http://twitter.github.io/typeahead.js/examples
+[examples page]: http://corejavascript.github.io/typeahead.js/examples
 
 Browser Support
 ---------------
@@ -100,7 +100,7 @@ Issues
 
 Discovered a bug? Please create an issue here on GitHub!
 
-https://github.com/twitter/typeahead.js/issues
+https://github.com/corejavascript/typeahead.js/issues
 
 Versioning
 ----------
@@ -152,8 +152,8 @@ Grunt tasks that'll be useful in development.
 
 <!-- section links -->
 
-[contributing guidelines]: https://github.com/twitter/typeahead.js/blob/master/CONTRIBUTING.md
-[entry-level]: https://github.com/twitter/typeahead.js/issues?&labels=entry-level&state=open
+[contributing guidelines]: https://github.com/corejavascript/typeahead.js/blob/master/CONTRIBUTING.md
+[entry-level]: https://github.com/corejavascript/typeahead.js/issues?&labels=entry-level&state=open
 [grunt-cli]: https://github.com/gruntjs/grunt-cli
 
 Maintainers
