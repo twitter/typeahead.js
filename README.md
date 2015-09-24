@@ -45,11 +45,11 @@ Other methods:
 <!-- section links -->
 
 [Bower]: https://bower.io/
-[zipball]: https://corejavascript.github.com/typeahead.js/releases/latest/typeahead.js.zip
-[bloodhound.js]: https://corejavascript.github.com/typeahead.js/releases/latest/bloodhound.js
-[typeahead.jquery.js]: https://corejavascript.github.com/typeahead.js/releases/latest/typeahead.jquery.js
-[typeahead.bundle.js]: https://corejavascript.github.com/typeahead.js/releases/latest/typeahead.bundle.js
-[typeahead.bundle.min.js]: https://corejavascript.github.com/typeahead.js/releases/latest/typeahead.bundle.min.js
+[zipball]: https://corejavascript.github.io/typeahead.js/releases/latest/typeahead.js.zip
+[bloodhound.js]: https://corejavascript.github.io/typeahead.js/releases/latest/bloodhound.js
+[typeahead.jquery.js]: https://corejavascript.github.io/typeahead.js/releases/latest/typeahead.jquery.js
+[typeahead.bundle.js]: https://corejavascript.github.io/typeahead.js/releases/latest/typeahead.bundle.js
+[typeahead.bundle.min.js]: https://corejavascript.github.io/typeahead.js/releases/latest/typeahead.bundle.min.js
 [jQuery]: http://jquery.com/
 
 Documentation 
