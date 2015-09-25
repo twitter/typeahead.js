@@ -54,9 +54,16 @@ describe('SearchIndex', function() {
     expect(this.index.search('wtf')).toEqual([]);
   });
 
-  it('#serach should handle multi-token queries', function() {
+  it('#search should handle multi-token queries', function() {
     this.index.add({ value: 'foo bar' });
     expect(this.index.search('foo b')).toEqual([{ value: 'foo bar' }]);
+  });
+
+  it('#search should return results that match ANY query-token when options.matchAnyQueryToken', function() {
+    this.index = build({matchAnyQueryToken:true});
+    this.index.add({ value: 'foo bar' });
+    expect(this.index.search('blah bar')).toEqual([{ value: 'foo bar' }]);
+    expect(this.index.search('food bark')).toEqual([]);
   });
 
   it('#all should return all datums', function() {
