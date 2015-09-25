@@ -157,6 +157,14 @@ describe('$plugin', function() {
     expect(this.$input.typeahead('val')).toBe('foo');
   });
 
+  it('#val(q) should coerce null and undefined to empty string', function() {
+    this.$input.typeahead('val', null);
+    expect(this.$input.typeahead('val')).toBe('');
+
+    this.$input.typeahead('val', undefined);
+    expect(this.$input.typeahead('val')).toBe('');
+  });
+
   it('#destroy should revert modified attributes', function() {
     expect(this.$input).toHaveAttr('autocomplete', 'off');
     expect(this.$input).toHaveAttr('dir');

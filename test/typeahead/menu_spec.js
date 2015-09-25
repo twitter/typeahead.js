@@ -125,6 +125,13 @@ describe('Menu', function() {
   });
 
   describe('#open', function() {
+    it('should set scroll top of node to 0', function() {
+      spyOn(this.view.$node, 'scrollTop');
+      this.view.open();
+
+      expect(this.view.$node.scrollTop).toHaveBeenCalledWith(0);
+    });
+
     it('should add open class to node', function() {
       this.$node.removeClass(www.classes.open);
       this.view.open();
