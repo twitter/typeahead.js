@@ -269,7 +269,9 @@ var Dataset = (function() {
         // do not render the suggestions as they've become outdated
         if (!canceled && rendered < that.limit) {
           that.cancel = $.noop;
-          rendered += suggestions.length;
+          // if limit is 5 and suggestions.length is 5 - nothing will show :( 
+          // I am not sure what rendered does - but here, it keeps my suggestions from showing
+          // rendered += suggestions.length;
           that._append(query, suggestions.slice(0, that.limit - rendered));
 
           that.async && that.trigger('asyncReceived', query);
