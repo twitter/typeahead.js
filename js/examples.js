@@ -231,10 +231,7 @@ $(document).ready(function() {
     ]
   });
 
-  $('#rtl-support .demo.hebrew .typeahead').typeahead({
-    hint: false
-  },
-  {
+  $('#rtl-support .demo.hebrew .typeahead').typeahead(null, {
     name: 'hebrew-phrases',
     source: hebrewPhrases
   });
