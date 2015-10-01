@@ -217,4 +217,25 @@ $(document).ready(function() {
     name: 'arabic-phrases',
     source: arabicPhrases
   });
+  
+  
+  var hebrewPhrases = new Bloodhound({
+    datumTokenizer: Bloodhound.tokenizers.whitespace,
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    local: [
+      "אנגלית",
+      "כן",
+      "לא",
+      "עברית",
+      "שלום"
+    ]
+  });
+
+  $('#rtl-support .typeahead').typeahead({
+    hint: false
+  },
+  {
+    name: 'hebrew-phrases',
+    source: hebrewPhrases
+  });
 });
