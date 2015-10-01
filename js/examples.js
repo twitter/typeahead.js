@@ -210,7 +210,7 @@ $(document).ready(function() {
     ]
   });
 
-  $('#rtl-support .demo-arabic .typeahead').typeahead({
+  $('#rtl-support .demo.arabic .typeahead').typeahead({
     hint: false
   },
   {
@@ -231,7 +231,7 @@ $(document).ready(function() {
     ]
   });
 
-  $('#rtl-support .demo-hebrew .typeahead').typeahead({
+  $('#rtl-support .demo.hebrew .typeahead').typeahead({
     hint: false
   },
   {
