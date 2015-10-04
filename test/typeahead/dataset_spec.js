@@ -366,6 +366,18 @@ describe('Dataset', function() {
       });
     });
 
+    it('should render all async suggestions if sync had no content', function() {
+      this.source.andCallFake(fakeGetWithEmptySyncAndAsyncSuggestions);
+      this.dataset.update('woah');
+
+      waits(100);
+
+      runs(function() {
+        var rendered = this.dataset.$el.find('.tt-suggestion');
+        expect(rendered).toHaveLength(5);
+      });
+    });
+
     it('should trigger rendered after suggestions are rendered', function() {
       var spy;
 
@@ -466,4 +478,19 @@ describe('Dataset', function() {
       ]);
     }, 0);
   }
+
+  function fakeGetWithEmptySyncAndAsyncSuggestions(query, sync, async) {
+    sync([]);
+
+    setTimeout(function() {
+      async([
+        { value: 'four', raw: { value: 'four' } },
+        { value: 'five', raw: { value: 'five' } },
+        { value: 'six', raw: { value: 'six' } },
+        { value: 'seven', raw: { value: 'seven' } },
+        { value: 'eight', raw: { value: 'eight' } },
+      ]);
+    }, 0);
+  }
+
 });
