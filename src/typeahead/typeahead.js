@@ -416,6 +416,10 @@ var Typeahead = (function() {
     destroy: function destroy() {
       this.input.destroy();
       this.menu.destroy();
+    },
+
+    update: function destroy() {
+      this.menu.update(this.input.getQuery(), true);
     }
   });
 

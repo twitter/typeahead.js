@@ -182,6 +182,11 @@
       });
 
       return this;
+    },
+
+    update: function update() {
+      ttEach(this, function(t) { t.update(); });
+      return this;
     }
   };
 
