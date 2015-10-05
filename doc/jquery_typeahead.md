@@ -88,6 +88,14 @@ Closes the suggestion menu.
 $('.typeahead').typeahead('close');
 ```
 
+#### jQuery#typeahead('update')
+
+Forces the datasets sources to be evaluated and suggestions menu updated.
+
+```javascript
+$('.typeahead').typeahead('update');
+```
+
 #### jQuery#typeahead('destroy')
 
 Removes typeahead functionality and reverts the `input` element back to its 
