@@ -93,6 +93,14 @@ $('.typeahead').typeahead('close');
 Removes typeahead functionality and reverts the `input` element back to its 
 original state.
 
+#### jQuery#typeahead('update')
+
+Forces the datasets sources to be evaluated and suggestions menu updated.
+
+```javascript
+$('.typeahead').typeahead('update');
+```
+
 ```javascript
 $('.typeahead').typeahead('destroy');
 ```
