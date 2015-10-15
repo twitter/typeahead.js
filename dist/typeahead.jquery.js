@@ -958,8 +958,8 @@
                 var $selectable = this._getSelectables().first();
                 return $selectable.length ? $selectable : null;
             },
-            update: function update(query) {
-                var isValidUpdate = query !== this.query;
+            update: function update(query, force) {
+                var isValidUpdate = query !== this.query || force;
                 if (isValidUpdate) {
                     this.query = query;
                     _.each(this.datasets, updateDataset);
@@ -1292,6 +1292,9 @@
             destroy: function destroy() {
                 this.input.destroy();
                 this.menu.destroy();
+            },
+            update: function destroy() {
+                this.menu.update(this.input.getQuery(), true);
             }
         });
         return Typeahead;
@@ -1459,6 +1462,12 @@
                 ttEach(this, function(typeahead, $input) {
                     revert($input);
                     typeahead.destroy();
+                });
+                return this;
+            },
+            update: function update() {
+                ttEach(this, function(t) {
+                    t.update();
                 });
                 return this;
             }

@@ -1,4 +1,4 @@
-jQuery#typeahead
+﻿jQuery#typeahead
 ----------------
 
 The UI component of typeahead.js is available as a jQuery plugin. It's 
