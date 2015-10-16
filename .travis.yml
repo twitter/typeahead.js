@@ -18,11 +18,13 @@ env:
   - secure: kehbNCoYUG2gLnhmCH/oKhlJG6LoxgcOPMCtY7KOI4ropG8qlypb+O2b/19+BWeO3aIuMB0JajNh3p2NL0UKgLmUK7EYBA9fQz+vesFReRk0V/KqMTSxHJuseM4aLOWA2Wr9US843VGltfODVvDN5sNrfY7RcoRx2cTK/k1CXa8=
 node_js: 
 - 0.11.13
-before_script: 
+before_install:
 - npm install -g grunt-cli@0.1.13
 - npm install -g node-static@0.7.3
 - npm install -g bower@1.3.8
-- bower install
+install:
+- npm install
+before_script:
 - grunt build
 script: test/ci
 addons:

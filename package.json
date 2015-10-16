@@ -61,6 +61,7 @@
     "yiewd": "^0.5.0"
   },
   "scripts": {
+   "postinstall": "bower install",
     "test": "./node_modules/karma/bin/karma start --single-run --browsers PhantomJS"
   },
   "version": "0.11.1",
