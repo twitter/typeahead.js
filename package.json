@@ -29,6 +29,7 @@
       "url": "https://twitter.com/vskarich"
     }
   ],
+  "license" : "See license in LICENSE",
   "dependencies": {
     "jquery": ">=1.7"
   },
