@@ -1,15 +1,15 @@
 {
-  "name": "typeahead.js",
+  "name": "corejs-typeahead",
   "description": "fast and fully-featured autocomplete library",
   "keywords": [
     "typeahead",
     "autocomplete"
   ],
-  "homepage": "http://twitter.github.com/typeahead.js",
-  "bugs": "https://github.com/twitter/typeahead.js/issues",
+  "homepage": "http://corejavascript.github.io/typeahead.js/",
+  "bugs": "https://github.com/corejavascript/typeahead.js/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/twitter/typeahead.js.git"
+    "url": "https://github.com/corejavascript/typeahead.js.git"
   },
   "author": {
     "name": "Twitter, Inc.",
