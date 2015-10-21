@@ -4,76 +4,46 @@
 [![bitHound Dependencies](https://www.bithound.io/github/corejavascript/typeahead.js/badges/dependencies.svg)](https://www.bithound.io/github/corejavascript/typeahead.js/master/dependencies/npm)
 [![License](http://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/iron/iron/master/LICENSE)
 
-[typeahead.js][gh-page]
-=======================
+# [corejs-typeahead](https://corejavascript.github.io/typeahead.js/)
 
-Inspired by [twitter.com]'s autocomplete search functionality, typeahead.js is
-a flexible JavaScript library that provides a strong foundation for building
-robust typeaheads.
+This is a maintained fork of [twitter.com](https://twitter.com)'s autocomplete search library, [typeahead.js](https://github.com/twitter/typeahead.js).
 
 The typeahead.js library consists of 2 components: the suggestion engine,
-[Bloodhound], and the UI view, [Typeahead].
+[Bloodhound](https://github.com/corejavascript/typeahead.js/blob/master/doc/bloodhound.md), and the UI view, [Typeahead](https://github.com/corejavascript/typeahead.js/blob/master/doc/jquery_typeahead.md).
 The suggestion engine is responsible for computing suggestions for a given
 query. The UI view is responsible for rendering suggestions and handling DOM
 interactions. Both components can be used separately, but when used together,
 they can provide a rich typeahead experience.
 
-<!-- section links -->
+## Getting Started
 
-[gh-page]: http://corejavascript.github.io/typeahead.js/
-[twitter.com]: https://twitter.com
-[Bloodhound]: https://github.com/corejavascript/typeahead.js/blob/master/doc/bloodhound.md
-[Typeahead]: https://github.com/corejavascript/typeahead.js/blob/master/doc/jquery_typeahead.md
+How you acquire typeahead.js is up to you:
 
-Getting Started
----------------
+* Install with [Bower](https://bower.io/): `$ bower install corejs-typeahead`
 
-How you acquire typeahead.js is up to you.
+* Install with [npm](https://www.npmjs.com): `$ npm install corejs-typeahead`
 
-Preferred method:
-* Install with [Bower]: `$ bower install typeahead.js`
+* [Download zipball of latest release](https://corejavascript.github.io/typeahead.js/releases/latest/typeahead.js.zip)
 
-Other methods:
-* [Download zipball of latest release][zipball].
 * Download the latest dist files individually:
-  * *[bloodhound.js]* (standalone suggestion engine)
-  * *[typeahead.jquery.js]* (standalone UI view)
-  * *[typeahead.bundle.js]* (*bloodhound.js* + *typeahead.jquery.js*)
-  * *[typeahead.bundle.min.js]*
+  * [bloodhound.js](https://corejavascript.github.io/typeahead.js/releases/latest/bloodhound.js) (standalone suggestion engine)
+  * [typeahead.jquery.js](https://corejavascript.github.io/typeahead.js/releases/latest/typeahead.jquery.js) (standalone UI view)
+  * [typeahead.bundle.js](https://corejavascript.github.io/typeahead.js/releases/latest/typeahead.bundle.js) (*bloodhound.js* + *typeahead.jquery.js*)
+  * [typeahead.bundle.min.js](https://corejavascript.github.io/typeahead.js/releases/latest/typeahead.bundle.min.js)
 
 **Note:** both *bloodhound.js* and *typeahead.jquery.js* have a dependency on
-[jQuery] 1.9+.
+[jQuery](http://jquery.com/) 1.9+.
 
-<!-- section links -->
+## Documentation
 
-[Bower]: https://bower.io/
-[zipball]: https://corejavascript.github.io/typeahead.js/releases/latest/typeahead.js.zip
-[bloodhound.js]: https://corejavascript.github.io/typeahead.js/releases/latest/bloodhound.js
-[typeahead.jquery.js]: https://corejavascript.github.io/typeahead.js/releases/latest/typeahead.jquery.js
-[typeahead.bundle.js]: https://corejavascript.github.io/typeahead.js/releases/latest/typeahead.bundle.js
-[typeahead.bundle.min.js]: https://corejavascript.github.io/typeahead.js/releases/latest/typeahead.bundle.min.js
-[jQuery]: http://jquery.com/
+* [Typeahead Docs](https://github.com/corejavascript/typeahead.js/blob/master/doc/jquery_typeahead.md)
+* [Bloodhound Docs](https://github.com/corejavascript/typeahead.js/blob/master/doc/bloodhound.md)
 
-Documentation
--------------
+## Examples
 
-* [Typeahead Docs]
-* [Bloodhound Docs]
+For some working examples of typeahead.js, visit the [examples page](https://corejavascript.github.io/typeahead.js/examples).
 
-[Typeahead Docs]: https://github.com/corejavascript/typeahead.js/blob/master/doc/jquery_typeahead.md
-[Bloodhound Docs]: https://github.com/corejavascript/typeahead.js/blob/master/doc/bloodhound.md
-
-Examples
---------
-
-For some working examples of typeahead.js, visit the [examples page].
-
-<!-- section links -->
-
-[examples page]: http://corejavascript.github.io/typeahead.js/examples
-
-Browser Support
----------------
+## Browser Support
 
 * Chrome
 * Firefox 3.5+
@@ -83,29 +53,20 @@ Browser Support
 
 **NOTE:** typeahead.js is not tested on mobile browsers.
 
-Customer Support
-----------------
+## Customer Support
 
-For general questions about typeahead.js, tweet at [@typeahead].
+For general questions about typeahead.js, tweet at [@typeahead](https://twitter.com/typeahead).
 
-For technical questions, you should post a question on [Stack Overflow] and tag
-it with [typeahead.js][so tag].
+For technical questions, you should post a question on [Stack Overflow](http://stackoverflow.com/) and tag
+it with [typeahead.js](http://stackoverflow.com/questions/tagged/typeahead.js).
 
-<!-- section links -->
-
-[Stack Overflow]: http://stackoverflow.com/
-[@typeahead]: https://twitter.com/typeahead
-[so tag]: http://stackoverflow.com/questions/tagged/typeahead.js
-
-Issues
-------
+## Issues
 
 Discovered a bug? Please create an issue here on GitHub!
 
-https://github.com/corejavascript/typeahead.js/issues
+[github.com/corejavascript/typeahead.js/issues](https://github.com/corejavascript/typeahead.js/issues)
 
-Versioning
-----------
+## Versioning
 
 For transparency and insight into our release cycle, releases will be numbered
 with the following format:
@@ -118,30 +79,23 @@ And constructed with the following guidelines:
 * New additions without breaking backwards compatibility bumps the minor
 * Bug fixes and misc changes bump the patch
 
-For more information on semantic versioning, please visit http://semver.org/.
+For more information on semantic versioning, please visit [semver.org](http://semver.org/).
 
-Testing
--------
+## Testing
 
-Tests are written using [Jasmine] and ran with [Karma]. To run
+Tests are written using [Jasmine](http://jasmine.github.io/) and ran with [Karma](http://karma-runner.github.io/). To run
 the test suite with PhantomJS, run `$ npm test`.
 
-<!-- section links -->
-
-[Jasmine]: http://jasmine.github.io/
-[Karma]: http://karma-runner.github.io/
-
-Developers
-----------
+## Developers
 
 If you plan on contributing to typeahead.js, be sure to read the
-[contributing guidelines]. A good starting place for new contributors are issues
-labeled with [entry-level]. Entry-level issues tend to require minor changes
+[contributing guidelines](https://github.com/corejavascript/typeahead.js/blob/master/CONTRIBUTING.md). A good starting place for new contributors are issues
+labeled with [entry-level](https://github.com/corejavascript/typeahead.js/issues?&labels=entry-level&state=open). Entry-level issues tend to require minor changes
 and provide developers a chance to get more familiar with typeahead.js before
 taking on more challenging work.
 
 In order to build and test typeahead.js, you'll need to install its dev
-dependencies (`$ npm install`) and have [grunt-cli]
+dependencies (`$ npm install`) and have [grunt-cli](https://github.com/gruntjs/grunt-cli)
 installed (`$ npm install -g grunt-cli`). Below is an overview of the available
 Grunt tasks that'll be useful in development.
 
@@ -152,14 +106,7 @@ Grunt tasks that'll be useful in development.
   Useful for using *test/playground.html* for debugging/testing.
 * `grunt dev` – Runs `grunt watch` and `grunt server` in parallel.
 
-<!-- section links -->
-
-[contributing guidelines]: https://github.com/corejavascript/typeahead.js/blob/master/CONTRIBUTING.md
-[entry-level]: https://github.com/corejavascript/typeahead.js/issues?&labels=entry-level&state=open
-[grunt-cli]: https://github.com/gruntjs/grunt-cli
-
-Maintainers
------------
+## Maintainers
 
 * **Jake Harding**
   * [@JakeHarding](https://twitter.com/JakeHarding)
@@ -167,8 +114,7 @@ Maintainers
 
 * **You?**
 
-Authors
--------
+## Authors
 
 * **Jake Harding**
   * [@JakeHarding](https://twitter.com/JakeHarding)
@@ -182,8 +128,7 @@ Authors
   * [@timtrueman](https://twitter.com/timtrueman)
   * [GitHub](https://github.com/timtrueman)
 
-License
--------
+## License
 
 Copyright 2013 Twitter, Inc.
 
