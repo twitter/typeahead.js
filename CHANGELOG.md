@@ -16,6 +16,9 @@ For more information on semantic versioning, please visit http://semver.org/.
 
 ---
 
+### 0.11.2 October 23, 2016
+* Fixed rendering issue when less then n results are returned (RC, AK)
+
 ### 0.11.1 April 26, 2015
 
 * Add prepare option to prefetch. [#1181]
