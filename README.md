@@ -4,7 +4,7 @@
 [![bitHound Dependencies](https://www.bithound.io/github/corejavascript/typeahead.js/badges/dependencies.svg)](https://www.bithound.io/github/corejavascript/typeahead.js/master/dependencies/npm)
 [![License](http://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/iron/iron/master/LICENSE)
 
-# [corejs-typeahead](https://corejavascript.github.io/typeahead.js/)
+# [corejs-typeahead](https://typeahead.js.org/)
 
 This is a maintained fork of [twitter.com](https://twitter.com)'s autocomplete search library, [typeahead.js](https://github.com/twitter/typeahead.js).
 
@@ -23,13 +23,13 @@ How you acquire typeahead.js is up to you:
 
 * Install with [npm](https://www.npmjs.com): `$ npm install corejs-typeahead`
 
-* [Download zipball of latest release](https://corejavascript.github.io/typeahead.js/releases/latest/typeahead.js.zip)
+* [Download zipball of latest release](https://typeahead.js.org/releases/latest/typeahead.js.zip)
 
 * Download the latest dist files individually:
-  * [bloodhound.js](https://corejavascript.github.io/typeahead.js/releases/latest/bloodhound.js) (standalone suggestion engine)
-  * [typeahead.jquery.js](https://corejavascript.github.io/typeahead.js/releases/latest/typeahead.jquery.js) (standalone UI view)
-  * [typeahead.bundle.js](https://corejavascript.github.io/typeahead.js/releases/latest/typeahead.bundle.js) (*bloodhound.js* + *typeahead.jquery.js*)
-  * [typeahead.bundle.min.js](https://corejavascript.github.io/typeahead.js/releases/latest/typeahead.bundle.min.js)
+  * [bloodhound.js](https://typeahead.js.org/releases/latest/bloodhound.js) (standalone suggestion engine)
+  * [typeahead.jquery.js](https://typeahead.js.org/typeahead.js/releases/latest/typeahead.jquery.js) (standalone UI view)
+  * [typeahead.bundle.js](https://typeahead.js.org/typeahead.js/releases/latest/typeahead.bundle.js) (*bloodhound.js* + *typeahead.jquery.js*)
+  * [typeahead.bundle.min.js](https://typeahead.js.org/typeahead.js/releases/latest/typeahead.bundle.min.js)
 
 **Note:** both *bloodhound.js* and *typeahead.jquery.js* have a dependency on
 [jQuery](http://jquery.com/) 1.9+.
@@ -41,7 +41,7 @@ How you acquire typeahead.js is up to you:
 
 ## Examples
 
-For some working examples of typeahead.js, visit the [examples page](https://corejavascript.github.io/typeahead.js/examples).
+For some working examples of typeahead.js, visit the [examples page](https://typeahead.js.org/examples).
 
 ## Browser Support
 
