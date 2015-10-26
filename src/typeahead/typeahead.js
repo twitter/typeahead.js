@@ -192,13 +192,13 @@ var Typeahead = (function() {
 
     _onLeftKeyed: function onLeftKeyed() {
       if (this.dir === 'rtl' && this.input.isCursorAtEnd()) {
-        this.autocomplete(this.menu.getTopSelectable());
+        this.autocomplete(this.menu.getActiveSelectable() || this.menu.getTopSelectable());
       }
     },
 
     _onRightKeyed: function onRightKeyed() {
       if (this.dir === 'ltr' && this.input.isCursorAtEnd()) {
-        this.autocomplete(this.menu.getTopSelectable());
+        this.autocomplete(this.menu.getActiveSelectable() || this.menu.getTopSelectable());
       }
     },
 
