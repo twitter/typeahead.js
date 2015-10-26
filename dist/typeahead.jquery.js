@@ -808,7 +808,7 @@
                     if (!canceled && rendered < that.limit) {
                         that.cancel = $.noop;
                         rendered += suggestions.length;
-                        var negEnd = that.limit - rendered
+                        var negEnd = that.limit - rendered;
                         if (negEnd < 0) {
                             suggestions = suggestions.slice(0, negEnd);
                         }
