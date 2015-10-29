@@ -1,3 +1,5 @@
+Notice: twitter/typeahead is no longer maintained. I too fixed this bug - see #1416 - but there is a very long queue of pull requests. The new active project is https://github.com/corejavascript/typeahead.js
+
 [![build status](https://secure.travis-ci.org/twitter/typeahead.js.svg?branch=master)](http://travis-ci.org/twitter/typeahead.js)
 [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
 
