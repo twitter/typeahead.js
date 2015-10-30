@@ -1,5 +1,11 @@
 # Changelog
 
+### 0.11.2 TBD, 2015
+
+* Add matchAnyQueryToken option. [#2](https://github.com/corejavascript/typeahead.js/pull/2)
+* Update rendered-count after async results have displayed. [#8](https://github.com/corejavascript/typeahead.js/pull/8)
+* Add default on option to stop propagation when selecting an entry. [#13](https://github.com/corejavascript/typeahead.js/pull/13)
+
 ### 0.11.1 April 26, 2015
 
 * Add prepare option to prefetch. [#1181](https://github.com/twitter/typeahead.js/pull/1181)
