@@ -252,6 +252,7 @@ descriptions above for details on each event's argument list.
 [`change` event]: https://developer.mozilla.org/en-US/docs/Web/Events/change
 
 ### Class Names
+* `wrapper` - Added to wrapper. Defaults to  `twitter-typeahead`.
 
 * `input` - Added to input that's initialized into a typeahead. Defaults to 
   `tt-input`.
