@@ -159,7 +159,7 @@
       return success;
     },
 
-    // mirror jQuery#val functionality: reads opearte on first match,
+    // mirror jQuery#val functionality: reads operate on first match,
     // write operates on all matches
     val: function val(newVal) {
       var query;
@@ -186,7 +186,7 @@
   };
 
   $.fn.typeahead = function(method) {
-    // methods that should only act on intialized typeaheads
+    // methods that should only act on initialized typeaheads
     if (methods[method]) {
       return methods[method].apply(this, [].slice.call(arguments, 1));
     }
