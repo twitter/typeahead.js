@@ -193,6 +193,8 @@ options you can configure.
   the internal search index is insufficient or, if more configurability is 
   needed, a [remote options hash](#remote).
 
+* `limit` - The maximum number of datums to display. Defaults to `5`.
+
 <!-- section links -->
 
 [compare function]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
