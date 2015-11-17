@@ -23,13 +23,13 @@ How you acquire typeahead.js is up to you:
 
 * Install with [npm](https://www.npmjs.com): `$ npm install corejs-typeahead`
 
-* [Download zipball of latest release](https://typeahead.js.org/releases/latest/typeahead.js.zip)
+* [Download zipball of latest release](https://github.com/corejavascript/typeahead.js/archive/master.zip)
 
 * Download the latest dist files individually:
-  * [bloodhound.js](https://typeahead.js.org/releases/latest/bloodhound.js) (standalone suggestion engine)
-  * [typeahead.jquery.js](https://typeahead.js.org/typeahead.js/releases/latest/typeahead.jquery.js) (standalone UI view)
-  * [typeahead.bundle.js](https://typeahead.js.org/typeahead.js/releases/latest/typeahead.bundle.js) (*bloodhound.js* + *typeahead.jquery.js*)
-  * [typeahead.bundle.min.js](https://typeahead.js.org/typeahead.js/releases/latest/typeahead.bundle.min.js)
+  * [bloodhound.js](https://github.com/corejavascript/typeahead.js/raw/master/dist/bloodhound.js) (standalone suggestion engine)
+  * [typeahead.jquery.js](https://github.com/corejavascript/typeahead.js/raw/master/dist/typeahead.jquery.js) (standalone UI view)
+  * [typeahead.bundle.js](https://github.com/corejavascript/typeahead.js/raw/master/dist/typeahead.bundle.js) (*bloodhound.js* + *typeahead.jquery.js*)
+  * [typeahead.bundle.min.js](https://github.com/corejavascript/typeahead.js/raw/master/dist/typeahead.bundle.min.js)
 
 **Note:** both *bloodhound.js* and *typeahead.jquery.js* have a dependency on
 [jQuery](http://jquery.com/) 1.9+.
