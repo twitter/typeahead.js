@@ -38,6 +38,7 @@ Other methods:
   * *[typeahead.jquery.js]* (standalone UI view)
   * *[typeahead.bundle.js]* (*bloodhound.js* + *typeahead.jquery.js*)
   * *[typeahead.bundle.min.js]*
+* Install using [npm](https://www.npmjs.com/package/typeahead.js).
 
 **Note:** both *bloodhound.js* and *typeahead.jquery.js* have a dependency on 
 [jQuery] 1.9+.
