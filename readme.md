@@ -89,7 +89,7 @@ the test suite with PhantomJS, run `$ npm test`.
 ## Developers
 
 If you plan on contributing to typeahead.js, be sure to read the
-[contributing guidelines](https://github.com/corejavascript/typeahead.js/blob/master/CONTRIBUTING.md). A good starting place for new contributors are issues
+[contributing guidelines](https://github.com/corejavascript/typeahead.js/blob/master/contributing.md). A good starting place for new contributors are issues
 labeled with [entry-level](https://github.com/corejavascript/typeahead.js/issues?&labels=entry-level&state=open). Entry-level issues tend to require minor changes
 and provide developers a chance to get more familiar with typeahead.js before
 taking on more challenging work.
