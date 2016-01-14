@@ -35,6 +35,24 @@ describe('highlight', function() {
     expect(testNode.innerHTML).toEqual(after);
   });
 
+  it('should support diacritic insensitivity', function() {
+    var before = 'ABƠDE',
+        after = 'A<strong>BƠD</strong>E',
+        testNode = buildTestNode(before);
+
+    highlight({ node: testNode, pattern: 'bod', diacriticInsensitive: true });
+    expect(testNode.innerHTML).toEqual(after);
+  });
+
+  it('should be diacritic sensitive by default', function() {
+    var before = 'ABƠDE',
+        after = 'ABƠDE',
+        testNode = buildTestNode(before);
+
+    highlight({ node: testNode, pattern: 'BOD'});
+    expect(testNode.innerHTML).toEqual(after);
+  });
+
   it('should support words only matching', function() {
     var before = 'tone one phone',
         after = 'tone <strong>one</strong> phone',
