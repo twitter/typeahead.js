@@ -110,7 +110,7 @@ var highlight = (function(doc) {
           var escapedWord = _.escapeRegExChars(patterns[i]);
           // added for diacritic insensitivity
           if(diacriticInsensitive){
-            var escapedWord = escapedWord.replace(/\S/g,accent_replacer);
+              escapedWord = escapedWord.replace(/\S/g,accent_replacer);
           }
           escapedPatterns.push(escapedWord);
       }
