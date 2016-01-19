@@ -225,6 +225,7 @@ describe('Dataset', function() {
     });
 
     it('should respect limit option in regard to async', function() {
+      this.dataset.limit = 6;
       this.dataset.async = true;
       this.source.andCallFake(fakeGetWithAsyncSuggestions);
 
@@ -233,7 +234,7 @@ describe('Dataset', function() {
       waits(100);
 
       runs(function() {
-        expect(this.dataset.$el.find('.tt-suggestion')).toHaveLength(5);
+        expect(this.dataset.$el.find('.tt-suggestion')).toHaveLength(6);
       });
     });
 
