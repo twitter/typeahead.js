@@ -32,7 +32,17 @@ describe('Transport', function() {
     expect(spy).toHaveBeenCalledWith(null, resp.parsed);
   });
 
-  it('should respect maxPendingRequests configuration', function() {
+  it('should use maxPendingRequests configuration option', function() {
+    this.transport = new Transport({ transport: $.ajax, maxPendingRequests: 2 });
+
+    for (var i = 0; i < 5; i++) {
+      this.transport.get('/test' + i, $.noop);
+    }
+
+    expect(ajaxRequests.length).toBe(2);
+  });
+
+  it('should open up to 6 maxPendingRequests by default', function() {
     for (var i = 0; i < 10; i++) {
       this.transport.get('/test' + i, $.noop);
     }
