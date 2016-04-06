@@ -376,6 +376,21 @@ describe('Dataset', function() {
 
       waitsFor(function() { return spy.callCount; });
     });
+
+    it('should render all the results if results length is less than limit', function() {
+      this.dataset.async = true;
+
+      this.dataset.limit = 9;
+      this.source.andCallFake(fakeGetWithAsyncSuggestions);
+
+      this.dataset.update('woah');
+
+      waits(100);
+
+      runs(function() {
+        expect(this.dataset.$el.find('.tt-suggestion')).toHaveLength(8);
+      });
+    });
   });
 
   describe('#clear', function() {
