@@ -744,7 +744,7 @@
             } else if (o.wildcard) {
                 prepare = prepareByWildcard;
             } else {
-                prepare = idenityPrepare;
+                prepare = identityPrepare;
             }
             return prepare;
             function prepareByReplace(query, settings) {
@@ -755,7 +755,7 @@
                 settings.url = settings.url.replace(wildcard, encodeURIComponent(query));
                 return settings;
             }
-            function idenityPrepare(query, settings) {
+            function identityPrepare(query, settings) {
                 return settings;
             }
         }
