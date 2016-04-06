@@ -129,7 +129,7 @@ var oParser = (function() {
     }
 
     else {
-      prepare = idenityPrepare;
+      prepare = identityPrepare;
     }
 
     return prepare;
@@ -144,7 +144,7 @@ var oParser = (function() {
       return settings;
     }
 
-    function idenityPrepare(query, settings) {
+    function identityPrepare(query, settings) {
       return settings;
     }
   }
