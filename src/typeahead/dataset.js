@@ -271,11 +271,10 @@ var Dataset = (function() {
           that.cancel = $.noop;
           rendered += suggestions.length;
 
-          var results = suggestions;
           if (that.limit < rendered) {
-            results = results.slice(0, that.limit - rendered);
+            suggestions = suggestions.slice(0, that.limit - rendered);
           }
-          that._append(query, results);
+          that._append(query, suggestions);
 
           that.async && that.trigger('asyncReceived', query);
         }
