@@ -150,6 +150,9 @@ Grunt tasks that'll be useful in development.
   Useful for using *test/playground.html* for debugging/testing.
 * `grunt dev` – Runs `grunt watch` and `grunt server` in parallel.
 
+You'll also need to install Bower with `npm install -g bower` and run `bower install`
+in order to get some other developer dependencies.
+
 <!-- section links -->
 
 [contributing guidelines]: https://github.com/twitter/typeahead.js/blob/master/CONTRIBUTING.md
