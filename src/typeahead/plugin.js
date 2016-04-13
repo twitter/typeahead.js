@@ -79,7 +79,8 @@
           input: input,
           menu: menu,
           eventBus: eventBus,
-          minLength: o.minLength
+          minLength: o.minLength,
+          tabAutocomplete: (typeof o.tabAutocomplete !== 'undefined') ? (!!o.tabAutocomplete) : true
         }, www);
 
         $input.data(keys.www, www);

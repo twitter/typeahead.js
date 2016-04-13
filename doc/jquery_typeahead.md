@@ -122,6 +122,10 @@ When initializing a typeahead, there are a number of options you can configure.
 
 * `classNames` – For overriding the default class names used. See 
   [Class Names](#class-names) for more details.
+  
+* `tabAutocomplete` - Defaults to true. Selects the top most entry from the suggestor list.
+ 	If you set this option to false, tab does what tab usually is expected to do: change the 
+ 	focus to the next tabindex or to the next element.
 
 ### Datasets
 
