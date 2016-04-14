@@ -1,9 +1,11 @@
 {
-  "name": "typeahead.js",
+  "name": "typeahead-aria",
   "description": "fast and fully-featured autocomplete library",
   "keywords": [
     "typeahead",
-    "autocomplete"
+    "autocomplete",
+    "aria",
+    "browerify"
   ],
   "homepage": "http://twitter.github.com/typeahead.js",
   "bugs": "https://github.com/twitter/typeahead.js/issues",
@@ -29,10 +31,8 @@
       "url": "https://twitter.com/vskarich"
     }
   ],
-  "dependencies": {
-    "jquery": ">=1.7"
-  },
   "devDependencies": {
+    "bower": "^1.6.5",
     "chai": "^1.9.1",
     "colors": "^0.6.2",
     "grunt": "~0.4",
@@ -56,13 +56,14 @@
     "karma-phantomjs-launcher": "^0.1.4",
     "karma-safari-launcher": "^0.1.1",
     "mocha": "^1.20.1",
+    "phantomjs-polyfill": "0.0.1",
     "semver": "~1.1.3",
     "underscore": "^1.6.0",
     "yiewd": "^0.5.0"
   },
   "scripts": {
-    "test": "./node_modules/karma/bin/karma start --single-run --browsers PhantomJS"
+    "test": "karma start --single-run --browsers PhantomJS"
   },
-  "version": "0.11.1",
-  "main": "dist/typeahead.bundle.js"
+  "version": "1.0.0",
+  "main": "index.js"
 }

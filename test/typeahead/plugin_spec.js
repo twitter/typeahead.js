@@ -158,14 +158,12 @@ describe('$plugin', function() {
   });
 
   it('#destroy should revert modified attributes', function() {
-    expect(this.$input).toHaveAttr('autocomplete', 'off');
     expect(this.$input).toHaveAttr('dir');
     expect(this.$input).toHaveAttr('spellcheck');
     expect(this.$input).toHaveAttr('style');
 
     this.$input.typeahead('destroy');
 
-    expect(this.$input).toHaveAttr('autocomplete', 'on');
     expect(this.$input).not.toHaveAttr('dir');
     expect(this.$input).not.toHaveAttr('spellcheck');
     expect(this.$input).not.toHaveAttr('style');

@@ -34,6 +34,16 @@ var Input = (function() {
     this.$hint = $(o.hint);
     this.$input = $(o.input);
 
+    this.$input.attr({
+      'aria-activedescendant': '',
+      'aria-owns': this.$input.attr('id') + '_listbox',
+      role: 'combobox',
+      'aria-readonly': 'true',
+      'aria-autocomplete': 'list'
+    });
+
+    $(www.menu).attr('id', this.$input.attr('id') + '_listbox');
+
     // the query defaults to whatever the value of the input is
     // on initialization, it'll most likely be an empty string
     this.query = this.$input.val();
@@ -54,6 +64,9 @@ var Input = (function() {
       this.clearHint =
       this.clearHintIfInvalid = _.noop;
     }
+
+    this.onSync('cursorchange', this._updateDescendent);
+
   }
 
   // static methods
@@ -156,6 +169,10 @@ var Input = (function() {
       else if (!silent && hasDifferentWhitespace) {
         this.trigger('whitespaceChanged', this.query);
       }
+    },
+
+    _updateDescendent: function updateDescendent(event, id) {
+      this.$input.attr('aria-activedescendant', id);
     },
 
     // ### public

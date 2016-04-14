@@ -1,7 +1,7 @@
 /*!
- * typeahead.js 0.11.1
+ * typeahead.js 1.0.0
  * https://github.com/twitter/typeahead.js
- * Copyright 2013-2015 Twitter, Inc. and other contributors; Licensed MIT
+ * Copyright 2013-2016 Twitter, Inc. and other contributors; Licensed MIT
  */
 
 (function(root, factory) {
@@ -148,10 +148,17 @@
             stringify: function(val) {
                 return _.isString(val) ? val : JSON.stringify(val);
             },
+            guid: function() {
+                function _p8(s) {
+                    var p = (Math.random().toString(16) + "000000000").substr(2, 8);
+                    return s ? "-" + p.substr(0, 4) + "-" + p.substr(4, 4) : p;
+                }
+                return "tt-" + _p8() + _p8(true) + _p8(true) + _p8();
+            },
             noop: function() {}
         };
     }();
-    var VERSION = "0.11.1";
+    var VERSION = "1.0.0";
     var tokenizers = function() {
         "use strict";
         return {

@@ -1,7 +1,7 @@
 /*!
- * typeahead.js 0.11.1
+ * typeahead.js 1.0.0
  * https://github.com/twitter/typeahead.js
- * Copyright 2013-2015 Twitter, Inc. and other contributors; Licensed MIT
+ * Copyright 2013-2016 Twitter, Inc. and other contributors; Licensed MIT
  */
 
 (function(root, factory) {
@@ -148,10 +148,17 @@
             stringify: function(val) {
                 return _.isString(val) ? val : JSON.stringify(val);
             },
+            guid: function() {
+                function _p8(s) {
+                    var p = (Math.random().toString(16) + "000000000").substr(2, 8);
+                    return s ? "-" + p.substr(0, 4) + "-" + p.substr(4, 4) : p;
+                }
+                return "tt-" + _p8() + _p8(true) + _p8(true) + _p8();
+            },
             noop: function() {}
         };
     }();
-    var VERSION = "0.11.1";
+    var VERSION = "1.0.0";
     var tokenizers = function() {
         "use strict";
         return {
@@ -1061,6 +1068,13 @@
             stringify: function(val) {
                 return _.isString(val) ? val : JSON.stringify(val);
             },
+            guid: function() {
+                function _p8(s) {
+                    var p = (Math.random().toString(16) + "000000000").substr(2, 8);
+                    return s ? "-" + p.substr(0, 4) + "-" + p.substr(4, 4) : p;
+                }
+                return "tt-" + _p8() + _p8(true) + _p8(true) + _p8();
+            },
             noop: function() {}
         };
     }();
@@ -1102,7 +1116,7 @@
         function buildHtml(c) {
             return {
                 wrapper: '<span class="' + c.wrapper + '"></span>',
-                menu: '<div class="' + c.menu + '"></div>'
+                menu: '<div role="listbox" class="' + c.menu + '"></div>'
             };
         }
         function buildSelectors(classes) {
@@ -1361,6 +1375,14 @@
             www.mixin(this);
             this.$hint = $(o.hint);
             this.$input = $(o.input);
+            this.$input.attr({
+                "aria-activedescendant": "",
+                "aria-owns": this.$input.attr("id") + "_listbox",
+                role: "combobox",
+                "aria-readonly": "true",
+                "aria-autocomplete": "list"
+            });
+            $(www.menu).attr("id", this.$input.attr("id") + "_listbox");
             this.query = this.$input.val();
             this.queryWhenFocused = this.hasFocus() ? this.query : null;
             this.$overflowHelper = buildOverflowHelper(this.$input);
@@ -1368,6 +1390,7 @@
             if (this.$hint.length === 0) {
                 this.setHint = this.getHint = this.clearHint = this.clearHintIfInvalid = _.noop;
             }
+            this.onSync("cursorchange", this._updateDescendent);
         }
         Input.normalizeQuery = function(str) {
             return _.toStr(str).replace(/^\s*/g, "").replace(/\s{2,}/g, " ");
@@ -1436,6 +1459,9 @@
                 } else if (!silent && hasDifferentWhitespace) {
                     this.trigger("whitespaceChanged", this.query);
                 }
+            },
+            _updateDescendent: function updateDescendent(event, id) {
+                this.$input.attr("aria-activedescendant", id);
             },
             bind: function() {
                 var that = this, onBlur, onFocus, onKeydown, onInput;
@@ -1586,7 +1612,7 @@
             this.source = o.source.__ttAdapter ? o.source.__ttAdapter() : o.source;
             this.async = _.isUndefined(o.async) ? this.source.length > 2 : !!o.async;
             this._resetLastSuggestion();
-            this.$el = $(o.node).addClass(this.classes.dataset).addClass(this.classes.dataset + "-" + this.name);
+            this.$el = $(o.node).attr("role", "presentation").addClass(this.classes.dataset).addClass(this.classes.dataset + "-" + this.name);
         }
         Dataset.extractData = function extractData(el) {
             var $el = $(el);
@@ -1756,7 +1782,7 @@
                 suggestion: templates.suggestion || suggestionTemplate
             };
             function suggestionTemplate(context) {
-                return $("<div>").text(displayFn(context));
+                return $('<div role="option">').attr("id", _.guid()).text(displayFn(context));
             }
         }
         function isValidName(str) {
@@ -1797,10 +1823,11 @@
                 this.trigger.apply(this, arguments);
             },
             _allDatasetsEmpty: function allDatasetsEmpty() {
-                return _.every(this.datasets, isDatasetEmpty);
-                function isDatasetEmpty(dataset) {
-                    return dataset.isEmpty();
-                }
+                return _.every(this.datasets, function isDatasetEmpty(dataset) {
+                    var isEmpty = dataset.isEmpty();
+                    this.$node.attr("aria-expanded", !isEmpty);
+                    return isEmpty;
+                }.bind(this));
             },
             _getSelectables: function getSelectables() {
                 return this.$node.find(this.selectors.selectable);
@@ -1837,6 +1864,7 @@
                 this.$node.addClass(this.classes.open);
             },
             close: function close() {
+                this.$node.attr("aria-expanded", false);
                 this.$node.removeClass(this.classes.open);
                 this._removeCursor();
             },
@@ -1900,6 +1928,42 @@
             }
         });
         return Menu;
+    }();
+    var Status = function() {
+        "use strict";
+        function Status(options) {
+            this.el = '<span role="status" aria-live="polite" class="visuallyhidden"></span>';
+            this.$el = $(this.el);
+            options.$input.after(this.$el);
+            _.each(options.menu.datasets, function(dataset) {
+                if (dataset.onSync) {
+                    dataset.onSync("rendered", this.update.bind(this));
+                    dataset.onSync("cleared", this.cleared.bind(this));
+                }
+            }.bind(this));
+        }
+        _.mixin(Status.prototype, {
+            update: function update(event, name, suggestions) {
+                var length = suggestions.length;
+                var words;
+                if (length === 1) {
+                    words = {
+                        result: "result",
+                        is: "is"
+                    };
+                } else {
+                    words = {
+                        result: "results",
+                        is: "are"
+                    };
+                }
+                this.$el.text(length + " " + words.result + " " + words.is + " available, use up and down arrow keys to navigate.");
+            },
+            cleared: function() {
+                this.$el.text("");
+            }
+        });
+        return Status;
     }();
     var DefaultMenu = function() {
         "use strict";
@@ -2183,11 +2247,13 @@
                 return false;
             },
             moveCursor: function moveCursor(delta) {
-                var query, $candidate, data, payload, cancelMove;
+                var query, $candidate, data, payload, cancelMove, id;
                 query = this.input.getQuery();
                 $candidate = this.menu.selectableRelativeToCursor(delta);
                 data = this.menu.getSelectableData($candidate);
                 payload = data ? data.obj : null;
+                id = $candidate.attr("id");
+                this.input.trigger("cursorchange", id);
                 cancelMove = this._minLengthMet() && this.menu.update(query);
                 if (!cancelMove && !this.eventBus.before("cursorchange", payload)) {
                     this.menu.setCursor($candidate);
@@ -2235,7 +2301,7 @@
                 www = WWW(o.classNames);
                 return this.each(attach);
                 function attach() {
-                    var $input, $wrapper, $hint, $menu, defaultHint, defaultMenu, eventBus, input, menu, typeahead, MenuConstructor;
+                    var $input, $wrapper, $hint, $menu, defaultHint, defaultMenu, eventBus, input, menu, status, typeahead, MenuConstructor;
                     _.each(datasets, function(d) {
                         d.highlight = !!o.highlight;
                     });
@@ -2266,6 +2332,10 @@
                         node: $menu,
                         datasets: datasets
                     }, www);
+                    status = new Status({
+                        $input: $input,
+                        menu: menu
+                    });
                     typeahead = new Typeahead({
                         input: input,
                         menu: menu,
@@ -2395,7 +2465,6 @@
         }
         function buildHintFromInput($input, www) {
             return $input.clone().addClass(www.classes.hint).removeData().css(www.css.hint).css(getBackgroundStyles($input)).prop("readonly", true).removeAttr("id name placeholder required").attr({
-                autocomplete: "off",
                 spellcheck: "false",
                 tabindex: -1
             });
@@ -2408,7 +2477,6 @@
                 style: $input.attr("style")
             });
             $input.addClass(www.classes.input).attr({
-                autocomplete: "off",
                 spellcheck: false
             });
             try {
