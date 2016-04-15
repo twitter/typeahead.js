@@ -63,9 +63,11 @@ var Menu = (function() {
     // ### private
 
     _allDatasetsEmpty: function allDatasetsEmpty() {
-      return _.every(this.datasets, isDatasetEmpty);
-
-      function isDatasetEmpty(dataset) { return dataset.isEmpty(); }
+      return _.every(this.datasets, function isDatasetEmpty(dataset) {
+        var isEmpty = dataset.isEmpty();
+        this.$node.attr('aria-expanded', !isEmpty);
+        return isEmpty;
+      }.bind(this));
     },
 
     _getSelectables: function getSelectables() {
@@ -125,6 +127,7 @@ var Menu = (function() {
     },
 
     close: function close() {
+      this.$node.attr('aria-expanded', false);
       this.$node.removeClass(this.classes.open);
       this._removeCursor();
     },
