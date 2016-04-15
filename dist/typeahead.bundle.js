@@ -1965,7 +1965,7 @@
             this.input = o.input;
             this.menu = o.menu;
             this.enabled = true;
-            this.tabAutocomplete = o.tabAutocomplete;
+            this.tabAutocomplete = o.tabAutocomplete === false ? false : true;
             this.active = false;
             this.input.hasFocus() && this.activate();
             this.dir = this.input.getLangDir();

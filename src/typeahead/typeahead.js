@@ -39,7 +39,7 @@ var Typeahead = (function() {
 
     this.enabled = true;
     
-    this.tabAutocomplete = o.tabAutocomplete;
+    this.tabAutocomplete = (o.tabAutocomplete === false) ? false : true;
 
     // activate the typeahead on init if the input has focus
     this.active = false;
