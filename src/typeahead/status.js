@@ -5,12 +5,12 @@ var Status = (function () {
     this.el = '<span role="status" aria-live="polite" class="visuallyhidden"></span>';
     this.$el = $(this.el);
     options.$input.after(this.$el);
-    _.each(options.menu.datasets, function (dataset) {
+    _.each(options.menu.datasets, _.bind(function (dataset) {
       if (dataset.onSync) {
-        dataset.onSync('rendered', this.update.bind(this));
-        dataset.onSync('cleared', this.cleared.bind(this));
+        dataset.onSync('rendered', _.bind(this.update, this));
+        dataset.onSync('cleared', _.bind(this.cleared, this));
       }
-    }.bind(this));
+    }, this));
   }
   _.mixin(Status.prototype, {
     update: function update(event, name, suggestions) {

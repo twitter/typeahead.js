@@ -903,11 +903,11 @@
                 this.trigger.apply(this, arguments);
             },
             _allDatasetsEmpty: function allDatasetsEmpty() {
-                return _.every(this.datasets, function isDatasetEmpty(dataset) {
+                return _.every(this.datasets, _.bind(function isDatasetEmpty(dataset) {
                     var isEmpty = dataset.isEmpty();
                     this.$node.attr("aria-expanded", !isEmpty);
                     return isEmpty;
-                }.bind(this));
+                }, this));
             },
             _getSelectables: function getSelectables() {
                 return this.$node.find(this.selectors.selectable);
@@ -1015,12 +1015,12 @@
             this.el = '<span role="status" aria-live="polite" class="visuallyhidden"></span>';
             this.$el = $(this.el);
             options.$input.after(this.$el);
-            _.each(options.menu.datasets, function(dataset) {
+            _.each(options.menu.datasets, _.bind(function(dataset) {
                 if (dataset.onSync) {
-                    dataset.onSync("rendered", this.update.bind(this));
-                    dataset.onSync("cleared", this.cleared.bind(this));
+                    dataset.onSync("rendered", _.bind(this.update, this));
+                    dataset.onSync("cleared", _.bind(this.cleared, this));
                 }
-            }.bind(this));
+            }, this));
         }
         _.mixin(Status.prototype, {
             update: function update(event, name, suggestions) {
