@@ -63,11 +63,11 @@ var Menu = (function() {
     // ### private
 
     _allDatasetsEmpty: function allDatasetsEmpty() {
-      return _.every(this.datasets, function isDatasetEmpty(dataset) {
+      return _.every(this.datasets, _.bind(function isDatasetEmpty(dataset) {
         var isEmpty = dataset.isEmpty();
         this.$node.attr('aria-expanded', !isEmpty);
         return isEmpty;
-      }.bind(this));
+      }, this));
     },
 
     _getSelectables: function getSelectables() {
