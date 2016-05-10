@@ -475,9 +475,12 @@
             getInputValue: function getInputValue() {
                 return this.$input.val();
             },
-            setInputValue: function setInputValue(value, silent) {
+            setInputValue: function setInputValue(value, silent, position) {
                 this.$input.val(value);
                 silent ? this.clearHint() : this._checkInputValue();
+                if (position || position === 0) {
+                    this.setSelectionRange(position);
+                }
             },
             resetInputValue: function resetInputValue() {
                 this.setInputValue(this.query, true);
@@ -519,6 +522,24 @@
                     return valueLength === range.text.length;
                 }
                 return true;
+            },
+            setSelectionRange: function (selectionStart, selectionEnd) {
+                selectionEnd = selectionEnd || selectionStart;
+
+                var input = this.$input.get(0);
+
+                console.log('setting selection range of ', selectionStart, ' to ', input);
+
+                if (input.setSelectionRange) {
+                    input.focus();
+                    input.setSelectionRange(selectionStart, selectionEnd);
+                } else if (input.createTextRange) {
+                    var range = input.createTextRange();
+                    range.collapse(true);
+                    range.moveEnd('character', selectionEnd);
+                    range.moveStart('character', selectionStart);
+                    range.select();
+                }
             },
             destroy: function destroy() {
                 this.$hint.off(".tt");
@@ -623,13 +644,14 @@
                 function getHeaderHtml() {
                     return that.templates.header({
                         query: query,
-                        isEmpty: !hasSuggestions
+                        isEmpty: !hasSuggestions,
+                        suggestions: suggestions
                     });
                 }
                 function getFooterHtml() {
                     return that.templates.footer({
                         query: query,
-                        isEmpty: !hasSuggestions
+                        isEmpty: !hasSuggestions,
                     });
                 }
             },
@@ -899,7 +921,7 @@
             },
             _onCursorMoved: function onCursorMoved() {
                 var datum = this.dropdown.getDatumForCursor();
-                this.input.setInputValue(datum.value, true);
+                this.input.setInputValue((datum.raw.key && $.trim(datum.raw.key)) || datum.value, true, datum.raw.cursor_pos);
                 this.eventBus.trigger("cursorchanged", datum.raw, datum.datasetName);
             },
             _onCursorRemoved: function onCursorRemoved() {
@@ -940,7 +962,7 @@
             },
             _onTabKeyed: function onTabKeyed(type, $e) {
                 var datum;
-                if (datum = this.dropdown.getDatumForCursor()) {
+                if (datum = this.dropdown.getDatumForCursor() || this.dropdown.getDatumForTopSuggestion()) {
                     this._select(datum);
                     $e.preventDefault();
                 } else {
@@ -986,15 +1008,24 @@
                 }
             },
             _updateHint: function updateHint() {
-                var datum, val, query, escapedQuery, frontMatchRegEx, match;
+                var datum, val, query, escapedQuery, frontMatchRegEx, match, matchRaw;
                 datum = this.dropdown.getDatumForTopSuggestion();
                 if (datum && this.dropdown.isVisible() && !this.input.hasOverflow()) {
                     val = this.input.getInputValue();
                     query = Input.normalizeQuery(val);
                     escapedQuery = _.escapeRegExChars(query);
-                    frontMatchRegEx = new RegExp("^(?:" + escapedQuery + ")(.+$)", "i");
-                    match = frontMatchRegEx.exec(datum.value);
-                    match ? this.input.setHint(val + match[1]) : this.input.clearHint();
+                    // Replace + to match hits with the whitespaces workaround (with +)
+                    // Replace " to match hits with whitespaces wrapped with "s
+                    frontMatchRegEx = new RegExp("^(?:" + escapedQuery.replace(/\+/g, ' ').replace(/"/g, '') + ")(.+$)", "i");
+                    match = frontMatchRegEx.exec($.trim(datum.value).replace(/"/g, ''));
+                    matchRaw = frontMatchRegEx.exec($.trim(datum.raw.key).replace(/"/g, ''));
+
+                    console.log('_updateHint raw[', datum.value, '] frontMatchRegEx ', frontMatchRegEx, ' match ', match);
+                    console.log('_updateHint raw[', datum.raw.key, '] frontMatchRegEx ', frontMatchRegEx, ' match ', matchRaw);
+
+                    match ? this.input.setHint(val + match[1]) :
+                        (matchRaw ? this.input.setHint(val + matchRaw[1]) :
+                            this.input.clearHint());
                 } else {
                     this.input.clearHint();
                 }
@@ -1006,7 +1037,7 @@
                 isCursorAtEnd = laxCursor || this.input.isCursorAtEnd();
                 if (hint && query !== hint && isCursorAtEnd) {
                     datum = this.dropdown.getDatumForTopSuggestion();
-                    datum && this.input.setInputValue(datum.value);
+                    datum && this.input.setInputValue($.trim(datum.raw.key || datum.value));
                     this.eventBus.trigger("autocompleted", datum.raw, datum.datasetName);
                 }
             },
@@ -1015,8 +1046,8 @@
                 this.input.setInputValue(datum.value, true);
                 this._setLanguageDirection();
                 this.eventBus.trigger("selected", datum.raw, datum.datasetName);
-                this.dropdown.close();
-                _.defer(_.bind(this.dropdown.empty, this.dropdown));
+//                this.dropdown.close();
+//                _.defer(_.bind(this.dropdown.empty, this.dropdown));
             },
             open: function open() {
                 this.dropdown.open();
