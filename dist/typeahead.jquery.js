@@ -1,10 +1,20 @@
 /*!
- * typeahead.js 0.10.5
+ * typeahead.js 0.11.1
  * https://github.com/twitter/typeahead.js
- * Copyright 2013-2014 Twitter, Inc. and other contributors; Licensed MIT
+ * Copyright 2013-2015 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-(function($) {
+(function(root, factory) {
+    if (typeof define === "function" && define.amd) {
+        define("typeahead.js", [ "jquery" ], function(a0) {
+            return factory(a0);
+        });
+    } else if (typeof exports === "object") {
+        module.exports = factory(require("jquery"));
+    } else {
+        factory(jQuery);
+    }
+})(this, function($) {
     var _ = function() {
         "use strict";
         return {
@@ -28,6 +38,12 @@
             isObject: $.isPlainObject,
             isUndefined: function(obj) {
                 return typeof obj === "undefined";
+            },
+            isElement: function(obj) {
+                return !!(obj && obj.nodeType === 1);
+            },
+            isJQuery: function(obj) {
+                return obj instanceof $;
             },
             toStr: function toStr(s) {
                 return _.isUndefined(s) || s === null ? "" : s + "";
@@ -66,12 +82,18 @@
                 return !!result;
             },
             mixin: $.extend,
-            getUniqueId: function() {
+            identity: function(x) {
+                return x;
+            },
+            clone: function(obj) {
+                return $.extend(true, {}, obj);
+            },
+            getIdGenerator: function() {
                 var counter = 0;
                 return function() {
                     return counter++;
                 };
-            }(),
+            },
             templatify: function templatify(obj) {
                 return $.isFunction(obj) ? obj : template;
                 function template() {
@@ -123,83 +145,117 @@
                     return result;
                 };
             },
+            stringify: function(val) {
+                return _.isString(val) ? val : JSON.stringify(val);
+            },
             noop: function() {}
         };
     }();
-    var html = function() {
-        return {
-            wrapper: '<span class="twitter-typeahead"></span>',
-            dropdown: '<span class="tt-dropdown-menu"></span>',
-            dataset: '<div class="tt-dataset-%CLASS%"></div>',
-            suggestions: '<span class="tt-suggestions"></span>',
-            suggestion: '<div class="tt-suggestion"></div>'
-        };
-    }();
-    var css = function() {
+    var WWW = function() {
         "use strict";
-        var css = {
-            wrapper: {
-                position: "relative",
-                display: "inline-block"
-            },
-            hint: {
-                position: "absolute",
-                top: "0",
-                left: "0",
-                borderColor: "transparent",
-                boxShadow: "none",
-                opacity: "1"
-            },
-            input: {
-                position: "relative",
-                verticalAlign: "top",
-                backgroundColor: "transparent"
-            },
-            inputWithNoHint: {
-                position: "relative",
-                verticalAlign: "top"
-            },
-            dropdown: {
-                position: "absolute",
-                top: "100%",
-                left: "0",
-                zIndex: "100",
-                display: "none"
-            },
-            suggestions: {
-                display: "block"
-            },
-            suggestion: {
-                whiteSpace: "nowrap",
-                cursor: "pointer"
-            },
-            suggestionChild: {
-                whiteSpace: "normal"
-            },
-            ltr: {
-                left: "0",
-                right: "auto"
-            },
-            rtl: {
-                left: "auto",
-                right: " 0"
-            }
+        var defaultClassNames = {
+            wrapper: "twitter-typeahead",
+            input: "tt-input",
+            hint: "tt-hint",
+            menu: "tt-menu",
+            dataset: "tt-dataset",
+            suggestion: "tt-suggestion",
+            selectable: "tt-selectable",
+            empty: "tt-empty",
+            open: "tt-open",
+            cursor: "tt-cursor",
+            highlight: "tt-highlight"
         };
-        if (_.isMsie()) {
-            _.mixin(css.input, {
-                backgroundImage: "url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7)"
-            });
+        return build;
+        function build(o) {
+            var www, classes;
+            classes = _.mixin({}, defaultClassNames, o);
+            www = {
+                css: buildCss(),
+                classes: classes,
+                html: buildHtml(classes),
+                selectors: buildSelectors(classes)
+            };
+            return {
+                css: www.css,
+                html: www.html,
+                classes: www.classes,
+                selectors: www.selectors,
+                mixin: function(o) {
+                    _.mixin(o, www);
+                }
+            };
         }
-        if (_.isMsie() && _.isMsie() <= 7) {
-            _.mixin(css.input, {
-                marginTop: "-1px"
-            });
+        function buildHtml(c) {
+            return {
+                wrapper: '<span class="' + c.wrapper + '"></span>',
+                menu: '<div class="' + c.menu + '"></div>'
+            };
         }
-        return css;
+        function buildSelectors(classes) {
+            var selectors = {};
+            _.each(classes, function(v, k) {
+                selectors[k] = "." + v;
+            });
+            return selectors;
+        }
+        function buildCss() {
+            var css = {
+                wrapper: {
+                    position: "relative",
+                    display: "inline-block"
+                },
+                hint: {
+                    position: "absolute",
+                    top: "0",
+                    left: "0",
+                    borderColor: "transparent",
+                    boxShadow: "none",
+                    opacity: "1"
+                },
+                input: {
+                    position: "relative",
+                    verticalAlign: "top",
+                    backgroundColor: "transparent"
+                },
+                inputWithNoHint: {
+                    position: "relative",
+                    verticalAlign: "top"
+                },
+                menu: {
+                    position: "absolute",
+                    top: "100%",
+                    left: "0",
+                    zIndex: "100",
+                    display: "none"
+                },
+                ltr: {
+                    left: "0",
+                    right: "auto"
+                },
+                rtl: {
+                    left: "auto",
+                    right: " 0"
+                }
+            };
+            if (_.isMsie()) {
+                _.mixin(css.input, {
+                    backgroundImage: "url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7)"
+                });
+            }
+            return css;
+        }
     }();
     var EventBus = function() {
         "use strict";
-        var namespace = "typeahead:";
+        var namespace, deprecationMap;
+        namespace = "typeahead:";
+        deprecationMap = {
+            render: "rendered",
+            cursorchange: "cursorchanged",
+            select: "selected",
+            autocomplete: "autocompleted"
+        };
         function EventBus(o) {
             if (!o || !o.el) {
                 $.error("EventBus initialized without el");
@@ -207,9 +263,25 @@
             this.$el = $(o.el);
         }
         _.mixin(EventBus.prototype, {
+            _trigger: function(type, args) {
+                var $e;
+                $e = $.Event(namespace + type);
+                (args = args || []).unshift($e);
+                this.$el.trigger.apply(this.$el, args);
+                return $e;
+            },
+            before: function(type) {
+                var args, $e;
+                args = [].slice.call(arguments, 1);
+                $e = this._trigger("before" + type, args);
+                return $e.isDefaultPrevented();
+            },
             trigger: function(type) {
-                var args = [].slice.call(arguments, 1);
-                this.$el.trigger(namespace + type, args);
+                var deprecatedType;
+                this._trigger(type, [].slice.call(arguments, 1));
+                if (deprecatedType = deprecationMap[type]) {
+                    this._trigger(deprecatedType, [].slice.call(arguments, 1));
+                }
             }
         });
         return EventBus;
@@ -368,36 +440,24 @@
             38: "up",
             40: "down"
         };
-        function Input(o) {
-            var that = this, onBlur, onFocus, onKeydown, onInput;
+        function Input(o, www) {
             o = o || {};
             if (!o.input) {
                 $.error("input is missing");
             }
-            onBlur = _.bind(this._onBlur, this);
-            onFocus = _.bind(this._onFocus, this);
-            onKeydown = _.bind(this._onKeydown, this);
-            onInput = _.bind(this._onInput, this);
+            www.mixin(this);
             this.$hint = $(o.hint);
-            this.$input = $(o.input).on("blur.tt", onBlur).on("focus.tt", onFocus).on("keydown.tt", onKeydown);
+            this.$input = $(o.input);
+            this.query = this.$input.val();
+            this.queryWhenFocused = this.hasFocus() ? this.query : null;
+            this.$overflowHelper = buildOverflowHelper(this.$input);
+            this._checkLanguageDirection();
             if (this.$hint.length === 0) {
                 this.setHint = this.getHint = this.clearHint = this.clearHintIfInvalid = _.noop;
             }
-            if (!_.isMsie()) {
-                this.$input.on("input.tt", onInput);
-            } else {
-                this.$input.on("keydown.tt keypress.tt cut.tt paste.tt", function($e) {
-                    if (specialKeyCodeMap[$e.which || $e.keyCode]) {
-                        return;
-                    }
-                    _.defer(_.bind(that._onInput, that, $e));
-                });
-            }
-            this.query = this.$input.val();
-            this.$overflowHelper = buildOverflowHelper(this.$input);
         }
         Input.normalizeQuery = function(str) {
-            return (str || "").replace(/^\s*/g, "").replace(/\s{2,}/g, " ");
+            return _.toStr(str).replace(/^\s*/g, "").replace(/\s{2,}/g, " ");
         };
         _.mixin(Input.prototype, EventEmitter, {
             _onBlur: function onBlur() {
@@ -405,6 +465,7 @@
                 this.trigger("blurred");
             },
             _onFocus: function onFocus() {
+                this.queryWhenFocused = this.query;
                 this.trigger("focused");
             },
             _onKeydown: function onKeydown($e) {
@@ -415,17 +476,13 @@
                 }
             },
             _onInput: function onInput() {
-                this._checkInputValue();
+                this._setQuery(this.getInputValue());
+                this.clearHintIfInvalid();
+                this._checkLanguageDirection();
             },
             _managePreventDefault: function managePreventDefault(keyName, $e) {
-                var preventDefault, hintValue, inputValue;
+                var preventDefault;
                 switch (keyName) {
-                  case "tab":
-                    hintValue = this.getHint();
-                    inputValue = this.getInputValue();
-                    preventDefault = hintValue && hintValue !== inputValue && !withModifier($e);
-                    break;
-
                   case "up":
                   case "down":
                     preventDefault = !withModifier($e);
@@ -448,17 +505,43 @@
                 }
                 return trigger;
             },
-            _checkInputValue: function checkInputValue() {
-                var inputValue, areEquivalent, hasDifferentWhitespace;
-                inputValue = this.getInputValue();
-                areEquivalent = areQueriesEquivalent(inputValue, this.query);
-                hasDifferentWhitespace = areEquivalent ? this.query.length !== inputValue.length : false;
-                this.query = inputValue;
-                if (!areEquivalent) {
+            _checkLanguageDirection: function checkLanguageDirection() {
+                var dir = (this.$input.css("direction") || "ltr").toLowerCase();
+                if (this.dir !== dir) {
+                    this.dir = dir;
+                    this.$hint.attr("dir", dir);
+                    this.trigger("langDirChanged", dir);
+                }
+            },
+            _setQuery: function setQuery(val, silent) {
+                var areEquivalent, hasDifferentWhitespace;
+                areEquivalent = areQueriesEquivalent(val, this.query);
+                hasDifferentWhitespace = areEquivalent ? this.query.length !== val.length : false;
+                this.query = val;
+                if (!silent && !areEquivalent) {
                     this.trigger("queryChanged", this.query);
-                } else if (hasDifferentWhitespace) {
+                } else if (!silent && hasDifferentWhitespace) {
                     this.trigger("whitespaceChanged", this.query);
                 }
+            },
+            bind: function() {
+                var that = this, onBlur, onFocus, onKeydown, onInput;
+                onBlur = _.bind(this._onBlur, this);
+                onFocus = _.bind(this._onFocus, this);
+                onKeydown = _.bind(this._onKeydown, this);
+                onInput = _.bind(this._onInput, this);
+                this.$input.on("blur.tt", onBlur).on("focus.tt", onFocus).on("keydown.tt", onKeydown);
+                if (!_.isMsie() || _.isMsie() > 9) {
+                    this.$input.on("input.tt", onInput);
+                } else {
+                    this.$input.on("keydown.tt keypress.tt cut.tt paste.tt", function($e) {
+                        if (specialKeyCodeMap[$e.which || $e.keyCode]) {
+                            return;
+                        }
+                        _.defer(_.bind(that._onInput, that, $e));
+                    });
+                }
+                return this;
             },
             focus: function focus() {
                 this.$input.focus();
@@ -466,21 +549,29 @@
             blur: function blur() {
                 this.$input.blur();
             },
-            getQuery: function getQuery() {
-                return this.query;
+            getLangDir: function getLangDir() {
+                return this.dir;
             },
-            setQuery: function setQuery(query) {
-                this.query = query;
+            getQuery: function getQuery() {
+                return this.query || "";
+            },
+            setQuery: function setQuery(val, silent) {
+                this.setInputValue(val);
+                this._setQuery(val, silent);
+            },
+            hasQueryChangedSinceLastFocus: function hasQueryChangedSinceLastFocus() {
+                return this.query !== this.queryWhenFocused;
             },
             getInputValue: function getInputValue() {
                 return this.$input.val();
             },
-            setInputValue: function setInputValue(value, silent) {
+            setInputValue: function setInputValue(value) {
                 this.$input.val(value);
-                silent ? this.clearHint() : this._checkInputValue();
+                this.clearHintIfInvalid();
+                this._checkLanguageDirection();
             },
             resetInputValue: function resetInputValue() {
-                this.setInputValue(this.query, true);
+                this.setInputValue(this.query);
             },
             getHint: function getHint() {
                 return this.$hint.val();
@@ -499,8 +590,8 @@
                 isValid = val !== "" && valIsPrefixOfHint && !this.hasOverflow();
                 !isValid && this.clearHint();
             },
-            getLanguageDirection: function getLanguageDirection() {
-                return (this.$input.css("direction") || "ltr").toLowerCase();
+            hasFocus: function hasFocus() {
+                return this.$input.is(":focus");
             },
             hasOverflow: function hasOverflow() {
                 var constraint = this.$input.width() - 2;
@@ -523,7 +614,8 @@
             destroy: function destroy() {
                 this.$hint.off(".tt");
                 this.$input.off(".tt");
-                this.$hint = this.$input = this.$overflowHelper = null;
+                this.$overflowHelper.remove();
+                this.$hint = this.$input = this.$overflowHelper = $("<div>");
             }
         });
         return Input;
@@ -553,118 +645,190 @@
     }();
     var Dataset = function() {
         "use strict";
-        var datasetKey = "ttDataset", valueKey = "ttValue", datumKey = "ttDatum";
-        function Dataset(o) {
+        var keys, nameGenerator;
+        keys = {
+            val: "tt-selectable-display",
+            obj: "tt-selectable-object"
+        };
+        nameGenerator = _.getIdGenerator();
+        function Dataset(o, www) {
             o = o || {};
             o.templates = o.templates || {};
+            o.templates.notFound = o.templates.notFound || o.templates.empty;
             if (!o.source) {
                 $.error("missing source");
+            }
+            if (!o.node) {
+                $.error("missing node");
             }
             if (o.name && !isValidName(o.name)) {
                 $.error("invalid dataset name: " + o.name);
             }
-            this.query = null;
+            www.mixin(this);
             this.highlight = !!o.highlight;
-            this.name = o.name || _.getUniqueId();
-            this.source = o.source;
+            this.name = o.name || nameGenerator();
+            this.limit = o.limit || 5;
             this.displayFn = getDisplayFn(o.display || o.displayKey);
             this.templates = getTemplates(o.templates, this.displayFn);
-            this.$el = $(html.dataset.replace("%CLASS%", this.name));
+            this.source = o.source.__ttAdapter ? o.source.__ttAdapter() : o.source;
+            this.async = _.isUndefined(o.async) ? this.source.length > 2 : !!o.async;
+            this._resetLastSuggestion();
+            this.$el = $(o.node).addClass(this.classes.dataset).addClass(this.classes.dataset + "-" + this.name);
         }
-        Dataset.extractDatasetName = function extractDatasetName(el) {
-            return $(el).data(datasetKey);
-        };
-        Dataset.extractValue = function extractDatum(el) {
-            return $(el).data(valueKey);
-        };
-        Dataset.extractDatum = function extractDatum(el) {
-            return $(el).data(datumKey);
+        Dataset.extractData = function extractData(el) {
+            var $el = $(el);
+            if ($el.data(keys.obj)) {
+                return {
+                    val: $el.data(keys.val) || "",
+                    obj: $el.data(keys.obj) || null
+                };
+            }
+            return null;
         };
         _.mixin(Dataset.prototype, EventEmitter, {
-            _render: function render(query, suggestions) {
-                if (!this.$el) {
-                    return;
+            _overwrite: function overwrite(query, suggestions) {
+                suggestions = suggestions || [];
+                if (suggestions.length) {
+                    this._renderSuggestions(query, suggestions);
+                } else if (this.async && this.templates.pending) {
+                    this._renderPending(query);
+                } else if (!this.async && this.templates.notFound) {
+                    this._renderNotFound(query);
+                } else {
+                    this._empty();
                 }
-                var that = this, hasSuggestions;
-                this.$el.empty();
-                hasSuggestions = suggestions && suggestions.length;
-                if (!hasSuggestions && this.templates.empty) {
-                    this.$el.html(getEmptyHtml()).prepend(that.templates.header ? getHeaderHtml() : null).append(that.templates.footer ? getFooterHtml() : null);
-                } else if (hasSuggestions) {
-                    this.$el.html(getSuggestionsHtml()).prepend(that.templates.header ? getHeaderHtml() : null).append(that.templates.footer ? getFooterHtml() : null);
-                }
-                this.trigger("rendered");
-                function getEmptyHtml() {
-                    return that.templates.empty({
-                        query: query,
-                        isEmpty: true
-                    });
-                }
-                function getSuggestionsHtml() {
-                    var $suggestions, nodes;
-                    $suggestions = $(html.suggestions).css(css.suggestions);
-                    nodes = _.map(suggestions, getSuggestionNode);
-                    $suggestions.append.apply($suggestions, nodes);
-                    that.highlight && highlight({
-                        className: "tt-highlight",
-                        node: $suggestions[0],
-                        pattern: query
-                    });
-                    return $suggestions;
-                    function getSuggestionNode(suggestion) {
-                        var $el;
-                        $el = $(html.suggestion).append(that.templates.suggestion(suggestion)).data(datasetKey, that.name).data(valueKey, that.displayFn(suggestion)).data(datumKey, suggestion);
-                        $el.children().each(function() {
-                            $(this).css(css.suggestionChild);
-                        });
-                        return $el;
-                    }
-                }
-                function getHeaderHtml() {
-                    return that.templates.header({
-                        query: query,
-                        isEmpty: !hasSuggestions
-                    });
-                }
-                function getFooterHtml() {
-                    return that.templates.footer({
-                        query: query,
-                        isEmpty: !hasSuggestions
-                    });
-                }
+                this.trigger("rendered", this.name, suggestions, false);
             },
-            getRoot: function getRoot() {
-                return this.$el;
+            _append: function append(query, suggestions) {
+                suggestions = suggestions || [];
+                if (suggestions.length && this.$lastSuggestion.length) {
+                    this._appendSuggestions(query, suggestions);
+                } else if (suggestions.length) {
+                    this._renderSuggestions(query, suggestions);
+                } else if (!this.$lastSuggestion.length && this.templates.notFound) {
+                    this._renderNotFound(query);
+                }
+                this.trigger("rendered", this.name, suggestions, true);
+            },
+            _renderSuggestions: function renderSuggestions(query, suggestions) {
+                var $fragment;
+                $fragment = this._getSuggestionsFragment(query, suggestions);
+                this.$lastSuggestion = $fragment.children().last();
+                this.$el.html($fragment).prepend(this._getHeader(query, suggestions)).append(this._getFooter(query, suggestions));
+            },
+            _appendSuggestions: function appendSuggestions(query, suggestions) {
+                var $fragment, $lastSuggestion;
+                $fragment = this._getSuggestionsFragment(query, suggestions);
+                $lastSuggestion = $fragment.children().last();
+                this.$lastSuggestion.after($fragment);
+                this.$lastSuggestion = $lastSuggestion;
+            },
+            _renderPending: function renderPending(query) {
+                var template = this.templates.pending;
+                this._resetLastSuggestion();
+                template && this.$el.html(template({
+                    query: query,
+                    dataset: this.name
+                }));
+            },
+            _renderNotFound: function renderNotFound(query) {
+                var template = this.templates.notFound;
+                this._resetLastSuggestion();
+                template && this.$el.html(template({
+                    query: query,
+                    dataset: this.name
+                }));
+            },
+            _empty: function empty() {
+                this.$el.empty();
+                this._resetLastSuggestion();
+            },
+            _getSuggestionsFragment: function getSuggestionsFragment(query, suggestions) {
+                var that = this, fragment;
+                fragment = document.createDocumentFragment();
+                _.each(suggestions, function getSuggestionNode(suggestion) {
+                    var $el, context;
+                    context = that._injectQuery(query, suggestion);
+                    $el = $(that.templates.suggestion(context)).data(keys.obj, suggestion).data(keys.val, that.displayFn(suggestion)).addClass(that.classes.suggestion + " " + that.classes.selectable);
+                    fragment.appendChild($el[0]);
+                });
+                this.highlight && highlight({
+                    className: this.classes.highlight,
+                    node: fragment,
+                    pattern: query
+                });
+                return $(fragment);
+            },
+            _getFooter: function getFooter(query, suggestions) {
+                return this.templates.footer ? this.templates.footer({
+                    query: query,
+                    suggestions: suggestions,
+                    dataset: this.name
+                }) : null;
+            },
+            _getHeader: function getHeader(query, suggestions) {
+                return this.templates.header ? this.templates.header({
+                    query: query,
+                    suggestions: suggestions,
+                    dataset: this.name
+                }) : null;
+            },
+            _resetLastSuggestion: function resetLastSuggestion() {
+                this.$lastSuggestion = $();
+            },
+            _injectQuery: function injectQuery(query, obj) {
+                return _.isObject(obj) ? _.mixin({
+                    _query: query
+                }, obj) : obj;
             },
             update: function update(query) {
-                var that = this;
-                this.query = query;
-                this.canceled = false;
-                this.source(query, render);
-                function render(suggestions) {
-                    if (!that.canceled && query === that.query) {
-                        that._render(query, suggestions);
+                var that = this, canceled = false, syncCalled = false, rendered = 0;
+                this.cancel();
+                this.cancel = function cancel() {
+                    canceled = true;
+                    that.cancel = $.noop;
+                    that.async && that.trigger("asyncCanceled", query);
+                };
+                this.source(query, sync, async);
+                !syncCalled && sync([]);
+                function sync(suggestions) {
+                    if (syncCalled) {
+                        return;
+                    }
+                    syncCalled = true;
+                    suggestions = (suggestions || []).slice(0, that.limit);
+                    rendered = suggestions.length;
+                    that._overwrite(query, suggestions);
+                    if (rendered < that.limit && that.async) {
+                        that.trigger("asyncRequested", query);
+                    }
+                }
+                function async(suggestions) {
+                    suggestions = suggestions || [];
+                    if (!canceled && rendered < that.limit) {
+                        that.cancel = $.noop;
+                        rendered += suggestions.length;
+                        that._append(query, suggestions.slice(0, that.limit - rendered));
+                        that.async && that.trigger("asyncReceived", query);
                     }
                 }
             },
-            cancel: function cancel() {
-                this.canceled = true;
-            },
+            cancel: $.noop,
             clear: function clear() {
+                this._empty();
                 this.cancel();
-                this.$el.empty();
-                this.trigger("rendered");
+                this.trigger("cleared");
             },
             isEmpty: function isEmpty() {
                 return this.$el.is(":empty");
             },
             destroy: function destroy() {
-                this.$el = null;
+                this.$el = $("<div>");
             }
         });
         return Dataset;
         function getDisplayFn(display) {
-            display = display || "value";
+            display = display || _.stringify;
             return _.isFunction(display) ? display : displayFn;
             function displayFn(obj) {
                 return obj[display];
@@ -672,404 +836,672 @@
         }
         function getTemplates(templates, displayFn) {
             return {
-                empty: templates.empty && _.templatify(templates.empty),
+                notFound: templates.notFound && _.templatify(templates.notFound),
+                pending: templates.pending && _.templatify(templates.pending),
                 header: templates.header && _.templatify(templates.header),
                 footer: templates.footer && _.templatify(templates.footer),
                 suggestion: templates.suggestion || suggestionTemplate
             };
             function suggestionTemplate(context) {
-                return "<p>" + displayFn(context) + "</p>";
+                return $("<div>").text(displayFn(context));
             }
         }
         function isValidName(str) {
             return /^[_a-zA-Z0-9-]+$/.test(str);
         }
     }();
-    var Dropdown = function() {
+    var Menu = function() {
         "use strict";
-        function Dropdown(o) {
-            var that = this, onSuggestionClick, onSuggestionMouseEnter, onSuggestionMouseLeave;
+        function Menu(o, www) {
+            var that = this;
             o = o || {};
-            if (!o.menu) {
-                $.error("menu is required");
+            if (!o.node) {
+                $.error("node is required");
             }
-            this.isOpen = false;
-            this.isEmpty = true;
+            www.mixin(this);
+            this.$node = $(o.node);
+            this.query = null;
             this.datasets = _.map(o.datasets, initializeDataset);
-            onSuggestionClick = _.bind(this._onSuggestionClick, this);
-            onSuggestionMouseEnter = _.bind(this._onSuggestionMouseEnter, this);
-            onSuggestionMouseLeave = _.bind(this._onSuggestionMouseLeave, this);
-            this.$menu = $(o.menu).on("click.tt", ".tt-suggestion", onSuggestionClick).on("mouseenter.tt", ".tt-suggestion", onSuggestionMouseEnter).on("mouseleave.tt", ".tt-suggestion", onSuggestionMouseLeave);
-            _.each(this.datasets, function(dataset) {
-                that.$menu.append(dataset.getRoot());
-                dataset.onSync("rendered", that._onRendered, that);
-            });
+            function initializeDataset(oDataset) {
+                var node = that.$node.find(oDataset.node).first();
+                oDataset.node = node.length ? node : $("<div>").appendTo(that.$node);
+                return new Dataset(oDataset, www);
+            }
         }
-        _.mixin(Dropdown.prototype, EventEmitter, {
-            _onSuggestionClick: function onSuggestionClick($e) {
-                this.trigger("suggestionClicked", $($e.currentTarget));
+        _.mixin(Menu.prototype, EventEmitter, {
+            _onSelectableClick: function onSelectableClick($e) {
+                this.trigger("selectableClicked", $($e.currentTarget));
             },
-            _onSuggestionMouseEnter: function onSuggestionMouseEnter($e) {
-                this._removeCursor();
-                this._setCursor($($e.currentTarget), true);
+            _onRendered: function onRendered(type, dataset, suggestions, async) {
+                this.$node.toggleClass(this.classes.empty, this._allDatasetsEmpty());
+                this.trigger("datasetRendered", dataset, suggestions, async);
             },
-            _onSuggestionMouseLeave: function onSuggestionMouseLeave() {
-                this._removeCursor();
+            _onCleared: function onCleared() {
+                this.$node.toggleClass(this.classes.empty, this._allDatasetsEmpty());
+                this.trigger("datasetCleared");
             },
-            _onRendered: function onRendered() {
-                this.isEmpty = _.every(this.datasets, isDatasetEmpty);
-                this.isEmpty ? this._hide() : this.isOpen && this._show();
-                this.trigger("datasetRendered");
+            _propagate: function propagate() {
+                this.trigger.apply(this, arguments);
+            },
+            _allDatasetsEmpty: function allDatasetsEmpty() {
+                return _.every(this.datasets, isDatasetEmpty);
                 function isDatasetEmpty(dataset) {
                     return dataset.isEmpty();
                 }
             },
-            _hide: function() {
-                this.$menu.hide();
+            _getSelectables: function getSelectables() {
+                return this.$node.find(this.selectors.selectable);
             },
-            _show: function() {
-                this.$menu.css("display", "block");
-            },
-            _getSuggestions: function getSuggestions() {
-                return this.$menu.find(".tt-suggestion");
-            },
-            _getCursor: function getCursor() {
-                return this.$menu.find(".tt-cursor").first();
-            },
-            _setCursor: function setCursor($el, silent) {
-                $el.first().addClass("tt-cursor");
-                !silent && this.trigger("cursorMoved");
-            },
-            _removeCursor: function removeCursor() {
-                this._getCursor().removeClass("tt-cursor");
-            },
-            _moveCursor: function moveCursor(increment) {
-                var $suggestions, $oldCursor, newCursorIndex, $newCursor;
-                if (!this.isOpen) {
-                    return;
-                }
-                $oldCursor = this._getCursor();
-                $suggestions = this._getSuggestions();
-                this._removeCursor();
-                newCursorIndex = $suggestions.index($oldCursor) + increment;
-                newCursorIndex = (newCursorIndex + 1) % ($suggestions.length + 1) - 1;
-                if (newCursorIndex === -1) {
-                    this.trigger("cursorRemoved");
-                    return;
-                } else if (newCursorIndex < -1) {
-                    newCursorIndex = $suggestions.length - 1;
-                }
-                this._setCursor($newCursor = $suggestions.eq(newCursorIndex));
-                this._ensureVisible($newCursor);
+            _removeCursor: function _removeCursor() {
+                var $selectable = this.getActiveSelectable();
+                $selectable && $selectable.removeClass(this.classes.cursor);
             },
             _ensureVisible: function ensureVisible($el) {
-                var elTop, elBottom, menuScrollTop, menuHeight;
+                var elTop, elBottom, nodeScrollTop, nodeHeight;
                 elTop = $el.position().top;
                 elBottom = elTop + $el.outerHeight(true);
-                menuScrollTop = this.$menu.scrollTop();
-                menuHeight = this.$menu.height() + parseInt(this.$menu.css("paddingTop"), 10) + parseInt(this.$menu.css("paddingBottom"), 10);
+                nodeScrollTop = this.$node.scrollTop();
+                nodeHeight = this.$node.height() + parseInt(this.$node.css("paddingTop"), 10) + parseInt(this.$node.css("paddingBottom"), 10);
                 if (elTop < 0) {
-                    this.$menu.scrollTop(menuScrollTop + elTop);
-                } else if (menuHeight < elBottom) {
-                    this.$menu.scrollTop(menuScrollTop + (elBottom - menuHeight));
+                    this.$node.scrollTop(nodeScrollTop + elTop);
+                } else if (nodeHeight < elBottom) {
+                    this.$node.scrollTop(nodeScrollTop + (elBottom - nodeHeight));
                 }
             },
-            close: function close() {
-                if (this.isOpen) {
-                    this.isOpen = false;
-                    this._removeCursor();
-                    this._hide();
-                    this.trigger("closed");
-                }
+            bind: function() {
+                var that = this, onSelectableClick;
+                onSelectableClick = _.bind(this._onSelectableClick, this);
+                this.$node.on("click.tt", this.selectors.selectable, onSelectableClick);
+                _.each(this.datasets, function(dataset) {
+                    dataset.onSync("asyncRequested", that._propagate, that).onSync("asyncCanceled", that._propagate, that).onSync("asyncReceived", that._propagate, that).onSync("rendered", that._onRendered, that).onSync("cleared", that._onCleared, that);
+                });
+                return this;
+            },
+            isOpen: function isOpen() {
+                return this.$node.hasClass(this.classes.open);
             },
             open: function open() {
-                if (!this.isOpen) {
-                    this.isOpen = true;
-                    !this.isEmpty && this._show();
-                    this.trigger("opened");
-                }
+                this.$node.addClass(this.classes.open);
+            },
+            close: function close() {
+                this.$node.removeClass(this.classes.open);
+                this._removeCursor();
             },
             setLanguageDirection: function setLanguageDirection(dir) {
-                this.$menu.css(dir === "ltr" ? css.ltr : css.rtl);
+                this.$node.attr("dir", dir);
             },
-            moveCursorUp: function moveCursorUp() {
-                this._moveCursor(-1);
+            selectableRelativeToCursor: function selectableRelativeToCursor(delta) {
+                var $selectables, $oldCursor, oldIndex, newIndex;
+                $oldCursor = this.getActiveSelectable();
+                $selectables = this._getSelectables();
+                oldIndex = $oldCursor ? $selectables.index($oldCursor) : -1;
+                newIndex = oldIndex + delta;
+                newIndex = (newIndex + 1) % ($selectables.length + 1) - 1;
+                newIndex = newIndex < -1 ? $selectables.length - 1 : newIndex;
+                return newIndex === -1 ? null : $selectables.eq(newIndex);
             },
-            moveCursorDown: function moveCursorDown() {
-                this._moveCursor(+1);
-            },
-            getDatumForSuggestion: function getDatumForSuggestion($el) {
-                var datum = null;
-                if ($el.length) {
-                    datum = {
-                        raw: Dataset.extractDatum($el),
-                        value: Dataset.extractValue($el),
-                        datasetName: Dataset.extractDatasetName($el)
-                    };
+            setCursor: function setCursor($selectable) {
+                this._removeCursor();
+                if ($selectable = $selectable && $selectable.first()) {
+                    $selectable.addClass(this.classes.cursor);
+                    this._ensureVisible($selectable);
                 }
-                return datum;
             },
-            getDatumForCursor: function getDatumForCursor() {
-                return this.getDatumForSuggestion(this._getCursor().first());
+            getSelectableData: function getSelectableData($el) {
+                return $el && $el.length ? Dataset.extractData($el) : null;
             },
-            getDatumForTopSuggestion: function getDatumForTopSuggestion() {
-                return this.getDatumForSuggestion(this._getSuggestions().first());
+            getActiveSelectable: function getActiveSelectable() {
+                var $selectable = this._getSelectables().filter(this.selectors.cursor).first();
+                return $selectable.length ? $selectable : null;
+            },
+            getTopSelectable: function getTopSelectable() {
+                var $selectable = this._getSelectables().first();
+                return $selectable.length ? $selectable : null;
             },
             update: function update(query) {
-                _.each(this.datasets, updateDataset);
+                var isValidUpdate = query !== this.query;
+                if (isValidUpdate) {
+                    this.query = query;
+                    _.each(this.datasets, updateDataset);
+                }
+                return isValidUpdate;
                 function updateDataset(dataset) {
                     dataset.update(query);
                 }
             },
             empty: function empty() {
                 _.each(this.datasets, clearDataset);
-                this.isEmpty = true;
+                this.query = null;
+                this.$node.addClass(this.classes.empty);
                 function clearDataset(dataset) {
                     dataset.clear();
                 }
             },
-            isVisible: function isVisible() {
-                return this.isOpen && !this.isEmpty;
-            },
             destroy: function destroy() {
-                this.$menu.off(".tt");
-                this.$menu = null;
+                this.$node.off(".tt");
+                this.$node = $("<div>");
                 _.each(this.datasets, destroyDataset);
                 function destroyDataset(dataset) {
                     dataset.destroy();
                 }
             }
         });
-        return Dropdown;
-        function initializeDataset(oDataset) {
-            return new Dataset(oDataset);
+        return Menu;
+    }();
+    var DefaultMenu = function() {
+        "use strict";
+        var s = Menu.prototype;
+        function DefaultMenu() {
+            Menu.apply(this, [].slice.call(arguments, 0));
         }
+        _.mixin(DefaultMenu.prototype, Menu.prototype, {
+            open: function open() {
+                !this._allDatasetsEmpty() && this._show();
+                return s.open.apply(this, [].slice.call(arguments, 0));
+            },
+            close: function close() {
+                this._hide();
+                return s.close.apply(this, [].slice.call(arguments, 0));
+            },
+            _onRendered: function onRendered() {
+                if (this._allDatasetsEmpty()) {
+                    this._hide();
+                } else {
+                    this.isOpen() && this._show();
+                }
+                return s._onRendered.apply(this, [].slice.call(arguments, 0));
+            },
+            _onCleared: function onCleared() {
+                if (this._allDatasetsEmpty()) {
+                    this._hide();
+                } else {
+                    this.isOpen() && this._show();
+                }
+                return s._onCleared.apply(this, [].slice.call(arguments, 0));
+            },
+            setLanguageDirection: function setLanguageDirection(dir) {
+                this.$node.css(dir === "ltr" ? this.css.ltr : this.css.rtl);
+                return s.setLanguageDirection.apply(this, [].slice.call(arguments, 0));
+            },
+            _hide: function hide() {
+                this.$node.hide();
+            },
+            _show: function show() {
+                this.$node.css("display", "block");
+            }
+        });
+        return DefaultMenu;
     }();
     var Typeahead = function() {
         "use strict";
-        var attrsKey = "ttAttrs";
-        function Typeahead(o) {
-            var $menu, $input, $hint;
+        function Typeahead(o, www) {
+            var onFocused, onBlurred, onEnterKeyed, onTabKeyed, onEscKeyed, onUpKeyed, onDownKeyed, onLeftKeyed, onRightKeyed, onQueryChanged, onWhitespaceChanged;
             o = o || {};
             if (!o.input) {
                 $.error("missing input");
             }
-            this.isActivated = false;
-            this.autoselect = !!o.autoselect;
+            if (!o.menu) {
+                $.error("missing menu");
+            }
+            if (!o.eventBus) {
+                $.error("missing event bus");
+            }
+            www.mixin(this);
+            this.eventBus = o.eventBus;
             this.minLength = _.isNumber(o.minLength) ? o.minLength : 1;
-            this.$node = buildDom(o.input, o.withHint);
-            $menu = this.$node.find(".tt-dropdown-menu");
-            $input = this.$node.find(".tt-input");
-            $hint = this.$node.find(".tt-hint");
-            $input.on("blur.tt", function($e) {
-                var active, isActive, hasActive;
-                active = document.activeElement;
-                isActive = $menu.is(active);
-                hasActive = $menu.has(active).length > 0;
-                if (_.isMsie() && (isActive || hasActive)) {
-                    $e.preventDefault();
-                    $e.stopImmediatePropagation();
-                    _.defer(function() {
-                        $input.focus();
-                    });
-                }
-            });
-            $menu.on("mousedown.tt", function($e) {
-                $e.preventDefault();
-            });
-            this.eventBus = o.eventBus || new EventBus({
-                el: $input
-            });
-            this.dropdown = new Dropdown({
-                menu: $menu,
-                datasets: o.datasets
-            }).onSync("suggestionClicked", this._onSuggestionClicked, this).onSync("cursorMoved", this._onCursorMoved, this).onSync("cursorRemoved", this._onCursorRemoved, this).onSync("opened", this._onOpened, this).onSync("closed", this._onClosed, this).onAsync("datasetRendered", this._onDatasetRendered, this);
-            this.input = new Input({
-                input: $input,
-                hint: $hint
-            }).onSync("focused", this._onFocused, this).onSync("blurred", this._onBlurred, this).onSync("enterKeyed", this._onEnterKeyed, this).onSync("tabKeyed", this._onTabKeyed, this).onSync("escKeyed", this._onEscKeyed, this).onSync("upKeyed", this._onUpKeyed, this).onSync("downKeyed", this._onDownKeyed, this).onSync("leftKeyed", this._onLeftKeyed, this).onSync("rightKeyed", this._onRightKeyed, this).onSync("queryChanged", this._onQueryChanged, this).onSync("whitespaceChanged", this._onWhitespaceChanged, this);
-            this._setLanguageDirection();
+            this.input = o.input;
+            this.menu = o.menu;
+            this.enabled = true;
+            this.active = false;
+            this.input.hasFocus() && this.activate();
+            this.dir = this.input.getLangDir();
+            this._hacks();
+            this.menu.bind().onSync("selectableClicked", this._onSelectableClicked, this).onSync("asyncRequested", this._onAsyncRequested, this).onSync("asyncCanceled", this._onAsyncCanceled, this).onSync("asyncReceived", this._onAsyncReceived, this).onSync("datasetRendered", this._onDatasetRendered, this).onSync("datasetCleared", this._onDatasetCleared, this);
+            onFocused = c(this, "activate", "open", "_onFocused");
+            onBlurred = c(this, "deactivate", "_onBlurred");
+            onEnterKeyed = c(this, "isActive", "isOpen", "_onEnterKeyed");
+            onTabKeyed = c(this, "isActive", "isOpen", "_onTabKeyed");
+            onEscKeyed = c(this, "isActive", "_onEscKeyed");
+            onUpKeyed = c(this, "isActive", "open", "_onUpKeyed");
+            onDownKeyed = c(this, "isActive", "open", "_onDownKeyed");
+            onLeftKeyed = c(this, "isActive", "isOpen", "_onLeftKeyed");
+            onRightKeyed = c(this, "isActive", "isOpen", "_onRightKeyed");
+            onQueryChanged = c(this, "_openIfActive", "_onQueryChanged");
+            onWhitespaceChanged = c(this, "_openIfActive", "_onWhitespaceChanged");
+            this.input.bind().onSync("focused", onFocused, this).onSync("blurred", onBlurred, this).onSync("enterKeyed", onEnterKeyed, this).onSync("tabKeyed", onTabKeyed, this).onSync("escKeyed", onEscKeyed, this).onSync("upKeyed", onUpKeyed, this).onSync("downKeyed", onDownKeyed, this).onSync("leftKeyed", onLeftKeyed, this).onSync("rightKeyed", onRightKeyed, this).onSync("queryChanged", onQueryChanged, this).onSync("whitespaceChanged", onWhitespaceChanged, this).onSync("langDirChanged", this._onLangDirChanged, this);
         }
         _.mixin(Typeahead.prototype, {
-            _onSuggestionClicked: function onSuggestionClicked(type, $el) {
-                var datum;
-                if (datum = this.dropdown.getDatumForSuggestion($el)) {
-                    this._select(datum);
-                }
+            _hacks: function hacks() {
+                var $input, $menu;
+                $input = this.input.$input || $("<div>");
+                $menu = this.menu.$node || $("<div>");
+                $input.on("blur.tt", function($e) {
+                    var active, isActive, hasActive;
+                    active = document.activeElement;
+                    isActive = $menu.is(active);
+                    hasActive = $menu.has(active).length > 0;
+                    if (_.isMsie() && (isActive || hasActive)) {
+                        $e.preventDefault();
+                        $e.stopImmediatePropagation();
+                        _.defer(function() {
+                            $input.focus();
+                        });
+                    }
+                });
+                $menu.on("mousedown.tt", function($e) {
+                    $e.preventDefault();
+                });
             },
-            _onCursorMoved: function onCursorMoved() {
-                var datum = this.dropdown.getDatumForCursor();
-                this.input.setInputValue(datum.value, true);
-                this.eventBus.trigger("cursorchanged", datum.raw, datum.datasetName);
+            _onSelectableClicked: function onSelectableClicked(type, $el) {
+                this.select($el);
             },
-            _onCursorRemoved: function onCursorRemoved() {
-                this.input.resetInputValue();
+            _onDatasetCleared: function onDatasetCleared() {
                 this._updateHint();
             },
-            _onDatasetRendered: function onDatasetRendered() {
+            _onDatasetRendered: function onDatasetRendered(type, dataset, suggestions, async) {
                 this._updateHint();
+                this.eventBus.trigger("render", suggestions, async, dataset);
             },
-            _onOpened: function onOpened() {
-                this._updateHint();
-                this.eventBus.trigger("opened");
+            _onAsyncRequested: function onAsyncRequested(type, dataset, query) {
+                this.eventBus.trigger("asyncrequest", query, dataset);
             },
-            _onClosed: function onClosed() {
-                this.input.clearHint();
-                this.eventBus.trigger("closed");
+            _onAsyncCanceled: function onAsyncCanceled(type, dataset, query) {
+                this.eventBus.trigger("asynccancel", query, dataset);
+            },
+            _onAsyncReceived: function onAsyncReceived(type, dataset, query) {
+                this.eventBus.trigger("asyncreceive", query, dataset);
             },
             _onFocused: function onFocused() {
-                this.isActivated = true;
-                this.dropdown.open();
+                this._minLengthMet() && this.menu.update(this.input.getQuery());
             },
             _onBlurred: function onBlurred() {
-                this.isActivated = false;
-                this.dropdown.empty();
-                this.dropdown.close();
+                if (this.input.hasQueryChangedSinceLastFocus()) {
+                    this.eventBus.trigger("change", this.input.getQuery());
+                }
             },
             _onEnterKeyed: function onEnterKeyed(type, $e) {
-                var cursorDatum, topSuggestionDatum;
-                cursorDatum = this.dropdown.getDatumForCursor();
-                topSuggestionDatum = this.dropdown.getDatumForTopSuggestion();
-                if (cursorDatum) {
-                    this._select(cursorDatum);
-                    $e.preventDefault();
-                } else if (this.autoselect && topSuggestionDatum) {
-                    this._select(topSuggestionDatum);
-                    $e.preventDefault();
+                var $selectable;
+                if ($selectable = this.menu.getActiveSelectable()) {
+                    this.select($selectable) && $e.preventDefault();
                 }
             },
             _onTabKeyed: function onTabKeyed(type, $e) {
-                var datum;
-                if (datum = this.dropdown.getDatumForCursor()) {
-                    this._select(datum);
-                    $e.preventDefault();
-                } else {
-                    this._autocomplete(true);
+                var $selectable;
+                if ($selectable = this.menu.getActiveSelectable()) {
+                    this.select($selectable) && $e.preventDefault();
+                } else if ($selectable = this.menu.getTopSelectable()) {
+                    this.autocomplete($selectable) && $e.preventDefault();
                 }
             },
             _onEscKeyed: function onEscKeyed() {
-                this.dropdown.close();
-                this.input.resetInputValue();
+                this.close();
             },
             _onUpKeyed: function onUpKeyed() {
-                var query = this.input.getQuery();
-                this.dropdown.isEmpty && query.length >= this.minLength ? this.dropdown.update(query) : this.dropdown.moveCursorUp();
-                this.dropdown.open();
+                this.moveCursor(-1);
             },
             _onDownKeyed: function onDownKeyed() {
-                var query = this.input.getQuery();
-                this.dropdown.isEmpty && query.length >= this.minLength ? this.dropdown.update(query) : this.dropdown.moveCursorDown();
-                this.dropdown.open();
+                this.moveCursor(+1);
             },
             _onLeftKeyed: function onLeftKeyed() {
-                this.dir === "rtl" && this._autocomplete();
+                if (this.dir === "rtl" && this.input.isCursorAtEnd()) {
+                    this.autocomplete(this.menu.getTopSelectable());
+                }
             },
             _onRightKeyed: function onRightKeyed() {
-                this.dir === "ltr" && this._autocomplete();
+                if (this.dir === "ltr" && this.input.isCursorAtEnd()) {
+                    this.autocomplete(this.menu.getTopSelectable());
+                }
             },
             _onQueryChanged: function onQueryChanged(e, query) {
-                this.input.clearHintIfInvalid();
-                query.length >= this.minLength ? this.dropdown.update(query) : this.dropdown.empty();
-                this.dropdown.open();
-                this._setLanguageDirection();
+                this._minLengthMet(query) ? this.menu.update(query) : this.menu.empty();
             },
             _onWhitespaceChanged: function onWhitespaceChanged() {
                 this._updateHint();
-                this.dropdown.open();
             },
-            _setLanguageDirection: function setLanguageDirection() {
-                var dir;
-                if (this.dir !== (dir = this.input.getLanguageDirection())) {
+            _onLangDirChanged: function onLangDirChanged(e, dir) {
+                if (this.dir !== dir) {
                     this.dir = dir;
-                    this.$node.css("direction", dir);
-                    this.dropdown.setLanguageDirection(dir);
+                    this.menu.setLanguageDirection(dir);
                 }
             },
+            _openIfActive: function openIfActive() {
+                this.isActive() && this.open();
+            },
+            _minLengthMet: function minLengthMet(query) {
+                query = _.isString(query) ? query : this.input.getQuery() || "";
+                return query.length >= this.minLength;
+            },
             _updateHint: function updateHint() {
-                var datum, val, query, escapedQuery, frontMatchRegEx, match;
-                datum = this.dropdown.getDatumForTopSuggestion();
-                if (datum && this.dropdown.isVisible() && !this.input.hasOverflow()) {
-                    val = this.input.getInputValue();
+                var $selectable, data, val, query, escapedQuery, frontMatchRegEx, match;
+                $selectable = this.menu.getTopSelectable();
+                data = this.menu.getSelectableData($selectable);
+                val = this.input.getInputValue();
+                if (data && !_.isBlankString(val) && !this.input.hasOverflow()) {
                     query = Input.normalizeQuery(val);
                     escapedQuery = _.escapeRegExChars(query);
                     frontMatchRegEx = new RegExp("^(?:" + escapedQuery + ")(.+$)", "i");
-                    match = frontMatchRegEx.exec(datum.value);
-                    match ? this.input.setHint(val + match[1]) : this.input.clearHint();
+                    match = frontMatchRegEx.exec(data.val);
+                    match && this.input.setHint(val + match[1]);
                 } else {
                     this.input.clearHint();
                 }
             },
-            _autocomplete: function autocomplete(laxCursor) {
-                var hint, query, isCursorAtEnd, datum;
-                hint = this.input.getHint();
-                query = this.input.getQuery();
-                isCursorAtEnd = laxCursor || this.input.isCursorAtEnd();
-                if (hint && query !== hint && isCursorAtEnd) {
-                    datum = this.dropdown.getDatumForTopSuggestion();
-                    datum && this.input.setInputValue(datum.value);
-                    this.eventBus.trigger("autocompleted", datum.raw, datum.datasetName);
+            isEnabled: function isEnabled() {
+                return this.enabled;
+            },
+            enable: function enable() {
+                this.enabled = true;
+            },
+            disable: function disable() {
+                this.enabled = false;
+            },
+            isActive: function isActive() {
+                return this.active;
+            },
+            activate: function activate() {
+                if (this.isActive()) {
+                    return true;
+                } else if (!this.isEnabled() || this.eventBus.before("active")) {
+                    return false;
+                } else {
+                    this.active = true;
+                    this.eventBus.trigger("active");
+                    return true;
                 }
             },
-            _select: function select(datum) {
-                this.input.setQuery(datum.value);
-                this.input.setInputValue(datum.value, true);
-                this._setLanguageDirection();
-                this.eventBus.trigger("selected", datum.raw, datum.datasetName);
-                this.dropdown.close();
-                _.defer(_.bind(this.dropdown.empty, this.dropdown));
+            deactivate: function deactivate() {
+                if (!this.isActive()) {
+                    return true;
+                } else if (this.eventBus.before("idle")) {
+                    return false;
+                } else {
+                    this.active = false;
+                    this.close();
+                    this.eventBus.trigger("idle");
+                    return true;
+                }
+            },
+            isOpen: function isOpen() {
+                return this.menu.isOpen();
             },
             open: function open() {
-                this.dropdown.open();
+                if (!this.isOpen() && !this.eventBus.before("open")) {
+                    this.menu.open();
+                    this._updateHint();
+                    this.eventBus.trigger("open");
+                }
+                return this.isOpen();
             },
             close: function close() {
-                this.dropdown.close();
+                if (this.isOpen() && !this.eventBus.before("close")) {
+                    this.menu.close();
+                    this.input.clearHint();
+                    this.input.resetInputValue();
+                    this.eventBus.trigger("close");
+                }
+                return !this.isOpen();
             },
             setVal: function setVal(val) {
-                val = _.toStr(val);
-                if (this.isActivated) {
-                    this.input.setInputValue(val);
-                } else {
-                    this.input.setQuery(val);
-                    this.input.setInputValue(val, true);
-                }
-                this._setLanguageDirection();
+                this.input.setQuery(_.toStr(val));
             },
             getVal: function getVal() {
                 return this.input.getQuery();
             },
+            select: function select($selectable) {
+                var data = this.menu.getSelectableData($selectable);
+                if (data && !this.eventBus.before("select", data.obj)) {
+                    this.input.setQuery(data.val, true);
+                    this.eventBus.trigger("select", data.obj);
+                    this.close();
+                    return true;
+                }
+                return false;
+            },
+            autocomplete: function autocomplete($selectable) {
+                var query, data, isValid;
+                query = this.input.getQuery();
+                data = this.menu.getSelectableData($selectable);
+                isValid = data && query !== data.val;
+                if (isValid && !this.eventBus.before("autocomplete", data.obj)) {
+                    this.input.setQuery(data.val);
+                    this.eventBus.trigger("autocomplete", data.obj);
+                    return true;
+                }
+                return false;
+            },
+            moveCursor: function moveCursor(delta) {
+                var query, $candidate, data, payload, cancelMove;
+                query = this.input.getQuery();
+                $candidate = this.menu.selectableRelativeToCursor(delta);
+                data = this.menu.getSelectableData($candidate);
+                payload = data ? data.obj : null;
+                cancelMove = this._minLengthMet() && this.menu.update(query);
+                if (!cancelMove && !this.eventBus.before("cursorchange", payload)) {
+                    this.menu.setCursor($candidate);
+                    if (data) {
+                        this.input.setInputValue(data.val);
+                    } else {
+                        this.input.resetInputValue();
+                        this._updateHint();
+                    }
+                    this.eventBus.trigger("cursorchange", payload);
+                    return true;
+                }
+                return false;
+            },
             destroy: function destroy() {
                 this.input.destroy();
-                this.dropdown.destroy();
-                destroyDomStructure(this.$node);
-                this.$node = null;
+                this.menu.destroy();
             }
         });
         return Typeahead;
-        function buildDom(input, withHint) {
-            var $input, $wrapper, $dropdown, $hint;
-            $input = $(input);
-            $wrapper = $(html.wrapper).css(css.wrapper);
-            $dropdown = $(html.dropdown).css(css.dropdown);
-            $hint = $input.clone().css(css.hint).css(getBackgroundStyles($input));
-            $hint.val("").removeData().addClass("tt-hint").removeAttr("id name placeholder required").prop("readonly", true).attr({
+        function c(ctx) {
+            var methods = [].slice.call(arguments, 1);
+            return function() {
+                var args = [].slice.call(arguments);
+                _.each(methods, function(method) {
+                    return ctx[method].apply(ctx, args);
+                });
+            };
+        }
+    }();
+    (function() {
+        "use strict";
+        var old, keys, methods;
+        old = $.fn.typeahead;
+        keys = {
+            www: "tt-www",
+            attrs: "tt-attrs",
+            typeahead: "tt-typeahead"
+        };
+        methods = {
+            initialize: function initialize(o, datasets) {
+                var www;
+                datasets = _.isArray(datasets) ? datasets : [].slice.call(arguments, 1);
+                o = o || {};
+                www = WWW(o.classNames);
+                return this.each(attach);
+                function attach() {
+                    var $input, $wrapper, $hint, $menu, defaultHint, defaultMenu, eventBus, input, menu, typeahead, MenuConstructor;
+                    _.each(datasets, function(d) {
+                        d.highlight = !!o.highlight;
+                    });
+                    $input = $(this);
+                    $wrapper = $(www.html.wrapper);
+                    $hint = $elOrNull(o.hint);
+                    $menu = $elOrNull(o.menu);
+                    defaultHint = o.hint !== false && !$hint;
+                    defaultMenu = o.menu !== false && !$menu;
+                    defaultHint && ($hint = buildHintFromInput($input, www));
+                    defaultMenu && ($menu = $(www.html.menu).css(www.css.menu));
+                    $hint && $hint.val("");
+                    $input = prepInput($input, www);
+                    if (defaultHint || defaultMenu) {
+                        $wrapper.css(www.css.wrapper);
+                        $input.css(defaultHint ? www.css.input : www.css.inputWithNoHint);
+                        $input.wrap($wrapper).parent().prepend(defaultHint ? $hint : null).append(defaultMenu ? $menu : null);
+                    }
+                    MenuConstructor = defaultMenu ? DefaultMenu : Menu;
+                    eventBus = new EventBus({
+                        el: $input
+                    });
+                    input = new Input({
+                        hint: $hint,
+                        input: $input
+                    }, www);
+                    menu = new MenuConstructor({
+                        node: $menu,
+                        datasets: datasets
+                    }, www);
+                    typeahead = new Typeahead({
+                        input: input,
+                        menu: menu,
+                        eventBus: eventBus,
+                        minLength: o.minLength
+                    }, www);
+                    $input.data(keys.www, www);
+                    $input.data(keys.typeahead, typeahead);
+                }
+            },
+            isEnabled: function isEnabled() {
+                var enabled;
+                ttEach(this.first(), function(t) {
+                    enabled = t.isEnabled();
+                });
+                return enabled;
+            },
+            enable: function enable() {
+                ttEach(this, function(t) {
+                    t.enable();
+                });
+                return this;
+            },
+            disable: function disable() {
+                ttEach(this, function(t) {
+                    t.disable();
+                });
+                return this;
+            },
+            isActive: function isActive() {
+                var active;
+                ttEach(this.first(), function(t) {
+                    active = t.isActive();
+                });
+                return active;
+            },
+            activate: function activate() {
+                ttEach(this, function(t) {
+                    t.activate();
+                });
+                return this;
+            },
+            deactivate: function deactivate() {
+                ttEach(this, function(t) {
+                    t.deactivate();
+                });
+                return this;
+            },
+            isOpen: function isOpen() {
+                var open;
+                ttEach(this.first(), function(t) {
+                    open = t.isOpen();
+                });
+                return open;
+            },
+            open: function open() {
+                ttEach(this, function(t) {
+                    t.open();
+                });
+                return this;
+            },
+            close: function close() {
+                ttEach(this, function(t) {
+                    t.close();
+                });
+                return this;
+            },
+            select: function select(el) {
+                var success = false, $el = $(el);
+                ttEach(this.first(), function(t) {
+                    success = t.select($el);
+                });
+                return success;
+            },
+            autocomplete: function autocomplete(el) {
+                var success = false, $el = $(el);
+                ttEach(this.first(), function(t) {
+                    success = t.autocomplete($el);
+                });
+                return success;
+            },
+            moveCursor: function moveCursoe(delta) {
+                var success = false;
+                ttEach(this.first(), function(t) {
+                    success = t.moveCursor(delta);
+                });
+                return success;
+            },
+            val: function val(newVal) {
+                var query;
+                if (!arguments.length) {
+                    ttEach(this.first(), function(t) {
+                        query = t.getVal();
+                    });
+                    return query;
+                } else {
+                    ttEach(this, function(t) {
+                        t.setVal(newVal);
+                    });
+                    return this;
+                }
+            },
+            destroy: function destroy() {
+                ttEach(this, function(typeahead, $input) {
+                    revert($input);
+                    typeahead.destroy();
+                });
+                return this;
+            }
+        };
+        $.fn.typeahead = function(method) {
+            if (methods[method]) {
+                return methods[method].apply(this, [].slice.call(arguments, 1));
+            } else {
+                return methods.initialize.apply(this, arguments);
+            }
+        };
+        $.fn.typeahead.noConflict = function noConflict() {
+            $.fn.typeahead = old;
+            return this;
+        };
+        function ttEach($els, fn) {
+            $els.each(function() {
+                var $input = $(this), typeahead;
+                (typeahead = $input.data(keys.typeahead)) && fn(typeahead, $input);
+            });
+        }
+        function buildHintFromInput($input, www) {
+            return $input.clone().addClass(www.classes.hint).removeData().css(www.css.hint).css(getBackgroundStyles($input)).prop("readonly", true).removeAttr("id name placeholder required").attr({
                 autocomplete: "off",
                 spellcheck: "false",
                 tabindex: -1
             });
-            $input.data(attrsKey, {
+        }
+        function prepInput($input, www) {
+            $input.data(keys.attrs, {
                 dir: $input.attr("dir"),
                 autocomplete: $input.attr("autocomplete"),
                 spellcheck: $input.attr("spellcheck"),
                 style: $input.attr("style")
             });
-            $input.addClass("tt-input").attr({
+            $input.addClass(www.classes.input).attr({
                 autocomplete: "off",
                 spellcheck: false
-            }).css(withHint ? css.input : css.inputWithNoHint);
+            });
             try {
                 !$input.attr("dir") && $input.attr("dir", "auto");
             } catch (e) {}
-            return $input.wrap($wrapper).parent().prepend(withHint ? $hint : null).append($dropdown);
+            return $input;
         }
         function getBackgroundStyles($el) {
             return {
@@ -1083,102 +1515,24 @@
                 backgroundSize: $el.css("background-size")
             };
         }
-        function destroyDomStructure($node) {
-            var $input = $node.find(".tt-input");
-            _.each($input.data(attrsKey), function(val, key) {
+        function revert($input) {
+            var www, $wrapper;
+            www = $input.data(keys.www);
+            $wrapper = $input.parent().filter(www.selectors.wrapper);
+            _.each($input.data(keys.attrs), function(val, key) {
                 _.isUndefined(val) ? $input.removeAttr(key) : $input.attr(key, val);
             });
-            $input.detach().removeData(attrsKey).removeClass("tt-input").insertAfter($node);
-            $node.remove();
+            $input.removeData(keys.typeahead).removeData(keys.www).removeData(keys.attr).removeClass(www.classes.input);
+            if ($wrapper.length) {
+                $input.detach().insertAfter($wrapper);
+                $wrapper.remove();
+            }
         }
-    }();
-    (function() {
-        "use strict";
-        var old, typeaheadKey, methods;
-        old = $.fn.typeahead;
-        typeaheadKey = "ttTypeahead";
-        methods = {
-            initialize: function initialize(o, datasets) {
-                datasets = _.isArray(datasets) ? datasets : [].slice.call(arguments, 1);
-                o = o || {};
-                return this.each(attach);
-                function attach() {
-                    var $input = $(this), eventBus, typeahead;
-                    _.each(datasets, function(d) {
-                        d.highlight = !!o.highlight;
-                    });
-                    typeahead = new Typeahead({
-                        input: $input,
-                        eventBus: eventBus = new EventBus({
-                            el: $input
-                        }),
-                        withHint: _.isUndefined(o.hint) ? true : !!o.hint,
-                        minLength: o.minLength,
-                        autoselect: o.autoselect,
-                        datasets: datasets
-                    });
-                    $input.data(typeaheadKey, typeahead);
-                }
-            },
-            open: function open() {
-                return this.each(openTypeahead);
-                function openTypeahead() {
-                    var $input = $(this), typeahead;
-                    if (typeahead = $input.data(typeaheadKey)) {
-                        typeahead.open();
-                    }
-                }
-            },
-            close: function close() {
-                return this.each(closeTypeahead);
-                function closeTypeahead() {
-                    var $input = $(this), typeahead;
-                    if (typeahead = $input.data(typeaheadKey)) {
-                        typeahead.close();
-                    }
-                }
-            },
-            val: function val(newVal) {
-                return !arguments.length ? getVal(this.first()) : this.each(setVal);
-                function setVal() {
-                    var $input = $(this), typeahead;
-                    if (typeahead = $input.data(typeaheadKey)) {
-                        typeahead.setVal(newVal);
-                    }
-                }
-                function getVal($input) {
-                    var typeahead, query;
-                    if (typeahead = $input.data(typeaheadKey)) {
-                        query = typeahead.getVal();
-                    }
-                    return query;
-                }
-            },
-            destroy: function destroy() {
-                return this.each(unattach);
-                function unattach() {
-                    var $input = $(this), typeahead;
-                    if (typeahead = $input.data(typeaheadKey)) {
-                        typeahead.destroy();
-                        $input.removeData(typeaheadKey);
-                    }
-                }
-            }
-        };
-        $.fn.typeahead = function(method) {
-            var tts;
-            if (methods[method] && method !== "initialize") {
-                tts = this.filter(function() {
-                    return !!$(this).data(typeaheadKey);
-                });
-                return methods[method].apply(tts, [].slice.call(arguments, 1));
-            } else {
-                return methods.initialize.apply(this, arguments);
-            }
-        };
-        $.fn.typeahead.noConflict = function noConflict() {
-            $.fn.typeahead = old;
-            return this;
-        };
+        function $elOrNull(obj) {
+            var isValid, $el;
+            isValid = _.isJQuery(obj) || _.isElement(obj);
+            $el = isValid ? $(obj).first() : [];
+            return $el.length ? $el : null;
+        }
     })();
-})(window.jQuery);
+});

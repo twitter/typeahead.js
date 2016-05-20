@@ -64,61 +64,59 @@
 
     <script>
       var states = new Bloodhound({
-        datumTokenizer: function(d) { 
-          return Bloodhound.tokenizers.whitespace(d.val); 
-        },
+        datumTokenizer: Bloodhound.tokenizers.whitespace,
         queryTokenizer: Bloodhound.tokenizers.whitespace,
         local: [
-          { val: 'Alabama' },
-          { val: 'Alaska' },
-          { val: 'Arizona' },
-          { val: 'Arkansas' },
-          { val: 'California' },
-          { val: 'Colorado' },
-          { val: 'Connecticut' },
-          { val: 'Delaware' },
-          { val: 'Florida' },
-          { val: 'Georgia' },
-          { val: 'Hawaii' },
-          { val: 'Idaho' },
-          { val: 'Illinois' },
-          { val: 'Indiana' },
-          { val: 'Iowa' },
-          { val: 'Kansas' },
-          { val: 'Kentucky' },
-          { val: 'Louisiana' },
-          { val: 'Maine' },
-          { val: 'Maryland' },
-          { val: 'Massachusetts' },
-          { val: 'Michigan' },
-          { val: 'Minnesota' },
-          { val: 'Mississippi' },
-          { val: 'Missouri' },
-          { val: 'Montana' },
-          { val: 'Nebraska' },
-          { val: 'Nevada' },
-          { val: 'New Hampshire' },
-          { val: 'New Jersey' },
-          { val: 'New Mexico' },
-          { val: 'New York' },
-          { val: 'North Carolina' },
-          { val: 'North Dakota' },
-          { val: 'Ohio' },
-          { val: 'Oklahoma' },
-          { val: 'Oregon' },
-          { val: 'Pennsylvania' },
-          { val: 'Rhode Island' },
-          { val: 'South Carolina' },
-          { val: 'South Dakota' },
-          { val: 'Tennessee' },
-          { val: 'Texas' },
-          { val: 'Utah' },
-          { val: 'Vermont' },
-          { val: 'Virginia' },
-          { val: 'Washington' },
-          { val: 'West Virginia' },
-          { val: 'Wisconsin' },
-          { val: 'Wyoming' }
+          'Alabama',
+          'Alaska',
+          'Arizona',
+          'Arkansas',
+          'California',
+          'Colorado',
+          'Connecticut',
+          'Delaware',
+          'Florida',
+          'Georgia',
+          'Hawaii',
+          'Idaho',
+          'Illinois',
+          'Indiana',
+          'Iowa',
+          'Kansas',
+          'Kentucky',
+          'Louisiana',
+          'Maine',
+          'Maryland',
+          'Massachusetts',
+          'Michigan',
+          'Minnesota',
+          'Mississippi',
+          'Missouri',
+          'Montana',
+          'Nebraska',
+          'Nevada',
+          'New Hampshire',
+          'New Jersey',
+          'New Mexico',
+          'New York',
+          'North Carolina',
+          'North Dakota',
+          'Ohio',
+          'Oklahoma',
+          'Oregon',
+          'Pennsylvania',
+          'Rhode Island',
+          'South Carolina',
+          'South Dakota',
+          'Tennessee',
+          'Texas',
+          'Utah',
+          'Vermont',
+          'Virginia',
+          'Washington',
+          'West Virginia',
+          'Wisconsin',
+          'Wyoming'
         ]
       });
 
@@ -128,8 +126,7 @@
         highlight: true
       },
       {
-        displayKey: 'val',
-        source: states.ttAdapter()
+        source: states
       });
 
 
@@ -169,7 +166,7 @@
 
       $('.bad-tokens').typeahead(null, {
         displayKey: 'value1',
-        source: badTokens.ttAdapter()
+        source: badTokens
       });
 
       var regexSymbols = new Bloodhound({
@@ -191,7 +188,7 @@
 
       $('.regex-symbols').typeahead(null, {
         displayKey: 'val',
-        source: regexSymbols.ttAdapter()
+        source: regexSymbols
       });
 
       var abc = new Bloodhound({
@@ -212,7 +209,7 @@
 
       $('.header-footer').typeahead(null, {
         displayKey: 'val',
-        source: abc.ttAdapter(),
+        source: abc,
         templates: {
           header: '<h3>Header</h3>',
           footer: '<h3>Footer</h3>'
@@ -220,7 +217,7 @@
       },
       {
         displayKey: 'val',
-        source: abc.ttAdapter(),
+        source: abc,
         templates: {
           header: '<h3>start</h3>',
           footer: '<h3>end</h3>',
@@ -249,7 +246,7 @@
       },
       {
         displayKey: 'val',
-        source: ltr.ttAdapter()
+        source: ltr
       });
 
       var rtl = new Bloodhound({
@@ -273,7 +270,7 @@
       },
       {
         displayKey: 'val',
-        source: rtl.ttAdapter()
+        source: rtl
       });
 
       var mixed = new Bloodhound({
@@ -297,18 +294,20 @@
       },
       {
         displayKey: 'val',
-        source: mixed.ttAdapter()
+        source: mixed
       });
 
 
       $('input').on([
-        'typeahead:initialized',
-        'typeahead:initialized:err',
-        'typeahead:selected',
-        'typeahead:autocompleted',
-        'typeahead:cursorchanged',
-        'typeahead:opened',
-        'typeahead:closed'
+        'typeahead:active',
+        'typeahead:idle',
+        'typeahead:open',
+        'typeahead:close',
+        'typeahead:change',
+        'typeahead:render',
+        'typeahead:select',
+        'typeahead:autocomplete',
+        'typeahead:cursorchange',
       ].join(' '), logTypeaheadEvent);
 
       $('form').on('submit', logSubmitEvent);

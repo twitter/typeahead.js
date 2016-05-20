@@ -16,7 +16,7 @@
         margin: 50px 0;
       }
 
-      .tt-dropdown-menu {
+      .tt-menu {
         background-color: #fff;
         border: 1px solid #000;
       }
@@ -39,9 +39,7 @@
 
     <script>
       var states = new Bloodhound({
-        datumTokenizer: function(d) { 
-          return Bloodhound.tokenizers.whitespace(d.val); 
-        },
+        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('val'),
         queryTokenizer: Bloodhound.tokenizers.whitespace,
         local: [
           { val: 'Alabama' },
@@ -98,14 +96,12 @@
         ]
       });
 
-      states.initialize();
-
       $('#states').typeahead({
         highlight: true
       },
       {
-        displayKey: 'val',
-        source: states.ttAdapter()
+        display: 'val',
+        source: states
       });
     </script>
   </body>
