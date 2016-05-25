@@ -527,9 +527,6 @@
                 selectionEnd = selectionEnd || selectionStart;
 
                 var input = this.$input.get(0);
-
-                console.log('setting selection range of ', selectionStart, ' to ', input);
-
                 if (input.setSelectionRange) {
                     input.focus();
                     input.setSelectionRange(selectionStart, selectionEnd);
@@ -1020,9 +1017,6 @@
                     match = frontMatchRegEx.exec($.trim(datum.value).replace(/"/g, ''));
                     matchRaw = frontMatchRegEx.exec($.trim(datum.raw.key).replace(/"/g, ''));
 
-                    console.log('_updateHint raw[', datum.value, '] frontMatchRegEx ', frontMatchRegEx, ' match ', match);
-                    console.log('_updateHint raw[', datum.raw.key, '] frontMatchRegEx ', frontMatchRegEx, ' match ', matchRaw);
-
                     match ? this.input.setHint(val + match[1]) :
                         (matchRaw ? this.input.setHint(val + matchRaw[1]) :
                             this.input.clearHint());
@@ -1046,8 +1040,6 @@
                 this.input.setInputValue(datum.value, true);
                 this._setLanguageDirection();
                 this.eventBus.trigger("selected", datum.raw, datum.datasetName);
-//                this.dropdown.close();
-//                _.defer(_.bind(this.dropdown.empty, this.dropdown));
             },
             open: function open() {
                 this.dropdown.open();
