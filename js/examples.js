@@ -5,7 +5,7 @@ $(document).ready(function() {
 
   var substringMatcher = function(strs) {
     return function findMatches(q, cb) {
-      var matches, substringRegex;
+      var matches, substrRegex;
 
       // an array that will be populated with substring matches
       matches = [];
