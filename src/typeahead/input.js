@@ -264,7 +264,15 @@ var Input = (function() {
       // 2 is arbitrary, just picking a small number to handle edge cases
       var constraint = this.$input.width() - 2;
 
-      this.$overflowHelper.text(this.getInputValue());
+      // ie11 crashes here, see won't fix issue from ms...
+      // https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/175640/
+      // above says fixed in newer versions of ie11 but still crashing in
+      // latest ie11.  below is workaround recommended in link above.
+      if (_.isMsie()) {
+          this.$overflowHelper[0].innerText = this.getInputValue();
+      } else {
+          this.$overflowHelper.text(this.getInputValue());
+      }
 
       return this.$overflowHelper.width() >= constraint;
     },
