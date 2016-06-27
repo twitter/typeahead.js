@@ -631,10 +631,14 @@
                     return $suggestions;
                     function getSuggestionNode(suggestion) {
                         var $el;
-                        $el = $(html.suggestion).append(that.templates.suggestion(suggestion)).data(datasetKey, that.name).data(valueKey, that.displayFn(suggestion)).data(datumKey, suggestion);
+                        var val = that.displayFn(suggestion);
+
+                        $el = $(html.suggestion).append(that.templates.suggestion({})).data(datasetKey, that.name).data(valueKey, that.displayFn(suggestion)).data(datumKey, suggestion);
                         $el.children().each(function() {
                             $(this).css(css.suggestionChild);
                         });
+                        $el.text(val);
+
                         return $el;
                     }
                 }
