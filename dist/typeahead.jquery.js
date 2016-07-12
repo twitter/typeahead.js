@@ -1,7 +1,7 @@
 /*!
  * typeahead.js 0.11.1
  * https://github.com/twitter/typeahead.js
- * Copyright 2013-2015 Twitter, Inc. and other contributors; Licensed MIT
+ * Copyright 2013-2016 Twitter, Inc. and other contributors; Licensed MIT
  */
 
 (function(root, factory) {
@@ -807,8 +807,8 @@
                     suggestions = suggestions || [];
                     if (!canceled && rendered < that.limit) {
                         that.cancel = $.noop;
-                        rendered += suggestions.length;
                         that._append(query, suggestions.slice(0, that.limit - rendered));
+                        rendered += suggestions.length;
                         that.async && that.trigger("asyncReceived", query);
                     }
                 }
@@ -921,6 +921,7 @@
                 return this.$node.hasClass(this.classes.open);
             },
             open: function open() {
+                this.$node.scrollTop(0);
                 this.$node.addClass(this.classes.open);
             },
             close: function close() {
@@ -1144,12 +1145,12 @@
             },
             _onLeftKeyed: function onLeftKeyed() {
                 if (this.dir === "rtl" && this.input.isCursorAtEnd()) {
-                    this.autocomplete(this.menu.getTopSelectable());
+                    this.autocomplete(this.menu.getActiveSelectable() || this.menu.getTopSelectable());
                 }
             },
             _onRightKeyed: function onRightKeyed() {
                 if (this.dir === "ltr" && this.input.isCursorAtEnd()) {
-                    this.autocomplete(this.menu.getTopSelectable());
+                    this.autocomplete(this.menu.getActiveSelectable() || this.menu.getTopSelectable());
                 }
             },
             _onQueryChanged: function onQueryChanged(e, query) {
@@ -1450,7 +1451,7 @@
                     return query;
                 } else {
                     ttEach(this, function(t) {
-                        t.setVal(newVal);
+                        t.setVal(_.toStr(newVal));
                     });
                     return this;
                 }
