@@ -130,7 +130,7 @@ var PersistentStorage = (function() {
   }
 
   function decode(val) {
-    return $.parseJSON(val);
+    return JSON.parse(val);
   }
 
   function gatherMatchingKeys(keyMatcher) {
