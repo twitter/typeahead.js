@@ -2011,6 +2011,7 @@
             },
             _onDatasetCleared: function onDatasetCleared() {
                 this._updateHint();
+                this.eventBus.trigger("clear");
             },
             _onDatasetRendered: function onDatasetRendered(type, dataset, suggestions, async) {
                 this._updateHint();
