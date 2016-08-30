@@ -1,6 +1,7 @@
 {
   "name": "typeahead.js",
   "description": "fast and fully-featured autocomplete library",
+  "license": "MIT",
   "keywords": [
     "typeahead",
     "autocomplete"

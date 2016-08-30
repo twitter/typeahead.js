@@ -1,5 +1,6 @@
 {
   "name": "typeahead.js",
+  "license": "MIT",
   "version": "0.11.1",
   "main": "dist/typeahead.bundle.js",
   "dependencies": {
