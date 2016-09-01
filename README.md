@@ -42,6 +42,8 @@ Other methods:
 **Note:** both *bloodhound.js* and *typeahead.jquery.js* have a dependency on 
 [jQuery] 1.9+.
 
+**Note 2:** If you want to use typeahead.js with **Bootstrap 3**, you will also need [typeahead.js-bootstrap-css].
+
 <!-- section links -->
 
 [Bower]: http://bower.io/
@@ -51,6 +53,7 @@ Other methods:
 [typeahead.bundle.js]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.bundle.js
 [typeahead.bundle.min.js]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.bundle.min.js
 [jQuery]: http://jquery.com/
+[typeahead.js-bootstrap-css]: https://github.com/bassjobsen/typeahead.js-bootstrap-css
 
 Documentation 
 -------------
