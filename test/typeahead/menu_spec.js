@@ -33,6 +33,30 @@ describe('Menu', function() {
     });
   });
 
+  describe('when mouseover event is triggered on a selectable', function() {
+    it('should call setCursor', function() {
+      var $selectable;
+      spyOn(this.view, 'setCursor');
+
+      this.view.bind();
+      $selectable = this.$node.find(www.selectors.selectable).first();
+      $selectable.trigger('mouseover');
+
+      expect(this.view.setCursor).toHaveBeenCalledWith($selectable);
+    });
+  });
+
+  describe('when mouseleave event is triggered on the menu', function() {
+    it('should call _removeCursor', function() {
+      spyOn(this.view, '_removeCursor');
+
+      this.view.bind();
+      this.$node.trigger('mouseleave');
+
+      expect(this.view._removeCursor).toHaveBeenCalled();
+    });
+  });
+
   describe('when rendered is triggered on a dataset', function() {
     it('should add empty class to node if empty', function() {
       this.dataset.isEmpty.andReturn(true);
