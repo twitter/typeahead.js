@@ -272,7 +272,7 @@ var Dataset = (function() {
           var idx = Math.abs(rendered - that.limit);
           rendered += idx;
           that._append(query, suggestions.slice(0, idx));
-          that.async && that.trigger("asyncReceived", query);
+          that.async && that.trigger('asyncReceived', query);
         }
       }
     },
