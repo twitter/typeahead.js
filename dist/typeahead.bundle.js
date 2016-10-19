@@ -1179,7 +1179,7 @@
             _trigger: function(type, args) {
                 var $e;
                 $e = $.Event(namespace + type);
-                (args = args || []).unshift($e);
+                (args = [ args ] || []).unshift($e);
                 this.$el.trigger.apply(this.$el, args);
                 return $e;
             },
@@ -1664,7 +1664,7 @@
                     context = that._injectQuery(query, suggestion);
                     $el = $(that.templates.suggestion(context)).data(keys.obj, suggestion).data(keys.val, that.displayFn(suggestion)).addClass(that.classes.suggestion + " " + that.classes.selectable);
                     fragment.appendChild($el[0]);
-                    that.trigger("renderSuggestion", $el[0], suggestion);
+                    that.trigger("renderSuggestion", $el, suggestion);
                 });
                 this.highlight && highlight({
                     className: this.classes.highlight,
