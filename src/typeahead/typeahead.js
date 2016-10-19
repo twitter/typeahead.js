@@ -54,6 +54,7 @@ var Typeahead = (function() {
     .onSync('asyncCanceled', this._onAsyncCanceled, this)
     .onSync('asyncReceived', this._onAsyncReceived, this)
     .onSync('datasetRendered', this._onDatasetRendered, this)
+    .onSync('renderSuggestion', this._onSuggestionRendered, this)
     .onSync('datasetCleared', this._onDatasetCleared, this);
 
     // composed event handlers for input
@@ -134,6 +135,11 @@ var Typeahead = (function() {
     _onDatasetRendered: function onDatasetRendered(type, dataset, suggestions, async) {
       this._updateHint();
       this.eventBus.trigger('render', suggestions, async, dataset);
+    },
+
+    _onSuggestionRendered: function onSuggestionRendered(type, $item, suggestion) {
+      this._updateHint();
+      this.eventBus.trigger('renderSuggestion', $item, suggestion);
     },
 
     _onAsyncRequested: function onAsyncRequested(type, dataset, query) {

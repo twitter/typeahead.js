@@ -51,6 +51,10 @@ var Menu = (function() {
       this.trigger('datasetRendered', dataset, suggestions, async);
     },
 
+    _onSuggestionRendered: function onSuggestionRendered(type, $item, suggestion) {
+      this.trigger('renderSuggestion', $item, suggestion);
+    },
+
     _onCleared: function onCleared() {
       this.$node.toggleClass(this.classes.empty, this._allDatasetsEmpty());
       this.trigger('datasetCleared');
@@ -110,6 +114,7 @@ var Menu = (function() {
         .onSync('asyncCanceled', that._propagate, that)
         .onSync('asyncReceived', that._propagate, that)
         .onSync('rendered', that._onRendered, that)
+        .onSync('renderSuggestion', that._onSuggestionRendered, that)
         .onSync('cleared', that._onCleared, that);
       });
 

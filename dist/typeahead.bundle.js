@@ -1,7 +1,7 @@
 /*!
  * typeahead.js 0.11.1
  * https://github.com/twitter/typeahead.js
- * Copyright 2013-2015 Twitter, Inc. and other contributors; Licensed MIT
+ * Copyright 2013-2016 Twitter, Inc. and other contributors; Licensed MIT
  */
 
 (function(root, factory) {
@@ -696,7 +696,7 @@
             o.transform = o.filter || o.transform;
             o.cacheKey = o.cacheKey || o.url;
             o.thumbprint = VERSION + o.thumbprint;
-            o.transport = o.transport ? callbackToDeferred(o.transport) : $.ajax;
+            o.transport = o.transport ? o.transport : $.ajax;
             return o;
         }
         function parseRemote(o) {
@@ -782,7 +782,7 @@
         function callbackToDeferred(fn) {
             return function wrapper(o) {
                 var deferred = $.Deferred();
-                fn(o, onSuccess, onError);
+                fn(o).done(onSuccess).fail(onError);
                 return deferred;
                 function onSuccess(resp) {
                     _.defer(function() {
@@ -1664,6 +1664,7 @@
                     context = that._injectQuery(query, suggestion);
                     $el = $(that.templates.suggestion(context)).data(keys.obj, suggestion).data(keys.val, that.displayFn(suggestion)).addClass(that.classes.suggestion + " " + that.classes.selectable);
                     fragment.appendChild($el[0]);
+                    that.trigger("renderSuggestion", $el[0], suggestion);
                 });
                 this.highlight && highlight({
                     className: this.classes.highlight,
@@ -1789,6 +1790,9 @@
                 this.$node.toggleClass(this.classes.empty, this._allDatasetsEmpty());
                 this.trigger("datasetRendered", dataset, suggestions, async);
             },
+            _onSuggestionRendered: function onSuggestionRendered(type, $item, suggestion) {
+                this.trigger("renderSuggestion", $item, suggestion);
+            },
             _onCleared: function onCleared() {
                 this.$node.toggleClass(this.classes.empty, this._allDatasetsEmpty());
                 this.trigger("datasetCleared");
@@ -1826,7 +1830,7 @@
                 onSelectableClick = _.bind(this._onSelectableClick, this);
                 this.$node.on("click.tt", this.selectors.selectable, onSelectableClick);
                 _.each(this.datasets, function(dataset) {
-                    dataset.onSync("asyncRequested", that._propagate, that).onSync("asyncCanceled", that._propagate, that).onSync("asyncReceived", that._propagate, that).onSync("rendered", that._onRendered, that).onSync("cleared", that._onCleared, that);
+                    dataset.onSync("asyncRequested", that._propagate, that).onSync("asyncCanceled", that._propagate, that).onSync("asyncReceived", that._propagate, that).onSync("rendered", that._onRendered, that).onSync("renderSuggestion", that._onSuggestionRendered, that).onSync("cleared", that._onCleared, that);
                 });
                 return this;
             },
@@ -1969,7 +1973,7 @@
             this.input.hasFocus() && this.activate();
             this.dir = this.input.getLangDir();
             this._hacks();
-            this.menu.bind().onSync("selectableClicked", this._onSelectableClicked, this).onSync("asyncRequested", this._onAsyncRequested, this).onSync("asyncCanceled", this._onAsyncCanceled, this).onSync("asyncReceived", this._onAsyncReceived, this).onSync("datasetRendered", this._onDatasetRendered, this).onSync("datasetCleared", this._onDatasetCleared, this);
+            this.menu.bind().onSync("selectableClicked", this._onSelectableClicked, this).onSync("asyncRequested", this._onAsyncRequested, this).onSync("asyncCanceled", this._onAsyncCanceled, this).onSync("asyncReceived", this._onAsyncReceived, this).onSync("datasetRendered", this._onDatasetRendered, this).onSync("renderSuggestion", this._onSuggestionRendered, this).onSync("datasetCleared", this._onDatasetCleared, this);
             onFocused = c(this, "activate", "open", "_onFocused");
             onBlurred = c(this, "deactivate", "_onBlurred");
             onEnterKeyed = c(this, "isActive", "isOpen", "_onEnterKeyed");
@@ -2014,6 +2018,10 @@
             _onDatasetRendered: function onDatasetRendered(type, dataset, suggestions, async) {
                 this._updateHint();
                 this.eventBus.trigger("render", suggestions, async, dataset);
+            },
+            _onSuggestionRendered: function onSuggestionRendered(type, $item, suggestion) {
+                this._updateHint();
+                this.eventBus.trigger("renderSuggestion", $item, suggestion);
             },
             _onAsyncRequested: function onAsyncRequested(type, dataset, query) {
                 this.eventBus.trigger("asyncrequest", query, dataset);

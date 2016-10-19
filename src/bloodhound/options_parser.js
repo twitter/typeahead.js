@@ -66,7 +66,7 @@ var oParser = (function() {
 
     o.cacheKey = o.cacheKey || o.url;
     o.thumbprint = VERSION + o.thumbprint;
-    o.transport = o.transport ? callbackToDeferred(o.transport) : $.ajax;
+    o.transport = o.transport ? o.transport : $.ajax;
 
     return o;
   }
@@ -175,7 +175,7 @@ var oParser = (function() {
     return function wrapper(o) {
       var deferred = $.Deferred();
 
-      fn(o, onSuccess, onError);
+      fn(o).done(onSuccess).fail(onError);
 
       return deferred;
 
