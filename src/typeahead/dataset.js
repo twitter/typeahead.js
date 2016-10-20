@@ -194,6 +194,8 @@ var Dataset = (function() {
         .addClass(that.classes.suggestion + ' ' + that.classes.selectable);
 
         fragment.appendChild($el[0]);
+
+        that.trigger('renderSuggestion', $el, suggestion);
       });
 
       this.highlight && highlight({
