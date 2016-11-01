@@ -1,7 +1,7 @@
 /*!
  * typeahead.js 0.11.1
  * https://github.com/twitter/typeahead.js
- * Copyright 2013-2015 Twitter, Inc. and other contributors; Licensed MIT
+ * Copyright 2013-2016 Twitter, Inc. and other contributors; Licensed MIT
  */
 
 (function(root, factory) {
@@ -12,7 +12,7 @@
     } else if (typeof exports === "object") {
         module.exports = factory(require("jquery"));
     } else {
-        root["Bloodhound"] = factory(jQuery);
+        root["Bloodhound"] = factory(root["jQuery"]);
     }
 })(this, function($) {
     var _ = function() {
@@ -157,9 +157,11 @@
         return {
             nonword: nonword,
             whitespace: whitespace,
+            ngram: ngram,
             obj: {
                 nonword: getObjTokenizer(nonword),
-                whitespace: getObjTokenizer(whitespace)
+                whitespace: getObjTokenizer(whitespace),
+                ngram: getObjTokenizer(ngram)
             }
         };
         function whitespace(str) {
@@ -169,6 +171,19 @@
         function nonword(str) {
             str = _.toStr(str);
             return str ? str.split(/\W+/) : [];
+        }
+        function ngram(str) {
+            str = _.toStr(str);
+            var tokens = [], word = "";
+            _.each(str.split(""), function(char) {
+                if (char.match(/\s+/)) {
+                    word = "";
+                } else {
+                    tokens.push(word + char);
+                    word += char;
+                }
+            });
+            return tokens;
         }
         function getObjTokenizer(tokenizer) {
             return function setKey(keys) {

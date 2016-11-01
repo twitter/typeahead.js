@@ -12,6 +12,7 @@ Table of Contents
 * [Usage](#usage)
   * [API](#api)
   * [Options](#options)
+  * [Tokenizers] (#tokenizers)
   * [Prefetch](#prefetch)
   * [Remote](#remote)
 
@@ -164,10 +165,10 @@ When instantiating a Bloodhound suggestion engine, there are a number of
 options you can configure.
 
 * `datumTokenizer` – A function with the signature `(datum)` that transforms a
-  datum into an array of string tokens. **Required**.
+  datum into an array of string tokens. See [Tokenizers](#tokenizers). **Required**.
 
 * `queryTokenizer` – A function with the signature `(query)` that transforms a
-  query into an array of string tokens. **Required**.
+  query into an array of string tokens. See [Tokenizers](#tokenizers). **Required**.
 
 * `matchAnyQueryToken` - By default a search result must match ALL query-tokens.
   Instead, this option returns results that match ANY query-tokens. Defaults to
@@ -203,6 +204,23 @@ options you can configure.
 <!-- section links -->
 
 [compare function]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+
+### Tokenizers
+
+The Bloodhound suggestion engine is token-based, so how datums and queries are tokenized plays a vital role in the quality of search results.
+
+A tokenizer is a function with the signature `(string)` that transforms a query into an array of string tokens. When instantiating a Bloodhound suggestion engine, you can use your own tokenizer or one of the following included implementations:
+
+```javascript
+// returns ['foo', 'bar', 'foo-bar']
+Bloodhound.tokenizers.whitespace('foo bar foo-bar');
+
+// returns ['foo', 'bar', 'foo', 'bar']
+Bloodhound.tokenizers.nonword('foo bar foo-bar');
+
+// returns ['f', 'fo', 'foo', 'b', 'ba', 'bar']
+Bloodhound.tokenizers.ngram('foo bar');
+```
 
 ### Prefetch
 
