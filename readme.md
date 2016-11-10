@@ -108,9 +108,7 @@ Grunt tasks that'll be useful in development.
 
 ## Maintainers
 
-* **Jake Harding**
-  * [@JakeHarding](https://twitter.com/JakeHarding)
-  * [GitHub](https://github.com/jharding)
+* [CoreJS Collaborators](https://github.com/orgs/corejavascript/teams/collaborators)
 
 * **You?**
 
