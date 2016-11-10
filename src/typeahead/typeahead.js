@@ -162,7 +162,10 @@ var Typeahead = (function() {
       var $selectable;
 
       if ($selectable = this.menu.getActiveSelectable()) {
-        this.select($selectable) && $e.preventDefault();
+        if (this.select($selectable)) {
+          $e.preventDefault();
+          $e.stopPropagation();
+        }
       }
     },
 

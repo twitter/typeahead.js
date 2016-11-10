@@ -284,7 +284,7 @@ describe('Typeahead', function() {
 
     beforeEach(function() {
       eventName = 'enterKeyed';
-      payload = jasmine.createSpyObj('event', ['preventDefault']);
+      payload = jasmine.createSpyObj('event', ['preventDefault', 'stopPropagation']);
     });
 
     describe('when idle', function() {
@@ -330,7 +330,7 @@ describe('Typeahead', function() {
         expect(this.view.select).toHaveBeenCalledWith($el);
       });
 
-      it('should prevent default if active selectale ', function() {
+      it('should prevent default and stop propagation if active selectable ', function() {
         var $el;
 
         $el = $('<bah>');
@@ -340,6 +340,7 @@ describe('Typeahead', function() {
         this.input.trigger(eventName, payload);
 
         expect(payload.preventDefault).toHaveBeenCalled();
+        expect(payload.stopPropagation).toHaveBeenCalled();
       });
 
       it('should not select selectable if there is no active one', function() {
