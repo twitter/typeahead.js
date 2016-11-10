@@ -19,7 +19,8 @@ var Remote = (function() {
     this.transport = new Transport({
       cache: o.cache,
       limiter: o.limiter,
-      transport: o.transport
+      transport: o.transport,
+      maxPendingRequests: o.maxPendingRequests
     });
   }
 
