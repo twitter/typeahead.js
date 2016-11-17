@@ -27,9 +27,13 @@
     {
       "name": "Veljko Skarich",
       "url": "https://twitter.com/vskarich"
+    },
+    {
+      "name": "Jeremy Booker",
+      "url": "https://twitter.com/jbook3r"
     }
   ],
-  "license": "See license in LICENSE",
+  "license": "MIT",
   "dependencies": {
     "jquery": ">=1.7"
   },
@@ -66,6 +70,6 @@
   "scripts": {
     "test": "bower install && ./node_modules/karma/bin/karma start --single-run --browsers PhantomJS"
   },
-  "version": "0.11.2",
+  "version": "1.0.0",
   "main": "dist/typeahead.bundle.js"
 }
