@@ -70,6 +70,6 @@
   "scripts": {
     "test": "bower install && ./node_modules/karma/bin/karma start --single-run --browsers PhantomJS"
   },
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "dist/typeahead.bundle.js"
 }
