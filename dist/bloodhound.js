@@ -1,5 +1,5 @@
 /*!
- * typeahead.js 1.0.0
+ * typeahead.js 1.0.1
  * https://github.com/twitter/typeahead.js
  * Copyright 2013-2016 Twitter, Inc. and other contributors; Licensed MIT
  */
@@ -9,10 +9,10 @@
         define("bloodhound", [ "jquery" ], function(a0) {
             return root["Bloodhound"] = factory(a0);
         });
-    } else if (typeof exports === "object") {
+    } else if (typeof module === "object" && module.exports) {
         module.exports = factory(require("jquery"));
     } else {
-        root["Bloodhound"] = factory(jQuery);
+        root["Bloodhound"] = factory(root["jQuery"]);
     }
 })(this, function($) {
     var _ = function() {
@@ -158,7 +158,7 @@
             noop: function() {}
         };
     }();
-    var VERSION = "1.0.0";
+    var VERSION = "1.0.1";
     var tokenizers = function() {
         "use strict";
         return {

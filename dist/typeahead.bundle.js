@@ -1,5 +1,5 @@
 /*!
- * typeahead.js 1.0.0
+ * typeahead.js 1.0.1
  * https://github.com/twitter/typeahead.js
  * Copyright 2013-2016 Twitter, Inc. and other contributors; Licensed MIT
  */
@@ -9,10 +9,10 @@
         define("bloodhound", [ "jquery" ], function(a0) {
             return root["Bloodhound"] = factory(a0);
         });
-    } else if (typeof exports === "object") {
+    } else if (typeof module === "object" && module.exports) {
         module.exports = factory(require("jquery"));
     } else {
-        root["Bloodhound"] = factory(jQuery);
+        root["Bloodhound"] = factory(root["jQuery"]);
     }
 })(this, function($) {
     var _ = function() {
@@ -158,7 +158,7 @@
             noop: function() {}
         };
     }();
-    var VERSION = "1.0.0";
+    var VERSION = "1.0.1";
     var tokenizers = function() {
         "use strict";
         return {
@@ -929,10 +929,10 @@
         define("typeahead.js", [ "jquery" ], function(a0) {
             return factory(a0);
         });
-    } else if (typeof exports === "object") {
+    } else if (typeof module === "object" && module.exports) {
         module.exports = factory(require("jquery"));
     } else {
-        factory(jQuery);
+        factory(root["jQuery"]);
     }
 })(this, function($) {
     var _ = function() {
@@ -2252,7 +2252,7 @@
                 $candidate = this.menu.selectableRelativeToCursor(delta);
                 data = this.menu.getSelectableData($candidate);
                 payload = data ? data.obj : null;
-                id = $candidate.attr("id");
+                id = $candidate ? $candidate.attr("id") : null;
                 this.input.trigger("cursorchange", id);
                 cancelMove = this._minLengthMet() && this.menu.update(query);
                 if (!cancelMove && !this.eventBus.before("cursorchange", payload)) {
