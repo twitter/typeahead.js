@@ -91,11 +91,12 @@ var Typeahead = (function() {
 
     // here's where hacks get applied and we don't feel bad about it
     _hacks: function hacks() {
-      var $input, $menu;
-
       // these default values are to make testing easier
-      $input = this.input.$input || $('<div>');
-      $menu = this.menu.$node || $('<div>');
+      var $input = this.input.$input || $('<div>'),
+          $menu = this.menu.$node || $('<div>'),
+          $body = $('body'),
+          cursorClass = this.classes.cursor,
+          suggestionClass = this.selectors.suggestion;
 
       // #705: if there's scrollable overflow, ie doesn't support
       // blur cancellations when the scrollbar is clicked
@@ -119,6 +120,12 @@ var Typeahead = (function() {
 
       // #351: prevents input blur due to clicks within menu
       $menu.on('mousedown.tt', function($e) { $e.preventDefault(); });
+
+      // Prevents double selection state
+      $body.on('mouseenter', suggestionClass, function() {
+        $(suggestionClass).removeClass(cursorClass);
+        $(this).addClass(cursorClass);
+      });
     },
 
     // ### event handlers
