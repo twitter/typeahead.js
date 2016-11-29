@@ -121,7 +121,7 @@ var Typeahead = (function() {
       // #351: prevents input blur due to clicks within menu
       $menu.on('mousedown.tt', function($e) { $e.preventDefault(); });
 
-      // Prevents double selection state
+      // #1589: Prevents double selection state
       $body.on('mouseenter', suggestionClass, function() {
         $(suggestionClass).removeClass(cursorClass);
         $(this).addClass(cursorClass);
