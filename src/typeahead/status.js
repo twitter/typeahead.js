@@ -13,7 +13,7 @@ var Status = (function () {
     }, this));
   }
   _.mixin(Status.prototype, {
-    update: function update(event, name, suggestions) {
+    update: function update(event, suggestions) {
       var length = suggestions.length;
       var words;
       if (length === 1) {

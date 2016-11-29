@@ -34,7 +34,7 @@ describe('Status', function() {
     it('should update the status text based on number of suggestion', function() {
       expect(status.$el.text()).toEqual('');
 
-      menu.datasets[0].trigger('rendered', 'my-dataset', [1, 2, 3]);
+      menu.datasets[0].trigger('rendered', [1, 2, 3]);
 
       expect(status.$el.text()).toEqual('3 results are available, use up and down arrow keys to navigate.');
     });
@@ -42,7 +42,7 @@ describe('Status', function() {
     it('should use singular conjugations if only one suggestion', function() {
       expect(status.$el.text()).toEqual('');
 
-      menu.datasets[0].trigger('rendered', 'my-dataset', [1]);
+      menu.datasets[0].trigger('rendered', [1]);
 
       expect(status.$el.text()).toEqual('1 result is available, use up and down arrow keys to navigate.');
     });
