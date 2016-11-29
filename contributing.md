@@ -1,8 +1,13 @@
 Contributing to typeahead.js
 ============================
 
-*These contributing guidelines were proudly stolen from the 
+*These contributing guidelines were proudly stolen from the
 [Flight](https://github.com/flightjs/flight) project*
+
+Project Status
+--------------
+The maintainers of this project welcome Pull Requests but, due to a lack of
+time, new major feature requests are unlikely to be taken on.
 
 Looking to contribute something to typeahead.js? Here's how you can help.
 
@@ -25,7 +30,7 @@ Guidelines for bug reports:
 
 4. Please try to be as detailed as possible in your report. Include specific
    information about the environment – operating system and version, browser
-   and version, version of typeahead.js – and steps required to reproduce the 
+   and version, version of typeahead.js – and steps required to reproduce the
   issue.
 
 Feature Requests & Contribution Enquiries

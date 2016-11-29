@@ -6,7 +6,7 @@
 
 (function(root, factory) {
     if (typeof define === "function" && define.amd) {
-        define("bloodhound", [ "jquery" ], function(a0) {
+        define([ "jquery" ], function(a0) {
             return root["Bloodhound"] = factory(a0);
         });
     } else if (typeof module === "object" && module.exports) {
@@ -164,9 +164,11 @@
         return {
             nonword: nonword,
             whitespace: whitespace,
+            ngram: ngram,
             obj: {
                 nonword: getObjTokenizer(nonword),
-                whitespace: getObjTokenizer(whitespace)
+                whitespace: getObjTokenizer(whitespace),
+                ngram: getObjTokenizer(ngram)
             }
         };
         function whitespace(str) {
@@ -176,6 +178,19 @@
         function nonword(str) {
             str = _.toStr(str);
             return str ? str.split(/\W+/) : [];
+        }
+        function ngram(str) {
+            str = _.toStr(str);
+            var tokens = [], word = "";
+            _.each(str.split(""), function(char) {
+                if (char.match(/\s+/)) {
+                    word = "";
+                } else {
+                    tokens.push(word + char);
+                    word += char;
+                }
+            });
+            return tokens;
         }
         function getObjTokenizer(tokenizer) {
             return function setKey(keys) {
@@ -348,9 +363,10 @@
     }();
     var Transport = function() {
         "use strict";
-        var pendingRequestsCount = 0, pendingRequests = {}, maxPendingRequests = 6, sharedCache = new LruCache(10);
+        var pendingRequestsCount = 0, pendingRequests = {}, sharedCache = new LruCache(10);
         function Transport(o) {
             o = o || {};
+            this.maxPendingRequests = o.maxPendingRequests || 6;
             this.cancelled = false;
             this.lastReq = null;
             this._send = o.transport;
@@ -358,7 +374,7 @@
             this._cache = o.cache === false ? new LruCache(0) : sharedCache;
         }
         Transport.setMaxPendingRequests = function setMaxPendingRequests(num) {
-            maxPendingRequests = num;
+            this.maxPendingRequests = num;
         };
         Transport.resetCache = function resetCache() {
             sharedCache.reset();
@@ -376,7 +392,7 @@
                 }
                 if (jqXhr = pendingRequests[fingerprint]) {
                     jqXhr.done(done).fail(fail);
-                } else if (pendingRequestsCount < maxPendingRequests) {
+                } else if (pendingRequestsCount < this.maxPendingRequests) {
                     pendingRequestsCount++;
                     pendingRequests[fingerprint] = this._send(o).done(done).fail(fail).always(always);
                 } else {
@@ -430,6 +446,7 @@
             this.identify = o.identify || _.stringify;
             this.datumTokenizer = o.datumTokenizer;
             this.queryTokenizer = o.queryTokenizer;
+            this.matchAnyQueryToken = o.matchAnyQueryToken;
             this.reset();
         }
         _.mixin(SearchIndex.prototype, {
@@ -466,7 +483,7 @@
                 tokens = normalizeTokens(this.queryTokenizer(query));
                 _.each(tokens, function(token) {
                     var node, chars, ch, ids;
-                    if (matches && matches.length === 0) {
+                    if (matches && matches.length === 0 && !that.matchAnyQueryToken) {
                         return false;
                     }
                     node = that.trie;
@@ -478,8 +495,10 @@
                         ids = node[IDS].slice(0);
                         matches = matches ? getIntersection(matches, ids) : ids;
                     } else {
-                        matches = [];
-                        return false;
+                        if (!that.matchAnyQueryToken) {
+                            matches = [];
+                            return false;
+                        }
                     }
                 });
                 return matches ? _.map(unique(matches), function(id) {
@@ -621,10 +640,12 @@
             this.url = o.url;
             this.prepare = o.prepare;
             this.transform = o.transform;
+            this.indexResponse = o.indexResponse;
             this.transport = new Transport({
                 cache: o.cache,
                 limiter: o.limiter,
-                transport: o.transport
+                transport: o.transport,
+                maxPendingRequests: o.maxPendingRequests
             });
         }
         _.mixin(Remote.prototype, {
@@ -662,7 +683,9 @@
                 identify: _.stringify,
                 datumTokenizer: null,
                 queryTokenizer: null,
+                matchAnyQueryToken: false,
                 sufficient: 5,
+                indexRemote: false,
                 sorter: null,
                 local: [],
                 prefetch: null,
@@ -813,6 +836,7 @@
             this.sorter = o.sorter;
             this.identify = o.identify;
             this.sufficient = o.sufficient;
+            this.indexRemote = o.indexRemote;
             this.local = o.local;
             this.remote = o.remote ? new Remote(o.remote) : null;
             this.prefetch = o.prefetch ? new Prefetch(o.prefetch) : null;
@@ -882,6 +906,8 @@
             },
             search: function search(query, sync, async) {
                 var that = this, local;
+                sync = sync || _.noop;
+                async = async || _.noop;
                 local = this.sorter(this.index.search(query));
                 sync(this.remote ? local.slice() : local);
                 if (this.remote && local.length < this.sufficient) {
@@ -897,7 +923,8 @@
                             return that.identify(r) === that.identify(l);
                         }) && nonDuplicates.push(r);
                     });
-                    async && async(nonDuplicates);
+                    that.indexRemote && that.add(nonDuplicates);
+                    async(nonDuplicates);
                 }
             },
             all: function all() {
@@ -926,7 +953,7 @@
 
 (function(root, factory) {
     if (typeof define === "function" && define.amd) {
-        define("typeahead.js", [ "jquery" ], function(a0) {
+        define([ "jquery" ], function(a0) {
             return factory(a0);
         });
     } else if (typeof module === "object" && module.exports) {
@@ -1191,10 +1218,8 @@
         }
         _.mixin(EventBus.prototype, {
             _trigger: function(type, args) {
-                var $e;
-                $e = $.Event(namespace + type);
-                (args = args || []).unshift($e);
-                this.$el.trigger.apply(this.$el, args);
+                var $e = $.Event(namespace + type);
+                this.$el.trigger.call(this.$el, $e, args || []);
                 return $e;
             },
             before: function(type) {
@@ -1311,7 +1336,36 @@
             tagName: "strong",
             className: null,
             wordsOnly: false,
-            caseSensitive: false
+            caseSensitive: false,
+            diacriticInsensitive: false
+        };
+        var accented = {
+            A: "[AaªÀ-Åà-åĀ-ąǍǎȀ-ȃȦȧᴬᵃḀḁẚẠ-ảₐ℀℁℻⒜Ⓐⓐ㍱-㍴㎀-㎄㎈㎉㎩-㎯㏂㏊㏟㏿Ａａ]",
+            B: "[BbᴮᵇḂ-ḇℬ⒝Ⓑⓑ㍴㎅-㎇㏃㏈㏔㏝Ｂｂ]",
+            C: "[CcÇçĆ-čᶜ℀ℂ℃℅℆ℭⅭⅽ⒞Ⓒⓒ㍶㎈㎉㎝㎠㎤㏄-㏇Ｃｃ]",
+            D: "[DdĎďǄ-ǆǱ-ǳᴰᵈḊ-ḓⅅⅆⅮⅾ⒟Ⓓⓓ㋏㍲㍷-㍹㎗㎭-㎯㏅㏈Ｄｄ]",
+            E: "[EeÈ-Ëè-ëĒ-ěȄ-ȇȨȩᴱᵉḘ-ḛẸ-ẽₑ℡ℯℰⅇ⒠Ⓔⓔ㉐㋍㋎Ｅｅ]",
+            F: "[FfᶠḞḟ℉ℱ℻⒡Ⓕⓕ㎊-㎌㎙ﬀ-ﬄＦｆ]",
+            G: "[GgĜ-ģǦǧǴǵᴳᵍḠḡℊ⒢Ⓖⓖ㋌㋍㎇㎍-㎏㎓㎬㏆㏉㏒㏿Ｇｇ]",
+            H: "[HhĤĥȞȟʰᴴḢ-ḫẖℋ-ℎ⒣Ⓗⓗ㋌㍱㎐-㎔㏊㏋㏗Ｈｈ]",
+            I: "[IiÌ-Ïì-ïĨ-İĲĳǏǐȈ-ȋᴵᵢḬḭỈ-ịⁱℐℑℹⅈⅠ-ⅣⅥ-ⅨⅪⅫⅰ-ⅳⅵ-ⅸⅺⅻ⒤Ⓘⓘ㍺㏌㏕ﬁﬃＩｉ]",
+            J: "[JjĲ-ĵǇ-ǌǰʲᴶⅉ⒥ⒿⓙⱼＪｊ]",
+            K: "[KkĶķǨǩᴷᵏḰ-ḵK⒦Ⓚⓚ㎄㎅㎉㎏㎑㎘㎞㎢㎦㎪㎸㎾㏀㏆㏍-㏏Ｋｋ]",
+            L: "[LlĹ-ŀǇ-ǉˡᴸḶḷḺ-ḽℒℓ℡Ⅼⅼ⒧Ⓛⓛ㋏㎈㎉㏐-㏓㏕㏖㏿ﬂﬄＬｌ]",
+            M: "[MmᴹᵐḾ-ṃ℠™ℳⅯⅿ⒨Ⓜⓜ㍷-㍹㎃㎆㎎㎒㎖㎙-㎨㎫㎳㎷㎹㎽㎿㏁㏂㏎㏐㏔-㏖㏘㏙㏞㏟Ｍｍ]",
+            N: "[NnÑñŃ-ŉǊ-ǌǸǹᴺṄ-ṋⁿℕ№⒩Ⓝⓝ㎁㎋㎚㎱㎵㎻㏌㏑Ｎｎ]",
+            O: "[OoºÒ-Öò-öŌ-őƠơǑǒǪǫȌ-ȏȮȯᴼᵒỌ-ỏₒ℅№ℴ⒪Ⓞⓞ㍵㏇㏒㏖Ｏｏ]",
+            P: "[PpᴾᵖṔ-ṗℙ⒫Ⓟⓟ㉐㍱㍶㎀㎊㎩-㎬㎰㎴㎺㏋㏗-㏚Ｐｐ]",
+            Q: "[Qqℚ⒬Ⓠⓠ㏃Ｑｑ]",
+            R: "[RrŔ-řȐ-ȓʳᴿᵣṘ-ṛṞṟ₨ℛ-ℝ⒭Ⓡⓡ㋍㍴㎭-㎯㏚㏛Ｒｒ]",
+            S: "[SsŚ-šſȘșˢṠ-ṣ₨℁℠⒮Ⓢⓢ㎧㎨㎮-㎳㏛㏜ﬆＳｓ]",
+            T: "[TtŢ-ťȚțᵀᵗṪ-ṱẗ℡™⒯Ⓣⓣ㉐㋏㎔㏏ﬅﬆＴｔ]",
+            U: "[UuÙ-Üù-üŨ-ųƯưǓǔȔ-ȗᵁᵘᵤṲ-ṷỤ-ủ℆⒰Ⓤⓤ㍳㍺Ｕｕ]",
+            V: "[VvᵛᵥṼ-ṿⅣ-Ⅷⅳ-ⅷ⒱Ⓥⓥⱽ㋎㍵㎴-㎹㏜㏞Ｖｖ]",
+            W: "[WwŴŵʷᵂẀ-ẉẘ⒲Ⓦⓦ㎺-㎿㏝Ｗｗ]",
+            X: "[XxˣẊ-ẍₓ℻Ⅸ-Ⅻⅸ-ⅻ⒳Ⓧⓧ㏓Ｘｘ]",
+            Y: "[YyÝýÿŶ-ŸȲȳʸẎẏẙỲ-ỹ⒴Ⓨⓨ㏉Ｙｙ]",
+            Z: "[ZzŹ-žǱ-ǳᶻẐ-ẕℤℨ⒵Ⓩⓩ㎐-㎔Ｚｚ]"
         };
         return function hightlight(o) {
             var regex;
@@ -1320,7 +1374,7 @@
                 return;
             }
             o.pattern = _.isArray(o.pattern) ? o.pattern : [ o.pattern ];
-            regex = getRegex(o.pattern, o.caseSensitive, o.wordsOnly);
+            regex = getRegex(o.pattern, o.caseSensitive, o.wordsOnly, o.diacriticInsensitive);
             traverse(o.node, hightlightTextNode);
             function hightlightTextNode(textNode) {
                 var match, patternNode, wrapperNode;
@@ -1346,10 +1400,17 @@
                 }
             }
         };
-        function getRegex(patterns, caseSensitive, wordsOnly) {
+        function accent_replacer(chr) {
+            return accented[chr.toUpperCase()] || chr;
+        }
+        function getRegex(patterns, caseSensitive, wordsOnly, diacriticInsensitive) {
             var escapedPatterns = [], regexStr;
             for (var i = 0, len = patterns.length; i < len; i++) {
-                escapedPatterns.push(_.escapeRegExChars(patterns[i]));
+                var escapedWord = _.escapeRegExChars(patterns[i]);
+                if (diacriticInsensitive) {
+                    escapedWord = escapedWord.replace(/\S/g, accent_replacer);
+                }
+                escapedPatterns.push(escapedWord);
             }
             regexStr = wordsOnly ? "\\b(" + escapedPatterns.join("|") + ")\\b" : "(" + escapedPatterns.join("|") + ")";
             return caseSensitive ? new RegExp(regexStr) : new RegExp(regexStr, "i");
@@ -1586,6 +1647,7 @@
         "use strict";
         var keys, nameGenerator;
         keys = {
+            dataset: "tt-selectable-dataset",
             val: "tt-selectable-display",
             obj: "tt-selectable-object"
         };
@@ -1605,7 +1667,7 @@
             }
             www.mixin(this);
             this.highlight = !!o.highlight;
-            this.name = o.name || nameGenerator();
+            this.name = _.toStr(o.name || nameGenerator());
             this.limit = o.limit || 5;
             this.displayFn = getDisplayFn(o.display || o.displayKey);
             this.templates = getTemplates(o.templates, this.displayFn);
@@ -1618,6 +1680,7 @@
             var $el = $(el);
             if ($el.data(keys.obj)) {
                 return {
+                    dataset: $el.data(keys.dataset) || "",
                     val: $el.data(keys.val) || "",
                     obj: $el.data(keys.obj) || null
                 };
@@ -1636,7 +1699,7 @@
                 } else {
                     this._empty();
                 }
-                this.trigger("rendered", this.name, suggestions, false);
+                this.trigger("rendered", suggestions, false, this.name);
             },
             _append: function append(query, suggestions) {
                 suggestions = suggestions || [];
@@ -1647,7 +1710,7 @@
                 } else if (!this.$lastSuggestion.length && this.templates.notFound) {
                     this._renderNotFound(query);
                 }
-                this.trigger("rendered", this.name, suggestions, true);
+                this.trigger("rendered", suggestions, true, this.name);
             },
             _renderSuggestions: function renderSuggestions(query, suggestions) {
                 var $fragment;
@@ -1688,7 +1751,7 @@
                 _.each(suggestions, function getSuggestionNode(suggestion) {
                     var $el, context;
                     context = that._injectQuery(query, suggestion);
-                    $el = $(that.templates.suggestion(context)).data(keys.obj, suggestion).data(keys.val, that.displayFn(suggestion)).addClass(that.classes.suggestion + " " + that.classes.selectable);
+                    $el = $(that.templates.suggestion(context)).data(keys.dataset, that.name).data(keys.obj, suggestion).data(keys.val, that.displayFn(suggestion)).addClass(that.classes.suggestion + " " + that.classes.selectable);
                     fragment.appendChild($el[0]);
                 });
                 this.highlight && highlight({
@@ -1726,7 +1789,7 @@
                 this.cancel = function cancel() {
                     canceled = true;
                     that.cancel = $.noop;
-                    that.async && that.trigger("asyncCanceled", query);
+                    that.async && that.trigger("asyncCanceled", query, that.name);
                 };
                 this.source(query, sync, async);
                 !syncCalled && sync([]);
@@ -1739,16 +1802,17 @@
                     rendered = suggestions.length;
                     that._overwrite(query, suggestions);
                     if (rendered < that.limit && that.async) {
-                        that.trigger("asyncRequested", query);
+                        that.trigger("asyncRequested", query, that.name);
                     }
                 }
                 function async(suggestions) {
                     suggestions = suggestions || [];
                     if (!canceled && rendered < that.limit) {
                         that.cancel = $.noop;
-                        rendered += suggestions.length;
-                        that._append(query, suggestions.slice(0, that.limit - rendered));
-                        that.async && that.trigger("asyncReceived", query);
+                        var idx = Math.abs(rendered - that.limit);
+                        rendered += idx;
+                        that._append(query, suggestions.slice(0, idx));
+                        that.async && that.trigger("asyncReceived", query, that.name);
                     }
                 }
             },
@@ -1852,6 +1916,12 @@
                 var that = this, onSelectableClick;
                 onSelectableClick = _.bind(this._onSelectableClick, this);
                 this.$node.on("click.tt", this.selectors.selectable, onSelectableClick);
+                this.$node.on("mouseover", this.selectors.selectable, function() {
+                    that.setCursor($(this));
+                });
+                this.$node.on("mouseleave", function() {
+                    that._removeCursor();
+                });
                 _.each(this.datasets, function(dataset) {
                     dataset.onSync("asyncRequested", that._propagate, that).onSync("asyncCanceled", that._propagate, that).onSync("asyncReceived", that._propagate, that).onSync("rendered", that._onRendered, that).onSync("cleared", that._onCleared, that);
                 });
@@ -1861,6 +1931,7 @@
                 return this.$node.hasClass(this.classes.open);
             },
             open: function open() {
+                this.$node.scrollTop(0);
                 this.$node.addClass(this.classes.open);
             },
             close: function close() {
@@ -2075,7 +2146,7 @@
             _onDatasetCleared: function onDatasetCleared() {
                 this._updateHint();
             },
-            _onDatasetRendered: function onDatasetRendered(type, dataset, suggestions, async) {
+            _onDatasetRendered: function onDatasetRendered(type, suggestions, async, dataset) {
                 this._updateHint();
                 this.eventBus.trigger("render", suggestions, async, dataset);
             },
@@ -2099,7 +2170,10 @@
             _onEnterKeyed: function onEnterKeyed(type, $e) {
                 var $selectable;
                 if ($selectable = this.menu.getActiveSelectable()) {
-                    this.select($selectable) && $e.preventDefault();
+                    if (this.select($selectable)) {
+                        $e.preventDefault();
+                        $e.stopPropagation();
+                    }
                 }
             },
             _onTabKeyed: function onTabKeyed(type, $e) {
@@ -2121,12 +2195,12 @@
             },
             _onLeftKeyed: function onLeftKeyed() {
                 if (this.dir === "rtl" && this.input.isCursorAtEnd()) {
-                    this.autocomplete(this.menu.getTopSelectable());
+                    this.autocomplete(this.menu.getActiveSelectable() || this.menu.getTopSelectable());
                 }
             },
             _onRightKeyed: function onRightKeyed() {
                 if (this.dir === "ltr" && this.input.isCursorAtEnd()) {
-                    this.autocomplete(this.menu.getTopSelectable());
+                    this.autocomplete(this.menu.getActiveSelectable() || this.menu.getTopSelectable());
                 }
             },
             _onQueryChanged: function onQueryChanged(e, query) {
@@ -2226,9 +2300,9 @@
             },
             select: function select($selectable) {
                 var data = this.menu.getSelectableData($selectable);
-                if (data && !this.eventBus.before("select", data.obj)) {
+                if (data && !this.eventBus.before("select", data.obj, data.dataset)) {
                     this.input.setQuery(data.val, true);
-                    this.eventBus.trigger("select", data.obj);
+                    this.eventBus.trigger("select", data.obj, data.dataset);
                     this.close();
                     return true;
                 }
@@ -2239,23 +2313,24 @@
                 query = this.input.getQuery();
                 data = this.menu.getSelectableData($selectable);
                 isValid = data && query !== data.val;
-                if (isValid && !this.eventBus.before("autocomplete", data.obj)) {
+                if (isValid && !this.eventBus.before("autocomplete", data.obj, data.dataset)) {
                     this.input.setQuery(data.val);
-                    this.eventBus.trigger("autocomplete", data.obj);
+                    this.eventBus.trigger("autocomplete", data.obj, data.dataset);
                     return true;
                 }
                 return false;
             },
             moveCursor: function moveCursor(delta) {
-                var query, $candidate, data, payload, cancelMove, id;
+                var query, $candidate, data, suggestion, datasetName, cancelMove, id;
                 query = this.input.getQuery();
                 $candidate = this.menu.selectableRelativeToCursor(delta);
                 data = this.menu.getSelectableData($candidate);
-                payload = data ? data.obj : null;
+                suggestion = data ? data.obj : null;
+                datasetName = data ? data.dataset : null;
                 id = $candidate ? $candidate.attr("id") : null;
                 this.input.trigger("cursorchange", id);
                 cancelMove = this._minLengthMet() && this.menu.update(query);
-                if (!cancelMove && !this.eventBus.before("cursorchange", payload)) {
+                if (!cancelMove && !this.eventBus.before("cursorchange", suggestion, datasetName)) {
                     this.menu.setCursor($candidate);
                     if (data) {
                         this.input.setInputValue(data.val);
@@ -2263,7 +2338,7 @@
                         this.input.resetInputValue();
                         this._updateHint();
                     }
-                    this.eventBus.trigger("cursorchange", payload);
+                    this.eventBus.trigger("cursorchange", suggestion, datasetName);
                     return true;
                 }
                 return false;
@@ -2433,7 +2508,7 @@
                     return query;
                 } else {
                     ttEach(this, function(t) {
-                        t.setVal(newVal);
+                        t.setVal(_.toStr(newVal));
                     });
                     return this;
                 }
