@@ -61,7 +61,7 @@ var Transport = (function() {
 
       // a request is already in progress, piggyback off of it
       if (jqXhr = pendingRequests[fingerprint]) {
-        jqXhr.done(done).fail(fail);
+        jqXhr.done(done).fail(fail).abort();
       }
 
       // under the pending request threshold, so fire off a request
