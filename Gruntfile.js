@@ -24,6 +24,7 @@ var semver = require('semver'),
       'src/typeahead/input.js',
       'src/typeahead/dataset.js',
       'src/typeahead/menu.js',
+      'src/typeahead/status.js',
       'src/typeahead/default_menu.js',
       'src/typeahead/typeahead.js',
       'src/typeahead/plugin.js'
@@ -153,12 +154,25 @@ module.exports = function(grunt) {
       }
     },
 
-    sed: {
+    replace: {
       version: {
-        pattern: '%VERSION%',
-        replacement: '<%= version %>',
-        recursive: true,
-        path: '<%= buildDir %>'
+        options: {
+          patterns: [
+            {
+              match: '%VERSION%',
+              replacement: '<%= version %>',
+            }
+          ],
+          usePrefix: false
+        },
+        files: [
+          {
+            expand: true,
+            flatten: true,
+            src: '<%= buildDir %>/**/*.js',
+            dest: '<%= buildDir %>'
+          }
+        ]
       }
     },
 
@@ -308,14 +322,14 @@ module.exports = function(grunt) {
     'uglify:typeaheadMin',
     'uglify:bundle',
     'uglify:bundleMin',
-    'sed:version'
+    'replace:version'
   ]);
 
   // load tasks
   // ----------
 
   grunt.loadNpmTasks('grunt-umd');
-  grunt.loadNpmTasks('grunt-sed');
+  grunt.loadNpmTasks('grunt-replace');
   grunt.loadNpmTasks('grunt-exec');
   grunt.loadNpmTasks('grunt-step');
   grunt.loadNpmTasks('grunt-concurrent');

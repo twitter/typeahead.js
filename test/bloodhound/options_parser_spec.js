@@ -118,8 +118,8 @@ describe('options parser', function() {
 
       waits(0);
       runs(function() {
-        expect(errDeferred.isRejected()).toBe(true);
-        expect(successDeferred.isResolved()).toBe(true);
+        expect(errDeferred.state()).toBe('rejected');
+        expect(successDeferred.state()).toBe('resolved');
       });
 
       function errTransport(q, success, error) { error(); }
@@ -183,8 +183,8 @@ describe('options parser', function() {
 
       waits(0);
       runs(function() {
-        expect(errDeferred.isRejected()).toBe(true);
-        expect(successDeferred.isResolved()).toBe(true);
+        expect(errDeferred.state()).toBe('rejected');
+        expect(successDeferred.state()).toBe('resolved');
       });
 
       function errTransport(q, success, error) { error(); }

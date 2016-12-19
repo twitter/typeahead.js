@@ -59,6 +59,7 @@ var Dataset = (function() {
     this._resetLastSuggestion();
 
     this.$el = $(o.node)
+    .attr('role', 'presentation')
     .addClass(this.classes.dataset)
     .addClass(this.classes.dataset + '-' + this.name);
   }
@@ -322,7 +323,7 @@ var Dataset = (function() {
     };
 
     function suggestionTemplate(context) {
-      return $('<div>').text(displayFn(context));
+      return $('<div role="option">').attr('id', _.guid()).text(displayFn(context));
     }
   }
 

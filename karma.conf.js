@@ -18,7 +18,8 @@ module.exports = function(config) {
     },
 
     files: [
-      'bower_components/jquery/jquery.js',
+      'bower_components/jquery/dist/jquery.js',
+      './node_modules/phantomjs-polyfill/bind-polyfill.js',
       'src/common/utils.js',
       'src/bloodhound/version.js',
       'src/bloodhound/tokenizers.js',
@@ -37,6 +38,7 @@ module.exports = function(config) {
       'src/typeahead/input.js',
       'src/typeahead/dataset.js',
       'src/typeahead/menu.js',
+      'src/typeahead/status.js',
       'src/typeahead/default_menu.js',
       'src/typeahead/typeahead.js',
       'src/typeahead/plugin.js',
