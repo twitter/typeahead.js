@@ -1,5 +1,12 @@
 # Changelog
 
+### 1.1.0 December 19, 2016
+* Improve screen reader support, ARIA, etc. [#104](https://github.com/corejavascript/typeahead.js/pull/104)
+* Remove non-essential files from NPM package [#100](https://github.com/corejavascript/typeahead.js/pull/100)
+
+### 1.0.1 November 17, 2016
+* v1.0.1 Released
+
 ### 1.0.0-beta November 10, 2016
 * Add diacritic-insensitive highlighting [#51](https://github.com/corejavascript/typeahead.js/pull/51)
 * Allow for custom setting of maxPendingRequests [#62](https://github.com/corejavascript/typeahead.js/pull/62)
