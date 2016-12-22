@@ -1,5 +1,5 @@
 /*!
- * typeahead.js 1.0.1
+ * typeahead.js 1.1.0
  * https://github.com/twitter/typeahead.js
  * Copyright 2013-2016 Twitter, Inc. and other contributors; Licensed MIT
  */
@@ -1056,8 +1056,21 @@
     var Status = function() {
         "use strict";
         function Status(options) {
-            this.el = '<span role="status" aria-live="polite" class="visuallyhidden"></span>';
-            this.$el = $(this.el);
+            this.$el = $("<span></span>", {
+                role: "status",
+                "aria-live": "polite"
+            }).css({
+                position: "absolute",
+                padding: "0",
+                border: "0",
+                height: "1px",
+                width: "1px",
+                "margin-bottom": "-1px",
+                "margin-right": "-1px",
+                overflow: "hidden",
+                clip: "rect(0 0 0 0)",
+                "white-space": "nowrap"
+            });
             options.$input.after(this.$el);
             _.each(options.menu.datasets, _.bind(function(dataset) {
                 if (dataset.onSync) {
