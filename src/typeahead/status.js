@@ -2,8 +2,23 @@ var Status = (function () {
   'use strict';
 
   function Status(options) {
-    this.el = '<span role="status" aria-live="polite" class="visuallyhidden"></span>';
-    this.$el = $(this.el);
+    this.$el = $('<span></span>', {
+      'role': 'status',
+      'aria-live': 'polite',
+    }).css({
+      // This `.visuallyhidden` style is inspired by HTML5 Boilerplate
+      // https://github.com/h5bp/html5-boilerplate/blob/fea7f22/src/css/main.css#L128
+      'position': 'absolute',
+      'padding': '0',
+      'border': '0',
+      'height': '1px',
+      'width': '1px',
+      'margin-bottom': '-1px',
+      'margin-right': '-1px',
+      'overflow': 'hidden',
+      'clip': 'rect(0 0 0 0)',
+      'white-space': 'nowrap',
+    });
     options.$input.after(this.$el);
     _.each(options.menu.datasets, _.bind(function (dataset) {
       if (dataset.onSync) {
