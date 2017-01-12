@@ -1,7 +1,7 @@
 /*!
- * typeahead.js 1.1.0
+ * typeahead.js 1.1.1
  * https://github.com/twitter/typeahead.js
- * Copyright 2013-2016 Twitter, Inc. and other contributors; Licensed MIT
+ * Copyright 2013-2017 Twitter, Inc. and other contributors; Licensed MIT
  */
 
 (function(root, factory) {
@@ -9,7 +9,7 @@
         define([ "jquery" ], function(a0) {
             return factory(a0);
         });
-    } else if (typeof module === "object" && module.exports) {
+    } else if (typeof exports === "object") {
         module.exports = factory(require("jquery"));
     } else {
         factory(root["jQuery"]);
