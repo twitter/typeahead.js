@@ -25,8 +25,22 @@ describe('Status', function() {
   });
 
   it('renders a status element after the input', function() {
-    expect(status.el).toEqual('<span role="status" aria-live="polite" class="visuallyhidden"></span>');
+    expect(status.$el.attr('role')).toEqual('status');
+    expect(status.$el.attr('aria-live')).toEqual('polite');
     expect(status.$el.prev()).toEqual(this.$input);
+  });
+
+  it('renders a status element that is visible to screen readers', function () {
+    expect(status.$el.attr('aria-hidden')).not.toEqual('true');
+    expect(status.$el.css('display')).not.toEqual('none');
+    expect(status.$el.css('visibility')).not.toEqual('hidden');
+    expect(status.$el.height()).not.toEqual(0);
+    expect(status.$el.width()).not.toEqual(0);
+  });
+
+  it('renders a status element that is hidden on displays', function () {
+    expect(status.$el.outerHeight(true)).toEqual(0);
+    expect(status.$el.outerWidth(true)).toEqual(0);
   });
 
   describe('when rendered is triggered on the datasets', function() {
