@@ -161,7 +161,7 @@
 
     // mirror jQuery#val functionality: reads opearte on first match,
     // write operates on all matches
-    val: function val(newVal) {
+    val: function val(newVal,silent) {
       var query;
 
       if (!arguments.length) {
@@ -170,7 +170,7 @@
       }
 
       else {
-        ttEach(this, function(t) { t.setVal(_.toStr(newVal)); });
+        ttEach(this, function(t) { t.setVal(_.toStr(newVal),silent); });
         return this;
       }
     },
