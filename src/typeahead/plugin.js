@@ -175,6 +175,11 @@
       }
     },
 
+    clearHint: function clearHint() {
+        ttEach(this, function(t) {t.clearHint();});
+        return this;
+    },
+
     destroy: function destroy() {
       ttEach(this, function(typeahead, $input) {
         revert($input);

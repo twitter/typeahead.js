@@ -256,6 +256,10 @@ var Typeahead = (function() {
 
     // ### public
 
+    clearHint: function clearHint() {
+      this.input.clearHint();
+    },
+
     isEnabled: function isEnabled() {
       return this.enabled;
     },
