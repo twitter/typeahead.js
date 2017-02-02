@@ -1,7 +1,7 @@
 /*!
- * typeahead.js 0.11.1
+ * typeahead.js 0.11.3
  * https://github.com/twitter/typeahead.js
- * Copyright 2013-2016 Twitter, Inc. and other contributors; Licensed MIT
+ * Copyright 2013-2017 Twitter, Inc. and other contributors; Licensed MIT
  */
 
 (function(root, factory) {
@@ -1188,6 +1188,9 @@
                     this.input.clearHint();
                 }
             },
+            clearHint: function clearHint() {
+                this.input.clearHint();
+            },
             isEnabled: function isEnabled() {
                 return this.enabled;
             },
@@ -1243,8 +1246,9 @@
                 }
                 return !this.isOpen();
             },
-            setVal: function setVal(val) {
-                this.input.setQuery(_.toStr(val));
+            setVal: function setVal(val, silent) {
+                this.input.setQuery(_.toStr(val), silent);
+                this.eventBus.trigger("inputchange");
             },
             getVal: function getVal() {
                 return this.input.getQuery();
@@ -1443,7 +1447,7 @@
                 });
                 return success;
             },
-            val: function val(newVal) {
+            val: function val(newVal, silent) {
                 var query;
                 if (!arguments.length) {
                     ttEach(this.first(), function(t) {
@@ -1452,10 +1456,16 @@
                     return query;
                 } else {
                     ttEach(this, function(t) {
-                        t.setVal(_.toStr(newVal));
+                        t.setVal(_.toStr(newVal), silent);
                     });
                     return this;
                 }
+            },
+            clearHint: function clearHint() {
+                ttEach(this, function(t) {
+                    t.clearHint();
+                });
+                return this;
             },
             destroy: function destroy() {
                 ttEach(this, function(typeahead, $input) {
