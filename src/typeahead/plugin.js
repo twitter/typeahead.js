@@ -225,6 +225,7 @@
     .css(getBackgroundStyles($input))
     .prop('readonly', true)
     .removeAttr('id name placeholder required')
+    .removeClass('required')
     .attr({ spellcheck: 'false', tabindex: -1 });
   }
 
