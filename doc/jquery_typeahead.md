@@ -212,16 +212,19 @@ a typeahead.
   occurred in.
 
 * `typeahead:select` – Fired when a suggestion is selected. The event handler 
-  will be invoked with 2 arguments: the jQuery event object and the suggestion
-  object that was selected.
+  will be invoked with 3 arguments: the jQuery event object, the suggestion
+  object that was selected, and the name of the dataset the suggestion belongs
+  to.
 
-* `typeahead:autocomplete` – Fired when a autocompletion occurs. The 
-  event handler will be invoked with 2 arguments: the jQuery event object and 
-  the suggestion object that was used for autocompletion.
+* `typeahead:autocomplete` – Fired when a autocompletion occurs. The event 
+  handler will be invoked with 3 arguments: the jQuery event object, the 
+  suggestion object that was used for autocompletion, and the name of the 
+  dataset the suggestion belongs to.
 
 * `typeahead:cursorchange` – Fired when the results container cursor moves. The 
-  event handler will be invoked with 2 arguments: the jQuery event object and 
-  the suggestion object that was moved to.
+  event handler will be invoked with 3 arguments: the jQuery event object, the 
+  suggestion object that was moved to, and the name of the dataset the 
+  suggestion belongs to.
 
 * `typeahead:asyncrequest` – Fired when an async request for suggestions is 
   sent. The event handler will be invoked with 3 arguments: the jQuery event 

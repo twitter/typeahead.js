@@ -1,15 +1,16 @@
 {
-  "name": "typeahead.js",
+  "name": "corejs-typeahead",
   "description": "fast and fully-featured autocomplete library",
   "keywords": [
     "typeahead",
-    "autocomplete"
+    "autocomplete",
+    "aria"
   ],
-  "homepage": "http://twitter.github.com/typeahead.js",
-  "bugs": "https://github.com/twitter/typeahead.js/issues",
+  "homepage": "http://corejavascript.github.io/typeahead.js/",
+  "bugs": "https://github.com/corejavascript/typeahead.js/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/twitter/typeahead.js.git"
+    "url": "https://github.com/corejavascript/typeahead.js.git"
   },
   "author": {
     "name": "Twitter, Inc.",
@@ -27,42 +28,49 @@
     {
       "name": "Veljko Skarich",
       "url": "https://twitter.com/vskarich"
+    },
+    {
+      "name": "Jeremy Booker",
+      "url": "https://twitter.com/jbook3r"
     }
   ],
+  "license": "MIT",
   "dependencies": {
-    "jquery": ">=1.7"
+    "jquery": ">=1.11"
   },
   "devDependencies": {
-    "chai": "^1.9.1",
-    "colors": "^0.6.2",
-    "grunt": "~0.4",
-    "grunt-concurrent": "^0.5.0",
-    "grunt-contrib-clean": "~0.4.0",
-    "grunt-contrib-concat": "~0.1",
-    "grunt-contrib-connect": "~0.1",
-    "grunt-contrib-jshint": "~0.8",
-    "grunt-contrib-uglify": "~0.2.6",
-    "grunt-contrib-watch": "~0.2",
-    "grunt-exec": "~0.4.5",
-    "grunt-sed": "~0.1",
-    "grunt-step": "~0.2.0",
+    "chai": "^3.5.0",
+    "colors": "^1.1.2",
+    "grunt": "~1.0.1",
+    "grunt-concurrent": "^2.0.3",
+    "grunt-contrib-clean": "^1.0.0",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-connect": "^1.0.2",
+    "grunt-contrib-jshint": "^1.1.0",
+    "grunt-contrib-uglify": "^2.0.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-exec": "~1.0.1",
+    "grunt-replace": "^1.0.1",
+    "grunt-step": "~1.0.0",
     "grunt-umd": "^2.3.3",
-    "karma": "^0.12.22",
-    "karma-chrome-launcher": "^0.1.4",
-    "karma-coverage": "^0.2.6",
-    "karma-firefox-launcher": "^0.1.3",
-    "karma-jasmine": "^0.1.5",
-    "karma-opera-launcher": "^0.1.0",
-    "karma-phantomjs-launcher": "^0.1.4",
-    "karma-safari-launcher": "^0.1.1",
-    "mocha": "^1.20.1",
-    "semver": "~1.1.3",
+    "karma": "^1.3.0",
+    "karma-chrome-launcher": "^2.0.0",
+    "karma-coverage": "^1.1.1",
+    "karma-firefox-launcher": "^1.0.0",
+    "karma-jasmine": "^0.1.6",
+    "karma-opera-launcher": "^1.0.0",
+    "karma-phantomjs-launcher": "^1.0.2",
+    "karma-safari-launcher": "^1.0.0",
+    "mocha": "^3.2.0",
+    "node-static": "^0.7.7",
+    "phantomjs": "^2.1.7",
+    "semver": "^5.0.3",
     "underscore": "^1.6.0",
-    "yiewd": "^0.5.0"
+    "yiewd": "^0.6.0"
   },
   "scripts": {
-    "test": "./node_modules/karma/bin/karma start --single-run --browsers PhantomJS"
+    "test": "bower install && ./node_modules/karma/bin/karma start --single-run --browsers PhantomJS"
   },
-  "version": "0.11.1",
+  "version": "1.1.1",
   "main": "dist/typeahead.bundle.js"
 }

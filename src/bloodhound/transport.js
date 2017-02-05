@@ -9,7 +9,6 @@ var Transport = (function() {
 
   var pendingRequestsCount = 0,
       pendingRequests = {},
-      maxPendingRequests = 6,
       sharedCache = new LruCache(10);
 
   // constructor
@@ -18,6 +17,7 @@ var Transport = (function() {
   function Transport(o) {
     o = o || {};
 
+    this.maxPendingRequests = o.maxPendingRequests || 6;
     this.cancelled = false;
     this.lastReq = null;
 
@@ -31,7 +31,7 @@ var Transport = (function() {
   // --------------
 
   Transport.setMaxPendingRequests = function setMaxPendingRequests(num) {
-    maxPendingRequests = num;
+    this.maxPendingRequests = num;
   };
 
   Transport.resetCache = function resetCache() {
@@ -65,7 +65,7 @@ var Transport = (function() {
       }
 
       // under the pending request threshold, so fire off a request
-      else if (pendingRequestsCount < maxPendingRequests) {
+      else if (pendingRequestsCount < this.maxPendingRequests) {
         pendingRequestsCount++;
         pendingRequests[fingerprint] =
           this._send(o).done(done).fail(fail).always(always);

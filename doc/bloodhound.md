@@ -12,6 +12,7 @@ Table of Contents
 * [Usage](#usage)
   * [API](#api)
   * [Options](#options)
+  * [Tokenizers] (#tokenizers)
   * [Prefetch](#prefetch)
   * [Remote](#remote)
 
@@ -136,7 +137,7 @@ contain at least `sufficient` number of datums, `remote` data will be requested
 and then passed to the `async` callback.
 
 ```javascript
-bloodhound.get(myQuery, sync, async);
+bloodhound.search(myQuery, sync, async);
 
 function sync(datums) {
   console.log('datums from `local`, `prefetch`, and `#add`');
@@ -164,10 +165,14 @@ When instantiating a Bloodhound suggestion engine, there are a number of
 options you can configure.
 
 * `datumTokenizer` – A function with the signature `(datum)` that transforms a
-  datum into an array of string tokens. **Required**.
+  datum into an array of string tokens. See [Tokenizers](#tokenizers). **Required**.
 
 * `queryTokenizer` – A function with the signature `(query)` that transforms a
-  query into an array of string tokens. **Required**.
+  query into an array of string tokens. See [Tokenizers](#tokenizers). **Required**.
+
+* `matchAnyQueryToken` - By default a search result must match ALL query-tokens.
+  Instead, this option returns results that match ANY query-tokens. Defaults to
+  `false`.
 
 * `initialize` – If set to `false`, the Bloodhound instance will not be 
   implicitly initialized by the constructor function. Defaults to `true`.
@@ -193,9 +198,29 @@ options you can configure.
   the internal search index is insufficient or, if more configurability is 
   needed, a [remote options hash](#remote).
 
+* `indexRemote` – Adds the data loaded from `remote` to the search index (where
+  `local` and `prefetch` are stored for retrieval). Defaults to `false`.
+
 <!-- section links -->
 
 [compare function]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+
+### Tokenizers
+
+The Bloodhound suggestion engine is token-based, so how datums and queries are tokenized plays a vital role in the quality of search results.
+
+A tokenizer is a function with the signature `(string)` that transforms a query into an array of string tokens. When instantiating a Bloodhound suggestion engine, you can use your own tokenizer or one of the following included implementations:
+
+```javascript
+// returns ['foo', 'bar', 'foo-bar']
+Bloodhound.tokenizers.whitespace('foo bar foo-bar');
+
+// returns ['foo', 'bar', 'foo', 'bar']
+Bloodhound.tokenizers.nonword('foo bar foo-bar');
+
+// returns ['f', 'fo', 'foo', 'b', 'ba', 'bar']
+Bloodhound.tokenizers.ngram('foo bar');
+```
 
 ### Prefetch
 
@@ -252,15 +277,15 @@ When configuring `remote`, the following options are available.
 * `url` – The URL remote data should be loaded from. **Required.**
 
 * `prepare` – A function that provides a hook to allow you to prepare the 
-  settings object passed to `transport` when a request is about to be made. 
-  The function signature should be `prepare(query, settings)`, where `query` is
-  the query `#search` was called with and `settings` is the default settings
-  object created internally by the Bloodhound instance. The `prepare` function
-  should return a settings object. Defaults to the [identity function].
+   settings object passed to `transport` when a request is about to be made. 
+   The function signature should be `prepare(query, settings)`, where `query` is
+   the query `#search` was called with and `settings` is the default settings
+   object created internally by the Bloodhound instance. The `prepare` function
+   should return a settings object. Defaults to the [identity function].
 
 * `wildcard` – A convenience option for `prepare`. If set, `prepare` will be a
-  function that replaces the value of this option in `url` with the URI encoded
-  query.
+   function that replaces the value of this option in `url` with the URI encoded
+   query.
 
 * `rateLimitBy` – The method used to rate-limit network requests. Can be either 
   `debounce` or `throttle`. Defaults to `debounce`.
@@ -269,8 +294,8 @@ When configuring `remote`, the following options are available.
   `rateLimitBy`. Defaults to `300`.
 
 * `transform` – A function with the signature `transform(response)` that allows
-  you to transform the remote response before the Bloodhound instance operates 
-  on it. Defaults to the [identity function].
+   you to transform the remote response before the Bloodhound instance operates 
+   on it. Defaults to the [identity function].
 
 <!-- section links -->
 

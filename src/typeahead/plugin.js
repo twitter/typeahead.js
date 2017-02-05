@@ -33,7 +33,7 @@
 
       function attach() {
         var $input, $wrapper, $hint, $menu, defaultHint, defaultMenu,
-            eventBus, input, menu, typeahead, MenuConstructor;
+            eventBus, input, menu, status, typeahead, MenuConstructor;
 
         // highlight is a top-level config that needs to get inherited
         // from all of the datasets
@@ -74,6 +74,11 @@
           node: $menu,
           datasets: datasets
         }, www);
+
+        status = new Status({
+          $input: $input,
+          menu: menu
+        });
 
         typeahead = new Typeahead({
           input: input,
@@ -159,7 +164,7 @@
       return success;
     },
 
-    // mirror jQuery#val functionality: reads opearte on first match,
+    // mirror jQuery#val functionality: reads operate on first match,
     // write operates on all matches
     val: function val(newVal) {
       var query;
@@ -170,7 +175,7 @@
       }
 
       else {
-        ttEach(this, function(t) { t.setVal(newVal); });
+        ttEach(this, function(t) { t.setVal(_.toStr(newVal)); });
         return this;
       }
     },
@@ -186,7 +191,7 @@
   };
 
   $.fn.typeahead = function(method) {
-    // methods that should only act on intialized typeaheads
+    // methods that should only act on initialized typeaheads
     if (methods[method]) {
       return methods[method].apply(this, [].slice.call(arguments, 1));
     }
@@ -220,7 +225,8 @@
     .css(getBackgroundStyles($input))
     .prop('readonly', true)
     .removeAttr('id name placeholder required')
-    .attr({ autocomplete: 'off', spellcheck: 'false', tabindex: -1 });
+    .removeClass('required')
+    .attr({ spellcheck: 'false', tabindex: -1 });
   }
 
   function prepInput($input, www) {
@@ -235,7 +241,7 @@
 
     $input
     .addClass(www.classes.input)
-    .attr({ autocomplete: 'off', spellcheck: false });
+    .attr({ spellcheck: false });
 
     // ie7 does not like it when dir is set to auto
     try { !$input.attr('dir') && $input.attr('dir', 'auto'); } catch (e) {}
