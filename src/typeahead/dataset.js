@@ -324,7 +324,7 @@ var Dataset = (function() {
   }
 
   function isValidName(str) {
-    // dashes, underscores, letters, and numbers
-    return (/^[_a-zA-Z0-9-]+$/).test(str);
+    // dashes, underscores, colons, periods, letters, and numbers
+    return (/^[_a-zA-Z0-9-:.]+$/).test(str);
   }
 })();
