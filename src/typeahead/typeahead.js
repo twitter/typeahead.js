@@ -128,7 +128,8 @@ var Typeahead = (function() {
     },
 
     _onDatasetCleared: function onDatasetCleared() {
-      this._updateHint();
+        this._updateHint();
+        this.eventBus.trigger('clear');
     },
 
     _onDatasetRendered: function onDatasetRendered(type, dataset, suggestions, async) {
@@ -192,13 +193,13 @@ var Typeahead = (function() {
 
     _onLeftKeyed: function onLeftKeyed() {
       if (this.dir === 'rtl' && this.input.isCursorAtEnd()) {
-        this.autocomplete(this.menu.getTopSelectable());
+        this.autocomplete(this.menu.getActiveSelectable() || this.menu.getTopSelectable());
       }
     },
 
     _onRightKeyed: function onRightKeyed() {
       if (this.dir === 'ltr' && this.input.isCursorAtEnd()) {
-        this.autocomplete(this.menu.getTopSelectable());
+        this.autocomplete(this.menu.getActiveSelectable() || this.menu.getTopSelectable());
       }
     },
 
@@ -254,6 +255,10 @@ var Typeahead = (function() {
     },
 
     // ### public
+
+    clearHint: function clearHint() {
+      this.input.clearHint();
+    },
 
     isEnabled: function isEnabled() {
       return this.enabled;
@@ -335,9 +340,10 @@ var Typeahead = (function() {
       return !this.isOpen();
     },
 
-    setVal: function setVal(val) {
+    setVal: function setVal(val,silent) {
       // expect val to be a string, so be safe, and coerce
-      this.input.setQuery(_.toStr(val));
+      this.input.setQuery(_.toStr(val),silent);
+      this.eventBus.trigger('inputchange');
     },
 
     getVal: function getVal() {

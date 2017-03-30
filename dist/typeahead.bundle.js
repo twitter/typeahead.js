@@ -1,7 +1,7 @@
 /*!
- * typeahead.js 0.11.1
+ * typeahead.js 0.11.3
  * https://github.com/twitter/typeahead.js
- * Copyright 2013-2015 Twitter, Inc. and other contributors; Licensed MIT
+ * Copyright 2013-2017 Twitter, Inc. and other contributors; Licensed MIT
  */
 
 (function(root, factory) {
@@ -151,7 +151,7 @@
             noop: function() {}
         };
     }();
-    var VERSION = "0.11.1";
+    var VERSION = "0.11.3";
     var tokenizers = function() {
         "use strict";
         return {
@@ -1720,8 +1720,8 @@
                     suggestions = suggestions || [];
                     if (!canceled && rendered < that.limit) {
                         that.cancel = $.noop;
-                        rendered += suggestions.length;
                         that._append(query, suggestions.slice(0, that.limit - rendered));
+                        rendered += suggestions.length;
                         that.async && that.trigger("asyncReceived", query);
                     }
                 }
@@ -1834,6 +1834,7 @@
                 return this.$node.hasClass(this.classes.open);
             },
             open: function open() {
+                this.$node.scrollTop(0);
                 this.$node.addClass(this.classes.open);
             },
             close: function close() {
@@ -2010,6 +2011,7 @@
             },
             _onDatasetCleared: function onDatasetCleared() {
                 this._updateHint();
+                this.eventBus.trigger("clear");
             },
             _onDatasetRendered: function onDatasetRendered(type, dataset, suggestions, async) {
                 this._updateHint();
@@ -2057,12 +2059,12 @@
             },
             _onLeftKeyed: function onLeftKeyed() {
                 if (this.dir === "rtl" && this.input.isCursorAtEnd()) {
-                    this.autocomplete(this.menu.getTopSelectable());
+                    this.autocomplete(this.menu.getActiveSelectable() || this.menu.getTopSelectable());
                 }
             },
             _onRightKeyed: function onRightKeyed() {
                 if (this.dir === "ltr" && this.input.isCursorAtEnd()) {
-                    this.autocomplete(this.menu.getTopSelectable());
+                    this.autocomplete(this.menu.getActiveSelectable() || this.menu.getTopSelectable());
                 }
             },
             _onQueryChanged: function onQueryChanged(e, query) {
@@ -2098,6 +2100,9 @@
                 } else {
                     this.input.clearHint();
                 }
+            },
+            clearHint: function clearHint() {
+                this.input.clearHint();
             },
             isEnabled: function isEnabled() {
                 return this.enabled;
@@ -2154,8 +2159,9 @@
                 }
                 return !this.isOpen();
             },
-            setVal: function setVal(val) {
-                this.input.setQuery(_.toStr(val));
+            setVal: function setVal(val, silent) {
+                this.input.setQuery(_.toStr(val), silent);
+                this.eventBus.trigger("inputchange");
             },
             getVal: function getVal() {
                 return this.input.getQuery();
@@ -2354,7 +2360,7 @@
                 });
                 return success;
             },
-            val: function val(newVal) {
+            val: function val(newVal, silent) {
                 var query;
                 if (!arguments.length) {
                     ttEach(this.first(), function(t) {
@@ -2363,10 +2369,16 @@
                     return query;
                 } else {
                     ttEach(this, function(t) {
-                        t.setVal(newVal);
+                        t.setVal(_.toStr(newVal), silent);
                     });
                     return this;
                 }
+            },
+            clearHint: function clearHint() {
+                ttEach(this, function(t) {
+                    t.clearHint();
+                });
+                return this;
             },
             destroy: function destroy() {
                 ttEach(this, function(typeahead, $input) {
