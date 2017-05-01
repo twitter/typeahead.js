@@ -143,6 +143,14 @@ Datasets can be configured using the following options.
   called with suggestions computed asynchronously (e.g. suggestions that come 
   for an AJAX request). `source` can also be a Bloodhound instance. 
   **Required**.
+  
+  Example of use:
+  
+  `  source: function ( query, syncResults, asyncResults) {
+                    $.get( '/api/autocomplete/places', { q: query }, function ( data ) {
+                        return asyncResults( data );
+                    } );
+                }`
 
 * `async` – Lets the dataset know if async suggestions should be expected. If
   not set, this information is inferred from the signature of `source` i.e.
