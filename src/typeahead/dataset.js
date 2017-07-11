@@ -198,6 +198,7 @@ var Dataset = (function() {
 
       this.highlight && highlight({
         className: this.classes.highlight,
+        skipHighlight: this.classes.skipHighlight,
         node: fragment,
         pattern: query
       });

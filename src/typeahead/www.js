@@ -18,7 +18,8 @@ var WWW = (function() {
     empty: 'tt-empty',
     open: 'tt-open',
     cursor: 'tt-cursor',
-    highlight: 'tt-highlight'
+    highlight: 'tt-highlight',
+    skipHighlight: 'tt-skip-highlight'
   };
 
   return build;

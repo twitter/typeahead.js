@@ -6,17 +6,18 @@
 
 // inspired by https://github.com/jharding/bearhug
 
-var highlight = (function(doc) {
+var highlight = (function (doc) {
   'use strict';
 
   var defaults = {
-        node: null,
-        pattern: null,
-        tagName: 'strong',
-        className: null,
-        wordsOnly: false,
-        caseSensitive: false
-      };
+    node: null,
+    pattern: null,
+    tagName: 'strong',
+    className: null,
+    skipHighlight: null,
+    wordsOnly: false,
+    caseSensitive: false
+  };
 
   return function hightlight(o) {
     var regex;
@@ -57,7 +58,9 @@ var highlight = (function(doc) {
       for (var i = 0; i < el.childNodes.length; i++) {
         childNode = el.childNodes[i];
 
-        if (childNode.nodeType === TEXT_NODE_TYPE) {
+        if ($(childNode).hasClass(o.skipHighlight)) {
+          continue;
+        } else if (childNode.nodeType === TEXT_NODE_TYPE) {
           i += hightlightTextNode(childNode) ? 1 : 0;
         }
 
