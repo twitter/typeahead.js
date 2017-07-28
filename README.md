@@ -1,3 +1,9 @@
+**NOTE FROM MAINTAINERS**
+
+This library is no more maintained, you should use [corejavascript/typeahead.js](https://github.com/corejavascript/typeahead.js) or [algolia/autocomplete.js](https://github.com/algolia/autocomplete.js/) instead.
+
+**/NOTE FROM MAINTAINERS**
+
 [![build status](https://secure.travis-ci.org/twitter/typeahead.js.svg?branch=master)](http://travis-ci.org/twitter/typeahead.js)
 [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
 
