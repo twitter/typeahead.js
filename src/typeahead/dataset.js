@@ -272,7 +272,7 @@ var Dataset = (function() {
           rendered += suggestions.length;
           // only reduce suggestions if there are more items than allowed
           if (suggestions.length > that.limit) {
-            that._append(query, suggestions.slice(0, that.limit - rendered));
+            that._append(query, suggestions.slice(0, that.limit));
           }
           else {
             that._append(query, suggestions);
