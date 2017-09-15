@@ -111,6 +111,9 @@ jQuery.fn._typeahead = typeahead;
 
 When initializing a typeahead, there are a number of options you can configure.
 
+* `autoselect` – If `false`, the first item won't be automatically selected when 
+   showing suggestions. Defaults to `true`.
+
 * `highlight` – If `true`, when suggestions are rendered, pattern matches
   for the current query in text nodes will be wrapped in a `strong` element with
   its class set to `{{classNames.highlight}}`. Defaults to `false`.
