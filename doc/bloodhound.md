@@ -122,7 +122,7 @@ Returns the data in the local search index corresponding to `ids`.
     local: [{ id: 1, name: 'dog' }, { id: 2, name: 'pig' }],
     identify: function(obj) { return obj.id; },
     queryTokenizer: Bloodhound.tokenizers.whitespace,
-    datumTokenizer: Bloodhound.tokenizers.whitespace
+    datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name')
   });
 
   engine.get([1, 3]); // [{ id: 1, name: 'dog' }, null]
