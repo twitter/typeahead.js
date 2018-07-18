@@ -1,7 +1,7 @@
 /*!
- * typeahead.js 0.11.1
+ * typeahead.js 0.11.2
  * https://github.com/twitter/typeahead.js
- * Copyright 2013-2015 Twitter, Inc. and other contributors; Licensed MIT
+ * Copyright 2013-2018 Twitter, Inc. and other contributors; Licensed MIT
  */
 
 (function(root, factory) {
@@ -9,10 +9,10 @@
         define("bloodhound", [ "jquery" ], function(a0) {
             return root["Bloodhound"] = factory(a0);
         });
-    } else if (typeof exports === "object") {
+    } else if (typeof module === "object" && module.exports) {
         module.exports = factory(require("jquery"));
     } else {
-        root["Bloodhound"] = factory(jQuery);
+        root["Bloodhound"] = factory(root["jQuery"]);
     }
 })(this, function($) {
     var _ = function() {
@@ -151,7 +151,7 @@
             noop: function() {}
         };
     }();
-    var VERSION = "0.11.1";
+    var VERSION = "0.11.2";
     var tokenizers = function() {
         "use strict";
         return {
@@ -922,10 +922,10 @@
         define("typeahead.js", [ "jquery" ], function(a0) {
             return factory(a0);
         });
-    } else if (typeof exports === "object") {
+    } else if (typeof module === "object" && module.exports) {
         module.exports = factory(require("jquery"));
     } else {
-        factory(jQuery);
+        factory(root["jQuery"]);
     }
 })(this, function($) {
     var _ = function() {
@@ -2395,7 +2395,7 @@
         }
         function buildHintFromInput($input, www) {
             return $input.clone().addClass(www.classes.hint).removeData().css(www.css.hint).css(getBackgroundStyles($input)).prop("readonly", true).removeAttr("id name placeholder required").attr({
-                autocomplete: "off",
+                autocomplete: "new-password",
                 spellcheck: "false",
                 tabindex: -1
             });
@@ -2408,7 +2408,7 @@
                 style: $input.attr("style")
             });
             $input.addClass(www.classes.input).attr({
-                autocomplete: "off",
+                autocomplete: "new-password",
                 spellcheck: false
             });
             try {
