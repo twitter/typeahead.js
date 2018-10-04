@@ -813,7 +813,6 @@
                     if (!canceled && rendered < that.limit) {
                         that.cancel = $.noop;
                         if (!that.updateOnAsync) {
-                            that._append(query, suggestions.slice(0, idx));
                             that._append(query, suggestions);
                         } else {
                             that._overwrite(query, suggestions);
