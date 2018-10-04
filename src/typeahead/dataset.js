@@ -55,6 +55,8 @@ var Dataset = (function() {
     // a hint to figuring out of the source will return async suggestions
     this.async = _.isUndefined(o.async) ? this.source.length > 2 : !!o.async;
 
+    this.updateOnAsync = this.async && o.updateOnAsync === true;
+
     this._resetLastSuggestion();
 
     this.$el = $(o.node)
@@ -94,12 +96,12 @@ var Dataset = (function() {
       }
 
       // no suggestions, expecting async: overwrite dom with pending
-      else if (this.async && this.templates.pending) {
+      else if (this.async && !this.updateOnAsync && this.templates.pending) {
         this._renderPending(query);
       }
 
       // no suggestions, not expecting async: overwrite dom with not found
-      else if (!this.async && this.templates.notFound) {
+      else if ((!this.async || this.updateOnAsync) && this.templates.notFound) {
         this._renderNotFound(query);
       }
 
@@ -234,8 +236,7 @@ var Dataset = (function() {
     // ### public
 
     update: function update(query) {
-      var that = this, canceled = false, syncCalled = false, rendered = 0;
-
+      var that = this, canceled = false, syncCalled = false, rendered = 0, unrenderedSuggestions = [];
       // cancel possible pending update
       this.cancel();
 
@@ -253,9 +254,12 @@ var Dataset = (function() {
 
         syncCalled = true;
         suggestions = (suggestions || []).slice(0, that.limit);
-        rendered = suggestions.length;
-
-        that._overwrite(query, suggestions);
+        if (!that.updateOnAsync) {
+          rendered = suggestions.length;
+          that._overwrite(query, suggestions);
+        } else {
+          unrenderedSuggestions = suggestions;
+        }
 
         if (rendered < that.limit && that.async) {
           that.trigger('asyncRequested', query);
@@ -263,15 +267,21 @@ var Dataset = (function() {
       }
 
       function async(suggestions) {
-        suggestions = suggestions || [];
+        suggestions = unrenderedSuggestions.concat(suggestions).slice(0, that.limit - rendered);
 
         // if the update has been canceled or if the query has changed
         // do not render the suggestions as they've become outdated
         if (!canceled && rendered < that.limit) {
           that.cancel = $.noop;
-          rendered += suggestions.length;
-          that._append(query, suggestions.slice(0, that.limit - rendered));
+          if (!that.updateOnAsync) {
+            that._append(query, suggestions.slice(0, idx));
+            that._append(query, suggestions);
+          }
+          else {
+            that._overwrite(query, suggestions);
+          }
 
+          rendered += suggestions.length;
           that.async && that.trigger('asyncReceived', query);
         }
       }
