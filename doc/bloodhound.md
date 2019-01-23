@@ -1,7 +1,7 @@
 Bloodhound
 ==========
 
-Bloodhound is the typeahead.js suggestion engine. Bloodhound is robust, 
+Bloodhound is the typeahead.js suggestion engine. Bloodhound is robust,
 flexible, and offers advanced functionalities such as prefetching, intelligent
 caching, fast lookups, and backfilling with remote data.
 
@@ -39,7 +39,7 @@ Usage
 
 #### new Bloodhound(options)
 
-The constructor function. It takes an [options hash](#options) as its only 
+The constructor function. It takes an [options hash](#options) as its only
 argument.
 
 ```javascript
@@ -52,18 +52,18 @@ var engine = new Bloodhound({
 
 #### Bloodhound.noConflict()
 
-Returns a reference to `Bloodhound` and reverts `window.Bloodhound` to its 
-previous value. Can be used to avoid naming collisions. 
+Returns a reference to `Bloodhound` and reverts `window.Bloodhound` to its
+previous value. Can be used to avoid naming collisions.
 
 ```javascript
 var Dachshund = Bloodhound.noConflict();
 ```
 
-#### Bloodhound#initialize(reinitialize) 
+#### Bloodhound#initialize(reinitialize)
 
 Kicks off the initialization of the suggestion engine. Initialization entails
-adding the data provided by `local` and `prefetch` to the internal search 
-index as well as setting up transport mechanism used by `remote`. Before 
+adding the data provided by `local` and `prefetch` to the internal search
+index as well as setting up transport mechanism used by `remote`. Before
 `#initialize` is called, the `#get` and `#search` methods will effectively be
 no-ops.
 
@@ -85,9 +85,9 @@ promise
 .fail(function() { console.log('err, something went wrong :('); });
 ```
 
-After initialization, how subsequent invocations of `#initialize` behave 
+After initialization, how subsequent invocations of `#initialize` behave
 depends on the `reinitialize` argument. If `reinitialize` is falsy, the
-method will not execute the initialization logic and will just return the same 
+method will not execute the initialization logic and will just return the same
 jQuery promise returned by the initial invocation. If `reinitialize` is truthy,
 the method will behave as if it were being called for the first time.
 
@@ -131,12 +131,12 @@ Returns the data in the local search index corresponding to `ids`.
 #### Bloodhound#search(query, sync, async)
 
 Returns the data that matches `query`. Matches found in the local search index
-will be passed to the `sync` callback. If the data passed to `sync` doesn't 
-contain at least `sufficient` number of datums, `remote` data will be requested 
+will be passed to the `sync` callback. If the data passed to `sync` doesn't
+contain at least `sufficient` number of datums, `remote` data will be requested
 and then passed to the `async` callback.
 
 ```javascript
-bloodhound.get(myQuery, sync, async);
+bloodhound.search(myQuery, sync, async);
 
 function sync(datums) {
   console.log('datums from `local`, `prefetch`, and `#add`');
@@ -151,7 +151,7 @@ function async(datums) {
 
 #### Bloodhound#clear()
 
-Clears the internal search index that's powered by `local`, `prefetch`, and 
+Clears the internal search index that's powered by `local`, `prefetch`, and
 `#add`.
 
 ```javascript
@@ -160,7 +160,7 @@ engine.clear();
 
 ### Options
 
-When instantiating a Bloodhound suggestion engine, there are a number of 
+When instantiating a Bloodhound suggestion engine, there are a number of
 options you can configure.
 
 * `datumTokenizer` – A function with the signature `(datum)` that transforms a
@@ -169,28 +169,28 @@ options you can configure.
 * `queryTokenizer` – A function with the signature `(query)` that transforms a
   query into an array of string tokens. **Required**.
 
-* `initialize` – If set to `false`, the Bloodhound instance will not be 
+* `initialize` – If set to `false`, the Bloodhound instance will not be
   implicitly initialized by the constructor function. Defaults to `true`.
 
 * `identify` – Given a datum, this function is expected to return a unique id
   for it. Defaults to `JSON.stringify`. Note that it is **highly recommended**
   to override this option.
 
-* `sufficient` – If the number of datums provided from the internal search 
+* `sufficient` – If the number of datums provided from the internal search
   index is less than `sufficient`, `remote` will be used to backfill search
   requests triggered by calling `#search`. Defaults to `5`.
 
 * `sorter` – A [compare function] used to sort data returned from the internal
   search index.
 
-* `local` – An array of data or a function that returns an array of data. The 
+* `local` – An array of data or a function that returns an array of data. The
   data will be added to the internal search index when `#initialize` is called.
 
-* `prefetch` – Can be a URL to a JSON file containing an array of data or, if 
+* `prefetch` – Can be a URL to a JSON file containing an array of data or, if
   more configurability is needed, a [prefetch options hash](#prefetch).
 
-* `remote` – Can be a URL to fetch data from when the data provided by 
-  the internal search index is insufficient or, if more configurability is 
+* `remote` – Can be a URL to fetch data from when the data provided by
+  the internal search index is insufficient or, if more configurability is
   needed, a [remote options hash](#remote).
 
 <!-- section links -->
@@ -199,13 +199,13 @@ options you can configure.
 
 ### Prefetch
 
-Prefetched data is fetched and processed on initialization. If the browser 
-supports local storage, the processed data will be cached there to 
+Prefetched data is fetched and processed on initialization. If the browser
+supports local storage, the processed data will be cached there to
 prevent additional network requests on subsequent page loads.
 
-**WARNING:** While it's possible to get away with it for smaller data sets, 
-prefetched data isn't meant to contain entire sets of data. Rather, it should 
-act as a first-level cache. Ignoring this warning means you'll run the risk of 
+**WARNING:** While it's possible to get away with it for smaller data sets,
+prefetched data isn't meant to contain entire sets of data. Rather, it should
+act as a first-level cache. Ignoring this warning means you'll run the risk of
 hitting [local storage limits].
 
 When configuring `prefetch`, the following options are available.
@@ -213,27 +213,27 @@ When configuring `prefetch`, the following options are available.
 * `url` – The URL prefetch data should be loaded from. **Required.**
 
 * `cache` – If `false`, will not attempt to read or write to local storage and
-  will always load prefetch data from `url` on initialization.  Defaults to 
+  will always load prefetch data from `url` on initialization.  Defaults to
   `true`.
 
-* `ttl` – The time (in milliseconds) the prefetched data should be cached in 
+* `ttl` – The time (in milliseconds) the prefetched data should be cached in
   local storage. Defaults to `86400000` (1 day).
 
-* `cacheKey` – The key that data will be stored in local storage under. 
+* `cacheKey` – The key that data will be stored in local storage under.
   Defaults to value of `url`.
 
 * `thumbprint` – A string used for thumbprinting prefetched data. If this
   doesn't match what's stored in local storage, the data will be refetched.
 
-* `prepare` – A function that provides a hook to allow you to prepare the 
-  settings object passed to `transport` when a request is about to be made. 
-  The function signature should be `prepare(settings)` where `settings` is the 
-  default settings object created internally by the Bloodhound instance. The 
-  `prepare` function should return a settings object. Defaults to the 
+* `prepare` – A function that provides a hook to allow you to prepare the
+  settings object passed to `transport` when a request is about to be made.
+  The function signature should be `prepare(settings)` where `settings` is the
+  default settings object created internally by the Bloodhound instance. The
+  `prepare` function should return a settings object. Defaults to the
   [identity function].
 
 * `transform` – A function with the signature `transform(response)` that allows
-  you to transform the prefetch response before the Bloodhound instance operates 
+  you to transform the prefetch response before the Bloodhound instance operates
   on it. Defaults to the [identity function].
 
 <!-- section links -->
@@ -243,16 +243,16 @@ When configuring `prefetch`, the following options are available.
 
 ### Remote
 
-Bloodhound only goes to the network when the internal search engine cannot 
-provide a sufficient number of results. In order to prevent an obscene number 
+Bloodhound only goes to the network when the internal search engine cannot
+provide a sufficient number of results. In order to prevent an obscene number
 of requests being made to the remote endpoint, requests are rate-limited.
 
 When configuring `remote`, the following options are available.
 
 * `url` – The URL remote data should be loaded from. **Required.**
 
-* `prepare` – A function that provides a hook to allow you to prepare the 
-  settings object passed to `transport` when a request is about to be made. 
+* `prepare` – A function that provides a hook to allow you to prepare the
+  settings object passed to `transport` when a request is about to be made.
   The function signature should be `prepare(query, settings)`, where `query` is
   the query `#search` was called with and `settings` is the default settings
   object created internally by the Bloodhound instance. The `prepare` function
@@ -262,14 +262,14 @@ When configuring `remote`, the following options are available.
   function that replaces the value of this option in `url` with the URI encoded
   query.
 
-* `rateLimitBy` – The method used to rate-limit network requests. Can be either 
+* `rateLimitBy` – The method used to rate-limit network requests. Can be either
   `debounce` or `throttle`. Defaults to `debounce`.
 
-* `rateLimitWait` – The time interval in milliseconds that will be used by 
+* `rateLimitWait` – The time interval in milliseconds that will be used by
   `rateLimitBy`. Defaults to `300`.
 
 * `transform` – A function with the signature `transform(response)` that allows
-  you to transform the remote response before the Bloodhound instance operates 
+  you to transform the remote response before the Bloodhound instance operates
   on it. Defaults to the [identity function].
 
 <!-- section links -->
