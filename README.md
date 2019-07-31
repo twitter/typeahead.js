@@ -1,6 +1,4 @@
 [![build status](https://secure.travis-ci.org/twitter/typeahead.js.svg?branch=master)](http://travis-ci.org/twitter/typeahead.js)
-[![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
-
 
 [typeahead.js][gh-page]
 =======================
@@ -18,7 +16,7 @@ they can provide a rich typeahead experience.
 
 <!-- section links -->
 
-[gh-page]: http://twitter.github.io/typeahead.js/
+[gh-page]: https://twitter.github.io/typeahead.js/
 [twitter.com]: https://twitter.com
 [Bloodhound]: https://github.com/twitter/typeahead.js/blob/master/doc/bloodhound.md
 [Typeahead]: https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
@@ -44,13 +42,13 @@ Other methods:
 
 <!-- section links -->
 
-[Bower]: http://bower.io/
-[zipball]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.js.zip
-[bloodhound.js]: http://twitter.github.com/typeahead.js/releases/latest/bloodhound.js
-[typeahead.jquery.js]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.jquery.js
-[typeahead.bundle.js]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.bundle.js
-[typeahead.bundle.min.js]: http://twitter.github.com/typeahead.js/releases/latest/typeahead.bundle.min.js
-[jQuery]: http://jquery.com/
+[Bower]: https://bower.io/
+[zipball]: https://twitter.github.com/typeahead.js/releases/latest/typeahead.js.zip
+[bloodhound.js]: https://twitter.github.com/typeahead.js/releases/latest/bloodhound.js
+[typeahead.jquery.js]: https://twitter.github.com/typeahead.js/releases/latest/typeahead.jquery.js
+[typeahead.bundle.js]: https://twitter.github.com/typeahead.js/releases/latest/typeahead.bundle.js
+[typeahead.bundle.min.js]: https://twitter.github.com/typeahead.js/releases/latest/typeahead.bundle.min.js
+[jQuery]: https://jquery.com/
 
 Documentation 
 -------------
@@ -68,7 +66,7 @@ For some working examples of typeahead.js, visit the [examples page].
 
 <!-- section links -->
 
-[examples page]: http://twitter.github.io/typeahead.js/examples
+[examples page]: https://twitter.github.io/typeahead.js/examples
 
 Browser Support
 ---------------
@@ -91,9 +89,9 @@ it with [typeahead.js][so tag].
 
 <!-- section links -->
 
-[Stack Overflow]: http://stackoverflow.com/
+[Stack Overflow]: https://stackoverflow.com/
 [@typeahead]: https://twitter.com/typeahead
-[so tag]: http://stackoverflow.com/questions/tagged/typeahead.js
+[so tag]: https://stackoverflow.com/questions/tagged/typeahead.js
 
 Issues
 ------
@@ -116,7 +114,7 @@ And constructed with the following guidelines:
 * New additions without breaking backwards compatibility bumps the minor
 * Bug fixes and misc changes bump the patch
 
-For more information on semantic versioning, please visit http://semver.org/.
+For more information on semantic versioning, please visit https://semver.org/.
 
 Testing
 -------
@@ -126,8 +124,8 @@ the test suite with PhantomJS, run `$ npm test`.
 
 <!-- section links -->
 
-[Jasmine]: http://jasmine.github.io/
-[Karma]: http://karma-runner.github.io/
+[Jasmine]: https://jasmine.github.io/
+[Karma]: https://karma-runner.github.io/
 
 Developers
 ----------
