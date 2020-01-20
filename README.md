@@ -63,13 +63,13 @@ Documentation
 
 Examples
 --------
-
+Implement Auto Complete Search Tutorial [here] 
 For some working examples of typeahead.js, visit the [examples page].
 
 <!-- section links -->
 
 [examples page]: http://twitter.github.io/typeahead.js/examples
-
+[here]: https://shriniket.home.blog/2020/01/20/integrate-auto-complete-to-your-web-application/
 Browser Support
 ---------------
 
