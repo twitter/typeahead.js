@@ -17,7 +17,7 @@ env:
   - secure: VY4J2ERfrMEin++f4+UDDtTMWLuE3jaYAVchRxfO2c6PQUYgR+SW4SMekz855U/BuptMtiVMR2UUoNGMgOSKIFkIXpPfHhx47G5a541v0WNjXfQ2qzivXAWaXNK3l3C58z4dKxgPWsFY9JtMVCddJd2vQieAILto8D8G09p7bpo=
   - secure: kehbNCoYUG2gLnhmCH/oKhlJG6LoxgcOPMCtY7KOI4ropG8qlypb+O2b/19+BWeO3aIuMB0JajNh3p2NL0UKgLmUK7EYBA9fQz+vesFReRk0V/KqMTSxHJuseM4aLOWA2Wr9US843VGltfODVvDN5sNrfY7RcoRx2cTK/k1CXa8=
 node_js: 
-- 0.11.13
+- 15.10.0
 before_script: 
 - npm install -g grunt-cli@0.1.13
 - npm install -g node-static@0.7.3
