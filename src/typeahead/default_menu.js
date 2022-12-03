@@ -1,8 +1,8 @@
 /*
-* typeahead.js
-* https://github.com/twitter/typeahead.js
-* Telif hakkı 2013-2014 Twitter, Inc. ve diğer katkıda bulunanlar; Lisanslı MİT
-*/
+ * typeahead.js
+ * https://github.com/twitter/typeahead.js
+ * Copyright 2013-2014 Twitter, Inc. and other contributors; Licensed MIT
+ */
 
 var DefaultMenu = (function() {
   'use strict';
